@@ -41,7 +41,10 @@ public class VideoController {
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/video")
-    public Page<Video> getVideo(@RequestParam(defaultValue = "5") Integer page, @RequestParam(defaultValue = "20") Integer pageSize) {
-        return videoService.getAuthor(page, pageSize);
+    public Page<Video> getVideo(@RequestParam(defaultValue = "0") Integer page,
+                                @RequestParam(defaultValue = "20") Integer pageSize,
+                                @RequestParam(defaultValue = "-1") Integer aid,
+                                @RequestParam(defaultValue = "") String text) {
+        return videoService.getAuthor(aid, text, page, pageSize);
     }
 }

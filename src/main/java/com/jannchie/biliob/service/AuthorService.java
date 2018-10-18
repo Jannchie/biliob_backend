@@ -9,6 +9,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
+import java.util.Objects;
 
 /**
  * @author jannchie
@@ -31,7 +32,16 @@ public class AuthorService {
         return respository.save(new Author(mid));
     }
 
-    public Page<Author> getAuthor(Integer page, Integer pagesize) {
-        return respository.findAll(PageRequest.of(page, pagesize));
+    public Page<Author> getAuthor(Long mid, String text, Integer page, Integer pagesize) {
+        if (!(mid == -1)) {
+            logger.info("[GET]searchByMid");
+            return respository.searchByMid(mid, PageRequest.of(page, pagesize));
+        } else if (!Objects.equals(text, "")) {
+            logger.info("[GET]search");
+            return respository.search(text, PageRequest.of(page, pagesize));
+        } else {
+            logger.info("[GET]findAll");
+            return respository.findAll(PageRequest.of(page, pagesize));
+        }
     }
 }

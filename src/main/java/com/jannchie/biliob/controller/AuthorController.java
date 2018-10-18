@@ -43,7 +43,11 @@ public class AuthorController {
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/author")
-    public Page<Author> getAuthor(@RequestParam(defaultValue = "5") Integer page, @RequestParam(defaultValue = "20") Integer pageSize) {
-        return authorService.getAuthor(page, pageSize);
+    public Page<Author> getAuthor(@RequestParam(defaultValue = "0") Integer page,
+                                  @RequestParam(defaultValue = "20") Integer pageSize,
+                                  @RequestParam(defaultValue = "-1") Long mid,
+                                  @RequestParam(defaultValue = "") String text) {
+        logger.info("[GET]SearchAuthor:mid:" + mid + ",text:" + text);
+        return authorService.getAuthor(mid, text, page, pageSize);
     }
 }

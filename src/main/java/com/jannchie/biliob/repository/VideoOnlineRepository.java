@@ -14,7 +14,7 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
  */
 
 @RepositoryRestResource(collectionResourceRel = "video", path = "video")
-public interface VideoRepository extends PagingAndSortingRepository<Video, ObjectId> {
+public interface VideoOnlineRepository extends PagingAndSortingRepository<Video, ObjectId> {
 
     Video findByAid(@Param("aid") Long aid);
 
@@ -23,12 +23,6 @@ public interface VideoRepository extends PagingAndSortingRepository<Video, Objec
      * @return 返回视频的分页信息
      */
     @Override
-    @Query(value = "{}", fields = "{ 'pic' : 1, 'mid' : 1, 'author' : 1, 'channel' : 1, 'title' : 1, 'aid' : 1}")
     Page<Video> findAll(Pageable pageable);
 
-    @Query(value = "{'aid' : ?0}", fields = "{ 'pic' : 1, 'mid' : 1, 'author' : 1, 'channel' : 1, 'title' : 1, 'aid' : 1}")
-    Page<Video> searchByAid(@Param("aid") Integer aid, Pageable pageable);
-
-    @Query(value = "{$or:[{channel:{$regex:?0}},{author:{$regex:?0}},{title:{$regex:?0}}]}", fields = "{ 'pic' : 1, 'mid' : 1, 'author' : 1, 'channel' : 1, 'title' : 1, 'aid' : 1}")
-    Page<Video> searchByText(String text, Pageable pageable);
 }

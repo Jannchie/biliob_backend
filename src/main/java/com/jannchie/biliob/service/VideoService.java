@@ -11,6 +11,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
+import java.util.Objects;
+
 
 /**
  * @author jannchie
@@ -33,7 +35,16 @@ public class VideoService {
         return respository.save(new Video(aid));
     }
 
-    public Page<Video> getAuthor(Integer page, Integer pagesize) {
-        return respository.findAll(PageRequest.of(page, pagesize));
+    public Page<Video> getAuthor(Integer aid, String text, Integer page, Integer pagesize) {
+        if (!(aid == -1)) {
+            logger.info("[GET]searchByAid");
+            return respository.searchByAid(aid, PageRequest.of(page, pagesize));
+        } else if (!Objects.equals(text, "")) {
+            logger.info("[GET]searchByText");
+            return respository.searchByText(text, PageRequest.of(page, pagesize));
+        } else {
+            logger.info("[GET]findAll");
+            return respository.findAll(PageRequest.of(page, pagesize));
+        }
     }
 }
