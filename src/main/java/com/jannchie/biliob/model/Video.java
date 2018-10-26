@@ -19,6 +19,7 @@ public class Video {
     private String channel;
     private String subChannel;
     private String pic;
+    private Boolean focus;
     private ArrayList<Data> data;
 
     public Video(Long aid) {
@@ -55,6 +56,10 @@ public class Video {
 
     public ArrayList<Data> getData() {
         return data;
+    }
+
+    public Boolean getFocus() {
+        return focus;
     }
 
     public class Data {

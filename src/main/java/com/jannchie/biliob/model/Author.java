@@ -22,6 +22,7 @@ public class Author {
     private Integer level;
     private ArrayList<Data> data;
     private ArrayList<Channel> channel;
+    private Boolean focus;
 
     public Author(Long mid) {
         this.mid = mid;
@@ -90,6 +91,10 @@ public class Author {
 
     public void setData(ArrayList<Data> data) {
         this.data = data;
+    }
+
+    public Boolean getFocus() {
+        return focus;
     }
 
     public class Data {

@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
@@ -35,13 +36,13 @@ public class AuthorService {
     public Page<Author> getAuthor(Long mid, String text, Integer page, Integer pagesize) {
         if (!(mid == -1)) {
             logger.info("[GET]searchByMid");
-            return respository.searchByMid(mid, PageRequest.of(page, pagesize));
+            return respository.searchByMid(mid, PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, "data.0.fans")));
         } else if (!Objects.equals(text, "")) {
             logger.info("[GET]search");
-            return respository.search(text, PageRequest.of(page, pagesize));
+            return respository.search(text, PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, "data.0.fans")));
         } else {
             logger.info("[GET]findAll");
-            return respository.findAll(PageRequest.of(page, pagesize));
+            return respository.findAll(PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, "data.0.fans")));
         }
     }
 }
