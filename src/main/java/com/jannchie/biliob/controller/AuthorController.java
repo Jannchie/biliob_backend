@@ -2,21 +2,19 @@ package com.jannchie.biliob.controller;
 
 import com.jannchie.biliob.model.Author;
 import com.jannchie.biliob.service.AuthorService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
 /**
- * 测试控制器
+ * 作者控制器
  *
  * @author jannchie
  */
 @RestController
 public class AuthorController {
-
-    private static final Logger logger = LoggerFactory.getLogger(AuthorController.class);
 
     private final AuthorService authorService;
 
@@ -27,14 +25,12 @@ public class AuthorController {
 
     @RequestMapping(method = RequestMethod.GET, value = "/author/{mid}")
     public Author getAuthorDetails(@PathVariable("mid") Long mid) {
-        logger.info("[GET]AuthorMid = " + mid);
         return authorService.getAuthorDetails(mid);
     }
 
 
     @RequestMapping(method = RequestMethod.POST, value = "/author")
     public Author postAuthorByMid(@RequestParam("mid") Long mid) {
-        logger.info("[POST]AuthorMid = " + mid);
         return authorService.postAuthorByMid(mid);
     }
 
@@ -43,7 +39,6 @@ public class AuthorController {
                                   @RequestParam(defaultValue = "20") Integer pageSize,
                                   @RequestParam(defaultValue = "-1") Long mid,
                                   @RequestParam(defaultValue = "") String text) {
-        logger.info("[GET]SearchAuthor:mid:" + mid + ",text:" + text);
         return authorService.getAuthor(mid, text, page, pageSize);
     }
 }
