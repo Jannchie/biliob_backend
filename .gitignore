@@ -26,5 +26,5 @@
 
 application.properties
 
-/resources/
-*.xml
+log4j2.xml
+*.yml
