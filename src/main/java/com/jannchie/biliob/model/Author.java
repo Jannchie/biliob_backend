@@ -1,5 +1,6 @@
 package com.jannchie.biliob.model;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 
@@ -11,6 +12,7 @@ import java.util.Date;
 /**
  * @author jannchie
  */
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Author {
     @Id
     private ObjectId id;

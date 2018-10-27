@@ -23,7 +23,7 @@ public interface VideoRepository extends MongoRepository<Video, ObjectId>, Pagin
      * @param pageable
      * @return 返回视频的分页信息
      */
-    @Query(value = "{data:{$ne:null}}", fields = "{ 'pic' : 1, 'mid' : 1, 'author' : 1, 'channel' : 1, 'title' : 1, 'aid' : 1, 'focus':1}")
+    @Query(value = "{data:{$ne:null}}", fields = "{ ‘data.1’:1, 'pic' : 1, 'mid' : 1, 'author' : 1, 'channel' : 1, 'title' : 1, 'aid' : 1, 'focus':1}")
     Page<Video> findAllByAid(Pageable pageable);
 
     @Query(value = "{'aid' : ?0}", fields = "{ 'pic' : 1, 'mid' : 1, 'author' : 1, 'channel' : 1, 'title' : 1, 'aid' : 1, 'focus':1}")
