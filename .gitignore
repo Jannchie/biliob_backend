@@ -27,3 +27,4 @@
 application.properties
 
 /resources/
+*.xml
