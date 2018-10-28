@@ -35,6 +35,6 @@ public interface VideoRepository extends MongoRepository<Video, ObjectId>, Pagin
     @Query(fields = "{ 'pic' : 1, 'mid' : 1, 'author' : 1, 'channel' : 1, 'title' : 1, 'aid' : 1, 'focus':1}")
     Page<Video> findByDataIsNotNull(Pageable pageable);
 
-    @Query(value = "{aid:{$ne:?0},mid:?1}", fields = "{'title' : 1, 'aid' : 1, 'mid' : 1}")
-    Slice<Video> findAuthorVideo(Long aid, Long mid, Pageable pageable);
+    @Query(value = "{aid:{$ne:?0},mid:?1}", fields = "{'title' : 1, 'aid' : 1, 'mid' : 1,'channel':1}")
+    Slice<Video> findAuthorOtherVideo(Long aid, Long mid, Pageable pageable);
 }

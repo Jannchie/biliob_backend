@@ -69,6 +69,6 @@ public class VideoServiceImpl implements VideoService {
 
     @Override
     public Slice<Video> getAuthorVideo(Long aid, Long mid, Integer page, Integer pagesize) {
-        return respository.findAuthorVideo(aid, mid, PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, "data.0.view")));
+        return respository.findAuthorOtherVideo(aid, mid, PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, "data.0.view")));
     }
 }
