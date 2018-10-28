@@ -21,13 +21,16 @@ public class User {
     @NotBlank(message = "用户密码不能为空!")
     private String password;
 
-    public User(ObjectId id, String name, String password) {
-        this.id = id;
+    private String role;
+
+    public User(String name, String password,String role) {
         this.name = name;
         this.password = password;
+        this.role = role;
     }
 
     public User() {
+        this.role = "普通用户";
     }
 
     public String getName() {
@@ -52,5 +55,13 @@ public class User {
 
     public void setId(ObjectId id) {
         this.id = id;
+    }
+
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
     }
 }
