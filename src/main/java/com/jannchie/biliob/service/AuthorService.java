@@ -1,5 +1,7 @@
 package com.jannchie.biliob.service;
 
+import com.jannchie.biliob.exception.AuthorAlreadyFocusedException;
+import com.jannchie.biliob.exception.UserAlreadyFavoriteAuthorException;
 import com.jannchie.biliob.model.Author;
 import com.jannchie.biliob.repository.AuthorRepository;
 import org.slf4j.Logger;
@@ -20,7 +22,7 @@ public interface AuthorService {
 
     public Author getAuthorDetails(Long mid);
 
-    public Author postAuthorByMid(Long mid);
+    public Author postAuthorByMid(Long mid) throws UserAlreadyFavoriteAuthorException, AuthorAlreadyFocusedException;
 
     public Page<Author> getAuthor(Long mid, String text, Integer page, Integer pagesize);
 }

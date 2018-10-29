@@ -1,8 +1,12 @@
 package com.jannchie.biliob.service.serviceImpl;
 
+import com.jannchie.biliob.exception.AuthorAlreadyFocusedException;
+import com.jannchie.biliob.exception.UserAlreadyFavoriteAuthorException;
 import com.jannchie.biliob.model.Author;
+import com.jannchie.biliob.model.User;
 import com.jannchie.biliob.repository.AuthorRepository;
 import com.jannchie.biliob.service.AuthorService;
+import com.jannchie.biliob.service.UserService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,7 +15,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.util.Objects;
+import java.util.*;
 
 /**
  * @author jannchie
@@ -19,11 +23,15 @@ import java.util.Objects;
 @Service
 public class AuthorServiceImpl implements AuthorService {
     private static final Logger logger = LogManager.getLogger(VideoServiceImpl.class);
+
     private final AuthorRepository respository;
+    private UserService userService;
+
 
     @Autowired
-    public AuthorServiceImpl(AuthorRepository respository) {
+    public AuthorServiceImpl(AuthorRepository respository, UserService userService) {
         this.respository = respository;
+        this.userService = userService;
     }
 
     @Override
@@ -32,7 +40,13 @@ public class AuthorServiceImpl implements AuthorService {
     }
 
     @Override
-    public Author postAuthorByMid(Long mid) {
+    public Author postAuthorByMid(Long mid) throws UserAlreadyFavoriteAuthorException, AuthorAlreadyFocusedException {
+        User user = userService.addFavoriteAuthor(mid);
+        logger.info(mid);
+        logger.info(user.getName());
+        if (respository.findByMid(mid) != null) {
+            throw new AuthorAlreadyFocusedException(mid);
+        }
         return respository.save(new Author(mid));
     }
 

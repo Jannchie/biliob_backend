@@ -1,4 +1,4 @@
-package com.jannchie.biliob.authority;
+package com.jannchie.biliob.constant;
 
 /** 定义用户类型
  * @author jannchie

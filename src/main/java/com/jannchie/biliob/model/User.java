@@ -8,6 +8,7 @@ import org.springframework.data.annotation.Id;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
 
 @JsonInclude(Include.NON_NULL)
 public class User {
@@ -22,6 +23,10 @@ public class User {
     private String password;
 
     private String role;
+
+    private ArrayList<Long> favoriteAid;
+
+    private ArrayList<Long> favoriteMid;
 
     public User(String name, String password,String role) {
         this.name = name;
@@ -63,5 +68,21 @@ public class User {
 
     public void setRole(String role) {
         this.role = role;
+    }
+
+    public ArrayList<Long> getFavoriteMid() {
+        return favoriteMid;
+    }
+
+    public void setFavoriteMid(ArrayList<Long> favoriteMid) {
+        this.favoriteMid = favoriteMid;
+    }
+
+    public ArrayList<Long> getFavoriteAid() {
+        return favoriteAid;
+    }
+
+    public void setFavoriteAid(ArrayList<Long> favoriteAid) {
+        this.favoriteAid = favoriteAid;
     }
 }

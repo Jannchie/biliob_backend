@@ -1,5 +1,7 @@
 package com.jannchie.biliob.service;
 
+import com.jannchie.biliob.exception.UserAlreadyFavoriteVideoException;
+import com.jannchie.biliob.exception.VideoAlreadyFocusedException;
 import com.jannchie.biliob.model.Video;
 import com.jannchie.biliob.repository.VideoRepository;
 import org.slf4j.Logger;
@@ -24,7 +26,7 @@ public interface VideoService {
 
     public Video getVideoDetails(Long aid);
 
-    public Video postVideoByAid(Long aid);
+    public Video postVideoByAid(Long aid) throws UserAlreadyFavoriteVideoException, VideoAlreadyFocusedException;
 
     public Page<Video> getVideo(Long aid, String text, Integer page, Integer pagesize);
 
