@@ -8,6 +8,7 @@ import org.springframework.data.annotation.Id;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
 
 @JsonInclude(Include.NON_NULL)
 public class User {
@@ -21,16 +22,10 @@ public class User {
     @NotBlank(message = "用户密码不能为空!")
     private String password;
 
-    public User(ObjectId id, String name, String password) {
-        this.id = id;
-        this.name = name;
-        this.password = password;
-    }
+<<<<<<<Updated upstream
+    Stashed changespublic
 
-    public User() {
-    }
-
-    public String getName() {
+    String getName() {
         return name;
     }
 
@@ -52,5 +47,51 @@ public class User {
 
     public void setId(ObjectId id) {
         this.id = id;
+    }
+<<<<<<<Updated upstream
+=======
+
+    public User(ObjectId id, String name, String password) {
+        this.id = id;
+=======
+        private String role;
+
+        private ArrayList<Long> favoriteAid;
+
+        private ArrayList<Long> favoriteMid;
+
+    public User(String name, String password, String role) {
+>>>>>>>Stashed changes
+            this.name = name;
+            this.password = password;
+        }
+
+    public User() {
+        }
+
+
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
+    }
+
+    public ArrayList<Long> getFavoriteMid() {
+        return favoriteMid;
+    }
+
+    public void setFavoriteMid(ArrayList<Long> favoriteMid) {
+        this.favoriteMid = favoriteMid;
+    }
+
+    public ArrayList<Long> getFavoriteAid() {
+        return favoriteAid;
+    }
+>>>>>>>
+
+    public void setFavoriteAid(ArrayList<Long> favoriteAid) {
+        this.favoriteAid = favoriteAid;
     }
 }

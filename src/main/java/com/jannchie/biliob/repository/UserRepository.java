@@ -14,4 +14,16 @@ import org.springframework.data.repository.query.Param;
 
 public interface UserRepository extends PagingAndSortingRepository<User, ObjectId> {
     Integer countByName(String name);
+<<<<<<<Updated upstream
+=======
+
+    Stashed changes
+
+    User findByName(String name);
+
+    @Query(value = "{name:?0}", fields = "{password:0}")
+    User getUserInfo(String name);
+>>>>>>>
+
+    User findAllByName(String name);
 }
