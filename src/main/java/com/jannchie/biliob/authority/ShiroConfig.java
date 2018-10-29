@@ -1,25 +1,22 @@
 package com.jannchie.biliob.authority;
 
-import org.apache.shiro.session.mgt.DefaultSessionManager;
-import org.apache.shiro.session.mgt.SessionManager;
 import org.apache.shiro.spring.LifecycleBeanPostProcessor;
 import org.apache.shiro.spring.web.ShiroFilterFactoryBean;
-import org.apache.shiro.web.filter.authc.BasicHttpAuthenticationFilter;
 import org.apache.shiro.web.mgt.DefaultWebSecurityManager;
 import org.apache.shiro.web.servlet.Cookie;
 import org.apache.shiro.web.servlet.ShiroHttpSession;
 import org.apache.shiro.web.servlet.SimpleCookie;
 import org.apache.shiro.web.session.mgt.DefaultWebSessionManager;
-import org.apache.shiro.web.session.mgt.WebSessionManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.apache.shiro.mgt.SecurityManager;
 
-import javax.servlet.Filter;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+/**
+ * @author jannchie
+ */
 @Configuration
 public class ShiroConfig {
 
@@ -29,25 +26,26 @@ public class ShiroConfig {
         // 必须设置 SecurityManager
         shiroFilterFactoryBean.setSecurityManager(securityManager);
 
-
         // setLoginUrl 如果不设置值，默认会自动寻找Web工程根目录下的"/login.jsp"页面 或 "/login" 映射
-        shiroFilterFactoryBean.setLoginUrl("/notLogin");
+        shiroFilterFactoryBean.setLoginUrl("/no-login");
         // 设置无权限时跳转的 url;
-        shiroFilterFactoryBean.setUnauthorizedUrl("/notRole");
-
+        shiroFilterFactoryBean.setUnauthorizedUrl("/no-role");
 
         // 设置拦截器
         Map<String, String> filterChainDefinitionMap = new LinkedHashMap<>();
         // 允许发起登录请求
         filterChainDefinitionMap.put("/login", "anon");
+
         // 允许随意查看author信息
         filterChainDefinitionMap.put("/author/**", "anon");
+
+        // 允许随意查看video信息
+        filterChainDefinitionMap.put("/video/**", "anon");
+
         // 允许发起注册请求
         filterChainDefinitionMap.put("/user", "anon");
-        // 允许随意查看video信息
-        filterChainDefinitionMap.put("/video/**", "roles[普通用户]");
 
-        // 查看用户的信息
+        // 允许用户查看用户信息
         filterChainDefinitionMap.put("/user/**", "roles[普通用户]");
 
         // 管理员，需要角色权限 “admin”
@@ -96,7 +94,7 @@ public class ShiroConfig {
     public DefaultWebSessionManager sessionManager() {
         Cookie cookie = new SimpleCookie(ShiroHttpSession.DEFAULT_SESSION_ID_NAME);
         cookie.setMaxAge(60 * 60 * 24 * 7);
-        cookie.setHttpOnly(true); //more secure, protects against XSS attacks
+        cookie.setHttpOnly(true);
         DefaultWebSessionManager sessionManager = new DefaultWebSessionManager();
         sessionManager.setSessionIdCookie(cookie);
         return sessionManager;

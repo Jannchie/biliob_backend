@@ -12,7 +12,9 @@ import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -34,8 +36,8 @@ public class UserRealm extends AuthorizingRealm {
     @Override
     protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken authenticationToken) throws AuthenticationException {
         UsernamePasswordToken token = (UsernamePasswordToken) authenticationToken;
-        // 从数据库获取对应用户名密码的用户
 
+        // 从数据库获取对应用户名密码的用户
         String password = userService.getPassword(token.getUsername());
         if (!password.equals(new String((char[]) token.getCredentials()))) {
             throw new AccountException("密码不正确");
@@ -61,6 +63,10 @@ public class UserRealm extends AuthorizingRealm {
         set.add(role);
         //设置该用户拥有的角色
         info.setRoles(set);
+        List<String> permissions = new ArrayList<>();
+        String permission = "create";
+        permissions.add(permission);
+        info.addStringPermissions(permissions);//设置权限
         logger.info(role);
         return info;
     }
