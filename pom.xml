@@ -67,6 +67,16 @@
             <artifactId>log4j-nosql</artifactId> <!-- 必需，否则报错 -->
             <version>2.7</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.shiro</groupId>
+            <artifactId>shiro-all</artifactId>
+            <version>1.2.5</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.shiro</groupId>
+            <artifactId>shiro-core</artifactId>
+            <version>1.2.5</version>
+        </dependency>
 
     </dependencies>
     <repositories>
