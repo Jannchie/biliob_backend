@@ -26,6 +26,9 @@ public class Author {
     private ArrayList<Channel> channel;
     private Boolean focus;
 
+    public Author() {
+    }
+
     public Author(Long mid) {
         this.mid = mid;
 

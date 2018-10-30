@@ -11,10 +11,6 @@ import javax.validation.Valid;
 public interface UserService {
 
     User createUser(User user);
-<<<<<<<Updated upstream
-=======
-
-    Stashed changes
 
     String getPassword(String name);
 
@@ -23,7 +19,6 @@ public interface UserService {
     User getUserInfo();
 
     User addFavoriteAuthor(@Valid Long mid) throws UserAlreadyFavoriteAuthorException;
->>>>>>>
 
     User addFavoriteVideo(@Valid Long aid) throws UserAlreadyFavoriteVideoException;
 }

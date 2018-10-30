@@ -13,6 +13,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+
 /**
  * 作者控制器
  *
@@ -35,8 +37,8 @@ public class AuthorController {
 
 
     @RequestMapping(method = RequestMethod.POST, value = "/author")
-    public ResponseEntity<Message> postAuthorByMid(@RequestParam("mid") Long mid) throws UserAlreadyFavoriteAuthorException, AuthorAlreadyFocusedException {
-        authorService.postAuthorByMid(mid);
+    public ResponseEntity<Message> postAuthorByMid(@RequestBody @Valid Author author) throws UserAlreadyFavoriteAuthorException, AuthorAlreadyFocusedException {
+        authorService.postAuthorByMid(author.getMid());
         return new ResponseEntity<Message>(new Message(200, "观测UP主成功"), HttpStatus.OK);
     }
 

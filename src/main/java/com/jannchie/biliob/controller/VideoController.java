@@ -15,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 
 /**
@@ -46,8 +47,8 @@ public class VideoController {
     }
 
     @RequestMapping(method = RequestMethod.POST, value = "/video")
-    public ResponseEntity<Message> postVideoByAid(@RequestParam("aid") Long aid) throws UserAlreadyFavoriteVideoException, VideoAlreadyFocusedException {
-        videoService.postVideoByAid(aid);
+    public ResponseEntity<Message> postVideoByAid(@RequestBody @Valid Video video) throws UserAlreadyFavoriteVideoException, VideoAlreadyFocusedException {
+        videoService.postVideoByAid(video.getAid());
         return new ResponseEntity<Message>(new Message(200, "观测视频成功"), HttpStatus.OK);
     }
 

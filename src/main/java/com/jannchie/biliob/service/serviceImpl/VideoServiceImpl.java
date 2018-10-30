@@ -41,6 +41,7 @@ public class VideoServiceImpl implements VideoService {
 
     @Override
     public Video getVideoDetails(Long aid) {
+        logger.info(aid);
         return respository.findByAid(aid);
     }
 
@@ -58,28 +59,13 @@ public class VideoServiceImpl implements VideoService {
     @Override
     public Page<Video> getVideo(Long aid, String text, Integer page, Integer pagesize) {
         if (!(aid == -1)) {
-            logger.info("[GET]searchByAid");
+            logger.info(aid);
             return respository.searchByAid(aid, PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, "data.0.view")));
         } else if (!Objects.equals(text, "")) {
-            logger.info("[GET]searchByText");
+            logger.info(text);
             return respository.searchByText(text, PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, "data.0.view")));
         } else {
-
-<<<<<<<Updated upstream
-            logger.info("[GET]findAll");
-//            Query query=new Query(Criteria.where("aid").ne(null));
-//            List<Video> v =  mongoTemplate.find(query , Video.class);
-//            System.out.println(v.getAuthor());
-//            Pageable pageable = new PageRequests(page, size);
-//            Query query = new Query().with(pageable);
-//            List<Video> list = mongoTemplate.find(query, Video.class);
-//            return PageableExecutionUtils.getPage(
-//                    list,
-//                    pageable,
-//                    () -> mongoTemplate.count(query, XXX.class));
-=======
             logger.info("获取全部视频数据");
->>>>>>>Stashed changes
             return respository.findByDataIsNotNull(PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, "data.0.view")));
         }
     }

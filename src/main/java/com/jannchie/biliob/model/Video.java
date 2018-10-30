@@ -28,6 +28,9 @@ public class Video {
         this.aid = aid;
     }
 
+    public Video() {
+    }
+
     public Long getAid() {
         return aid;
     }

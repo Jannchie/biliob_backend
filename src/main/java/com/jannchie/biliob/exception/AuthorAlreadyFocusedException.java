@@ -1,6 +1,9 @@
 package com.jannchie.biliob.exception;
 
 public class AuthorAlreadyFocusedException extends Exception {
+
+    private Long mid;
+
     /**
      * Constructs a new exception with {@code null} as its detail message.
      * The cause is not initialized, and may subsequently be initialized by a
@@ -9,8 +12,6 @@ public class AuthorAlreadyFocusedException extends Exception {
     public AuthorAlreadyFocusedException(Long mid) {
         this.mid = mid;
     }
-
-    private Long mid;
 
     public Long getMid() {
         return mid;
