@@ -17,6 +17,9 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 
 
+/**
+ * @author jannchie
+ */
 @RestController
 public class UserController {
     private final UserService userService;
@@ -26,42 +29,42 @@ public class UserController {
         this.userService = userService;
     }
 
-    @RequestMapping(method = RequestMethod.POST, value = "/user")
+    @RequestMapping(method = RequestMethod.POST, value = "/api/user")
     public ResponseEntity<User> createUser(@RequestBody @Valid User user) {
         User newUser = userService.createUser(user);
         return new ResponseEntity<>(newUser, HttpStatus.CREATED);
     }
 
 
-    @RequestMapping(method = RequestMethod.POST, value = "/user/favorite/author")
+    @RequestMapping(method = RequestMethod.POST, value = "/api/user/favorite/author")
     public ResponseEntity<Message> addFavoriteAuthor(@RequestBody @Valid Long mid) throws UserAlreadyFavoriteAuthorException {
         userService.addFavoriteAuthor(mid);
         return new ResponseEntity<Message>(new Message(201, "添加收藏作者成功"), HttpStatus.CREATED);
     }
 
-    @RequestMapping(method = RequestMethod.POST, value = "/user/favorite/video")
+    @RequestMapping(method = RequestMethod.POST, value = "/api/user/favorite/video")
     public ResponseEntity<Message> addFavoriteVideo(@RequestBody @Valid Long aid) throws UserAlreadyFavoriteVideoException {
         userService.addFavoriteVideo(aid);
         return new ResponseEntity<Message>(new Message(201, "添加收藏视频成功"), HttpStatus.CREATED);
     }
 
-    @RequestMapping(method = RequestMethod.GET, value = "/user")
+    @RequestMapping(method = RequestMethod.GET, value = "/api/user")
     public ResponseEntity<User> createUser() {
         User user = userService.getUserInfo();
         return new ResponseEntity<User>(user, HttpStatus.OK);
     }
 
-    @RequestMapping(method = RequestMethod.GET, value = "/no-login")
+    @RequestMapping(method = RequestMethod.GET, value = "/api/no-login")
     public ResponseEntity<Message> noLogin() {
         return new ResponseEntity<Message>(new Message(403, "未登录"), HttpStatus.FORBIDDEN);
     }
 
-    @RequestMapping(method = RequestMethod.GET, value = "/no-rule")
+    @RequestMapping(method = RequestMethod.GET, value = "/api/no-rule")
     public ResponseEntity<Message> noRule() {
         return new ResponseEntity<Message>(new Message(403, "未授权"), HttpStatus.FORBIDDEN);
     }
 
-    @RequestMapping(method = RequestMethod.POST, value = "/login")
+    @RequestMapping(method = RequestMethod.POST, value = "/api/login")
     public ResponseEntity<Message> login(@RequestBody @Valid User user) {
 
         String inputName = user.getName();

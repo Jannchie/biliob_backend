@@ -27,10 +27,12 @@ public class Author {
     private Boolean focus;
 
     public Author() {
+        this.focus = true;
     }
 
     public Author(Long mid) {
         this.mid = mid;
+        this.focus = true;
 
     }
 

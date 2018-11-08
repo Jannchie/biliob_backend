@@ -27,29 +27,29 @@ public class ShiroConfig {
         shiroFilterFactoryBean.setSecurityManager(securityManager);
 
         // setLoginUrl 如果不设置值，默认会自动寻找Web工程根目录下的"/login.jsp"页面 或 "/login" 映射
-        shiroFilterFactoryBean.setLoginUrl("/no-login");
+        shiroFilterFactoryBean.setLoginUrl("/api/no-login");
         // 设置无权限时跳转的 url;
-        shiroFilterFactoryBean.setUnauthorizedUrl("/no-role");
+        shiroFilterFactoryBean.setUnauthorizedUrl("/api/no-role");
 
         // 设置拦截器
         Map<String, String> filterChainDefinitionMap = new LinkedHashMap<>();
         // 允许发起登录请求
-        filterChainDefinitionMap.put("/login", "anon");
+        filterChainDefinitionMap.put("/api/login", "anon");
 
         // 允许随意查看author信息
-        filterChainDefinitionMap.put("/author/**", "anon");
+        filterChainDefinitionMap.put("/api/author/**", "anon");
 
         // 允许随意查看video信息
-        filterChainDefinitionMap.put("/video/**", "anon");
+        filterChainDefinitionMap.put("/api/video/**", "anon");
 
         // 允许发起注册请求
-        filterChainDefinitionMap.put("/user", "anon");
+        filterChainDefinitionMap.put("/api/user", "anon");
 
         // 允许用户查看用户信息
-        filterChainDefinitionMap.put("/user/**", "roles[普通用户]");
+        filterChainDefinitionMap.put("/api/user/**", "roles[普通用户]");
 
         // 管理员，需要角色权限 “admin”
-        filterChainDefinitionMap.put("/admin/**", "roles[admin]");
+        filterChainDefinitionMap.put("/api/admin/**", "roles[admin]");
 
         //其余接口一律拦截
         //主要这行代码必须放在所有权限设置的最后，不然会导致所有 url 都被拦截

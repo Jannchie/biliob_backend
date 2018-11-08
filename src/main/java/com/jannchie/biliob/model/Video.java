@@ -26,9 +26,11 @@ public class Video {
 
     public Video(Long aid) {
         this.aid = aid;
+        this.focus = true;
     }
 
     public Video() {
+        this.focus = true;
     }
 
     public Long getAid() {

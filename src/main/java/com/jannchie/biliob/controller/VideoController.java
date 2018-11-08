@@ -33,12 +33,12 @@ public class VideoController {
         this.videoService = videoService;
     }
 
-    @RequestMapping(method = RequestMethod.GET, value = "/video/{aid}")
+    @RequestMapping(method = RequestMethod.GET, value = "/api/video/{aid}")
     public Video getVideoDetails(@PathVariable("aid") Long aid) {
         return videoService.getVideoDetails(aid);
     }
 
-    @RequestMapping(method = RequestMethod.GET, value = "/author/{mid}/video/{aid}")
+    @RequestMapping(method = RequestMethod.GET, value = "/api/author/{mid}/video/{aid}")
     public Slice<Video> getAuthorVideo(@PathVariable("aid") Long aid,
                                        @PathVariable("mid") Long mid,
                                        @RequestParam(defaultValue = "0") Integer page,
@@ -46,13 +46,13 @@ public class VideoController {
         return videoService.getAuthorVideo(aid, mid, page, pagesize);
     }
 
-    @RequestMapping(method = RequestMethod.POST, value = "/video")
+    @RequestMapping(method = RequestMethod.POST, value = "/api/video")
     public ResponseEntity<Message> postVideoByAid(@RequestBody @Valid Video video) throws UserAlreadyFavoriteVideoException, VideoAlreadyFocusedException {
         videoService.postVideoByAid(video.getAid());
         return new ResponseEntity<Message>(new Message(200, "观测视频成功"), HttpStatus.OK);
     }
 
-    @RequestMapping(method = RequestMethod.GET, value = "/video")
+    @RequestMapping(method = RequestMethod.GET, value = "/api/video")
     public Page<Video> getVideo(@RequestParam(defaultValue = "0") Integer page,
                                 @RequestParam(defaultValue = "20") Integer pageSize,
                                 @RequestParam(defaultValue = "-1") Long aid,
