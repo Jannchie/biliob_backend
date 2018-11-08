@@ -22,7 +22,7 @@ public interface AuthorRepository extends MongoRepository<Author, ObjectId>, Pag
     Author findByMid(@Param("mid") Long mid);
 
     @Override
-    @Query(value = "{}", fields = "{ 'name' : 1, 'mid' : 1, 'face' : 1, 'official' : 1, 'focus':1,'sex':1,'level':1}")
+    @Query(value = "{data:{$ne:null}}", fields = "{ 'name' : 1, 'mid' : 1, 'face' : 1, 'official' : 1, 'focus':1,'sex':1,'level':1}")
     Page<Author> findAll(Pageable pageable);
 
     @Query(value = "{'mid' : ?0}", fields = "{ 'name' : 1, 'mid' : 1, 'face' : 1, 'official' : 1, 'focus':1,'sex':1,'level':1}")
