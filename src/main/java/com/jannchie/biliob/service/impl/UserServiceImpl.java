@@ -1,4 +1,4 @@
-package com.jannchie.biliob.service.serviceImpl;
+package com.jannchie.biliob.service.impl;
 
 import com.jannchie.biliob.exception.UserAlreadyExistException;
 import com.jannchie.biliob.exception.UserAlreadyFavoriteAuthorException;
@@ -16,6 +16,9 @@ import org.springframework.stereotype.Service;
 import javax.validation.Valid;
 import java.util.ArrayList;
 
+/**
+ * @author jannchie
+ */
 @Service
 public class UserServiceImpl implements UserService {
     private static final Logger logger = LogManager.getLogger(UserServiceImpl.class);
@@ -47,6 +50,7 @@ public class UserServiceImpl implements UserService {
         }
         return userRepository.findByName(name).getPassword();
     }
+
     @Override
     public String getRole(String name) {
         return userRepository.findByName(name).getRole();

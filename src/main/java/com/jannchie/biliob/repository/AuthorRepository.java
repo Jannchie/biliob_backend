@@ -19,15 +19,40 @@ import java.util.List;
 
 public interface AuthorRepository extends MongoRepository<Author, ObjectId>, PagingAndSortingRepository<Author, ObjectId> {
 
+    /**
+     * 获得确定mid的作者信息
+     *
+     * @param mid 作者id
+     * @return 作者对象
+     */
     Author findByMid(@Param("mid") Long mid);
 
-    @Override
-    @Query(value = "{data:{$ne:null}}", fields = "{ 'name' : 1, 'mid' : 1, 'face' : 1, 'official' : 1, 'focus':1,'sex':1,'level':1}")
-    Page<Author> findAll(Pageable pageable);
+    /**
+     * 获得分页的作者信息，作者数据必须非空
+     *
+     * @param pageable 分页
+     * @return 一页作者
+     */
+    @Query(fields = "{ 'name' : 1, 'mid' : 1, 'face' : 1, 'official' : 1, 'focus':1,'sex':1,'level':1}")
+    Page<Author> findAllByDataIsNotNull(Pageable pageable);
 
+    /**
+     * 通过mid搜索作者
+     *
+     * @param mid      作者id
+     * @param pageable 分页
+     * @return 一页作者
+     */
     @Query(value = "{'mid' : ?0}", fields = "{ 'name' : 1, 'mid' : 1, 'face' : 1, 'official' : 1, 'focus':1,'sex':1,'level':1}")
     Page<Author> searchByMid(@Param("mid") Long mid, Pageable pageable);
 
+    /**
+     * 通过文本搜索作者
+     *
+     * @param text     文本
+     * @param pageable 分页
+     * @return 一页作者
+     */
     @Query(value = "{$or:[{name:{$regex:?0}},{official:{$regex:?0}}]}", fields = "{ 'name' : 1, 'mid' : 1, 'face' : 1, 'official' : 1, 'focus':1,'sex':1,'level':1}")
     Page<Author> search(String text, Pageable pageable);
 

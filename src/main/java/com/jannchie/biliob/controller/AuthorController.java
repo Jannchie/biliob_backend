@@ -35,11 +35,10 @@ public class AuthorController {
         return authorService.getAuthorDetails(mid);
     }
 
-
     @RequestMapping(method = RequestMethod.POST, value = "/api/author")
     public ResponseEntity<Message> postAuthorByMid(@RequestBody @Valid Author author) throws UserAlreadyFavoriteAuthorException, AuthorAlreadyFocusedException {
         authorService.postAuthorByMid(author.getMid());
-        return new ResponseEntity<Message>(new Message(200, "观测UP主成功"), HttpStatus.OK);
+        return new ResponseEntity<>(new Message(200, "观测UP主成功"), HttpStatus.OK);
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/api/author")

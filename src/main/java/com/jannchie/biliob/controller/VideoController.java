@@ -4,19 +4,14 @@ import com.jannchie.biliob.exception.UserAlreadyFavoriteVideoException;
 import com.jannchie.biliob.exception.VideoAlreadyFocusedException;
 import com.jannchie.biliob.model.Video;
 import com.jannchie.biliob.service.VideoService;
-import com.jannchie.biliob.service.serviceImpl.VideoServiceImpl;
 import com.jannchie.biliob.utils.Message;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Slice;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.List;
 
 /**
  * 测试控制器
@@ -48,8 +43,7 @@ public class VideoController {
 
     @RequestMapping(method = RequestMethod.POST, value = "/api/video")
     public ResponseEntity<Message> postVideoByAid(@RequestBody @Valid Video video) throws UserAlreadyFavoriteVideoException, VideoAlreadyFocusedException {
-        videoService.postVideoByAid(video.getAid());
-        return new ResponseEntity<Message>(new Message(200, "观测视频成功"), HttpStatus.OK);
+        return videoService.postVideoByAid(video.getAid());
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/api/video")

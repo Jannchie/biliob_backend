@@ -1,7 +1,6 @@
 package com.jannchie.biliob.authority;
 
 import com.jannchie.biliob.service.UserService;
-import com.jannchie.biliob.service.serviceImpl.UserServiceImpl;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.shiro.SecurityUtils;
@@ -66,7 +65,8 @@ public class UserRealm extends AuthorizingRealm {
         List<String> permissions = new ArrayList<>();
         String permission = "create";
         permissions.add(permission);
-        info.addStringPermissions(permissions);//设置权限
+        //设置权限
+        info.addStringPermissions(permissions);
         logger.info(role);
         return info;
     }

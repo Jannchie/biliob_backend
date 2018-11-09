@@ -1,4 +1,4 @@
-package com.jannchie.biliob.service.serviceImpl;
+package com.jannchie.biliob.service.impl;
 
 import com.jannchie.biliob.exception.AuthorAlreadyFocusedException;
 import com.jannchie.biliob.exception.UserAlreadyFavoriteAuthorException;
@@ -40,14 +40,14 @@ public class AuthorServiceImpl implements AuthorService {
     }
 
     @Override
-    public Author postAuthorByMid(Long mid) throws UserAlreadyFavoriteAuthorException, AuthorAlreadyFocusedException {
+    public void postAuthorByMid(Long mid) throws UserAlreadyFavoriteAuthorException, AuthorAlreadyFocusedException {
         User user = userService.addFavoriteAuthor(mid);
         logger.info(mid);
         logger.info(user.getName());
         if (respository.findByMid(mid) != null) {
             throw new AuthorAlreadyFocusedException(mid);
         }
-        return respository.save(new Author(mid));
+        respository.save(new Author(mid));
     }
 
     @Override
@@ -60,7 +60,7 @@ public class AuthorServiceImpl implements AuthorService {
             return respository.search(text, PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, "data.0.fans")));
         } else {
             logger.info("查看所有UP主列表");
-            return respository.findAll(PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, "data.0.fans")));
+            return respository.findAllByDataIsNotNull(PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, "data.0.fans")));
         }
     }
 }

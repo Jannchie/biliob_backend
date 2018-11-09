@@ -6,11 +6,15 @@ import org.springframework.data.annotation.Id;
 
 import java.util.Date;
 
+/**
+ * @author jannchie
+ */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class VideoOnline {
     private ObjectId id;
 
     private String title;
+
     private String author;
 
     public String getTitle() {
@@ -23,6 +27,7 @@ public class VideoOnline {
 
     public class Data {
         private String number;
+
         private Date datetime;
 
         public String getNumber() {

@@ -1,4 +1,4 @@
-package com.jannchie.biliob.service.serviceImpl;
+package com.jannchie.biliob.service.impl;
 
 import com.jannchie.biliob.exception.UserAlreadyFavoriteVideoException;
 import com.jannchie.biliob.exception.VideoAlreadyFocusedException;
@@ -8,7 +8,7 @@ import com.jannchie.biliob.repository.UserRepository;
 import com.jannchie.biliob.repository.VideoRepository;
 import com.jannchie.biliob.service.UserService;
 import com.jannchie.biliob.service.VideoService;
-import com.jannchie.biliob.utils.LoginCheck;
+import com.jannchie.biliob.utils.Message;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +16,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
@@ -46,14 +48,15 @@ public class VideoServiceImpl implements VideoService {
     }
 
     @Override
-    public Video postVideoByAid(Long aid) throws UserAlreadyFavoriteVideoException, VideoAlreadyFocusedException {
+    public ResponseEntity<Message> postVideoByAid(Long aid) throws UserAlreadyFavoriteVideoException, VideoAlreadyFocusedException {
         User user = userService.addFavoriteVideo(aid);
         logger.info(aid);
         logger.info(user.getName());
         if (respository.findByAid(aid) != null) {
             throw new VideoAlreadyFocusedException(aid);
         }
-        return respository.save(new Video(aid));
+        respository.save(new Video(aid));
+        return new ResponseEntity<>(new Message(200, "观测视频成功"), HttpStatus.OK);
     }
 
     @Override
