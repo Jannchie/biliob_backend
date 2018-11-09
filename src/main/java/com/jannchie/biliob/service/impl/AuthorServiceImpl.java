@@ -40,7 +40,7 @@ public class AuthorServiceImpl implements AuthorService {
     }
 
     @Override
-    public void postAuthorByMid(Long mid) throws UserAlreadyFavoriteAuthorException, AuthorAlreadyFocusedException {
+    public void postAuthorByMid(Long mid) throws AuthorAlreadyFocusedException, UserAlreadyFavoriteAuthorException {
         User user = userService.addFavoriteAuthor(mid);
         logger.info(mid);
         logger.info(user.getName());

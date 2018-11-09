@@ -1,6 +1,9 @@
 package com.jannchie.biliob.exception;
 
-public class UserAlreadyExistException extends RuntimeException {
+/**
+ * @author jannchie
+ */
+public class UserAlreadyExistException extends Exception {
 
     private String name;
 

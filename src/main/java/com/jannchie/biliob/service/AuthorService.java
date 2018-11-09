@@ -15,7 +15,7 @@ public interface AuthorService {
     /**
      * 获取作者详情
      *
-     * @param mid 作者id
+     * @param mid  作者id
      * @return 作者详细信息
      */
     Author getAuthorDetails(Long mid);

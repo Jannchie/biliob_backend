@@ -2,8 +2,12 @@ package com.jannchie.biliob.exception;
 
 import javax.validation.Valid;
 
+/**
+ * @author jannchie
+ */
 public class UserAlreadyFavoriteAuthorException extends Exception {
     private Long mid;
+
     public UserAlreadyFavoriteAuthorException(@Valid Long mid) {
         this.mid = mid;
     }

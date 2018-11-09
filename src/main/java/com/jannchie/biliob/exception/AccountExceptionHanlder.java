@@ -10,16 +10,17 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 
+/**
+ * @author jannchie
+ */
 @RestControllerAdvice
 public class AccountExceptionHanlder {
 
     private static final Logger logger = LogManager.getLogger(AccountExceptionHanlder.class);
 
-    //将返回的值转成json格式的数据
     @ResponseBody
-    //返回的状态码
     @ExceptionHandler(AccountException.class)
-    @ResponseStatus(value = HttpStatus.FORBIDDEN)     //403
+    @ResponseStatus(value = HttpStatus.FORBIDDEN)
     public ExceptionResult handleAccountException(AccountException ex) {
         String msg = ex.getMessage();
         // 生成返回结果

@@ -1,5 +1,6 @@
 package com.jannchie.biliob.authority;
 
+import com.jannchie.biliob.exception.UserNotExistException;
 import com.jannchie.biliob.service.UserService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -33,7 +34,7 @@ public class UserRealm extends AuthorizingRealm {
      * @return 返回封装了用户信息的 AuthenticationInfo 实例
      */
     @Override
-    protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken authenticationToken) throws AuthenticationException {
+    protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken authenticationToken) throws AuthenticationException, UserNotExistException {
         UsernamePasswordToken token = (UsernamePasswordToken) authenticationToken;
 
         // 从数据库获取对应用户名密码的用户

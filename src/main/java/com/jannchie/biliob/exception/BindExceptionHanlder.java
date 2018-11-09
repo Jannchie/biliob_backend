@@ -11,16 +11,17 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 
+/**
+ * @author jannchie
+ */
 @RestControllerAdvice
 public class BindExceptionHanlder {
 
     private static final Logger logger = LogManager.getLogger(BindExceptionHanlder.class);
 
     @ExceptionHandler(BindException.class)
-    //将返回的值转成json格式的数据
     @ResponseBody
-    //返回的状态码
-    @ResponseStatus(value = HttpStatus.BAD_REQUEST)     //400
+    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
     public ExceptionResult handleBindException(BindException ex) {
         // ex.getFieldError():随机返回一个对象属性的异常信息。如果要一次性返回所有对象属性异常信息，则调用ex.getAllErrors()
         FieldError fieldError = ex.getFieldError();

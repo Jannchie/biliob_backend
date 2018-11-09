@@ -2,7 +2,10 @@ package com.jannchie.biliob.exception;
 
 import javax.validation.Valid;
 
-public class UserAlreadyFavoriteVideoException extends Throwable {
+/**
+ * @author jannchie
+ */
+public class UserAlreadyFavoriteVideoException extends Exception {
     private Long aid;
     public UserAlreadyFavoriteVideoException(@Valid Long aid) {
         this.aid = aid;
@@ -12,7 +15,7 @@ public class UserAlreadyFavoriteVideoException extends Throwable {
         return aid;
     }
 
-    public void setAid(Long mid) {
+    public void setAid(Long aid) {
         this.aid = aid;
     }
 }

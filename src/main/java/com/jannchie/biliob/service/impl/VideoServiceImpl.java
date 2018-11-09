@@ -48,7 +48,7 @@ public class VideoServiceImpl implements VideoService {
     }
 
     @Override
-    public ResponseEntity<Message> postVideoByAid(Long aid) throws UserAlreadyFavoriteVideoException, VideoAlreadyFocusedException {
+    public ResponseEntity<Message> postVideoByAid(Long aid) throws VideoAlreadyFocusedException, UserAlreadyFavoriteVideoException {
         User user = userService.addFavoriteVideo(aid);
         logger.info(aid);
         logger.info(user.getName());
