@@ -82,7 +82,7 @@ public interface VideoRepository extends MongoRepository<Video, ObjectId>, Pagin
      * @param of   page information
      * @return a slice of user favorite videos
      */
-    @Query(value = "{$or:?0,data:{$ne:null}}", fields = "{'title' : 1, 'aid' : 1, 'mid' : 1,'channel':1}")
+    @Query(value = "{$or:?0,data:{$ne:null}}", fields = "{ 'pic' : 1, 'mid' : 1, 'author' : 1, 'channel' : 1, 'title' : 1, 'aid' : 1, 'focus':1}")
     Slice getFavoriteVideo(ArrayList<HashMap<String, Long>> aids, PageRequest of);
 
 }
