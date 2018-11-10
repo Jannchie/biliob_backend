@@ -1,20 +1,23 @@
 package com.jannchie.biliob.repository;
 
+import com.jannchie.biliob.model.Author;
 import com.jannchie.biliob.model.Video;
 import org.bson.types.ObjectId;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
+import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.repository.query.Param;
 
-
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 /**
  * @author jannchie
  */
-
 public interface VideoRepository extends MongoRepository<Video, ObjectId>, PagingAndSortingRepository<Video, ObjectId> {
 
     /**
@@ -71,4 +74,15 @@ public interface VideoRepository extends MongoRepository<Video, ObjectId>, Pagin
      */
     @Query(value = "{aid:{$ne:?0},mid:?1}", fields = "{'title' : 1, 'aid' : 1, 'mid' : 1,'channel':1}")
     Slice<Video> findAuthorOtherVideo(Long aid, Long mid, Pageable pageable);
+
+    /**
+     * get user favorite video
+     *
+     * @param aids video id
+     * @param of   page information
+     * @return a slice of user favorite videos
+     */
+    @Query(value = "{$or:?0,data:{$ne:null}}", fields = "{ 'pic' : 1, 'mid' : 1, 'author' : 1, 'channel' : 1, 'title' : 1, 'aid' : 1, 'focus':1}")
+    Slice getFavoriteVideo(ArrayList<HashMap<String, Long>> aids, PageRequest of);
+
 }
