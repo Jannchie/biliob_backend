@@ -38,13 +38,13 @@ public class UserController {
     }
 
 
-    @RequestMapping(method = RequestMethod.POST, value = "/api/user/favorite/author")
+    @RequestMapping(method = RequestMethod.POST, value = "/api/user/author")
     public ResponseEntity<Message> addFavoriteAuthor(@RequestBody @Valid Long mid) throws UserAlreadyFavoriteAuthorException {
         userService.addFavoriteAuthor(mid);
         return new ResponseEntity<>(new Message(201, "添加收藏作者成功"), HttpStatus.CREATED);
     }
 
-    @RequestMapping(method = RequestMethod.POST, value = "/api/user/favorite/video")
+    @RequestMapping(method = RequestMethod.POST, value = "/api/user/video")
     public ResponseEntity<Message> addFavoriteVideo(@RequestBody @Valid Long aid) throws UserAlreadyFavoriteVideoException {
         userService.addFavoriteVideo(aid);
         return new ResponseEntity<>(new Message(201, "添加收藏视频成功"), HttpStatus.CREATED);
