@@ -1,5 +1,8 @@
 package com.jannchie.biliob.exception;
 
+/**
+ * @author jannchie
+ */
 public class AuthorAlreadyFocusedException extends Exception {
 
     private Long mid;

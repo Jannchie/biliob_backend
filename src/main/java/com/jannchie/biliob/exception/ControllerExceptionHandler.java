@@ -1,8 +1,10 @@
 package com.jannchie.biliob.exception;
 
+import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -122,4 +124,37 @@ public class ControllerExceptionHandler {
         logger.info(authorAlreadyFocusedException.getMid());
         return ex;
     }
+
+    /**
+     * 处理非法输入异常
+     *
+     * @param mismatchedInputException 非法输入异常的详细内容
+     * @return 返回异常信息
+     */
+    @ExceptionHandler(MismatchedInputException.class)
+    @ResponseBody
+    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+    public ExceptionResult handlerMismatchedInputException(MismatchedInputException mismatchedInputException) {
+        ExceptionResult ex = new ExceptionResult();
+        ex.setCode(400);
+        ex.setMsg("非法输入");
+        return ex;
+    }
+
+    /**
+     * 处理非法输入异常
+     *
+     * @param httpMessageNotReadableException 非法输入异常的详细内容
+     * @return 返回异常信息
+     */
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    @ResponseBody
+    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+    public ExceptionResult handlerHttpMessageNotReadableException(HttpMessageNotReadableException httpMessageNotReadableException) {
+        ExceptionResult ex = new ExceptionResult();
+        ex.setCode(400);
+        ex.setMsg("非法输入");
+        return ex;
+    }
+
 }

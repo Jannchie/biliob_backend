@@ -42,8 +42,8 @@ public class VideoController {
     }
 
     @RequestMapping(method = RequestMethod.POST, value = "/api/video")
-    public ResponseEntity<Message> postVideoByAid(@RequestBody @Valid Video video) throws VideoAlreadyFocusedException, UserAlreadyFavoriteVideoException {
-        return videoService.postVideoByAid(video.getAid());
+    public ResponseEntity<Message> postVideoByAid(@RequestBody @Valid Long aid) throws VideoAlreadyFocusedException, UserAlreadyFavoriteVideoException {
+        return videoService.postVideoByAid(aid);
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/api/video")

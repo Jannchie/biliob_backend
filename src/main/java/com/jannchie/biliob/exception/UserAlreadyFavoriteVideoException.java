@@ -6,8 +6,10 @@ import javax.validation.Valid;
  * @author jannchie
  */
 public class UserAlreadyFavoriteVideoException extends Exception {
+
     private Long aid;
-    public UserAlreadyFavoriteVideoException(@Valid Long aid) {
+
+    public UserAlreadyFavoriteVideoException(Long aid) {
         this.aid = aid;
     }
 

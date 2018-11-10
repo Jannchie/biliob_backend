@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.HashMap;
 
 /**
  * 作者控制器
@@ -36,8 +37,8 @@ public class AuthorController {
     }
 
     @RequestMapping(method = RequestMethod.POST, value = "/api/author")
-    public ResponseEntity<Message> postAuthorByMid(@RequestBody @Valid Author author) throws UserAlreadyFavoriteAuthorException, AuthorAlreadyFocusedException {
-        authorService.postAuthorByMid(author.getMid());
+    public ResponseEntity<Message> postAuthorByMid(@RequestBody @Valid Long mid) throws UserAlreadyFavoriteAuthorException, AuthorAlreadyFocusedException {
+        authorService.postAuthorByMid(mid);
         return new ResponseEntity<>(new Message(200, "观测UP主成功"), HttpStatus.OK);
     }
 

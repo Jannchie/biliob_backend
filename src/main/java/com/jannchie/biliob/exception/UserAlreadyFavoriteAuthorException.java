@@ -6,9 +6,10 @@ import javax.validation.Valid;
  * @author jannchie
  */
 public class UserAlreadyFavoriteAuthorException extends Exception {
+
     private Long mid;
 
-    public UserAlreadyFavoriteAuthorException(@Valid Long mid) {
+    public UserAlreadyFavoriteAuthorException(Long mid) {
         this.mid = mid;
     }
 
