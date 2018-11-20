@@ -20,6 +20,7 @@ public class Video {
     private String author;
     private String channel;
     private String subChannel;
+    private String datetime;
     private String pic;
     private Boolean focus;
     private ArrayList<Data> data;
@@ -67,6 +68,10 @@ public class Video {
 
     public Boolean getFocus() {
         return focus;
+    }
+
+    public String getDatetime() {
+        return datetime;
     }
 
     public class Data {

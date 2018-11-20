@@ -128,6 +128,7 @@ public class UserServiceImpl implements UserService {
             temp.put("aid", aid);
             mapsList.add(temp);
         }
+        logger.info(user.getName());
         return videoRepository.getFavoriteVideo(mapsList, PageRequest.of(page, pageSize));
     }
 
@@ -141,13 +142,14 @@ public class UserServiceImpl implements UserService {
     @Override
     public Slice getFavoriteAuthor(Integer page, Integer pageSize) {
         User user = LoginCheck.check(userRepository);
-        ArrayList<Long> mids = user.getFavoriteAid();
+        ArrayList<Long> mids = user.getFavoriteMid();
         ArrayList<HashMap<String, Long>> mapsList = new ArrayList<>();
         for (Long mid : mids) {
             HashMap<String, Long> temp = new HashMap<>(1);
             temp.put("mid", mid);
             mapsList.add(temp);
         }
+        logger.info(user.getName());
         return authorRepository.getFavoriteAuthor(mapsList, PageRequest.of(page, pageSize));
     }
 }
