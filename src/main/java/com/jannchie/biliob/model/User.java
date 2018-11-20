@@ -9,79 +9,80 @@ import org.springframework.data.annotation.Id;
 import javax.validation.constraints.NotBlank;
 import java.util.ArrayList;
 
+/**
+ * @author jannchie
+ */
 @JsonInclude(Include.NON_NULL)
 public class User {
-    @Id
-    private ObjectId id;
+	@Id
+	private ObjectId id;
 
-    @NotBlank(message = "用户ID不能为空")
-    private String name;
+	@NotBlank(message = "用户ID不能为空")
+	private String name;
 
-    @Length(min = 6, message = "密码至少为6位")
-    @NotBlank(message = "用户密码不能为空!")
-    private String password;
+	@Length(min = 6, message = "密码至少为6位")
+	@NotBlank(message = "用户密码不能为空!")
+	private String password;
 
-    public void setId(ObjectId id) {
-        this.id = id;
-    }
+	private String role;
+	private ArrayList<Long> favoriteAid;
+	private ArrayList<Long> favoriteMid;
 
-    private String role;
+	public User(String name, String password, String role) {
+		this.name = name;
+		this.password = password;
+		this.role = role;
+	}
 
-    private ArrayList<Long> favoriteAid;
+	public User() {
+		this.role = "普通用户";
+	}
 
-    private ArrayList<Long> favoriteMid;
+	public String getName() {
+		return name;
+	}
 
-    public User(String name, String password, String role) {
-        this.name = name;
-        this.password = password;
-        this.role = role;
-    }
+	public void setName(String name) {
+		this.name = name;
+	}
 
-    public User() {
-        this.role = "普通用户";
-    }
+	public String getPassword() {
+		return password;
+	}
 
-    public String getName() {
-        return name;
-    }
+	public void setPassword(String password) {
+		this.password = password;
+	}
 
-    public void setName(String name) {
-        this.name = name;
-    }
+	public ObjectId getId() {
+		return id;
+	}
 
-    public String getPassword() {
-        return password;
-    }
+	public void setId(ObjectId id) {
+		this.id = id;
+	}
 
-    public void setPassword(String password) {
-        this.password = password;
-    }
+	public ArrayList<Long> getFavoriteMid() {
+		return favoriteMid;
+	}
 
-    public ObjectId getId() {
-        return id;
-    }
+	public void setFavoriteMid(ArrayList<Long> favoriteMid) {
+		this.favoriteMid = favoriteMid;
+	}
 
-    public void setRole(String role) {
-        this.role = role;
-    }
+	public ArrayList<Long> getFavoriteAid() {
+		return favoriteAid;
+	}
 
-    public ArrayList<Long> getFavoriteMid() {
-        return favoriteMid;
-    }
+	public void setFavoriteAid(ArrayList<Long> favoriteAid) {
+		this.favoriteAid = favoriteAid;
+	}
 
-    public void setFavoriteMid(ArrayList<Long> favoriteMid) {
-        this.favoriteMid = favoriteMid;
-    }
+	public String getRole() {
+		return role;
+	}
 
-    public ArrayList<Long> getFavoriteAid() {
-        return favoriteAid;
-    }
-
-    public void setFavoriteAid(ArrayList<Long> favoriteAid) {
-        this.favoriteAid = favoriteAid;
-    }
-
-    public String getRole() {
-        return role;
-    }
+	public void setRole(String role) {
+		this.role = role;
+	}
 }

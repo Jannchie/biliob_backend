@@ -7,22 +7,24 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 /**
  * 配置跨域
+ *
  * @author jannchie
  */
 @Configuration
 public class ConfigService {
-    @Bean
-    public WebMvcConfigurer corsConfigurer() {
-        return new WebMvcConfigurer() {
-            @Override
-            public void addCorsMappings(CorsRegistry registry) {
-                registry.addMapping("/**")
-                        .allowedOrigins("*")
-                        .allowedMethods("*")
-                        .allowedHeaders("*")
-                        .allowCredentials(true)
-                        .maxAge(3600);
-            }
-        };
-    }
+	@Bean
+	public WebMvcConfigurer corsConfigurer() {
+		return new WebMvcConfigurer() {
+			@Override
+			public void addCorsMappings(CorsRegistry registry) {
+				registry
+						.addMapping("/**")
+						.allowedOrigins("*")
+						.allowedMethods("*")
+						.allowedHeaders("*")
+						.allowCredentials(true)
+						.maxAge(3600);
+			}
+		};
+	}
 }

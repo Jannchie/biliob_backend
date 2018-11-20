@@ -15,7 +15,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.Objects;
 
 /**
  * @author jannchie
@@ -26,7 +26,6 @@ public class AuthorServiceImpl implements AuthorService {
 
     private final AuthorRepository respository;
     private UserService userService;
-
 
     @Autowired
     public AuthorServiceImpl(AuthorRepository respository, UserService userService) {
@@ -40,7 +39,8 @@ public class AuthorServiceImpl implements AuthorService {
     }
 
     @Override
-    public void postAuthorByMid(Long mid) throws AuthorAlreadyFocusedException, UserAlreadyFavoriteAuthorException {
+    public void postAuthorByMid(Long mid)
+            throws AuthorAlreadyFocusedException, UserAlreadyFavoriteAuthorException {
         User user = userService.addFavoriteAuthor(mid);
         logger.info(mid);
         logger.info(user.getName());
@@ -54,13 +54,16 @@ public class AuthorServiceImpl implements AuthorService {
     public Page<Author> getAuthor(Long mid, String text, Integer page, Integer pagesize) {
         if (!(mid == -1)) {
             logger.info(mid);
-            return respository.searchByMid(mid, PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, "data.0.fans")));
+            return respository.searchByMid(
+                    mid, PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, "data.0.fans")));
         } else if (!Objects.equals(text, "")) {
             logger.info(text);
-            return respository.search(text, PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, "data.0.fans")));
+            return respository.search(
+                    text, PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, "data.0.fans")));
         } else {
             logger.info("查看所有UP主列表");
-            return respository.findAllByDataIsNotNull(PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, "data.0.fans")));
+            return respository.findAllByDataIsNotNull(
+                    PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, "data.0.fans")));
         }
     }
 }

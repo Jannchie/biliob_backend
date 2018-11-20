@@ -7,7 +7,6 @@ import org.apache.shiro.SecurityUtils;
 /**
  * @author jannchie
  */
-
 public class LoginCheck {
 
     public static User check(UserRepository userRepository) {
