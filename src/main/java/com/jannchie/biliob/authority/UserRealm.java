@@ -27,7 +27,7 @@ public class UserRealm extends AuthorizingRealm {
 	private UserService userService;
 
 	/**
-	 * 获取身份验证信息 Shiro中，最终是通过 Realm 来获取应用程序中的用户、角色及权限信息的。
+	 * 获取身份验证信息Shiro中，最终是通过 Realm 来获取应用程序中的用户、角色及权限信息的。
 	 *
 	 * @param authenticationToken 用户身份信息 token
 	 * @return 返回封装了用户信息的 AuthenticationInfo 实例

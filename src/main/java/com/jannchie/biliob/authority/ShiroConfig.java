@@ -81,7 +81,9 @@ public class ShiroConfig {
 	 */
 	@Bean
 	public UserRealm userRealm() {
-		return new UserRealm();
+		UserRealm userRealm = new UserRealm();
+		userRealm.setAuthenticationCachingEnabled(false);
+		return userRealm;
 	}
 
 	@Bean

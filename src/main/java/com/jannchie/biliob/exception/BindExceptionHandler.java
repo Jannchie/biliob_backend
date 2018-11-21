@@ -14,9 +14,9 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
  * @author jannchie
  */
 @RestControllerAdvice
-public class BindExceptionHanlder {
+public class BindExceptionHandler {
 
-	private static final Logger logger = LogManager.getLogger(BindExceptionHanlder.class);
+	private static final Logger logger = LogManager.getLogger(BindExceptionHandler.class);
 
 	@ExceptionHandler(BindException.class)
 	@ResponseBody
@@ -28,6 +28,7 @@ public class BindExceptionHanlder {
 		ExceptionResult errorResult = new ExceptionResult();
 		errorResult.setCode(400);
 		errorResult.setMsg("数据验证失败");
+		logger.info("数据验证失败");
 		return errorResult;
 	}
 }

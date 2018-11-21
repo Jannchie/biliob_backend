@@ -1,5 +1,6 @@
 package com.jannchie.biliob.service.impl;
 
+import com.jannchie.biliob.constant.UserType;
 import com.jannchie.biliob.exception.UserAlreadyExistException;
 import com.jannchie.biliob.exception.UserAlreadyFavoriteAuthorException;
 import com.jannchie.biliob.exception.UserAlreadyFavoriteVideoException;
@@ -13,9 +14,13 @@ import com.jannchie.biliob.utils.LoginCheck;
 import com.jannchie.biliob.utils.Message;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.crypto.hash.Md5Hash;
+import org.apache.shiro.subject.Subject;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -159,9 +164,9 @@ public class UserServiceImpl implements UserService {
 	}
 
 	/**
-	 * delete user's favorite by author id
+	 * delete user's favorite author by author id
 	 *
-	 * @param mid user's id
+	 * @param mid author's id
 	 * @return response with message
 	 */
 	@Override
@@ -171,9 +176,54 @@ public class UserServiceImpl implements UserService {
 		for (int i = 0; i < mids.size(); i++) {
 			if (Objects.equals(mids.get(i), mid)) {
 				mids.remove(i);
-				break;
+				user.setFavoriteMid(mids);
+				userRepository.save(user);
+				return new ResponseEntity<>(new Message(200, "删除成功"), HttpStatus.OK);
 			}
 		}
-		return null;
+		return new ResponseEntity<>(new Message(404, "未找到该UP主"), HttpStatus.NOT_FOUND);
+	}
+
+	/**
+	 * delete user's favorite video by video id
+	 *
+	 * @param aid video's id
+	 * @return response with message
+	 */
+	@Override
+	public ResponseEntity<Message> deleteFavoriteVideoByAid(Long aid) {
+		User user = LoginCheck.check(userRepository);
+		ArrayList<Long> aids = user.getFavoriteAid();
+		for (int i = 0; i < aids.size(); i++) {
+			if (Objects.equals(aids.get(i), aid)) {
+				aids.remove(i);
+				user.setFavoriteAid(aids);
+				userRepository.save(user);
+				return new ResponseEntity<>(new Message(200, "删除成功"), HttpStatus.OK);
+			}
+		}
+		return new ResponseEntity<>(new Message(404, "未找到该视频"), HttpStatus.NOT_FOUND);
+	}
+
+	/**
+	 * login
+	 *
+	 * @param user user information
+	 * @return login information
+	 */
+	@Override
+	public ResponseEntity<Message> login(User user) {
+		String inputName = user.getName();
+		String inputPassword = user.getPassword();
+		String encodedPassword = new Md5Hash(inputPassword, inputName).toHex();
+		Subject subject = SecurityUtils.getSubject();
+		UsernamePasswordToken token = new UsernamePasswordToken(inputName, encodedPassword);
+		token.setRememberMe(true);
+		subject.login(token);
+		String role = getRole(inputName);
+		if (UserType.NORMAL_USER.equals(role)) {
+			return new ResponseEntity<>(new Message(200, "登录成功"), HttpStatus.OK);
+		}
+		return new ResponseEntity<>(new Message(403, "登录失败"), HttpStatus.FORBIDDEN);
 	}
 }
