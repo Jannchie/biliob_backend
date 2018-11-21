@@ -1,7 +1,6 @@
 package com.jannchie.biliob.service.impl;
 
 import com.jannchie.biliob.exception.UserAlreadyFavoriteVideoException;
-import com.jannchie.biliob.exception.VideoAlreadyFocusedException;
 import com.jannchie.biliob.model.User;
 import com.jannchie.biliob.model.Video;
 import com.jannchie.biliob.repository.UserRepository;
@@ -46,13 +45,13 @@ public class VideoServiceImpl implements VideoService {
 
 	@Override
 	public ResponseEntity<Message> postVideoByAid(Long aid)
-			throws VideoAlreadyFocusedException, UserAlreadyFavoriteVideoException {
+			throws UserAlreadyFavoriteVideoException {
 		User user = userService.addFavoriteVideo(aid);
+		if (respository.findByAid(aid) != null) {
+			return new ResponseEntity<>(new Message(400, "系统已经观测了该视频"), HttpStatus.BAD_REQUEST);
+		}
 		logger.info(aid);
 		logger.info(user.getName());
-		if (respository.findByAid(aid) != null) {
-			throw new VideoAlreadyFocusedException(aid);
-		}
 		respository.save(new Video(aid));
 		return new ResponseEntity<>(new Message(200, "观测视频成功"), HttpStatus.OK);
 	}

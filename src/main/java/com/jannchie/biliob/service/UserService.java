@@ -88,10 +88,27 @@ public interface UserService {
 	Slice getFavoriteAuthor(Integer page, Integer pageSize);
 
 	/**
-	 * delete user's favorite by author id
+	 * delete user's favorite author by author id
 	 *
-	 * @param mid user's id
+	 * @param mid author's id
 	 * @return response with message
 	 */
 	ResponseEntity<Message> deleteFavoriteAuthorByMid(Long mid);
+
+	/**
+	 * delete user's favorite video by video id
+	 *
+	 * @param aid video's id
+	 * @return response with message
+	 */
+	ResponseEntity<Message> deleteFavoriteVideoByAid(Long aid);
+
+	/**
+	 * login
+	 *
+	 * @param user user information
+	 * @return login response
+	 */
+	ResponseEntity<Message> login(User user);
 }
+

@@ -1,8 +1,11 @@
 package com.jannchie.biliob.authority;
 
+import org.apache.shiro.cache.MemoryConstrainedCacheManager;
+import org.apache.shiro.codec.Base64;
 import org.apache.shiro.mgt.SecurityManager;
 import org.apache.shiro.spring.LifecycleBeanPostProcessor;
 import org.apache.shiro.spring.web.ShiroFilterFactoryBean;
+import org.apache.shiro.web.mgt.CookieRememberMeManager;
 import org.apache.shiro.web.mgt.DefaultWebSecurityManager;
 import org.apache.shiro.web.servlet.Cookie;
 import org.apache.shiro.web.servlet.ShiroHttpSession;
@@ -69,20 +72,20 @@ public class ShiroConfig {
 		// 设置realm.
 		securityManager.setRealm(userRealm());
 		securityManager.setSessionManager(sessionManager());
+		securityManager.setRememberMeManager(rememberMeManager());
 		return securityManager;
 	}
 
 	/**
 	 * 自定义身份认证 realm;
-	 * <p>
-	 * <p>必须写这个类，并加上 @Bean 注解，目的是注入 UserRealm， 否则会影响 CustomRealm类 中其他类的依赖注入
-	 * <p>
-	 * <p>在realm中获取到用户的安全数据,传入安全管理器securityManager中进行验证
+	 * 必须写这个类，并加上 @Bean 注解，目的是注入 UserRealm， 否则会影响 CustomRealm类 中其他类的依赖注入
+	 * 在realm中获取到用户的安全数据,传入安全管理器securityManager中进行验证
 	 */
 	@Bean
 	public UserRealm userRealm() {
 		UserRealm userRealm = new UserRealm();
-		userRealm.setAuthenticationCachingEnabled(false);
+		// 开启内存缓存
+		userRealm.setCacheManager(new MemoryConstrainedCacheManager());
 		return userRealm;
 	}
 
@@ -94,10 +97,27 @@ public class ShiroConfig {
 	@Bean
 	public DefaultWebSessionManager sessionManager() {
 		Cookie cookie = new SimpleCookie(ShiroHttpSession.DEFAULT_SESSION_ID_NAME);
-		cookie.setMaxAge(60 * 60 * 24 * 7);
+		cookie.setMaxAge(60 * 60 * 24 * 3);
 		cookie.setHttpOnly(true);
 		DefaultWebSessionManager sessionManager = new DefaultWebSessionManager();
 		sessionManager.setSessionIdCookie(cookie);
 		return sessionManager;
 	}
+
+	@Bean
+	public SimpleCookie rememberMeCookie() {
+		SimpleCookie cookie = new SimpleCookie("rememberMe");
+		cookie.setHttpOnly(true);
+		cookie.setMaxAge(60 * 60 * 24 * 3);
+		return cookie;
+	}
+
+	@Bean
+	public CookieRememberMeManager rememberMeManager() {
+		CookieRememberMeManager rememberMeManager = new CookieRememberMeManager();
+		rememberMeManager.setCipherKey(Base64.decode("FP7qKJzdJOGkzoQzo2wTmA=="));
+		rememberMeManager.setCookie(rememberMeCookie());
+		return rememberMeManager;
+	}
+
 }

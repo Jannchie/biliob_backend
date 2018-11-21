@@ -1,5 +1,6 @@
-package com.jannchie.biliob.exception;
+package com.jannchie.biliob.exception.handler;
 
+import com.jannchie.biliob.utils.ExceptionResult;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.shiro.authc.AccountException;
@@ -13,9 +14,9 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
  * @author jannchie
  */
 @RestControllerAdvice
-public class AccountExceptionHanlder {
+public class AccountExceptionHandler {
 
-	private static final Logger logger = LogManager.getLogger(AccountExceptionHanlder.class);
+	private static final Logger logger = LogManager.getLogger(AccountExceptionHandler.class);
 
 	@ResponseBody
 	@ExceptionHandler(AccountException.class)
@@ -26,6 +27,7 @@ public class AccountExceptionHanlder {
 		ExceptionResult errorResult = new ExceptionResult();
 		errorResult.setCode(403);
 		errorResult.setMsg(msg);
+		logger.info(msg);
 		return errorResult;
 	}
 }

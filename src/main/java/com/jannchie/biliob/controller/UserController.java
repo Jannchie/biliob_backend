@@ -1,16 +1,11 @@
 package com.jannchie.biliob.controller;
 
-import com.jannchie.biliob.constant.UserType;
 import com.jannchie.biliob.exception.UserAlreadyExistException;
 import com.jannchie.biliob.exception.UserAlreadyFavoriteAuthorException;
 import com.jannchie.biliob.exception.UserAlreadyFavoriteVideoException;
 import com.jannchie.biliob.model.User;
 import com.jannchie.biliob.service.UserService;
 import com.jannchie.biliob.utils.Message;
-import org.apache.shiro.SecurityUtils;
-import org.apache.shiro.authc.UsernamePasswordToken;
-import org.apache.shiro.crypto.hash.Md5Hash;
-import org.apache.shiro.subject.Subject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Slice;
 import org.springframework.http.HttpStatus;
@@ -84,25 +79,16 @@ public class UserController {
 
   @RequestMapping(method = RequestMethod.POST, value = "/api/login")
   public ResponseEntity<Message> login(@RequestBody @Valid User user) {
+	  return userService.login(user);
+  }
 
-    String inputName = user.getName();
-    String inputPassword = user.getPassword();
-    String encodedPassword = new Md5Hash(inputPassword, inputName).toHex();
+	@RequestMapping(method = RequestMethod.DELETE, value = "/api/user/video")
+	public ResponseEntity<Message> deleteFavoriteVideo(@RequestBody @Valid Long aid) {
+		return userService.deleteFavoriteVideoByAid(aid);
+	}
 
-    // 从SecurityUtils里边创建一个 subject
-    Subject subject = SecurityUtils.getSubject();
-
-    // 在认证提交前准备 token（令牌）
-    UsernamePasswordToken token = new UsernamePasswordToken(inputName, encodedPassword);
-
-    // 执行认证登陆
-    subject.login(token);
-
-    // 根据权限，指定返回数据
-    String role = userService.getRole(inputName);
-    if (UserType.NORMAL_USER.equals(role)) {
-      return new ResponseEntity<>(new Message(200, "登录成功"), HttpStatus.OK);
-    }
-    return new ResponseEntity<>(new Message(403, "登录失败"), HttpStatus.FORBIDDEN);
+	@RequestMapping(method = RequestMethod.DELETE, value = "/api/user/author")
+	public ResponseEntity<Message> deleteFavoriteAuthor(@RequestBody @Valid Long mid) {
+		return userService.deleteFavoriteAuthorByMid(mid);
   }
 }

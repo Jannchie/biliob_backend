@@ -1,4 +1,4 @@
-package com.jannchie.biliob.exception;
+package com.jannchie.biliob.utils;
 
 /**
  * @author jannchie
@@ -13,7 +13,7 @@ public class ExceptionResult {
 		return msg;
 	}
 
-	void setMsg(String msg) {
+	public void setMsg(String msg) {
 		this.msg = msg;
 	}
 
@@ -21,7 +21,7 @@ public class ExceptionResult {
 		return code;
 	}
 
-	void setCode(Integer code) {
+	public void setCode(Integer code) {
 		this.code = code;
 	}
 }
