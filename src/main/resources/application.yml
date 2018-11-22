@@ -1,0 +1,7 @@
+spring:
+  data:
+    mongodb:
+      uri: ${BILIOB_MONGO_URL}
+server:
+  port: ${BILIOB_MONGO_PORT}
+

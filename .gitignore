@@ -24,8 +24,5 @@
 /nbdist/
 /.nb-gradle/
 
-application.properties
 
-*.yml
-log4j2.xml
 /logs/
