@@ -9,9 +9,9 @@ configuration:
    MongoDb:
     databaseName: biliob
     collectionName: logs
-    server: ${sys:BILIOB_MONGO_SERVER}
-    username: ${sys:BILIOB_MONGO_USER}
-    password: ${sys:BILIOB_MONGO_PASSWD}
+    server: ${env:BILIOB_MONGO_SERVER}
+    username: ${env:BILIOB_MONGO_USER}
+    password: ${env:BILIOB_MONGO_PASSWD}
     port: 27017
    name: mongoAppender
  loggers:
