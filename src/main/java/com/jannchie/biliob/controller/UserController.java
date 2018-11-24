@@ -14,9 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
-/**
- * @author jannchie
- */
+/** @author jannchie */
 @RestController
 public class UserController {
   private final UserService userService;
@@ -79,16 +77,16 @@ public class UserController {
 
   @RequestMapping(method = RequestMethod.POST, value = "/api/login")
   public ResponseEntity<Message> login(@RequestBody @Valid User user) {
-	  return userService.login(user);
+    return userService.login(user);
   }
 
-	@RequestMapping(method = RequestMethod.DELETE, value = "/api/user/video")
-	public ResponseEntity<Message> deleteFavoriteVideo(@RequestBody @Valid Long aid) {
-		return userService.deleteFavoriteVideoByAid(aid);
-	}
+  @RequestMapping(method = RequestMethod.DELETE, value = "/api/user/video/{aid}")
+  public ResponseEntity<Message> deleteFavoriteVideo(@PathVariable("aid") @Valid Long aid) {
+    return userService.deleteFavoriteVideoByAid(aid);
+  }
 
-	@RequestMapping(method = RequestMethod.DELETE, value = "/api/user/author")
-	public ResponseEntity<Message> deleteFavoriteAuthor(@RequestBody @Valid Long mid) {
-		return userService.deleteFavoriteAuthorByMid(mid);
+  @RequestMapping(method = RequestMethod.DELETE, value = "/api/user/author/{mid}")
+  public ResponseEntity<Message> deleteFavoriteAuthor(@PathVariable("mid") @Valid Long mid) {
+    return userService.deleteFavoriteAuthorByMid(mid);
   }
 }
