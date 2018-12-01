@@ -4,8 +4,7 @@ import com.jannchie.biliob.utils.ExceptionResult;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.http.HttpStatus;
-import org.springframework.validation.BindException;
-import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -19,12 +18,10 @@ public class BindExceptionHandler {
 
 	private static final Logger logger = LogManager.getLogger(BindExceptionHandler.class);
 
-	@ExceptionHandler(BindException.class)
+	@ExceptionHandler(MethodArgumentNotValidException.class)
 	@ResponseBody
 	@ResponseStatus(value = HttpStatus.BAD_REQUEST)
-	public ExceptionResult handleBindException(BindException ex) {
-		// ex.getFieldError():随机返回一个对象属性的异常信息。如果要一次性返回所有对象属性异常信息，则调用ex.getAllErrors()
-		FieldError fieldError = ex.getFieldError();
+	public ExceptionResult handleBindException() {
 		// 生成返回结果
 		ExceptionResult errorResult = new ExceptionResult();
 		errorResult.setCode(400);
