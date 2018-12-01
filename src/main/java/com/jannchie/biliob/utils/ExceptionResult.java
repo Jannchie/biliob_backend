@@ -24,4 +24,12 @@ public class ExceptionResult {
 	public void setCode(Integer code) {
 		this.code = code;
 	}
+
+  public ExceptionResult(ExceptionMessage exceptionMessage) {
+    this.code = exceptionMessage.getCode();
+    this.msg = exceptionMessage.getMsg();
+  }
+
+  public ExceptionResult() {
+  }
 }
