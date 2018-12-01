@@ -30,7 +30,7 @@ public class BusinessExceptionHandler {
       BusinessException businessException) {
 
     // Log the exception information.
-    logger.warn(businessException.getExceptionMessage());
-    return new ExceptionResult(businessException.getExceptionMessage());
+    logger.warn(businessException.getExceptionEnum());
+    return new ExceptionResult(businessException.getExceptionEnum());
   }
 }
