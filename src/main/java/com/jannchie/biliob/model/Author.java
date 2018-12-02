@@ -12,9 +12,8 @@ import java.util.Date;
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Author {
-	@Id
-	private ObjectId id;
-	private Long mid;
+
+  private Long mid;
 	private String name;
 	private String face;
 	private String sex;
@@ -101,14 +100,52 @@ public class Author {
 		return focus;
 	}
 
-	public class Data {
+	private class Data {
 		private Integer fans;
 		private Integer attention;
 		private Integer archive;
 		private Integer article;
+    private Integer archiveView;
+    private Integer articleView;
 		private Date datetime;
 
-		public Integer getFans() {
+    public void setFans(Integer fans) {
+      this.fans = fans;
+    }
+
+    public void setAttention(Integer attention) {
+      this.attention = attention;
+    }
+
+    public void setArchive(Integer archive) {
+      this.archive = archive;
+    }
+
+    public void setArticle(Integer article) {
+      this.article = article;
+    }
+
+    public void setArchiveView(Integer archiveView) {
+      this.archiveView = archiveView;
+    }
+
+    public void setArticleView(Integer articleView) {
+      this.articleView = articleView;
+    }
+
+    public void setDatetime(Date datetime) {
+      this.datetime = datetime;
+    }
+
+    public Integer getArchiveView() {
+      return archiveView;
+    }
+
+    public Integer getArticleView() {
+      return articleView;
+    }
+
+    public Integer getFans() {
 			return fans;
 		}
 
@@ -129,7 +166,7 @@ public class Author {
 		}
 	}
 
-	public class Channel {
+  private class Channel {
 		private Integer tid;
 		private Integer count;
 		private Integer name;
@@ -157,5 +194,6 @@ public class Author {
 		public void setName(Integer name) {
 			this.name = name;
 		}
+
 	}
 }
