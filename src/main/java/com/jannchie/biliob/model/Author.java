@@ -22,6 +22,7 @@ public class Author {
 	private ArrayList<Data> data;
 	private ArrayList<Channel> channel;
 	private Boolean focus;
+	private Boolean forceFocus;
 
 	public Author() {
 		this.focus = true;
@@ -32,7 +33,19 @@ public class Author {
 		this.focus = true;
 	}
 
-	public ArrayList<Channel> getChannel() {
+  public void setFocus(Boolean focus) {
+    this.focus = focus;
+  }
+
+  public Boolean getForceFocus() {
+    return forceFocus;
+  }
+
+  public void setForceFocus(Boolean forceFocus) {
+    this.forceFocus = forceFocus;
+  }
+
+  public ArrayList<Channel> getChannel() {
 		return channel;
 	}
 

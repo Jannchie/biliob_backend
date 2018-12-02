@@ -35,7 +35,7 @@ public interface AuthorRepository
 	 * @return 一页作者
 	 */
 	@Query(
-			fields = "{ 'name' : 1, 'mid' : 1, 'face' : 1, 'official' : 1, 'focus':1,'sex':1,'level':1}"
+			fields = "{ 'name' : 1, 'mid' : 1, 'face' : 1, 'official' : 1, 'focus':1, 'forceFocus':1, 'sex':1,'level':1}"
 	)
 	Page<Author> findAllByDataIsNotNull(Pageable pageable);
 
@@ -48,7 +48,7 @@ public interface AuthorRepository
 	 */
 	@Query(
 			value = "{'mid' : ?0}",
-			fields = "{ 'name' : 1, 'mid' : 1, 'face' : 1, 'official' : 1, 'focus':1,'sex':1,'level':1}"
+			fields = "{ 'name' : 1, 'mid' : 1, 'face' : 1, 'official' : 1, 'focus':1, 'forceFocus':1, 'sex':1,'level':1}"
 	)
 	Page<Author> searchByMid(@Param("mid") Long mid, Pageable pageable);
 
@@ -61,7 +61,7 @@ public interface AuthorRepository
 	 */
 	@Query(
 			value = "{$or:[{name:{$regex:?0}},{official:{$regex:?0}}]}",
-			fields = "{ 'name' : 1, 'mid' : 1, 'face' : 1, 'official' : 1, 'focus':1,'sex':1,'level':1}"
+			fields = "{ 'name' : 1, 'mid' : 1, 'face' : 1, 'official' : 1, 'focus':1, 'forceFocus':1, 'sex':1,'level':1}"
 	)
 	Page<Author> search(String text, Pageable pageable);
 
@@ -74,7 +74,7 @@ public interface AuthorRepository
 	 */
 	@Query(
 			value = "{$or:?0,data:{$ne:null}}",
-			fields = "{ 'name' : 1, 'mid' : 1, 'face' : 1, 'official' : 1, 'focus':1,'sex':1,'level':1}"
+			fields = "{ 'name' : 1, 'mid' : 1, 'face' : 1, 'official' : 1, 'focus':1, 'forceFocus':1, 'sex':1, 'level':1}"
 	)
 	Slice getFavoriteAuthor(ArrayList<HashMap<String, Long>> mapsList, PageRequest of);
 }
