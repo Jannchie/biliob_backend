@@ -42,6 +42,9 @@ public class ShiroConfig {
     // Allow anyone view the site information.
     filterChainDefinitionMap.put("/api/site/**", "anon");
 
+    // Allow anyone view the bangumi information.
+    filterChainDefinitionMap.put("/api/bangumi/**", "anon");
+
 		// 允许随意查看author信息
     filterChainDefinitionMap.put("/api/author/**", "anon");
 
