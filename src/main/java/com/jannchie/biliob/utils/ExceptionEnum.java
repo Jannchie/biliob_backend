@@ -3,7 +3,7 @@ package com.jannchie.biliob.utils;
 /**
  * @author jannchie
  */
-public enum ExceptionMessage {
+public enum ExceptionEnum {
 
   /**
    * Parameter out of range
@@ -13,7 +13,7 @@ public enum ExceptionMessage {
   private Integer code;
   private String msg;
 
-  ExceptionMessage(Integer code, String msg) {
+  ExceptionEnum(Integer code, String msg) {
     this.code = code;
     this.msg = msg;
   }

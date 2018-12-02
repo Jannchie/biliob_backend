@@ -25,9 +25,9 @@ public class ExceptionResult {
 		this.code = code;
 	}
 
-  public ExceptionResult(ExceptionMessage exceptionMessage) {
-    this.code = exceptionMessage.getCode();
-    this.msg = exceptionMessage.getMsg();
+  public ExceptionResult(ExceptionEnum exceptionEnum) {
+    this.code = exceptionEnum.getCode();
+    this.msg = exceptionEnum.getMsg();
   }
 
   public ExceptionResult() {
