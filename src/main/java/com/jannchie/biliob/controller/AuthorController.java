@@ -46,4 +46,9 @@ public class AuthorController {
       @RequestParam(defaultValue = "") String text) {
     return authorService.getAuthor(mid, text, page, pageSize);
   }
+
+  @RequestMapping(method = RequestMethod.PATCH, value = "/api/author/{mid}/status")
+  public ResponseEntity getAuthorDetails(@RequestParam(defaultValue = "false") @Valid Boolean forceFocus, @PathVariable("mid") @Valid Integer mid) {
+    return authorService.forceFocus(mid,forceFocus);
+  }
 }
