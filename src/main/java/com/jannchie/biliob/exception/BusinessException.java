@@ -1,23 +1,23 @@
 package com.jannchie.biliob.exception;
 
-import com.jannchie.biliob.utils.ExceptionMessage;
+import com.jannchie.biliob.utils.ExceptionEnum;
 
 /**
  * @author jannchie
  */
 public class BusinessException extends RuntimeException {
 
-  private final ExceptionMessage exceptionMessage;
+  private final ExceptionEnum exceptionEnum;
 
   /**
    * Constructs a new runtime exception with {@code null} as its detail message. The cause is not
    * initialized, and may subsequently be initialized by a call to {@link #initCause}.
    */
-  public BusinessException(ExceptionMessage exceptionMessage) {
-    this.exceptionMessage = exceptionMessage;
+  public BusinessException(ExceptionEnum exceptionEnum) {
+    this.exceptionEnum = exceptionEnum;
   }
 
-  public ExceptionMessage getExceptionMessage() {
-    return exceptionMessage;
+  public ExceptionEnum getExceptionEnum() {
+    return exceptionEnum;
   }
 }
