@@ -10,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 
@@ -37,14 +39,14 @@ public class SiteServiceImpl implements SiteService {
    * @return Online number result.
    */
   @Override
-  public Result listOnline(Integer days) {
+  public ResponseEntity listOnline(Integer days) {
     if (days > MAX_ONLINE_PLAY_RANGE) {
-      return new Result(ResultEnum.OUT_OF_RANGE);
+      return new ResponseEntity<>(new Result(ResultEnum.OUT_OF_RANGE), HttpStatus.BAD_REQUEST);
     }
     Integer limit = days * HOUR_IN_DAY;
     Query query = new Query();
     query.limit(limit).with(new Sort(Sort.Direction.DESC, "datetime"));
     logger.info("获得全站在线播放数据");
-    return new Result(ResultEnum.SUCCEED,mongoTemplate.find(query, Site.class, "site_info"));
+    return new ResponseEntity<>(mongoTemplate.find(query, Site.class, "site_info"),HttpStatus.OK);
   }
 }

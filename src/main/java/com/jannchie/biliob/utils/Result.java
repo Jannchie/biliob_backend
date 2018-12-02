@@ -1,8 +1,11 @@
 package com.jannchie.biliob.utils;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 /**
  * @author jannchie
  */
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Result {
   private Integer code;
 

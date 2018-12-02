@@ -3,6 +3,7 @@ package com.jannchie.biliob.controller;
 import com.jannchie.biliob.service.SiteService;
 import com.jannchie.biliob.utils.Result;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -25,7 +26,7 @@ public class SiteController {
   }
 
   @RequestMapping(method = RequestMethod.GET, value = "/api/site/play-online")
-  public Result listOnline(@RequestParam(defaultValue = "1") Integer days) {
+  public ResponseEntity listOnline(@RequestParam(defaultValue = "1") Integer days) {
     return siteService.listOnline(days);
   }
 }
