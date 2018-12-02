@@ -4,7 +4,10 @@ import com.jannchie.biliob.exception.AuthorAlreadyFocusedException;
 import com.jannchie.biliob.exception.UserAlreadyFavoriteAuthorException;
 import com.jannchie.biliob.model.Author;
 import org.springframework.data.domain.Page;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+
+import javax.validation.Valid;
 
 /**
  * @author jannchie
@@ -40,4 +43,14 @@ public interface AuthorService {
    * @return 作者页
    */
   Page<Author> getAuthor(Long mid, String text, Integer page, Integer pagesize);
+
+  /**
+   * Force Focus a Author or Not.
+   *
+   *
+   * @param mid author id
+   * @param forceFocus force focus status
+   * @return Force observation or cancel the force observation feedback.
+   */
+  ResponseEntity forceFocus(Integer mid, @Valid Boolean forceFocus);
 }

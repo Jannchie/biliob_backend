@@ -39,9 +39,7 @@ public class UserRealm extends AuthorizingRealm {
 
 		// 从数据库获取对应用户名密码的用户
 		String password = userService.getPassword(token.getUsername());
-		if (!password.equals(new String((char[]) token.getCredentials()))) {
-			throw new AccountException("密码不正确");
-		}
+
 		logger.info(token.getUsername());
 		return new SimpleAuthenticationInfo(token.getPrincipal(), password, getName());
 	}
