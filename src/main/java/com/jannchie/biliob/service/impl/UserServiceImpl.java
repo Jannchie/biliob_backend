@@ -12,6 +12,8 @@ import com.jannchie.biliob.repository.VideoRepository;
 import com.jannchie.biliob.service.UserService;
 import com.jannchie.biliob.utils.LoginCheck;
 import com.jannchie.biliob.utils.Message;
+import com.jannchie.biliob.utils.Result;
+import com.jannchie.biliob.utils.ResultEnum;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.shiro.SecurityUtils;
@@ -131,15 +133,18 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public Slice getFavoriteVideo(Integer page, Integer pageSize) {
 		User user = LoginCheck.check(userRepository);
-		ArrayList<Long> aids = user.getFavoriteAid();
-		ArrayList<HashMap<String, Long>> mapsList = new ArrayList<>();
-		for (Long aid : aids) {
+    if (user.getFavoriteAid() == null) {
+      return null;
+    }
+    ArrayList<Long> aids = user.getFavoriteAid();
+    ArrayList<HashMap<String, Long>> mapsList = new ArrayList<>();
+    for (Long aid : aids) {
 			HashMap<String, Long> temp = new HashMap<>(1);
 			temp.put("aid", aid);
 			mapsList.add(temp);
 		}
-		logger.info(user.getName());
-		return videoRepository.getFavoriteVideo(mapsList, PageRequest.of(page, pageSize));
+    logger.info(user.getName());
+    return videoRepository.getFavoriteVideo(mapsList, PageRequest.of(page, pageSize));
 	}
 
 	/**
@@ -152,8 +157,11 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public Slice getFavoriteAuthor(Integer page, Integer pageSize) {
 		User user = LoginCheck.check(userRepository);
-		ArrayList<Long> mids = user.getFavoriteMid();
-		ArrayList<HashMap<String, Long>> mapsList = new ArrayList<>();
+    if (user.getFavoriteMid() == null) {
+      return null;
+    }
+    ArrayList<Long> mids = user.getFavoriteMid();
+    ArrayList<HashMap<String, Long>> mapsList = new ArrayList<>();
 		for (Long mid : mids) {
 			HashMap<String, Long> temp = new HashMap<>(1);
 			temp.put("mid", mid);
@@ -178,11 +186,12 @@ public class UserServiceImpl implements UserService {
 				mids.remove(i);
 				user.setFavoriteMid(mids);
 				userRepository.save(user);
-				return new ResponseEntity<>(new Message(200, "删除成功"), HttpStatus.OK);
-			}
+        logger.info("删除{}关注的UP主：{}", user.getName(), mid);
+        return new ResponseEntity<>(new Message(-1, "删除成功"), HttpStatus.OK);
+      }
 		}
-		return new ResponseEntity<>(new Message(404, "未找到该UP主"), HttpStatus.NOT_FOUND);
-	}
+    return new ResponseEntity<>(new Message(-1, "未找到该UP主"), HttpStatus.NOT_FOUND);
+  }
 
 	/**
 	 * delete user's favorite video by video id
@@ -212,8 +221,8 @@ public class UserServiceImpl implements UserService {
 	 * @return login information
 	 */
 	@Override
-	public ResponseEntity<Message> login(User user) {
-		String inputName = user.getName();
+  public ResponseEntity login(User user) {
+    String inputName = user.getName();
 		String inputPassword = user.getPassword();
 		String encodedPassword = new Md5Hash(inputPassword, inputName).toHex();
 		Subject subject = SecurityUtils.getSubject();
@@ -222,8 +231,8 @@ public class UserServiceImpl implements UserService {
 		subject.login(token);
 		String role = getRole(inputName);
 		if (UserType.NORMAL_USER.equals(role)) {
-			return new ResponseEntity<>(new Message(200, "登录成功"), HttpStatus.OK);
-		}
-		return new ResponseEntity<>(new Message(403, "登录失败"), HttpStatus.FORBIDDEN);
-	}
+      return new ResponseEntity<>(new Result(ResultEnum.LOGIN_SUCCEED, getUserInfo()), HttpStatus.OK);
+    }
+    return new ResponseEntity<>(new Result(ResultEnum.LOGIN_FAILED), HttpStatus.UNAUTHORIZED);
+  }
 }
