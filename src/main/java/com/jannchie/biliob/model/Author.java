@@ -18,11 +18,12 @@ public class Author {
 	private String face;
 	private String sex;
 	private String official;
-	private Integer level;
-	private ArrayList<Data> data;
-	private ArrayList<Channel> channel;
-	private Boolean focus;
-	private Boolean forceFocus;
+  private Integer level;
+  private ArrayList<Data> data;
+  private ArrayList<Channel> channels;
+  private Boolean focus;
+  private Boolean forceFocus;
+
 
 	public Author() {
 		this.focus = true;
@@ -45,12 +46,12 @@ public class Author {
     this.forceFocus = forceFocus;
   }
 
-  public ArrayList<Channel> getChannel() {
-		return channel;
+  public ArrayList<Channel> getChannels() {
+		return channels;
 	}
 
 	public void setChannel(ArrayList<Channel> channel) {
-		this.channel = channel;
+		this.channels = channels;
 	}
 
 	public Long getMid() {
@@ -182,7 +183,7 @@ public class Author {
   private class Channel {
 		private Integer tid;
 		private Integer count;
-		private Integer name;
+		private String name;
 
 		public Integer getTid() {
 			return tid;
@@ -200,11 +201,11 @@ public class Author {
 			this.count = count;
 		}
 
-		public Integer getName() {
+		public String getName() {
 			return name;
 		}
 
-		public void setName(Integer name) {
+		public void setName(String name) {
 			this.name = name;
 		}
 
