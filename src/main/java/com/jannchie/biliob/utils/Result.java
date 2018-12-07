@@ -23,14 +23,15 @@ public class Result {
 
   private String msg;
   private Object data;
-  public Result(ResultEnum exceptionEnum) {
-    this.code =exceptionEnum.code;
-    this.msg = exceptionEnum.msg;
+
+  public Result(ResultEnum resultEnum) {
+    this.code = resultEnum.code;
+    this.msg = resultEnum.msg;
   }
 
-  public Result(ResultEnum resultType, Object data) {
-    this.code = resultType.code;
-    this.msg = resultType.msg;
+  public Result(ResultEnum resultEnum, Object data) {
+    this.code = resultEnum.code;
+    this.msg = resultEnum.msg;
     this.data = data;
   }
 }

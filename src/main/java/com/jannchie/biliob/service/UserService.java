@@ -109,6 +109,6 @@ public interface UserService {
 	 * @param user user information
 	 * @return login response
 	 */
-	ResponseEntity<Message> login(User user);
+  ResponseEntity login(User user);
 }
 
