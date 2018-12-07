@@ -74,8 +74,23 @@ public class VideoServiceImpl implements VideoService {
 	}
 
 	@Override
-	public Slice<Video> getAuthorVideo(Long aid, Long mid, Integer page, Integer pagesize) {
+	public Slice<Video> getAuthorOtherVideo(Long aid, Long mid, Integer page, Integer pagesize) {
 		return respository.findAuthorOtherVideo(
 				aid, mid, PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, "data.0.view")));
 	}
+
+  /**
+   * Get author top video.
+   *
+   * @param mid      author id
+   * @param page     no use
+   * @param pagesize the number of displayed video
+   * @return slice of author's video
+   */
+  @Override
+  public ResponseEntity getAuthorTopVideo(Long mid, Integer page, Integer pagesize) {
+    Slice video = respository.findAuthorTopVideo(
+        mid, PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, "data.0.view")));
+    return new ResponseEntity<>(video,HttpStatus.OK);
+  }
 }
