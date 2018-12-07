@@ -76,7 +76,7 @@ public class UserController {
   }
 
   @RequestMapping(method = RequestMethod.POST, value = "/api/login")
-  public ResponseEntity<Message> login(@RequestBody @Valid User user) {
+  public ResponseEntity login(@RequestBody @Valid User user) {
     return userService.login(user);
   }
 

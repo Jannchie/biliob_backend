@@ -37,7 +37,15 @@ public class VideoController {
       @PathVariable("mid") Long mid,
       @RequestParam(defaultValue = "0") Integer page,
       @RequestParam(defaultValue = "5") Integer pagesize) {
-    return videoService.getAuthorVideo(aid, mid, page, pagesize);
+    return videoService.getAuthorOtherVideo(aid, mid, page, pagesize);
+  }
+
+  @RequestMapping(method = RequestMethod.GET, value = "/api/author/{mid}/video")
+  public ResponseEntity getAuthorTopVideo(
+      @PathVariable("mid") Long mid,
+      @RequestParam(defaultValue = "0") Integer page,
+      @RequestParam(defaultValue = "5") Integer pagesize) {
+    return videoService.getAuthorTopVideo(mid, page, pagesize);
   }
 
   @RequestMapping(method = RequestMethod.POST, value = "/api/video")

@@ -95,6 +95,16 @@ public interface VideoRepository
 	)
 	Slice<Video> findAuthorOtherVideo(Long aid, Long mid, Pageable pageable);
 
+  /**
+   * Find author's top video.
+   *
+   * @param mid author id
+   * @param pageable page information
+   * @return a slice of author's top video.
+   */
+  @Query(value = "{mid:?0}", fields = "{'title' : 1, 'aid' : 1, 'mid' : 1,'channel':1}")
+  Slice<Video> findAuthorTopVideo(Long mid, Pageable pageable);
+
 	/**
 	 * get user favorite video
 	 *
