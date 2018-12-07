@@ -54,5 +54,15 @@ public interface VideoService {
 	 * @param pagesize 页大小
 	 * @return 视频切片
 	 */
-	Slice<Video> getAuthorVideo(Long aid, Long mid, Integer page, Integer pagesize);
+	Slice<Video> getAuthorOtherVideo(Long aid, Long mid, Integer page, Integer pagesize);
+
+  /**
+   *  Get author top video.
+   *
+   * @param mid author id
+   * @param page no use
+   * @param pagesize the number of displayed video
+   * @return slice of author's video
+   */
+  ResponseEntity getAuthorTopVideo(Long mid, Integer page, Integer pagesize);
 }
