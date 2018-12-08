@@ -25,7 +25,7 @@ public class SiteController {
     this.siteService = siteService;
   }
 
-  @RequestMapping(method = RequestMethod.GET, value = "/api/site/play-online")
+  @RequestMapping(method = RequestMethod.GET, value = "/api/site")
   public ResponseEntity listOnline(@RequestParam(defaultValue = "1") Integer days) {
     return siteService.listOnline(days);
   }
