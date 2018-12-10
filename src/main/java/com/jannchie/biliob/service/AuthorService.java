@@ -53,4 +53,18 @@ public interface AuthorService {
    * @return Force observation or cancel the force observation feedback.
    */
   ResponseEntity forceFocus(Integer mid, @Valid Boolean forceFocus);
+
+  /**
+   * get a list of author's fans increase rate.
+   *
+   * @return list of author rate of fans increase.
+   */
+  ResponseEntity listFansIncreaseRate();
+
+  /**
+   * get a list of author's fans decrease rate.
+   *
+   * @return list of author rate of fans decrease.
+   */
+  ResponseEntity listFansDecreaseRate();
 }

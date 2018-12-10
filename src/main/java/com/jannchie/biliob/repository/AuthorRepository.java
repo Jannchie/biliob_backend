@@ -13,6 +13,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * @author jannchie
@@ -77,4 +78,17 @@ public interface AuthorRepository
 			fields = "{ 'name' : 1, 'mid' : 1, 'face' : 1, 'official' : 1, 'focus':1, 'forceFocus':1, 'sex':1, 'level':1}"
 	)
 	Slice getFavoriteAuthor(ArrayList<HashMap<String, Long>> mapsList, PageRequest of);
+
+  /**
+   * listTopIncreaseRate
+   *
+   * @param of page information
+   * @return a slice of top fans increase rate.
+   */
+  @Query(
+      value = "{cRate:{$ne:null}}",
+      fields =
+        "{ 'data':0}"
+  )
+  Slice<Author> listTopIncreaseRate(PageRequest of);
 }
