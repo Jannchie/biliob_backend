@@ -14,6 +14,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.http.HttpStatus;
@@ -93,5 +94,27 @@ public class AuthorServiceImpl implements AuthorService {
     logger.info("设置{}强制追踪状态为{}",mid,forceFocus);
     mongoTemplate.updateFirst(query(where("mid").is(mid)),update("forceFocus",forceFocus),Author.class);
     return new ResponseEntity<>(new Result(ResultEnum.SUCCEED), HttpStatus.OK);
+  }
+
+  /**
+   * get a list of author's fans increase rate.
+   *
+   * @return list of author rate of fans increase.
+   */
+  @Override
+  public ResponseEntity listFansIncreaseRate() {
+    Slice slice = respository.listTopIncreaseRate(PageRequest.of(0,20,new Sort(Sort.Direction.DESC,"cRate")));
+    return new ResponseEntity<>(slice,HttpStatus.OK);
+  }
+
+  /**
+   * get a list of author's fans decrease rate.
+   *
+   * @return list of author rate of fans decrease.
+   */
+  @Override
+  public ResponseEntity listFansDecreaseRate() {
+    Slice slice = respository.listTopIncreaseRate(PageRequest.of(0,20,new Sort(Sort.Direction.ASC,"cRate")));
+    return new ResponseEntity<>(slice,HttpStatus.OK);
   }
 }

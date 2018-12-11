@@ -1,6 +1,7 @@
 package com.jannchie.biliob.repository;
 
 import com.jannchie.biliob.model.Bangumi;
+import com.jannchie.biliob.model.Donghua;
 import org.bson.types.ObjectId;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
@@ -11,11 +12,11 @@ import org.springframework.data.repository.PagingAndSortingRepository;
 /**
  * @author jannchie
  */
-public interface BangumiRepository
-    extends MongoRepository<Bangumi, ObjectId>, PagingAndSortingRepository<Bangumi, ObjectId> {
+public interface DonghuaRepository
+    extends MongoRepository<Donghua, ObjectId>, PagingAndSortingRepository<Donghua, ObjectId> {
 
   /**
-   * Find All Bangumi
+   * Find All Donghua
    *
    * @param of page param
    * @return a slice
@@ -24,5 +25,5 @@ public interface BangumiRepository
       value = "{}",
       fields = "{ 'data':0}"
   )
-  Slice sliceBangumi(PageRequest of);
+  Slice sliceDonghua(PageRequest of);
 }

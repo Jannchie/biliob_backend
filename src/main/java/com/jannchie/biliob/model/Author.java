@@ -23,7 +23,15 @@ public class Author {
   private ArrayList<Channel> channels;
   private Boolean focus;
   private Boolean forceFocus;
+  private Integer cRate;
 
+  public Integer getcRate() {
+    return cRate;
+  }
+
+  public void setcRate(Integer cRate) {
+    this.cRate = cRate;
+  }
 
 	public Author() {
 		this.focus = true;
@@ -122,6 +130,7 @@ public class Author {
     private Integer archiveView;
     private Integer articleView;
 		private Date datetime;
+
 
     public void setFans(Integer fans) {
       this.fans = fans;
