@@ -50,6 +50,8 @@ public class ShiroConfig {
     filterChainDefinitionMap.put("/api/rank/**", "anon");
     // Allow anyone view the bangumi information.
     filterChainDefinitionMap.put("/api/bangumi/**", "anon");
+    // Allow anyone view the donghua information.
+    filterChainDefinitionMap.put("/api/donghua/**", "anon");
 		// 允许随意查看author信息
     filterChainDefinitionMap.put("/api/author/**", "anon");
 		// 允许随意查看video信息

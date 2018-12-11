@@ -10,8 +10,8 @@ import java.util.List;
  * @author jannchie
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@Document(collection = "bangumi")
-public class Bangumi {
+@Document(collection = "donghua")
+public class Donghua {
 
   private String title;
   private List tag;
