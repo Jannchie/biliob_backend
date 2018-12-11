@@ -51,4 +51,14 @@ public class AuthorController {
   public ResponseEntity getAuthorDetails(@RequestParam(defaultValue = "false") @Valid Boolean forceFocus, @PathVariable("mid") @Valid Integer mid) {
     return authorService.forceFocus(mid,forceFocus);
   }
+
+  @RequestMapping(method = RequestMethod.GET, value = "/api/rank/fans-increase-rate")
+  public ResponseEntity listFansIncreaseRate() {
+    return authorService.listFansIncreaseRate();
+  }
+
+  @RequestMapping(method = RequestMethod.GET, value = "/api/rank/fans-decrease-rate")
+  public ResponseEntity listFansDecreaseRate() {
+    return authorService.listFansDecreaseRate();
+  }
 }
