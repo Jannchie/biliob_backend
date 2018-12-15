@@ -61,4 +61,9 @@ public class AuthorController {
   public ResponseEntity listFansDecreaseRate() {
     return authorService.listFansDecreaseRate();
   }
+
+  @RequestMapping(method = RequestMethod.GET, value = "/api/author/{mid}/fans-rate")
+  public ResponseEntity listFansRate(@PathVariable("mid") Long mid) {
+    return authorService.listFansRate(mid);
+  }
 }

@@ -36,7 +36,7 @@ public interface AuthorRepository
 	 * @return 一页作者
 	 */
 	@Query(
-			fields = "{ 'name' : 1, 'mid' : 1, 'face' : 1, 'official' : 1, 'focus':1, 'forceFocus':1, 'sex':1,'level':1}"
+			fields = "{ 'name' : 1, 'mid' : 1, 'face' : 1, 'official' : 1, 'focus':1, 'forceFocus':1, 'sex':1,'level':1,'fansRate':1}"
 	)
 	Page<Author> findAllByDataIsNotNull(Pageable pageable);
 
@@ -91,4 +91,12 @@ public interface AuthorRepository
         "{ 'data':0}"
   )
   Slice<Author> listTopIncreaseRate(PageRequest of);
+
+  /**
+   * get fans rate
+   * @param mid author's id
+   * @return a author
+   */
+  @Query(value = "{mid:?0}", fields = "{ 'fansRate':1}")
+  Author getFansRate(Long mid);
 }
