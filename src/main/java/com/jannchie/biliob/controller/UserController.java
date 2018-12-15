@@ -39,7 +39,6 @@ public class UserController {
       Integer newCount = blackIP.get(ip)+1;
       blackIP.put(ip,newCount);
       if (newCount>20){
-        logger.warn(ip);
         return new ResponseEntity<>("cheating", HttpStatus.FORBIDDEN);
       }
     }else{
