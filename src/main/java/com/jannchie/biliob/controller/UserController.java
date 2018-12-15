@@ -33,8 +33,8 @@ public class UserController {
   @RequestMapping(method = RequestMethod.POST, value = "/api/user")
   public ResponseEntity createUser(HttpServletRequest request, @RequestBody @Valid User user)
       throws UserAlreadyExistException {
-    String ip = request.getLocalAddr();
-    System.out.println(ip);
+    String ip = request.getRemoteAddr();
+
     if (blackIP.containsKey(ip)){
       if (blackIP.get(ip) == -1){
         return new ResponseEntity<>("cheating", HttpStatus.FORBIDDEN);
@@ -44,6 +44,13 @@ public class UserController {
       if (newCount > 20){
         blackIP.put(ip,-1);
         logger.info(ip);
+        String ip2 = request.getRemoteUser();
+        String ip3 = request.getRemoteHost();
+        String ip4 = request.getRemoteAddr();
+        System.out.println(ip);
+        System.out.println(ip2);
+        System.out.println(ip3);
+        System.out.println(ip4);
         return new ResponseEntity<>("cheating", HttpStatus.FORBIDDEN);
       }
     }else{
