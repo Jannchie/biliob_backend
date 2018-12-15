@@ -12,21 +12,36 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.util.HashMap;
+import java.util.Map;
 
 /** @author jannchie */
 @RestController
 public class UserController {
   private final UserService userService;
-
+  private Map<String,Integer> blackIP = new HashMap();
   @Autowired
   public UserController(UserService userService) {
     this.userService = userService;
   }
 
   @RequestMapping(method = RequestMethod.POST, value = "/api/user")
-  public ResponseEntity<User> createUser(@RequestBody @Valid User user)
+  @RequestLimit(count=3,time=50000)
+  public ResponseEntity<User> createUser(HttpServletRequest request, @RequestBody @Valid User user)
       throws UserAlreadyExistException {
+    String ip = request.getLocalAddr();
+    System.out.println(ip);
+    if (blackIP.containsKey(ip)){
+      Integer newCount = blackIP.get(ip)+1;
+      blackIP.put(ip,newCount);
+      if (newCount>20){
+        return null;
+      }
+    }else{
+      blackIP.put(ip,0);
+    }
     User newUser = userService.createUser(user);
     return new ResponseEntity<>(newUser, HttpStatus.CREATED);
   }
