@@ -24,6 +24,40 @@ public class Author {
   private Boolean focus;
   private Boolean forceFocus;
   private Integer cRate;
+  private ArrayList<FansRate> fansRate;
+
+  public void setChannels(ArrayList<Channel> channels) {
+    this.channels = channels;
+  }
+
+  public ArrayList<FansRate> getFansRate() {
+    return fansRate;
+  }
+
+  public void setFansRate(ArrayList<FansRate> fansRate) {
+    this.fansRate = fansRate;
+  }
+
+  private class FansRate{
+    private Integer rate;
+    private Date datetime;
+
+    public Integer getRate() {
+      return rate;
+    }
+
+    public void setRate(Integer rate) {
+      this.rate = rate;
+    }
+
+    public Date getDatetime() {
+      return datetime;
+    }
+
+    public void setDatetime(Date datetime) {
+      this.datetime = datetime;
+    }
+  }
 
   public Integer getcRate() {
     return cRate;

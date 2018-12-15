@@ -18,7 +18,8 @@ public class User {
 	private ObjectId id;
 
 	@NotBlank(message = "用户ID不能为空")
-	private String name;
+  @Length(max = 20, message = "账号最长为20位")
+  private String name;
 
 	@Length(min = 6, message = "密码至少为6位")
 	@NotBlank(message = "用户密码不能为空!")
