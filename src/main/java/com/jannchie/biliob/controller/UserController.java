@@ -5,7 +5,10 @@ import com.jannchie.biliob.exception.UserAlreadyFavoriteAuthorException;
 import com.jannchie.biliob.exception.UserAlreadyFavoriteVideoException;
 import com.jannchie.biliob.model.User;
 import com.jannchie.biliob.service.UserService;
+import com.jannchie.biliob.service.impl.VideoServiceImpl;
 import com.jannchie.biliob.utils.Message;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Slice;
 import org.springframework.http.HttpStatus;
@@ -26,10 +29,9 @@ public class UserController {
   public UserController(UserService userService) {
     this.userService = userService;
   }
-
+  private static final Logger logger = LogManager.getLogger(VideoServiceImpl.class);
   @RequestMapping(method = RequestMethod.POST, value = "/api/user")
-  @RequestLimit(count=3,time=50000)
-  public ResponseEntity<User> createUser(HttpServletRequest request, @RequestBody @Valid User user)
+  public ResponseEntity createUser(HttpServletRequest request, @RequestBody @Valid User user)
       throws UserAlreadyExistException {
     String ip = request.getLocalAddr();
     System.out.println(ip);
@@ -37,7 +39,8 @@ public class UserController {
       Integer newCount = blackIP.get(ip)+1;
       blackIP.put(ip,newCount);
       if (newCount>20){
-        return null;
+        logger.warn(ip);
+        return new ResponseEntity<>("cheating", HttpStatus.FORBIDDEN);
       }
     }else{
       blackIP.put(ip,0);
