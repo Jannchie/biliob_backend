@@ -22,6 +22,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import javax.validation.Valid;
+import java.util.List;
 import java.util.Objects;
 
 import static org.springframework.data.mongodb.core.query.Criteria.where;
@@ -116,5 +117,18 @@ public class AuthorServiceImpl implements AuthorService {
   public ResponseEntity listFansDecreaseRate() {
     Slice slice = respository.listTopIncreaseRate(PageRequest.of(0,20,new Sort(Sort.Direction.ASC,"cRate")));
     return new ResponseEntity<>(slice,HttpStatus.OK);
+  }
+
+  /**
+   * get specific author's fans rate
+   *
+   * @param mid author id
+   * @return list of fans
+   */
+  @Override
+  public ResponseEntity listFansRate(Long mid) {
+    Author author = respository.getFansRate(mid);
+    List data = author.getFansRate();
+    return new ResponseEntity<>(data,HttpStatus.OK);
   }
 }
