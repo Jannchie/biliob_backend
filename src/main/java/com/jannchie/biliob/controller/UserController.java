@@ -36,9 +36,14 @@ public class UserController {
     String ip = request.getLocalAddr();
     System.out.println(ip);
     if (blackIP.containsKey(ip)){
+      if (blackIP.get(ip) == -1){
+        return new ResponseEntity<>("cheating", HttpStatus.FORBIDDEN);
+      }
       Integer newCount = blackIP.get(ip)+1;
       blackIP.put(ip,newCount);
-      if (newCount>20){
+      if (newCount > 20){
+        blackIP.put(ip,-1);
+        logger.info(ip);
         return new ResponseEntity<>("cheating", HttpStatus.FORBIDDEN);
       }
     }else{
