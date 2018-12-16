@@ -5,7 +5,6 @@ import com.jannchie.biliob.exception.UserAlreadyFavoriteAuthorException;
 import com.jannchie.biliob.exception.UserAlreadyFavoriteVideoException;
 import com.jannchie.biliob.model.User;
 import com.jannchie.biliob.service.UserService;
-import com.jannchie.biliob.service.impl.VideoServiceImpl;
 import com.jannchie.biliob.utils.Message;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -17,50 +16,25 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-import java.util.HashMap;
-import java.util.Map;
 
 /** @author jannchie */
 @RestController
 public class UserController {
   private final UserService userService;
-  private Map<String,Integer> blackIP = new HashMap();
 
   @Autowired
   public UserController(UserService userService) {
     this.userService = userService;
   }
-  private static final Logger logger = LogManager.getLogger(VideoServiceImpl.class);
 
-//  @RequestMapping(method = RequestMethod.POST, value = "/api/user")
-//  public ResponseEntity createUser(HttpServletRequest request, @RequestBody @Valid User user)
-//      throws UserAlreadyExistException {
-//    String ip = request.getRemoteAddr();
-//
-//    if (blackIP.containsKey(ip)){
-//      if (blackIP.get(ip) == -1){
-//        return new ResponseEntity<>("cheating", HttpStatus.FORBIDDEN);
-//      }
-//      Integer newCount = blackIP.get(ip)+1;
-//      blackIP.put(ip,newCount);
-//      if (newCount > 20){
-//        blackIP.put(ip,-1);
-//        logger.info(ip);
-//        String ip2 = request.getRemoteUser();
-//        String ip3 = request.getRemoteHost();
-//        String ip4 = request.getRemoteAddr();
-//        System.out.println(ip);
-//        System.out.println(ip2);
-//        System.out.println(ip3);
-//        System.out.println(ip4);
-//        return new ResponseEntity<>("cheating", HttpStatus.FORBIDDEN);
-//      }
-//    }else{
-//      blackIP.put(ip,0);
-//    }
-//    User newUser = userService.createUser(user);
-//    return new ResponseEntity<>(newUser, HttpStatus.CREATED);
-//  }
+  private static final Logger logger = LogManager.getLogger(UserController.class);
+
+  @RequestMapping(method = RequestMethod.POST, value = "/api/user")
+  public ResponseEntity createUser(HttpServletRequest request, @RequestBody @Valid User user)
+      throws UserAlreadyExistException {
+    User newUser = userService.createUser(user);
+    return new ResponseEntity<>(newUser, HttpStatus.CREATED);
+  }
 
   @RequestMapping(method = RequestMethod.POST, value = "/api/user/author")
   public ResponseEntity<Message> addFavoriteAuthor(@RequestBody @Valid Long mid)
