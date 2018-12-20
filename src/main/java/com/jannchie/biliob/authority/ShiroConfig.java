@@ -46,6 +46,8 @@ public class ShiroConfig {
 		filterChainDefinitionMap.put("/api/login", "anon");
     // Allow anyone view the site information.
     filterChainDefinitionMap.put("/api/site/**", "anon");
+    // Allow anyone view the event information.
+    filterChainDefinitionMap.put("/api/event/**", "anon");
     // Allow anyone view the rank information.
     filterChainDefinitionMap.put("/api/rank/**", "anon");
     // Allow anyone view the bangumi information.
