@@ -1,6 +1,6 @@
 package com.jannchie.biliob.controller;
 
-import com.jannchie.biliob.service.DonghuaService;
+import com.jannchie.biliob.service.EventService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -9,24 +9,22 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * Get the Bangumi Data.
- *
  * @author jannchie
  */
 @RestController
-public class DonghuaController {
+public class EventController {
 
-  private final DonghuaService donghuaService;
+  private final EventService eventService;
 
   @Autowired
-  public DonghuaController(DonghuaService donghuaService) {
-    this.donghuaService = donghuaService;
+  public EventController(EventService eventService) {
+    this.eventService = eventService;
   }
 
-  @RequestMapping(method = RequestMethod.GET, value = "/api/donghua")
-  public ResponseEntity listOnline(
+  @RequestMapping(method = RequestMethod.GET, value = "/api/event")
+  public ResponseEntity pageEvent(
       @RequestParam(defaultValue = "0") Integer page,
       @RequestParam(defaultValue = "20") Integer pagesize) {
-    return donghuaService.listDonghua(page, pagesize);
+    return eventService.pageEvent(page, pagesize);
   }
 }
