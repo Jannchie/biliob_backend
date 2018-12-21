@@ -88,7 +88,7 @@ public interface AuthorRepository
   @Query(
       value = "{cRate:{$ne:null}}",
       fields =
-        "{ 'data':0}"
+        "{ 'data': 0, 'fansRate': 0 }"
   )
   Slice<Author> listTopIncreaseRate(PageRequest of);
 
