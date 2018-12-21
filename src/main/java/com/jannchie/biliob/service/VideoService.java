@@ -65,4 +65,11 @@ public interface VideoService {
    * @return slice of author's video
    */
   ResponseEntity getAuthorTopVideo(Long mid, Integer page, Integer pagesize);
+
+  /**
+   * Get my video.
+   *
+   * @return one of my video
+   */
+  ResponseEntity getMyVideo();
 }
