@@ -105,6 +105,7 @@ public class AuthorServiceImpl implements AuthorService {
   @Override
   public ResponseEntity listFansIncreaseRate() {
     Slice slice = respository.listTopIncreaseRate(PageRequest.of(0,20,new Sort(Sort.Direction.DESC,"cRate")));
+    logger.info("获得涨粉榜");
     return new ResponseEntity<>(slice,HttpStatus.OK);
   }
 
@@ -116,6 +117,7 @@ public class AuthorServiceImpl implements AuthorService {
   @Override
   public ResponseEntity listFansDecreaseRate() {
     Slice slice = respository.listTopIncreaseRate(PageRequest.of(0,20,new Sort(Sort.Direction.ASC,"cRate")));
+    logger.info("获得掉粉榜");
     return new ResponseEntity<>(slice,HttpStatus.OK);
   }
 
@@ -129,6 +131,7 @@ public class AuthorServiceImpl implements AuthorService {
   public ResponseEntity listFansRate(Long mid) {
     Author author = respository.getFansRate(mid);
     List data = author.getFansRate();
+    logger.info("获得粉丝变动率");
     return new ResponseEntity<>(data,HttpStatus.OK);
   }
 }
