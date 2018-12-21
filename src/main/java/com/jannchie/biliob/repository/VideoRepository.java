@@ -105,9 +105,9 @@ public interface VideoRepository
   @Query(value = "{mid:?0}", fields = "{'title' : 1, 'aid' : 1, 'mid' : 1,'channel':1}")
   Slice<Video> findAuthorTopVideo(Long mid, Pageable pageable);
 
-	/**
-	 * get user favorite video
-	 *
+  /**
+   * get user favorite video
+   *
 	 * @param aids video id
 	 * @param of   page information
 	 * @return a slice of user favorite videos
