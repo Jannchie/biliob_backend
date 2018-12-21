@@ -62,4 +62,9 @@ public class VideoController {
       @RequestParam(defaultValue = "") String text) {
     return videoService.getVideo(aid, text, page, pageSize);
   }
+
+  @RequestMapping(method = RequestMethod.GET, value = "/api/video/ads")
+  public ResponseEntity getMyVideo() {
+    return videoService.getMyVideo();
+  }
 }

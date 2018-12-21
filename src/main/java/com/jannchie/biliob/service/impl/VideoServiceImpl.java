@@ -15,11 +15,15 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
+
+import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 /**
  * @author jannchie
@@ -29,13 +33,15 @@ public class VideoServiceImpl implements VideoService {
 	private static final Logger logger = LogManager.getLogger(VideoServiceImpl.class);
 	private final VideoRepository respository;
 	private final UserService userService;
+  private final MongoTemplate mongoTemplate;
 
-	@Autowired
-	public VideoServiceImpl(
-			VideoRepository respository, UserRepository userRepository, UserService userService) {
-		this.respository = respository;
-		this.userService = userService;
-	}
+  @Autowired
+  public VideoServiceImpl(
+      VideoRepository respository, UserRepository userRepository, UserService userService, MongoTemplate mongoTemplate) {
+    this.respository = respository;
+    this.userService = userService;
+    this.mongoTemplate = mongoTemplate;
+  }
 
 	@Override
 	public Video getVideoDetails(Long aid) {
@@ -75,8 +81,9 @@ public class VideoServiceImpl implements VideoService {
 
 	@Override
 	public Slice<Video> getAuthorOtherVideo(Long aid, Long mid, Integer page, Integer pagesize) {
-		return respository.findAuthorOtherVideo(
-				aid, mid, PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, "data.0.view")));
+    logger.info("获取作者其他数据");
+    return respository.findAuthorOtherVideo(
+        aid, mid, PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, "data.0.view")));
 	}
 
   /**
@@ -91,6 +98,21 @@ public class VideoServiceImpl implements VideoService {
   public ResponseEntity getAuthorTopVideo(Long mid, Integer page, Integer pagesize) {
     Slice video = respository.findAuthorTopVideo(
         mid, PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, "data.0.view")));
-    return new ResponseEntity<>(video,HttpStatus.OK);
+    logger.info("获取作者播放最多的数据");
+    return new ResponseEntity<>(video, HttpStatus.OK);
+  }
+
+  /**
+   * Get my video.
+   *
+   * @return the latest of my video
+   */
+  @Override
+  public ResponseEntity<Video> getMyVideo() {
+    Query q = new Query(where("mid").is(1850091)).with(new Sort(Sort.Direction.DESC, "datetime"));
+    q.fields().exclude("data");
+    Video video = mongoTemplate.findOne(q, Video.class);
+    logger.info("获取广告");
+    return new ResponseEntity<>(video, HttpStatus.OK);
   }
 }
