@@ -1,8 +1,6 @@
 package com.jannchie.biliob.service.impl;
 
-import com.jannchie.biliob.repository.BangumiRepository;
 import com.jannchie.biliob.repository.DonghuaRepository;
-import com.jannchie.biliob.service.BangumiService;
 import com.jannchie.biliob.service.DonghuaService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -37,6 +35,6 @@ public class DonghuaServiceImpl implements DonghuaService {
     }
     logger.info("获得国创列表");
     return new ResponseEntity<>(
-        donghuaRepository.findAll(PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC,"currentPts"))), HttpStatus.OK);
+        donghuaRepository.sliceDonghua(PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, "currentPts"))), HttpStatus.OK);
   }
 }

@@ -6,12 +6,15 @@ import com.jannchie.biliob.exception.UserAlreadyFavoriteVideoException;
 import com.jannchie.biliob.model.User;
 import com.jannchie.biliob.service.UserService;
 import com.jannchie.biliob.utils.Message;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Slice;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 /** @author jannchie */
@@ -24,8 +27,10 @@ public class UserController {
     this.userService = userService;
   }
 
+  private static final Logger logger = LogManager.getLogger(UserController.class);
+
   @RequestMapping(method = RequestMethod.POST, value = "/api/user")
-  public ResponseEntity<User> createUser(@RequestBody @Valid User user)
+  public ResponseEntity createUser(HttpServletRequest request, @RequestBody @Valid User user)
       throws UserAlreadyExistException {
     User newUser = userService.createUser(user);
     return new ResponseEntity<>(newUser, HttpStatus.CREATED);
