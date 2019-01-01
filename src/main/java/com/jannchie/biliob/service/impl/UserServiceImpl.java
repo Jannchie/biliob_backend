@@ -11,7 +11,6 @@ import com.jannchie.biliob.repository.UserRepository;
 import com.jannchie.biliob.repository.VideoRepository;
 import com.jannchie.biliob.service.UserService;
 import com.jannchie.biliob.utils.LoginCheck;
-import com.jannchie.biliob.utils.Message;
 import com.jannchie.biliob.utils.Result;
 import com.jannchie.biliob.utils.ResultEnum;
 import org.apache.logging.log4j.LogManager;
@@ -22,6 +21,9 @@ import org.apache.shiro.crypto.hash.Md5Hash;
 import org.apache.shiro.subject.Subject;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -30,6 +32,8 @@ import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Objects;
+
+import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 /**
  * @author jannchie
@@ -44,14 +48,17 @@ public class UserServiceImpl implements UserService {
 
 	private final AuthorRepository authorRepository;
 
+  private final MongoTemplate mongoTemplate;
+
 	public UserServiceImpl(
-			UserRepository userRepository,
-			VideoRepository videoRepository,
-			AuthorRepository authorRepository) {
-		this.userRepository = userRepository;
-		this.videoRepository = videoRepository;
+      UserRepository userRepository,
+      VideoRepository videoRepository,
+      AuthorRepository authorRepository, MongoTemplate mongoTemplate) {
+    this.userRepository = userRepository;
+    this.videoRepository = videoRepository;
 		this.authorRepository = authorRepository;
-	}
+    this.mongoTemplate = mongoTemplate;
+  }
 
 	@Override
 	public User createUser(User user) throws UserAlreadyExistException {
@@ -81,47 +88,51 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public User getUserInfo() {
-		User user = LoginCheck.checkInfo(userRepository);
-		logger.info(user.getName());
-		return user;
-	}
+  public ResponseEntity getUserInfo() {
+    User user = LoginCheck.checkInfo(userRepository);
+    if (user == null) {
+      return new ResponseEntity<>(new Result(ResultEnum.HAS_NOT_LOGGED_IN), HttpStatus.UNAUTHORIZED);
+    }
+    logger.info(user.getName());
+    return new ResponseEntity<>(user, HttpStatus.OK);
+  }
 
 	@Override
-	public User addFavoriteAuthor(@Valid Long mid) throws UserAlreadyFavoriteAuthorException {
-		User user = LoginCheck.check(userRepository);
-		ArrayList<Long> temp = new ArrayList<>();
-		if (user.getFavoriteMid() != null) {
-			temp = user.getFavoriteMid();
-		}
-		if (temp.contains(mid)) {
-			throw new UserAlreadyFavoriteAuthorException(mid);
-		}
-		temp.add(mid);
+  public ResponseEntity addFavoriteAuthor(@Valid Long mid) throws UserAlreadyFavoriteAuthorException {
+    User user = LoginCheck.check(userRepository);
+    if (user == null) {
+      return new ResponseEntity<>(new Result(ResultEnum.HAS_NOT_LOGGED_IN), HttpStatus.UNAUTHORIZED);
+    }
+    ArrayList<Long> temp = new ArrayList<>();
+    if (temp.contains(mid)) {
+      return new ResponseEntity<>(new Result(ResultEnum.ALREADY_FAVORITE_AUTHOR), HttpStatus.ACCEPTED);
+    }
+    temp.add(mid);
 		user.setFavoriteMid(new ArrayList<>(temp));
 		userRepository.save(user);
 		logger.info(mid);
 		logger.info(user.getName());
-		return user;
-	}
+    return new ResponseEntity<>(user, HttpStatus.OK);
+  }
 
 	@Override
-	public User addFavoriteVideo(@Valid Long aid) throws UserAlreadyFavoriteVideoException {
-		User user = LoginCheck.check(userRepository);
-		ArrayList<Long> temp = new ArrayList<>();
-		if (user.getFavoriteAid() != null) {
-			temp = user.getFavoriteAid();
-		}
+  public ResponseEntity addFavoriteVideo(@Valid Long aid) throws UserAlreadyFavoriteVideoException {
+    User user = LoginCheck.check(userRepository);
+    if (user == null) {
+      return new ResponseEntity<>(new Result(ResultEnum.HAS_NOT_LOGGED_IN), HttpStatus.UNAUTHORIZED);
+    }
+    ArrayList<Long> temp = new ArrayList<>();
+    temp = user.getFavoriteAid();
 		if (temp.contains(aid)) {
-			throw new UserAlreadyFavoriteVideoException(aid);
-		}
-		temp.add(aid);
+      return new ResponseEntity<>(new Result(ResultEnum.ALREADY_FAVORITE_VIDEO), HttpStatus.ACCEPTED);
+    }
+    temp.add(aid);
 		user.setFavoriteAid(new ArrayList<>(temp));
 		userRepository.save(user);
 		logger.info(aid);
 		logger.info(user.getName());
-		return user;
-	}
+    return new ResponseEntity<>(new Result(ResultEnum.ADD_FAVORITE_VIDEO_SUCCEED), HttpStatus.OK);
+  }
 
 	/**
 	 * Get user's favorite video page
@@ -133,6 +144,9 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public Slice getFavoriteVideo(Integer page, Integer pageSize) {
 		User user = LoginCheck.check(userRepository);
+    if (user == null) {
+      return null;
+    }
     if (user.getFavoriteAid() == null) {
       return null;
     }
@@ -157,6 +171,9 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public Slice getFavoriteAuthor(Integer page, Integer pageSize) {
 		User user = LoginCheck.check(userRepository);
+    if (user == null) {
+      return null;
+    }
     if (user.getFavoriteMid() == null) {
       return null;
     }
@@ -178,19 +195,22 @@ public class UserServiceImpl implements UserService {
 	 * @return response with message
 	 */
 	@Override
-	public ResponseEntity<Message> deleteFavoriteAuthorByMid(Long mid) {
-		User user = LoginCheck.check(userRepository);
-		ArrayList<Long> mids = user.getFavoriteMid();
-		for (int i = 0; i < mids.size(); i++) {
+  public ResponseEntity deleteFavoriteAuthorByMid(Long mid) {
+    User user = LoginCheck.check(userRepository);
+    if (user == null) {
+      return new ResponseEntity<>(new Result(ResultEnum.HAS_NOT_LOGGED_IN), HttpStatus.UNAUTHORIZED);
+    }
+    ArrayList<Long> mids = user.getFavoriteMid();
+    for (int i = 0; i < mids.size(); i++) {
 			if (Objects.equals(mids.get(i), mid)) {
 				mids.remove(i);
 				user.setFavoriteMid(mids);
 				userRepository.save(user);
         logger.info("删除{}关注的UP主：{}", user.getName(), mid);
-        return new ResponseEntity<>(new Message(-1, "删除成功"), HttpStatus.OK);
+        return new ResponseEntity<>(new Result(ResultEnum.DELETE_SUCCEED), HttpStatus.OK);
       }
 		}
-    return new ResponseEntity<>(new Message(-1, "未找到该UP主"), HttpStatus.NOT_FOUND);
+    return new ResponseEntity<>(new Result(ResultEnum.AUTHOR_NOT_FOUND), HttpStatus.NOT_FOUND);
   }
 
 	/**
@@ -200,19 +220,22 @@ public class UserServiceImpl implements UserService {
 	 * @return response with message
 	 */
 	@Override
-	public ResponseEntity<Message> deleteFavoriteVideoByAid(Long aid) {
-		User user = LoginCheck.check(userRepository);
-		ArrayList<Long> aids = user.getFavoriteAid();
-		for (int i = 0; i < aids.size(); i++) {
-			if (Objects.equals(aids.get(i), aid)) {
+  public ResponseEntity deleteFavoriteVideoByAid(Long aid) {
+    User user = LoginCheck.check(userRepository);
+    if (user == null) {
+      return new ResponseEntity<>(new Result(ResultEnum.HAS_NOT_LOGGED_IN), HttpStatus.UNAUTHORIZED);
+    }
+    ArrayList<Long> aids = user.getFavoriteAid();
+    for (int i = 0; i < aids.size(); i++) {
+      if (Objects.equals(aids.get(i), aid)) {
 				aids.remove(i);
 				user.setFavoriteAid(aids);
 				userRepository.save(user);
-				return new ResponseEntity<>(new Message(200, "删除成功"), HttpStatus.OK);
-			}
-		}
-		return new ResponseEntity<>(new Message(404, "未找到该视频"), HttpStatus.NOT_FOUND);
-	}
+        return new ResponseEntity<>(new Result(ResultEnum.DELETE_SUCCEED), HttpStatus.OK);
+      }
+    }
+    return new ResponseEntity<>(new Result(ResultEnum.AUTHOR_NOT_FOUND), HttpStatus.NOT_FOUND);
+  }
 
 	/**
 	 * login
@@ -235,4 +258,23 @@ public class UserServiceImpl implements UserService {
     }
     return new ResponseEntity<>(new Result(ResultEnum.LOGIN_FAILED), HttpStatus.UNAUTHORIZED);
   }
+
+  /**
+   * user can sign in and get credit every day.
+   *
+   * @return sign in response
+   */
+  @Override
+  public ResponseEntity attendance() {
+    User user = LoginCheck.check(userRepository);
+    if (user == null) {
+      return new ResponseEntity<>(new Result(ResultEnum.HAS_NOT_LOGGED_IN), HttpStatus.UNAUTHORIZED);
+    }
+    Query query = new Query(where("name").is(user.getName()));
+    Update update = new Update();
+    update.set("credit", 10);
+    mongoTemplate.updateFirst(query, update, User.class);
+    return null;
+  }
+
 }

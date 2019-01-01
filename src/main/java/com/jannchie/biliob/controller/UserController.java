@@ -37,23 +37,20 @@ public class UserController {
   }
 
   @RequestMapping(method = RequestMethod.POST, value = "/api/user/author")
-  public ResponseEntity<Message> addFavoriteAuthor(@RequestBody @Valid Long mid)
+  public ResponseEntity addFavoriteAuthor(@RequestBody @Valid Long mid)
       throws UserAlreadyFavoriteAuthorException {
-    userService.addFavoriteAuthor(mid);
-    return new ResponseEntity<>(new Message(201, "添加收藏作者成功"), HttpStatus.CREATED);
+    return userService.addFavoriteAuthor(mid);
   }
 
   @RequestMapping(method = RequestMethod.POST, value = "/api/user/video")
-  public ResponseEntity<Message> addFavoriteVideo(@RequestBody @Valid Long aid)
+  public ResponseEntity addFavoriteVideo(@RequestBody @Valid Long aid)
       throws UserAlreadyFavoriteVideoException {
-    userService.addFavoriteVideo(aid);
-    return new ResponseEntity<>(new Message(201, "添加收藏视频成功"), HttpStatus.CREATED);
+    return userService.addFavoriteVideo(aid);
   }
 
   @RequestMapping(method = RequestMethod.GET, value = "/api/user")
-  public ResponseEntity<User> createUser() {
-    User user = userService.getUserInfo();
-    return new ResponseEntity<>(user, HttpStatus.OK);
+  public ResponseEntity getUserInfo() {
+    return userService.getUserInfo();
   }
 
   @RequestMapping(method = RequestMethod.GET, value = "/api/user/video")
@@ -86,12 +83,17 @@ public class UserController {
   }
 
   @RequestMapping(method = RequestMethod.DELETE, value = "/api/user/video/{aid}")
-  public ResponseEntity<Message> deleteFavoriteVideo(@PathVariable("aid") @Valid Long aid) {
+  public ResponseEntity deleteFavoriteVideo(@PathVariable("aid") @Valid Long aid) {
     return userService.deleteFavoriteVideoByAid(aid);
   }
 
   @RequestMapping(method = RequestMethod.DELETE, value = "/api/user/author/{mid}")
-  public ResponseEntity<Message> deleteFavoriteAuthor(@PathVariable("mid") @Valid Long mid) {
+  public ResponseEntity deleteFavoriteAuthor(@PathVariable("mid") @Valid Long mid) {
     return userService.deleteFavoriteAuthorByMid(mid);
+  }
+
+  @RequestMapping(method = RequestMethod.POST, value = "/api/user/attendance")
+  public ResponseEntity postAttendance() {
+    return userService.attendance();
   }
 }
