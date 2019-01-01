@@ -22,7 +22,7 @@ public interface BangumiRepository
    */
   @Query(
       value = "{}",
-      fields = "{ 'data':0}"
+      fields = "{'data':0}"
   )
   Slice sliceBangumi(PageRequest of);
 }
