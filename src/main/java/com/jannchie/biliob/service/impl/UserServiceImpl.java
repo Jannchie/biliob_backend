@@ -5,11 +5,13 @@ import com.jannchie.biliob.exception.UserAlreadyExistException;
 import com.jannchie.biliob.exception.UserAlreadyFavoriteAuthorException;
 import com.jannchie.biliob.exception.UserAlreadyFavoriteVideoException;
 import com.jannchie.biliob.exception.UserNotExistException;
+import com.jannchie.biliob.model.CheckIn;
 import com.jannchie.biliob.model.User;
 import com.jannchie.biliob.repository.AuthorRepository;
 import com.jannchie.biliob.repository.UserRepository;
 import com.jannchie.biliob.repository.VideoRepository;
 import com.jannchie.biliob.service.UserService;
+import com.jannchie.biliob.utils.CreditConstant;
 import com.jannchie.biliob.utils.LoginCheck;
 import com.jannchie.biliob.utils.Result;
 import com.jannchie.biliob.utils.ResultEnum;
@@ -99,7 +101,7 @@ public class UserServiceImpl implements UserService {
 
 	@Override
   public ResponseEntity addFavoriteAuthor(@Valid Long mid) throws UserAlreadyFavoriteAuthorException {
-    User user = LoginCheck.check(userRepository);
+    User user = LoginCheck.checkInfo(userRepository);
     if (user == null) {
       return new ResponseEntity<>(new Result(ResultEnum.HAS_NOT_LOGGED_IN), HttpStatus.UNAUTHORIZED);
     }
@@ -117,7 +119,7 @@ public class UserServiceImpl implements UserService {
 
 	@Override
   public ResponseEntity addFavoriteVideo(@Valid Long aid) throws UserAlreadyFavoriteVideoException {
-    User user = LoginCheck.check(userRepository);
+    User user = LoginCheck.checkInfo(userRepository);
     if (user == null) {
       return new ResponseEntity<>(new Result(ResultEnum.HAS_NOT_LOGGED_IN), HttpStatus.UNAUTHORIZED);
     }
@@ -143,7 +145,7 @@ public class UserServiceImpl implements UserService {
 	 */
 	@Override
 	public Slice getFavoriteVideo(Integer page, Integer pageSize) {
-		User user = LoginCheck.check(userRepository);
+    User user = LoginCheck.checkInfo(userRepository);
     if (user == null) {
       return null;
     }
@@ -170,7 +172,7 @@ public class UserServiceImpl implements UserService {
 	 */
 	@Override
 	public Slice getFavoriteAuthor(Integer page, Integer pageSize) {
-		User user = LoginCheck.check(userRepository);
+    User user = LoginCheck.checkInfo(userRepository);
     if (user == null) {
       return null;
     }
@@ -196,7 +198,7 @@ public class UserServiceImpl implements UserService {
 	 */
 	@Override
   public ResponseEntity deleteFavoriteAuthorByMid(Long mid) {
-    User user = LoginCheck.check(userRepository);
+    User user = LoginCheck.checkInfo(userRepository);
     if (user == null) {
       return new ResponseEntity<>(new Result(ResultEnum.HAS_NOT_LOGGED_IN), HttpStatus.UNAUTHORIZED);
     }
@@ -210,6 +212,7 @@ public class UserServiceImpl implements UserService {
         return new ResponseEntity<>(new Result(ResultEnum.DELETE_SUCCEED), HttpStatus.OK);
       }
 		}
+    logger.warn("用户：{} 试图删除一个不存在的UP主", user.getName());
     return new ResponseEntity<>(new Result(ResultEnum.AUTHOR_NOT_FOUND), HttpStatus.NOT_FOUND);
   }
 
@@ -221,7 +224,7 @@ public class UserServiceImpl implements UserService {
 	 */
 	@Override
   public ResponseEntity deleteFavoriteVideoByAid(Long aid) {
-    User user = LoginCheck.check(userRepository);
+    User user = LoginCheck.checkInfo(userRepository);
     if (user == null) {
       return new ResponseEntity<>(new Result(ResultEnum.HAS_NOT_LOGGED_IN), HttpStatus.UNAUTHORIZED);
     }
@@ -231,9 +234,11 @@ public class UserServiceImpl implements UserService {
 				aids.remove(i);
 				user.setFavoriteAid(aids);
 				userRepository.save(user);
+        logger.info("用户：{} 删除了收藏的视频，aid：{}", user.getName(), aid);
         return new ResponseEntity<>(new Result(ResultEnum.DELETE_SUCCEED), HttpStatus.OK);
       }
     }
+    logger.warn("用户：{} 试图删除一个不存在的视频", user.getName());
     return new ResponseEntity<>(new Result(ResultEnum.AUTHOR_NOT_FOUND), HttpStatus.NOT_FOUND);
   }
 
@@ -254,27 +259,55 @@ public class UserServiceImpl implements UserService {
 		subject.login(token);
 		String role = getRole(inputName);
 		if (UserType.NORMAL_USER.equals(role)) {
+      logger.info("普通用户：{} 登录成功", inputName);
       return new ResponseEntity<>(new Result(ResultEnum.LOGIN_SUCCEED, getUserInfo()), HttpStatus.OK);
     }
     return new ResponseEntity<>(new Result(ResultEnum.LOGIN_FAILED), HttpStatus.UNAUTHORIZED);
   }
 
   /**
-   * user can sign in and get credit every day.
+   * user can check in and get credit every eight hour.
    *
-   * @return sign in response
+   * @return check in response
    */
   @Override
-  public ResponseEntity attendance() {
-    User user = LoginCheck.check(userRepository);
+  public ResponseEntity postCheckIn() {
+    User user = LoginCheck.checkInfo(userRepository);
     if (user == null) {
       return new ResponseEntity<>(new Result(ResultEnum.HAS_NOT_LOGGED_IN), HttpStatus.UNAUTHORIZED);
     }
-    Query query = new Query(where("name").is(user.getName()));
-    Update update = new Update();
-    update.set("credit", 10);
-    mongoTemplate.updateFirst(query, update, User.class);
-    return null;
+    Boolean isCheckedIn = mongoTemplate.exists(new Query(where("name").is(user.getName())), "check_in");
+    String userName = user.getName();
+    Integer credit = user.getCredit();
+    if (isCheckedIn) {
+      logger.warn("用户：{},试图重复签到,当前积分：{}", userName, credit);
+      return new ResponseEntity<>(new Result(ResultEnum.ALREADY_SIGNED), HttpStatus.ACCEPTED);
+    } else {
+      mongoTemplate.insert(new CheckIn(userName), "check_in");
+
+      Query query = new Query(where("name").is(userName));
+      Update update = new Update();
+      credit += CreditConstant.SIGN.value;
+      update.set("credit", credit);
+      mongoTemplate.updateFirst(query, update, User.class);
+      logger.info("用户：{},签到成功,当前积分：{}", userName, credit);
+      return new ResponseEntity<>(new Result(ResultEnum.SIGN_SUCCEED), HttpStatus.ACCEPTED);
+    }
   }
 
+  /**
+   * to know whether user is checked in
+   *
+   * @return check in status
+   */
+  @Override
+  public ResponseEntity getCheckIn() {
+    User user = LoginCheck.checkInfo(userRepository);
+    if (user == null) {
+      return new ResponseEntity<>(new Result(ResultEnum.HAS_NOT_LOGGED_IN), HttpStatus.UNAUTHORIZED);
+    }
+    Boolean isCheckedIn = mongoTemplate.exists(new Query(where("name").is(user.getName())), "check_in");
+    logger.info("用户：{},签到状态为{}", user.getName(), isCheckedIn);
+    return new ResponseEntity<>(new HashMap<String, Boolean>(1).put("status", isCheckedIn), HttpStatus.OK);
+  }
 }

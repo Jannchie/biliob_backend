@@ -111,10 +111,17 @@ public interface UserService {
   ResponseEntity login(User user);
 
   /**
-   * user can sign in and get credit every day.
+   * user can check in and get credit every eight hour.
    *
-   * @return sign in response
+   * @return check in response
    */
-  ResponseEntity attendance();
+  ResponseEntity postCheckIn();
+
+  /**
+   * to know whether user is checked in
+   *
+   * @return check in status
+   */
+  ResponseEntity getCheckIn();
 }
 

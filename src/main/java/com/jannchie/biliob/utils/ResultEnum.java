@@ -18,7 +18,7 @@ public enum ResultEnum {
   USER_NOT_EXIST(-1,"用户不存在"),
   OUT_OF_RANGE(-1, "超出范围"),
   ALREADY_FAVORITE_AUTHOR(-1, "已经在关注了此作者"),
-  ALREADY_FAVORITE_VIDEO(-1, "已经收藏了此视频"), ADD_FAVORITE_VIDEO_SUCCEED(1, "收藏成功"), ADD_FAVORITE_AUTHOR_SUCCEED(1, "关注成功"), DELETE_SUCCEED(1, "删除成功"), AUTHOR_NOT_FOUND(-1, "未找到该作者");
+  ALREADY_FAVORITE_VIDEO(-1, "已经收藏了此视频"), ADD_FAVORITE_VIDEO_SUCCEED(1, "收藏成功"), ADD_FAVORITE_AUTHOR_SUCCEED(1, "关注成功"), DELETE_SUCCEED(1, "删除成功"), AUTHOR_NOT_FOUND(-1, "未找到该作者"), ALREADY_SIGNED(-1, "已经签过到了"), SIGN_SUCCEED(1, "签到成功");
 
   public int code;
   public String msg;
