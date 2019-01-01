@@ -1,6 +1,5 @@
 package com.jannchie.biliob.repository;
 
-import com.jannchie.biliob.model.Bangumi;
 import com.jannchie.biliob.model.Donghua;
 import org.bson.types.ObjectId;
 import org.springframework.data.domain.PageRequest;
@@ -23,7 +22,7 @@ public interface DonghuaRepository
    */
   @Query(
       value = "{}",
-      fields = "{ 'data':0}"
+      fields = "{'data':0}"
   )
   Slice sliceDonghua(PageRequest of);
 }

@@ -1,8 +1,12 @@
 package com.jannchie.biliob.config;
 
+import com.jannchie.biliob.utils.IpHandlerInterceptor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 /**
@@ -12,12 +16,19 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
  */
 @Configuration
 public class ConfigService {
-	@Bean
-	public WebMvcConfigurer corsConfigurer() {
-		return new WebMvcConfigurer() {
-			@Override
-			public void addCorsMappings(CorsRegistry registry) {
-				registry
+  private final MongoTemplate mongotemplate;
+
+  @Autowired
+  public ConfigService(MongoTemplate mongotemplate) {
+    this.mongotemplate = mongotemplate;
+  }
+
+  @Bean
+  public WebMvcConfigurer myConfigurer() {
+    return new WebMvcConfigurer() {
+      @Override
+      public void addCorsMappings(CorsRegistry registry) {
+        registry
 						.addMapping("/**")
 						.allowedOrigins("*")
 						.allowedMethods("*")
@@ -25,6 +36,12 @@ public class ConfigService {
 						.allowCredentials(true)
 						.maxAge(3600);
 			}
-		};
-	}
+
+      @Override
+      public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(new IpHandlerInterceptor(mongotemplate));
+      }
+    };
+
+  }
 }
