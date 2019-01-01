@@ -42,8 +42,16 @@ public class User {
     this.credit = 0;
   }
 
-	public String getName() {
-		return name;
+  public Integer getCredit() {
+    return credit;
+  }
+
+  public void setCredit(Integer credit) {
+    this.credit = credit;
+  }
+
+  public String getName() {
+    return name;
 	}
 
 	public void setName(String name) {
