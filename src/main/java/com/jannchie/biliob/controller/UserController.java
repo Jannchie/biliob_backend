@@ -92,8 +92,13 @@ public class UserController {
     return userService.deleteFavoriteAuthorByMid(mid);
   }
 
-  @RequestMapping(method = RequestMethod.POST, value = "/api/user/attendance")
-  public ResponseEntity postAttendance() {
-    return userService.attendance();
+  @RequestMapping(method = RequestMethod.POST, value = "/api/user/check-in")
+  public ResponseEntity postCheckIn() {
+    return userService.postCheckIn();
+  }
+
+  @RequestMapping(method = RequestMethod.GET, value = "/api/user/check-in")
+  public ResponseEntity getCheckIn() {
+    return userService.getCheckIn();
   }
 }
