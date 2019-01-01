@@ -3,7 +3,6 @@ package com.jannchie.biliob.service.impl;
 import com.jannchie.biliob.exception.AuthorAlreadyFocusedException;
 import com.jannchie.biliob.exception.UserAlreadyFavoriteAuthorException;
 import com.jannchie.biliob.model.Author;
-import com.jannchie.biliob.model.User;
 import com.jannchie.biliob.repository.AuthorRepository;
 import com.jannchie.biliob.service.AuthorService;
 import com.jannchie.biliob.service.UserService;
@@ -56,10 +55,9 @@ public class AuthorServiceImpl implements AuthorService {
 	@Override
 	public void postAuthorByMid(Long mid)
 			throws AuthorAlreadyFocusedException, UserAlreadyFavoriteAuthorException {
-		User user = userService.addFavoriteAuthor(mid);
-		logger.info(mid);
-		logger.info(user.getName());
-		if (respository.findByMid(mid) != null) {
+    userService.addFavoriteAuthor(mid);
+    logger.info(mid);
+    if (respository.findByMid(mid) != null) {
 			throw new AuthorAlreadyFocusedException(mid);
 		}
 		respository.save(new Author(mid));

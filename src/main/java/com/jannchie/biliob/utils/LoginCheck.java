@@ -9,18 +9,30 @@ import org.apache.shiro.SecurityUtils;
  */
 public class LoginCheck {
 
-    public static User check(UserRepository userRepository) {
-        User user = userRepository.findByName((String) SecurityUtils.getSubject().getPrincipal());
-        if (user == null) {
-            throw new org.apache.shiro.authc.AccountException("请先登录！");
-        }
-        return user;
+  /**
+   * check and return user information and password
+   *
+   * @param userRepository user's dao
+   * @return null: user has not logged in || User: user information
+   */
+  public static User check(UserRepository userRepository) {
+    User user = userRepository.findByName((String) SecurityUtils.getSubject().getPrincipal());
+    if (user == null) {
+      return null;
     }
+    return user;
+  }
 
-    public static User checkInfo(UserRepository userRepository) {
+  /**
+   * check and return user information
+   *
+   * @param userRepository user's dao
+   * @return null: user has not logged in || User: user information
+   */
+  public static User checkInfo(UserRepository userRepository) {
         User user = userRepository.getUserInfo((String) SecurityUtils.getSubject().getPrincipal());
         if (user == null) {
-            throw new org.apache.shiro.authc.AccountException("请先登录！");
+          return null;
         }
         return user;
     }

@@ -5,7 +5,6 @@ import com.jannchie.biliob.exception.UserAlreadyFavoriteAuthorException;
 import com.jannchie.biliob.exception.UserAlreadyFavoriteVideoException;
 import com.jannchie.biliob.exception.UserNotExistException;
 import com.jannchie.biliob.model.User;
-import com.jannchie.biliob.utils.Message;
 import org.springframework.data.domain.Slice;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -49,7 +48,7 @@ public interface UserService {
 	 *
 	 * @return 用户信息
 	 */
-	User getUserInfo();
+  ResponseEntity getUserInfo();
 
 	/**
 	 * 添加作者关注
@@ -58,7 +57,7 @@ public interface UserService {
 	 * @return 用户
 	 * @throws UserAlreadyFavoriteAuthorException 用户已关注作者异常
 	 */
-	User addFavoriteAuthor(@Valid Long mid) throws UserAlreadyFavoriteAuthorException;
+  ResponseEntity addFavoriteAuthor(@Valid Long mid) throws UserAlreadyFavoriteAuthorException;
 
 	/**
 	 * 添加视频关注
@@ -67,7 +66,7 @@ public interface UserService {
 	 * @return 用户
 	 * @throws UserAlreadyFavoriteVideoException 用户已关注视频异常
 	 */
-	User addFavoriteVideo(@Valid Long aid) throws UserAlreadyFavoriteVideoException;
+  ResponseEntity addFavoriteVideo(@Valid Long aid) throws UserAlreadyFavoriteVideoException;
 
 	/**
 	 * Get user's favorite video page
@@ -93,7 +92,7 @@ public interface UserService {
 	 * @param mid author's id
 	 * @return response with message
 	 */
-	ResponseEntity<Message> deleteFavoriteAuthorByMid(Long mid);
+  ResponseEntity deleteFavoriteAuthorByMid(Long mid);
 
 	/**
 	 * delete user's favorite video by video id
@@ -101,7 +100,7 @@ public interface UserService {
 	 * @param aid video's id
 	 * @return response with message
 	 */
-	ResponseEntity<Message> deleteFavoriteVideoByAid(Long aid);
+  ResponseEntity deleteFavoriteVideoByAid(Long aid);
 
 	/**
 	 * login
@@ -110,5 +109,12 @@ public interface UserService {
 	 * @return login response
 	 */
   ResponseEntity login(User user);
+
+  /**
+   * user can sign in and get credit every day.
+   *
+   * @return sign in response
+   */
+  ResponseEntity attendance();
 }
 
