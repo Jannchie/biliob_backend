@@ -3,12 +3,16 @@ package com.jannchie.biliob.constant;
 /**
  * @author jannchie
  */
-
 public enum RoleEnum {
   /**
-   * SIGN: Every eight hour, user can sign in once time.
+   * the role of the site.
+   *
+   * <p>NORMAL_USER: The user who already sign in.
+   *
+   * <p>ADMIN: The user who has the highest authority of this site.
    */
-  NORMAL_USER(0, "普通用户");
+  NORMAL_USER(0, "普通用户"),
+  ADMIN(9, "管理员");
 
   private Integer code;
   private String name;
