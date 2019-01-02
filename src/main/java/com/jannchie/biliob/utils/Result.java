@@ -1,6 +1,7 @@
 package com.jannchie.biliob.utils;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.jannchie.biliob.constant.ResultEnum;
 
 /**
  * @author jannchie
@@ -25,13 +26,13 @@ public class Result {
   private Object data;
 
   public Result(ResultEnum resultEnum) {
-    this.code = resultEnum.code;
-    this.msg = resultEnum.msg;
+    this.code = resultEnum.getCode();
+    this.msg = resultEnum.getMsg();
   }
 
   public Result(ResultEnum resultEnum, Object data) {
-    this.code = resultEnum.code;
-    this.msg = resultEnum.msg;
+    this.code = resultEnum.getCode();
+    this.msg = resultEnum.getMsg();
     this.data = data;
   }
 }
