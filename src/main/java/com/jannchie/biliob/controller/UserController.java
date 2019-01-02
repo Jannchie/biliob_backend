@@ -20,14 +20,13 @@ import javax.validation.Valid;
 /** @author jannchie */
 @RestController
 public class UserController {
+  private static final Logger logger = LogManager.getLogger(UserController.class);
   private final UserService userService;
 
   @Autowired
   public UserController(UserService userService) {
     this.userService = userService;
   }
-
-  private static final Logger logger = LogManager.getLogger(UserController.class);
 
   @RequestMapping(method = RequestMethod.POST, value = "/api/user")
   public ResponseEntity createUser(HttpServletRequest request, @RequestBody @Valid User user)
@@ -100,5 +99,12 @@ public class UserController {
   @RequestMapping(method = RequestMethod.GET, value = "/api/user/check-in")
   public ResponseEntity getCheckIn() {
     return userService.getCheckIn();
+  }
+
+  @RequestMapping(method = RequestMethod.PATCH, value = "/api/user/author/{mid}/status")
+  public ResponseEntity forceFocus(
+      @RequestParam(defaultValue = "false") @Valid Boolean forceFocus,
+      @PathVariable("mid") @Valid Integer mid) {
+    return userService.forceFocus(mid, forceFocus);
   }
 }
