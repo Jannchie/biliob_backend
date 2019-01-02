@@ -62,9 +62,10 @@ public interface VideoService {
    * @param mid author id
    * @param page no use
    * @param pagesize the number of displayed video
+   * @param sort 0: order by view || 1: order by publish datetime.
    * @return slice of author's video
    */
-  ResponseEntity getAuthorTopVideo(Long mid, Integer page, Integer pagesize);
+  ResponseEntity getAuthorTopVideo(Long mid, Integer page, Integer pagesize, Integer sort);
 
   /**
    * Get my video.

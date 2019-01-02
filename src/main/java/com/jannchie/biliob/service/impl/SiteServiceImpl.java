@@ -1,9 +1,9 @@
 package com.jannchie.biliob.service.impl;
 
+import com.jannchie.biliob.constant.ResultEnum;
 import com.jannchie.biliob.model.Site;
 import com.jannchie.biliob.service.SiteService;
 import com.jannchie.biliob.utils.Result;
-import com.jannchie.biliob.utils.ResultEnum;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
