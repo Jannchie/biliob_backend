@@ -119,7 +119,10 @@ class UserServiceImpl implements UserService {
       return new ResponseEntity<>(
           new Result(ResultEnum.HAS_NOT_LOGGED_IN), HttpStatus.UNAUTHORIZED);
     }
-    ArrayList<Long> temp = user.getFavoriteMid();
+    ArrayList<Long> temp = new ArrayList<>();
+    if (user.getFavoriteMid() != null) {
+      temp = user.getFavoriteMid();
+    }
     if (temp.contains(mid)) {
       logger.warn("用户：{} 试图重复关注{}", user.getName(), mid);
       return new ResponseEntity<>(
@@ -139,7 +142,10 @@ class UserServiceImpl implements UserService {
       return new ResponseEntity<>(
           new Result(ResultEnum.HAS_NOT_LOGGED_IN), HttpStatus.UNAUTHORIZED);
     }
-    ArrayList<Long> temp = user.getFavoriteAid();
+    ArrayList<Long> temp = new ArrayList<>();
+    if (user.getFavoriteAid() != null) {
+      temp = user.getFavoriteAid();
+    }
     if (temp.contains(aid)) {
       logger.warn("用户：{} 试图重复收藏{}", user.getName(), aid);
       return new ResponseEntity<>(
