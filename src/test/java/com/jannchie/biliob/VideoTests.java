@@ -9,6 +9,6 @@ public class VideoTests extends BiliobApplicationTests {
   private VideoService videoService;
 
   @Test
-  public void testgetVideo() {
+  public void testGetVideo() {
   }
 }
