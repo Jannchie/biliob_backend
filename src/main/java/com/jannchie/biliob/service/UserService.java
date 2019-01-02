@@ -17,97 +17,97 @@ import javax.validation.Valid;
 @Service
 public interface UserService {
 
-	/**
-	 * 创建用户
-	 *
-	 * @param user 用户信息
-	 * @return 用户
-	 * @throws UserAlreadyExistException user already exist
-	 */
-	User createUser(User user) throws UserAlreadyExistException;
+  /**
+   * 创建用户
+   *
+   * @param user 用户信息
+   * @return 用户
+   * @throws UserAlreadyExistException user already exist
+   */
+  User createUser(User user) throws UserAlreadyExistException;
 
-	/**
-	 * 获取密码
-	 *
-	 * @param name 用户名
-	 * @return 密码
-	 * @throws UserNotExistException user not exist
-	 */
-	String getPassword(String name) throws UserNotExistException;
+  /**
+   * 获取密码
+   *
+   * @param name 用户名
+   * @return 密码
+   * @throws UserNotExistException user not exist
+   */
+  String getPassword(String name) throws UserNotExistException;
 
-	/**
-	 * 获取角色
-	 *
-	 * @param username 用户名
-	 * @return 角色名
-	 */
-	String getRole(String username);
+  /**
+   * 获取角色
+   *
+   * @param username 用户名
+   * @return 角色名
+   */
+  String getRole(String username);
 
-	/**
-	 * 获取用户信息
-	 *
-	 * @return 用户信息
-	 */
+  /**
+   * 获取用户信息
+   *
+   * @return 用户信息
+   */
   ResponseEntity getUserInfo();
 
-	/**
-	 * 添加作者关注
-	 *
-	 * @param mid 作者id
-	 * @return 用户
-	 * @throws UserAlreadyFavoriteAuthorException 用户已关注作者异常
-	 */
+  /**
+   * 添加作者关注
+   *
+   * @param mid 作者id
+   * @return 用户
+   * @throws UserAlreadyFavoriteAuthorException 用户已关注作者异常
+   */
   ResponseEntity addFavoriteAuthor(@Valid Long mid) throws UserAlreadyFavoriteAuthorException;
 
-	/**
-	 * 添加视频关注
-	 *
-	 * @param aid 视频id
-	 * @return 用户
-	 * @throws UserAlreadyFavoriteVideoException 用户已关注视频异常
-	 */
+  /**
+   * 添加视频关注
+   *
+   * @param aid 视频id
+   * @return 用户
+   * @throws UserAlreadyFavoriteVideoException 用户已关注视频异常
+   */
   ResponseEntity addFavoriteVideo(@Valid Long aid) throws UserAlreadyFavoriteVideoException;
 
-	/**
-	 * Get user's favorite video page
-	 *
-	 * @param page     page number
-	 * @param pageSize page size
-	 * @return favorite video page
-	 */
-	Slice getFavoriteVideo(Integer page, Integer pageSize);
+  /**
+   * Get user's favorite video page
+   *
+   * @param page     page number
+   * @param pageSize page size
+   * @return favorite video page
+   */
+  Slice getFavoriteVideo(Integer page, Integer pageSize);
 
-	/**
-	 * Get user's favorite author page
-	 *
-	 * @param page     page number
-	 * @param pageSize page size
-	 * @return favorite author page
-	 */
-	Slice getFavoriteAuthor(Integer page, Integer pageSize);
+  /**
+   * Get user's favorite author page
+   *
+   * @param page     page number
+   * @param pageSize page size
+   * @return favorite author page
+   */
+  Slice getFavoriteAuthor(Integer page, Integer pageSize);
 
-	/**
-	 * delete user's favorite author by author id
-	 *
-	 * @param mid author's id
-	 * @return response with message
-	 */
+  /**
+   * delete user's favorite author by author id
+   *
+   * @param mid author's id
+   * @return response with message
+   */
   ResponseEntity deleteFavoriteAuthorByMid(Long mid);
 
-	/**
-	 * delete user's favorite video by video id
-	 *
-	 * @param aid video's id
-	 * @return response with message
-	 */
+  /**
+   * delete user's favorite video by video id
+   *
+   * @param aid video's id
+   * @return response with message
+   */
   ResponseEntity deleteFavoriteVideoByAid(Long aid);
 
-	/**
-	 * login
-	 *
-	 * @param user user information
-	 * @return login response
-	 */
+  /**
+   * login
+   *
+   * @param user user information
+   * @return login response
+   */
   ResponseEntity login(User user);
 
   /**
@@ -123,5 +123,13 @@ public interface UserService {
    * @return check in status
    */
   ResponseEntity getCheckIn();
-}
 
+  /**
+   * Force Focus a Author or Not.
+   *
+   * @param mid        author id
+   * @param forceFocus force focus status
+   * @return Force observation or cancel the force observation feedback.
+   */
+  ResponseEntity forceFocus(Integer mid, @Valid Boolean forceFocus);
+}

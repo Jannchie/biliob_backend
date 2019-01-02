@@ -8,7 +8,7 @@ public enum CreditConstant {
   /**
    * SIGN: Every eight hour, user can sign in once time.
    */
-  CHECK_IN(10);
+  CHECK_IN(10), SET_FORCE_OBSERVE(-100);
 
   private Integer value;
 
@@ -23,4 +23,5 @@ public enum CreditConstant {
   CreditConstant(Integer value) {
     this.value = value;
   }
+
 }
