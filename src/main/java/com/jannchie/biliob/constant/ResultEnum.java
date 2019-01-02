@@ -1,4 +1,4 @@
-package com.jannchie.biliob.utils;
+package com.jannchie.biliob.constant;
 
 /**
  * @author jannchie
@@ -17,11 +17,28 @@ public enum ResultEnum {
   WRONG_PASSWORD(-1, "密码错误"),
   USER_NOT_EXIST(-1,"用户不存在"),
   OUT_OF_RANGE(-1, "超出范围"),
+  PARAM_ERROR(-1, "参数错误"),
   ALREADY_FAVORITE_AUTHOR(-1, "已经在关注了此作者"),
   ALREADY_FAVORITE_VIDEO(-1, "已经收藏了此视频"), ADD_FAVORITE_VIDEO_SUCCEED(1, "收藏成功"), ADD_FAVORITE_AUTHOR_SUCCEED(1, "关注成功"), DELETE_SUCCEED(1, "删除成功"), AUTHOR_NOT_FOUND(-1, "未找到该作者"), ALREADY_SIGNED(-1, "已经签过到了"), SIGN_SUCCEED(1, "签到成功");
 
-  public int code;
-  public String msg;
+  private int code;
+  private String msg;
+
+  public int getCode() {
+    return code;
+  }
+
+  public void setCode(int code) {
+    this.code = code;
+  }
+
+  public String getMsg() {
+    return msg;
+  }
+
+  public void setMsg(String msg) {
+    this.msg = msg;
+  }
 
   ResultEnum(int code, String msg) {
     this.code = code;

@@ -1,5 +1,6 @@
 package com.jannchie.biliob.service.impl;
 
+import com.jannchie.biliob.constant.ResultEnum;
 import com.jannchie.biliob.exception.AuthorAlreadyFocusedException;
 import com.jannchie.biliob.exception.UserAlreadyFavoriteAuthorException;
 import com.jannchie.biliob.model.Author;
@@ -7,7 +8,6 @@ import com.jannchie.biliob.repository.AuthorRepository;
 import com.jannchie.biliob.service.AuthorService;
 import com.jannchie.biliob.service.UserService;
 import com.jannchie.biliob.utils.Result;
-import com.jannchie.biliob.utils.ResultEnum;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;

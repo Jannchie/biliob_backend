@@ -1,6 +1,7 @@
 package com.jannchie.biliob.service.impl;
 
-import com.jannchie.biliob.constant.UserType;
+import com.jannchie.biliob.constant.CreditConstant;
+import com.jannchie.biliob.constant.ResultEnum;
 import com.jannchie.biliob.exception.UserAlreadyExistException;
 import com.jannchie.biliob.exception.UserAlreadyFavoriteAuthorException;
 import com.jannchie.biliob.exception.UserAlreadyFavoriteVideoException;
@@ -11,10 +12,8 @@ import com.jannchie.biliob.repository.AuthorRepository;
 import com.jannchie.biliob.repository.UserRepository;
 import com.jannchie.biliob.repository.VideoRepository;
 import com.jannchie.biliob.service.UserService;
-import com.jannchie.biliob.utils.CreditConstant;
 import com.jannchie.biliob.utils.LoginCheck;
 import com.jannchie.biliob.utils.Result;
-import com.jannchie.biliob.utils.ResultEnum;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.shiro.SecurityUtils;
@@ -35,14 +34,15 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Objects;
 
+import static com.jannchie.biliob.constant.RoleEnum.NORMAL_USER;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 /**
  * @author jannchie
  */
 @Service
-public class UserServiceImpl implements UserService {
-	private static final Logger logger = LogManager.getLogger(UserServiceImpl.class);
+class UserServiceImpl implements UserService {
+  private static final Logger logger = LogManager.getLogger(UserServiceImpl.class);
 
 	private final UserRepository userRepository;
 
@@ -52,7 +52,7 @@ public class UserServiceImpl implements UserService {
 
   private final MongoTemplate mongoTemplate;
 
-	public UserServiceImpl(
+  private UserServiceImpl(
       UserRepository userRepository,
       VideoRepository videoRepository,
       AuthorRepository authorRepository, MongoTemplate mongoTemplate) {
@@ -258,7 +258,7 @@ public class UserServiceImpl implements UserService {
 		token.setRememberMe(true);
 		subject.login(token);
 		String role = getRole(inputName);
-		if (UserType.NORMAL_USER.equals(role)) {
+    if (NORMAL_USER.getName().equals(role)) {
       logger.info("普通用户：{} 登录成功", inputName);
       return new ResponseEntity<>(new Result(ResultEnum.LOGIN_SUCCEED, getUserInfo()), HttpStatus.OK);
     }
@@ -287,7 +287,7 @@ public class UserServiceImpl implements UserService {
 
       Query query = new Query(where("name").is(userName));
       Update update = new Update();
-      credit += CreditConstant.SIGN.value;
+      credit += CreditConstant.CHECK_IN.getValue();
       update.set("credit", credit);
       mongoTemplate.updateFirst(query, update, User.class);
       logger.info("用户：{},签到成功,当前积分：{}", userName, credit);
@@ -307,7 +307,9 @@ public class UserServiceImpl implements UserService {
       return new ResponseEntity<>(new Result(ResultEnum.HAS_NOT_LOGGED_IN), HttpStatus.UNAUTHORIZED);
     }
     Boolean isCheckedIn = mongoTemplate.exists(new Query(where("name").is(user.getName())), "check_in");
+    HashMap<String, Boolean> statusHashMap = new HashMap<>(1);
+    statusHashMap.put("status", isCheckedIn);
     logger.info("用户：{},签到状态为{}", user.getName(), isCheckedIn);
-    return new ResponseEntity<>(new HashMap<String, Boolean>(1).put("status", isCheckedIn), HttpStatus.OK);
+    return new ResponseEntity<>(statusHashMap, HttpStatus.OK);
   }
 }
