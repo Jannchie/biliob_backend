@@ -1,4 +1,4 @@
-package com.jannchie.biliob.utils;
+package com.jannchie.biliob.constant;
 
 /**
  * @author jannchie

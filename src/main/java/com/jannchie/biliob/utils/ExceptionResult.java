@@ -1,5 +1,7 @@
 package com.jannchie.biliob.utils;
 
+import com.jannchie.biliob.constant.ExceptionEnum;
+
 /**
  * @author jannchie
  */

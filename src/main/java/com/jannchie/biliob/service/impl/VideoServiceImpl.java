@@ -1,13 +1,14 @@
 package com.jannchie.biliob.service.impl;
 
+import com.jannchie.biliob.constant.ResultEnum;
 import com.jannchie.biliob.exception.UserAlreadyFavoriteVideoException;
-import com.jannchie.biliob.model.User;
 import com.jannchie.biliob.model.Video;
 import com.jannchie.biliob.repository.UserRepository;
 import com.jannchie.biliob.repository.VideoRepository;
 import com.jannchie.biliob.service.UserService;
 import com.jannchie.biliob.service.VideoService;
 import com.jannchie.biliob.utils.Message;
+import com.jannchie.biliob.utils.Result;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +24,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.Objects;
 
+import static com.jannchie.biliob.constant.SortEnum.PUBLISH_TIME;
+import static com.jannchie.biliob.constant.SortEnum.VIEW_COUNT;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 /**
@@ -34,6 +37,7 @@ public class VideoServiceImpl implements VideoService {
 	private final VideoRepository respository;
 	private final UserService userService;
   private final MongoTemplate mongoTemplate;
+  private static final Integer MAX_PAGE_SIZE = 10;
 
   @Autowired
   public VideoServiceImpl(
@@ -52,12 +56,11 @@ public class VideoServiceImpl implements VideoService {
 	@Override
 	public ResponseEntity<Message> postVideoByAid(Long aid)
 			throws UserAlreadyFavoriteVideoException {
-		User user = userService.addFavoriteVideo(aid);
-		if (respository.findByAid(aid) != null) {
-			return new ResponseEntity<>(new Message(400, "系统已经观测了该视频"), HttpStatus.BAD_REQUEST);
+    userService.addFavoriteVideo(aid);
+    if (respository.findByAid(aid) != null) {
+      return new ResponseEntity<>(new Message(400, "系统已经观测了该视频"), HttpStatus.BAD_REQUEST);
 		}
 		logger.info(aid);
-		logger.info(user.getName());
 		respository.save(new Video(aid));
 		return new ResponseEntity<>(new Message(200, "观测视频成功"), HttpStatus.OK);
 	}
@@ -92,13 +95,26 @@ public class VideoServiceImpl implements VideoService {
    * @param mid      author id
    * @param page     no use
    * @param pagesize the number of displayed video
+   * @param sort 0: order by view || 1: order by publish datetime.
    * @return slice of author's video
    */
   @Override
-  public ResponseEntity getAuthorTopVideo(Long mid, Integer page, Integer pagesize) {
+  public ResponseEntity getAuthorTopVideo(Long mid, Integer page, Integer pagesize, Integer sort) {
+    if (pagesize >= MAX_PAGE_SIZE) {
+      return new ResponseEntity<>(new Result(ResultEnum.PARAM_ERROR), HttpStatus.BAD_REQUEST);
+    }
+    Sort videoSort;
+    if (Objects.equals(sort, VIEW_COUNT.getValue())) {
+      videoSort = new Sort(Sort.Direction.DESC, "data.0.view");
+    } else if (Objects.equals(sort, PUBLISH_TIME.getValue())) {
+      videoSort = new Sort(Sort.Direction.DESC, "datetime");
+    } else {
+      return new ResponseEntity<>(new Result(ResultEnum.PARAM_ERROR), HttpStatus.BAD_REQUEST);
+    }
+
     Slice video = respository.findAuthorTopVideo(
-        mid, PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, "data.0.view")));
-    logger.info("获取作者播放最多的数据");
+        mid, PageRequest.of(page, pagesize, videoSort));
+    logger.info("获取mid:{} 播放最多的视频", mid);
     return new ResponseEntity<>(video, HttpStatus.OK);
   }
 

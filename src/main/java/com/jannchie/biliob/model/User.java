@@ -28,19 +28,30 @@ public class User {
 	private String role;
 	private ArrayList<Long> favoriteAid;
 	private ArrayList<Long> favoriteMid;
+  private Integer credit;
 
 	public User(String name, String password, String role) {
 		this.name = name;
 		this.password = password;
 		this.role = role;
-	}
+    this.credit = 0;
+  }
 
 	public User() {
 		this.role = "普通用户";
-	}
+    this.credit = 0;
+  }
 
-	public String getName() {
-		return name;
+  public Integer getCredit() {
+    return credit;
+  }
+
+  public void setCredit(Integer credit) {
+    this.credit = credit;
+  }
+
+  public String getName() {
+    return name;
 	}
 
 	public void setName(String name) {

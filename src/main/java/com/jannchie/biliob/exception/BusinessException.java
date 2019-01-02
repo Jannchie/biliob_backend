@@ -1,6 +1,6 @@
 package com.jannchie.biliob.exception;
 
-import com.jannchie.biliob.utils.ExceptionEnum;
+import com.jannchie.biliob.constant.ExceptionEnum;
 
 /**
  * @author jannchie

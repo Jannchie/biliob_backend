@@ -7,8 +7,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import javax.validation.Valid;
-
 /**
  * @author jannchie
  */
@@ -28,7 +26,7 @@ public interface AuthorService {
    *
    * @param mid 作者id
    * @throws UserAlreadyFavoriteAuthorException 用户已经观测该作者
-   * @throws AuthorAlreadyFocusedException      作者已经在系统中
+   * @throws AuthorAlreadyFocusedException 作者已经在系统中
    */
   void postAuthorByMid(Long mid)
       throws UserAlreadyFavoriteAuthorException, AuthorAlreadyFocusedException;
@@ -36,23 +34,13 @@ public interface AuthorService {
   /**
    * 获取作者页
    *
-   * @param mid      作者id
-   * @param text     文本
-   * @param page     页数
+   * @param mid 作者id
+   * @param text 文本
+   * @param page 页数
    * @param pagesize 页大小
    * @return 作者页
    */
   Page<Author> getAuthor(Long mid, String text, Integer page, Integer pagesize);
-
-  /**
-   * Force Focus a Author or Not.
-   *
-   *
-   * @param mid author id
-   * @param forceFocus force focus status
-   * @return Force observation or cancel the force observation feedback.
-   */
-  ResponseEntity forceFocus(Integer mid, @Valid Boolean forceFocus);
 
   /**
    * get a list of author's fans increase rate.
