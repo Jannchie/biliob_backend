@@ -105,16 +105,16 @@ class UserServiceImpl implements UserService {
     if (user == null) {
       return new ResponseEntity<>(new Result(ResultEnum.HAS_NOT_LOGGED_IN), HttpStatus.UNAUTHORIZED);
     }
-    ArrayList<Long> temp = new ArrayList<>();
+    ArrayList<Long> temp = user.getFavoriteMid();
     if (temp.contains(mid)) {
+      logger.warn("用户：{} 试图重复关注{}", user.getName(), mid);
       return new ResponseEntity<>(new Result(ResultEnum.ALREADY_FAVORITE_AUTHOR), HttpStatus.ACCEPTED);
     }
     temp.add(mid);
 		user.setFavoriteMid(new ArrayList<>(temp));
 		userRepository.save(user);
-		logger.info(mid);
-		logger.info(user.getName());
-    return new ResponseEntity<>(user, HttpStatus.OK);
+    logger.info("用户：{} 关注了{}", user.getName(), mid);
+    return new ResponseEntity<>(new Result(ResultEnum.ADD_FAVORITE_AUTHOR_SUCCEED), HttpStatus.OK);
   }
 
 	@Override
@@ -123,16 +123,15 @@ class UserServiceImpl implements UserService {
     if (user == null) {
       return new ResponseEntity<>(new Result(ResultEnum.HAS_NOT_LOGGED_IN), HttpStatus.UNAUTHORIZED);
     }
-    ArrayList<Long> temp = new ArrayList<>();
-    temp = user.getFavoriteAid();
-		if (temp.contains(aid)) {
+    ArrayList<Long> temp = user.getFavoriteAid();
+    if (temp.contains(aid)) {
+      logger.warn("用户：{} 试图重复收藏{}", user.getName(), aid);
       return new ResponseEntity<>(new Result(ResultEnum.ALREADY_FAVORITE_VIDEO), HttpStatus.ACCEPTED);
     }
     temp.add(aid);
 		user.setFavoriteAid(new ArrayList<>(temp));
 		userRepository.save(user);
-		logger.info(aid);
-		logger.info(user.getName());
+    logger.info("用户：{} 关注了{}", user.getName(), aid);
     return new ResponseEntity<>(new Result(ResultEnum.ADD_FAVORITE_VIDEO_SUCCEED), HttpStatus.OK);
   }
 
