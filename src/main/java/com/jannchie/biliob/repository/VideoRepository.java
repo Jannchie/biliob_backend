@@ -91,7 +91,7 @@ public interface VideoRepository
 	 */
 	@Query(
 			value = "{aid:{$ne:?0},mid:?1}",
-			fields = "{'title' : 1, 'aid' : 1, 'mid' : 1,'channel':1}"
+			fields = "{'title' : 1, 'aid' : 1, 'mid' : 1,'channel':1,'datetime':1, 'pic':1}"
 	)
 	Slice<Video> findAuthorOtherVideo(Long aid, Long mid, Pageable pageable);
 
@@ -102,7 +102,7 @@ public interface VideoRepository
    * @param pageable page information
    * @return a slice of author's top video.
    */
-  @Query(value = "{mid:?0}", fields = "{'title' : 1, 'aid' : 1, 'mid' : 1,'channel':1}")
+  @Query(value = "{mid:?0}", fields = "{'title' : 1, 'aid' : 1, 'mid' : 1,'channel':1,'datetime':1, 'pic':1}")
   Slice<Video> findAuthorTopVideo(Long mid, Pageable pageable);
 
   /**
