@@ -36,7 +36,7 @@ public class LoginCheck {
    *
    * @return null: user has not logged in || User: user information
    */
-  public User check() {
+  public static User check() {
     User user = userRepository.findByName((String) SecurityUtils.getSubject().getPrincipal());
     if (user == null) {
       return null;
