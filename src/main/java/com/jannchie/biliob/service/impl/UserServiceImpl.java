@@ -114,7 +114,7 @@ class UserServiceImpl implements UserService {
   @Override
   public ResponseEntity addFavoriteAuthor(@Valid Long mid)
       throws UserAlreadyFavoriteAuthorException {
-    User user = LoginCheck.checkInfo();
+    User user = LoginCheck.check();
     if (user == null) {
       return new ResponseEntity<>(
           new Result(ResultEnum.HAS_NOT_LOGGED_IN), HttpStatus.UNAUTHORIZED);
@@ -137,7 +137,7 @@ class UserServiceImpl implements UserService {
 
   @Override
   public ResponseEntity addFavoriteVideo(@Valid Long aid) throws UserAlreadyFavoriteVideoException {
-    User user = LoginCheck.checkInfo();
+    User user = LoginCheck.check();
     if (user == null) {
       return new ResponseEntity<>(
           new Result(ResultEnum.HAS_NOT_LOGGED_IN), HttpStatus.UNAUTHORIZED);
@@ -278,6 +278,14 @@ class UserServiceImpl implements UserService {
     String inputPassword = user.getPassword();
     String encodedPassword = new Md5Hash(inputPassword, inputName).toHex();
     Subject subject = SecurityUtils.getSubject();
+
+    User tempUser = userRepository.findByName(inputName);
+    if (tempUser.getPassword() == null){
+      tempUser.setPassword(encodedPassword);
+      userRepository.save(tempUser);
+    }
+
+
     UsernamePasswordToken token = new UsernamePasswordToken(inputName, encodedPassword);
     token.setRememberMe(true);
     subject.login(token);
