@@ -1,6 +1,7 @@
 package com.jannchie.biliob.service.impl;
 
 import com.jannchie.biliob.constant.CreditConstant;
+import com.jannchie.biliob.constant.PageSizeEnum;
 import com.jannchie.biliob.constant.ResultEnum;
 import com.jannchie.biliob.constant.RoleEnum;
 import com.jannchie.biliob.exception.UserAlreadyExistException;
@@ -167,6 +168,9 @@ class UserServiceImpl implements UserService {
    */
   @Override
   public Slice getFavoriteVideo(Integer page, Integer pageSize) {
+    if(pageSize > PageSizeEnum.BIG_SIZE.getValue()){
+      pageSize = PageSizeEnum.BIG_SIZE.getValue();
+    }
     User user = LoginCheck.checkInfo();
     if (user == null) {
       return null;
@@ -194,6 +198,9 @@ class UserServiceImpl implements UserService {
    */
   @Override
   public Slice getFavoriteAuthor(Integer page, Integer pageSize) {
+    if(pageSize > PageSizeEnum.BIG_SIZE.getValue()){
+      pageSize = PageSizeEnum.BIG_SIZE.getValue();
+    }
     User user = LoginCheck.checkInfo();
     if (user == null) {
       return null;
@@ -220,7 +227,7 @@ class UserServiceImpl implements UserService {
    */
   @Override
   public ResponseEntity deleteFavoriteAuthorByMid(Long mid) {
-    User user = LoginCheck.checkInfo();
+    User user = LoginCheck.check();
     if (user == null) {
       return new ResponseEntity<>(
           new Result(ResultEnum.HAS_NOT_LOGGED_IN), HttpStatus.UNAUTHORIZED);
@@ -247,7 +254,7 @@ class UserServiceImpl implements UserService {
    */
   @Override
   public ResponseEntity deleteFavoriteVideoByAid(Long aid) {
-    User user = LoginCheck.checkInfo();
+    User user = LoginCheck.check();
     if (user == null) {
       return new ResponseEntity<>(
           new Result(ResultEnum.HAS_NOT_LOGGED_IN), HttpStatus.UNAUTHORIZED);
