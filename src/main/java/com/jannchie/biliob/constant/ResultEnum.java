@@ -25,7 +25,8 @@ public enum ResultEnum {
   ALREADY_SIGNED(-1, "已经签过到了"),
   SIGN_SUCCEED(1, "签到成功"),
   PERMISSION_DENIED(-1, "权限不足"),
-  CREDIT_NOT_ENOUGH(-1, "积分不足"), ALREADY_FORCE_FOCUS(-1, "已经强制观测了该作者" );
+  CREDIT_NOT_ENOUGH(-1, "积分不足"),
+  ALREADY_FORCE_FOCUS(-1, "已经强制观测了该作者" );
 
   private int code;
   private String msg;
