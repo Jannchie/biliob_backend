@@ -1,5 +1,6 @@
 package com.jannchie.biliob.service.impl;
 
+import com.jannchie.biliob.constant.PageSizeEnum;
 import com.jannchie.biliob.constant.ResultEnum;
 import com.jannchie.biliob.exception.UserAlreadyFavoriteVideoException;
 import com.jannchie.biliob.model.Video;
@@ -67,6 +68,9 @@ public class VideoServiceImpl implements VideoService {
 
 	@Override
 	public Page<Video> getVideo(Long aid, String text, Integer page, Integer pagesize) {
+    if(pagesize > PageSizeEnum.BIG_SIZE.getValue()){
+      pagesize = PageSizeEnum.BIG_SIZE.getValue();
+    }
 		if (!(aid == -1)) {
 			logger.info(aid);
 			return respository.searchByAid(
@@ -84,6 +88,9 @@ public class VideoServiceImpl implements VideoService {
 
 	@Override
 	public Slice<Video> getAuthorOtherVideo(Long aid, Long mid, Integer page, Integer pagesize) {
+    if(pagesize > PageSizeEnum.SMALL_SIZE.getValue()){
+      pagesize = PageSizeEnum.SMALL_SIZE.getValue();
+    }
     logger.info("获取作者其他数据");
     return respository.findAuthorOtherVideo(
         aid, mid, PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, "data.0.view")));
