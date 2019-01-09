@@ -227,7 +227,7 @@ class UserServiceImpl implements UserService {
    */
   @Override
   public ResponseEntity deleteFavoriteAuthorByMid(Long mid) {
-    User user = LoginCheck.checkInfo();
+    User user = LoginCheck.check();
     if (user == null) {
       return new ResponseEntity<>(
           new Result(ResultEnum.HAS_NOT_LOGGED_IN), HttpStatus.UNAUTHORIZED);
@@ -254,7 +254,7 @@ class UserServiceImpl implements UserService {
    */
   @Override
   public ResponseEntity deleteFavoriteVideoByAid(Long aid) {
-    User user = LoginCheck.checkInfo();
+    User user = LoginCheck.check();
     if (user == null) {
       return new ResponseEntity<>(
           new Result(ResultEnum.HAS_NOT_LOGGED_IN), HttpStatus.UNAUTHORIZED);
