@@ -74,15 +74,15 @@ public class VideoServiceImpl implements VideoService {
 		if (!(aid == -1)) {
 			logger.info(aid);
 			return respository.searchByAid(
-					aid, PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, "data.0.view")));
+					aid, PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, "cView")));
 		} else if (!Objects.equals(text, "")) {
 			logger.info(text);
 			return respository.searchByText(
-					text, PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, "data.0.view")));
+					text, PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, "cView")));
 		} else {
 			logger.info("获取全部视频数据");
 			return respository.findByDataIsNotNull(
-					PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, "data.0.view")));
+					PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, "cView")));
 		}
 	}
 
@@ -93,7 +93,7 @@ public class VideoServiceImpl implements VideoService {
     }
     logger.info("获取作者其他数据");
     return respository.findAuthorOtherVideo(
-        aid, mid, PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, "data.0.view")));
+        aid, mid, PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, "cView")));
 	}
 
   /**
@@ -112,7 +112,7 @@ public class VideoServiceImpl implements VideoService {
     }
     Sort videoSort;
     if (Objects.equals(sort, VIEW_COUNT.getValue())) {
-      videoSort = new Sort(Sort.Direction.DESC, "data.0.view");
+      videoSort = new Sort(Sort.Direction.DESC, "cView");
     } else if (Objects.equals(sort, PUBLISH_TIME.getValue())) {
       videoSort = new Sort(Sort.Direction.DESC, "datetime");
     } else {
