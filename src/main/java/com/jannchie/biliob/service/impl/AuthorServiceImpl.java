@@ -1,11 +1,13 @@
 package com.jannchie.biliob.service.impl;
 
+import com.jannchie.biliob.constant.PageSizeEnum;
 import com.jannchie.biliob.exception.AuthorAlreadyFocusedException;
 import com.jannchie.biliob.exception.UserAlreadyFavoriteAuthorException;
 import com.jannchie.biliob.model.Author;
 import com.jannchie.biliob.repository.AuthorRepository;
 import com.jannchie.biliob.service.AuthorService;
 import com.jannchie.biliob.service.UserService;
+import com.jannchie.biliob.utils.Result;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +22,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Objects;
+
+import static com.jannchie.biliob.constant.ResultEnum.PARAM_ERROR;
 
 /**
  * @author jannchie
@@ -58,6 +62,9 @@ public class AuthorServiceImpl implements AuthorService {
 
   @Override
   public Page<Author> getAuthor(Long mid, String text, Integer page, Integer pagesize) {
+    if(pagesize > PageSizeEnum.BIG_SIZE.getValue()){
+      pagesize = PageSizeEnum.BIG_SIZE.getValue();
+    }
     if (!(mid == -1)) {
       logger.info(mid);
       return respository.searchByMid(
