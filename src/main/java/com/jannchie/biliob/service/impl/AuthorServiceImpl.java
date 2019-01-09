@@ -68,15 +68,15 @@ public class AuthorServiceImpl implements AuthorService {
     if (!(mid == -1)) {
       logger.info(mid);
       return respository.searchByMid(
-          mid, PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, "data.0.fans")));
+          mid, PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, "cFans")));
     } else if (!Objects.equals(text, "")) {
       logger.info(text);
       return respository.search(
-          text, PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, "data.0.fans")));
+          text, PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, "cFans")));
     } else {
       logger.info("查看所有UP主列表");
       return respository.findAllByDataIsNotNull(
-          PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, "data.0.fans")));
+          PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, "cFans")));
     }
   }
 
