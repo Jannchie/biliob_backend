@@ -44,9 +44,7 @@ import static org.springframework.data.mongodb.core.query.Criteria.where;
 import static org.springframework.data.mongodb.core.query.Query.query;
 import static org.springframework.data.mongodb.core.query.Update.update;
 
-/**
- * @author jannchie
- */
+/** @author jannchie */
 @Service
 class UserServiceImpl implements UserService {
   private static final Logger logger = LogManager.getLogger(UserServiceImpl.class);
@@ -162,13 +160,13 @@ class UserServiceImpl implements UserService {
   /**
    * Get user's favorite video page
    *
-   * @param page     page number
+   * @param page page number
    * @param pageSize page size
    * @return favorite video page
    */
   @Override
   public Slice getFavoriteVideo(Integer page, Integer pageSize) {
-    if(pageSize > PageSizeEnum.BIG_SIZE.getValue()){
+    if (pageSize > PageSizeEnum.BIG_SIZE.getValue()) {
       pageSize = PageSizeEnum.BIG_SIZE.getValue();
     }
     User user = LoginCheck.checkInfo();
@@ -192,13 +190,13 @@ class UserServiceImpl implements UserService {
   /**
    * Get user's favorite author page
    *
-   * @param page     page number
+   * @param page page number
    * @param pageSize page size
    * @return favorite author page
    */
   @Override
   public Slice getFavoriteAuthor(Integer page, Integer pageSize) {
-    if(pageSize > PageSizeEnum.BIG_SIZE.getValue()){
+    if (pageSize > PageSizeEnum.BIG_SIZE.getValue()) {
       pageSize = PageSizeEnum.BIG_SIZE.getValue();
     }
     User user = LoginCheck.checkInfo();
@@ -287,11 +285,10 @@ class UserServiceImpl implements UserService {
     Subject subject = SecurityUtils.getSubject();
 
     User tempUser = userRepository.findByName(inputName);
-    if (tempUser.getPassword() == null){
+    if (tempUser.getPassword() == null) {
       tempUser.setPassword(encodedPassword);
       userRepository.save(tempUser);
     }
-
 
     UsernamePasswordToken token = new UsernamePasswordToken(inputName, encodedPassword);
     token.setRememberMe(true);
@@ -322,19 +319,28 @@ class UserServiceImpl implements UserService {
     String userName = user.getName();
     Integer credit = user.getCredit();
     if (isCheckedIn) {
-      logger.warn("用户：{},试图重复签到,当前积分：{}", userName, credit);
+      logger.warn("用户：{}，试图重复签到，当前积分：{}", userName, credit);
+      HashMap<String, Integer> data = new HashMap<>(1);
+      data.put("credit", credit);
       return new ResponseEntity<>(new Result(ResultEnum.ALREADY_SIGNED), HttpStatus.ACCEPTED);
     } else {
-
       // 插入已签到集合
       mongoTemplate.insert(new CheckIn(userName), "check_in");
+      return getResponseForCredit(user, ResultEnum.SIGN_SUCCEED);
+    }
+  }
 
-      Boolean isCreditEnough = creditUtil.calculateCredit(user, CreditConstant.CHECK_IN);
-      if (isCreditEnough) {
-        return new ResponseEntity<>(new Result(ResultEnum.SIGN_SUCCEED), HttpStatus.OK);
-      } else {
-        return new ResponseEntity<>(new Result(ResultEnum.CREDIT_NOT_ENOUGH), HttpStatus.ACCEPTED);
-      }
+  private ResponseEntity getResponseForCredit(User user, ResultEnum resultEnum) {
+    Integer credit;
+    credit = creditUtil.calculateCredit(user, CreditConstant.CHECK_IN);
+    if (credit != -1) {
+      HashMap<String, Integer> data = new HashMap<>(1);
+      data.put("credit", credit);
+      logger.warn("用户：{}，因{}发生积分变动，当前积分：{}", user.getName(), resultEnum.getMsg(), credit);
+      return new ResponseEntity<>(new Result(resultEnum, data), HttpStatus.OK);
+    } else {
+      logger.warn("用户：{}，因积分不足，扣分失败", user.getName());
+      return new ResponseEntity<>(new Result(ResultEnum.CREDIT_NOT_ENOUGH), HttpStatus.ACCEPTED);
     }
   }
 
@@ -361,7 +367,7 @@ class UserServiceImpl implements UserService {
   /**
    * Force Focus a Author or Not.
    *
-   * @param mid        author idW
+   * @param mid author id
    * @param forceFocus force focus status
    * @return Force observation or cancel the force observation feedback.
    */
@@ -401,14 +407,17 @@ class UserServiceImpl implements UserService {
       return new ResponseEntity<>(new Result(ResultEnum.ALREADY_FORCE_FOCUS), HttpStatus.ACCEPTED);
     }
 
-    Boolean isCreditEnough = creditUtil.calculateCredit(user, CreditConstant.SET_FORCE_OBSERVE);
-    if (isCreditEnough) {
+    Integer credit = creditUtil.calculateCredit(user, CreditConstant.SET_FORCE_OBSERVE);
+    if (credit != -1) {
+      HashMap<String, Integer> data = new HashMap<>(1);
+      data.put("credit", credit);
       mongoTemplate.updateFirst(
           query(where("mid").is(mid)), update("forceFocus", true), Author.class);
-      logger.info("用户：{}设置{}强制追踪状态为{}", user.getName(), mid, true);
-      return new ResponseEntity<>(new Result(ResultEnum.SUCCEED), HttpStatus.OK);
+      logger.info("用户：{} 设置 {} 强制追踪状态为{}", user.getName(), mid, true);
+      return new ResponseEntity<>(new Result(ResultEnum.SUCCEED, data), HttpStatus.OK);
     } else {
       return new ResponseEntity<>(new Result(ResultEnum.CREDIT_NOT_ENOUGH), HttpStatus.ACCEPTED);
     }
+
   }
 }
