@@ -30,15 +30,15 @@ public class CreditUtil {
    *
    * @param user           user information.
    * @param creditConstant the operation value.
-   * @return null: user's credit not enough || Integer: the credit after calculate.
+   * @return -1: user's credit not enough || positive integer: the credit after calculate.
    */
-  public Boolean calculateCredit(User user, CreditConstant creditConstant) {
+  public Integer calculateCredit(User user, CreditConstant creditConstant) {
     Integer value = creditConstant.getValue();
     Integer credit = user.getCredit() + value;
     String userName = user.getName();
     if (value < 0 && user.getCredit() < (-value)) {
       logger.info("用户：{},积分不足,当前积分：{}", userName, user.getCredit());
-      return false;
+      return -1;
     }
 
     Query query = new Query(where("name").is(userName));
@@ -46,6 +46,6 @@ public class CreditUtil {
     update.set("credit", credit);
     mongoTemplate.updateFirst(query, update, User.class);
     logger.info("用户：{},积分变动,当前积分：{}", userName, credit);
-    return true;
+    return credit;
   }
 }
