@@ -320,8 +320,7 @@ class UserServiceImpl implements UserService {
     Integer credit = user.getCredit();
     if (isCheckedIn) {
       logger.warn("用户：{}，试图重复签到，当前积分：{}", userName, credit);
-      HashMap<String, Integer> data = new HashMap<>(1);
-      data.put("credit", credit);
+
       return new ResponseEntity<>(new Result(ResultEnum.ALREADY_SIGNED), HttpStatus.ACCEPTED);
     } else {
       // 插入已签到集合
@@ -332,11 +331,9 @@ class UserServiceImpl implements UserService {
 
   private ResponseEntity getResponseForCredit(User user, ResultEnum resultEnum) {
     Integer credit;
-    credit = creditUtil.calculateCredit(user, CreditConstant.CHECK_IN);
-    if (credit != -1) {
-      HashMap<String, Integer> data = new HashMap<>(1);
-      data.put("credit", credit);
-      logger.warn("用户：{}，因{}发生积分变动，当前积分：{}", user.getName(), resultEnum.getMsg(), credit);
+    HashMap<String, Integer> data = creditUtil.calculateCredit(user, CreditConstant.CHECK_IN);
+    if (data.get("credit") != -1) {
+      logger.warn("用户：{}，因{}发生积分变动，当前积分：{}", user.getName(), resultEnum.getMsg(), data);
       return new ResponseEntity<>(new Result(resultEnum, data), HttpStatus.OK);
     } else {
       logger.warn("用户：{}，因积分不足，扣分失败", user.getName());
@@ -407,10 +404,9 @@ class UserServiceImpl implements UserService {
       return new ResponseEntity<>(new Result(ResultEnum.ALREADY_FORCE_FOCUS), HttpStatus.ACCEPTED);
     }
 
-    Integer credit = creditUtil.calculateCredit(user, CreditConstant.SET_FORCE_OBSERVE);
-    if (credit != -1) {
-      HashMap<String, Integer> data = new HashMap<>(1);
-      data.put("credit", credit);
+    HashMap<String, Integer> data  = creditUtil.calculateCredit(user, CreditConstant.SET_FORCE_OBSERVE);
+
+    if (data.get("credit") != -1) {
       mongoTemplate.updateFirst(
           query(where("mid").is(mid)), update("forceFocus", true), Author.class);
       logger.info("用户：{} 设置 {} 强制追踪状态为{}", user.getName(), mid, true);
