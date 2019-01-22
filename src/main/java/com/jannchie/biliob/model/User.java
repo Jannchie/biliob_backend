@@ -29,17 +29,28 @@ public class User {
 	private ArrayList<Long> favoriteAid;
 	private ArrayList<Long> favoriteMid;
   private Integer credit;
+  private Integer exp;
 
 	public User(String name, String password, String role) {
 		this.name = name;
 		this.password = password;
 		this.role = role;
     this.credit = 0;
+    this.exp = 0;
   }
 
 	public User() {
 		this.role = "普通用户";
     this.credit = 0;
+    this.exp = 0;
+  }
+
+  public Integer getExp() {
+    return exp;
+  }
+
+  public void setExp(Integer exp) {
+    this.exp = exp;
   }
 
   public Integer getCredit() {
