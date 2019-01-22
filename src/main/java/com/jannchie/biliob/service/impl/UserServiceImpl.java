@@ -285,6 +285,10 @@ class UserServiceImpl implements UserService {
     Subject subject = SecurityUtils.getSubject();
 
     User tempUser = userRepository.findByName(inputName);
+    if (tempUser == null){
+      return new ResponseEntity<>(new Result(ResultEnum.LOGIN_FAILED), HttpStatus.UNAUTHORIZED);
+    }
+
     if (tempUser.getPassword() == null) {
       tempUser.setPassword(encodedPassword);
       userRepository.save(tempUser);
