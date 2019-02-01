@@ -1,8 +1,6 @@
 package com.jannchie.biliob.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import org.bson.types.ObjectId;
-import org.springframework.data.annotation.Id;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -92,8 +90,8 @@ public class Author {
 		return channels;
 	}
 
-	public void setChannel(ArrayList<Channel> channel) {
-		this.channels = channels;
+  public void setChannel(ArrayList<Channel> channels) {
+    this.channels = channels;
 	}
 
 	public Long getMid() {
@@ -161,9 +159,9 @@ public class Author {
 		private Integer attention;
 		private Integer archive;
 		private Integer article;
-    private Integer archiveView;
-    private Integer articleView;
-		private Date datetime;
+    private Long archiveView;
+    private Long articleView;
+    private Date datetime;
 
 
     public void setFans(Integer fans) {
@@ -182,24 +180,24 @@ public class Author {
       this.article = article;
     }
 
-    public void setArchiveView(Integer archiveView) {
-      this.archiveView = archiveView;
+    public Long getArchiveView() {
+      return archiveView;
     }
 
-    public void setArticleView(Integer articleView) {
-      this.articleView = articleView;
+    public void setArchiveView(Long archiveView) {
+      this.archiveView = archiveView;
     }
 
     public void setDatetime(Date datetime) {
       this.datetime = datetime;
     }
 
-    public Integer getArchiveView() {
-      return archiveView;
+    public Long getArticleView() {
+      return articleView;
     }
 
-    public Integer getArticleView() {
-      return articleView;
+    public void setArticleView(Long articleView) {
+      this.articleView = articleView;
     }
 
     public Integer getFans() {
