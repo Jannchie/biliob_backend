@@ -36,7 +36,7 @@ public interface AuthorRepository
 	 * @return 一页作者
 	 */
 	@Query(
-			fields = "{ 'name' : 1, 'mid' : 1, 'face' : 1, 'official' : 1, 'focus':1, 'forceFocus':1, 'sex':1,'level':1,'fansRate':1}"
+			fields = "{ 'name' : 1, 'mid' : 1, 'face' : 1, 'official' : 1, 'focus':1, 'forceFocus':1, 'sex':1,'level':1}"
 	)
 	Page<Author> findAllByDataIsNotNull(Pageable pageable);
 
