@@ -39,7 +39,7 @@ public interface VideoRepository
 			fields =
 					"{ 'pic' : 1, 'mid' : 1, 'author' : 1, 'channel' : 1, 'title' : 1, 'aid' : 1, 'focus':1}"
 	)
-	Page<Video> findAllByAid(Pageable pageable);
+	Slice<Video> findAllByAid(Pageable pageable);
 
 	/**
 	 * 通过aid寻找视频（不包括data）
@@ -53,7 +53,7 @@ public interface VideoRepository
 			fields =
 					"{ 'pic' : 1, 'mid' : 1, 'author' : 1, 'channel' : 1, 'title' : 1, 'aid' : 1, 'focus':1}"
 	)
-	Page<Video> searchByAid(@Param("aid") Long aid, Pageable pageable);
+	Slice<Video> searchByAid(@Param("aid") Long aid, Pageable pageable);
 
 	/**
 	 * 通过文本搜索视频
@@ -67,7 +67,7 @@ public interface VideoRepository
 			fields =
 					"{ 'pic' : 1, 'mid' : 1, 'author' : 1, 'channel' : 1, 'title' : 1, 'aid' : 1, 'focus':1}"
 	)
-	Page<Video> searchByText(String text, Pageable pageable);
+	Slice<Video> searchByText(String text, Pageable pageable);
 
 	/**
 	 * 寻找Data不是空的视频
@@ -79,7 +79,7 @@ public interface VideoRepository
 			fields =
 					"{ 'pic' : 1, 'mid' : 1, 'author' : 1, 'channel' : 1, 'title' : 1, 'aid' : 1, 'focus':1}"
 	)
-	Page<Video> findByDataIsNotNull(Pageable pageable);
+	Slice<Video> findAllByDataIsNotNull(Pageable pageable);
 
 	/**
 	 * 获得作者的其他视频

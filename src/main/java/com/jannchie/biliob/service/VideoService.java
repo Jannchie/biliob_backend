@@ -43,7 +43,7 @@ public interface VideoService {
 	 * @param pagesize 页大小
 	 * @return 视频页
 	 */
-	Page<Video> getVideo(Long aid, String text, Integer page, Integer pagesize);
+	Slice<Video> getVideo(Long aid, String text, Integer page, Integer pagesize);
 
 	/**
 	 * 获取作者其他视频
