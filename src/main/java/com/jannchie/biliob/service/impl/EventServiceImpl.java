@@ -10,6 +10,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -43,7 +44,7 @@ public class EventServiceImpl implements EventService {
     if(pagesize > PageSizeEnum.BIG_SIZE.getValue()){
       return new ResponseEntity<>(new Result(PARAM_ERROR),HttpStatus.FORBIDDEN);
     }
-    Page<Event> events = eventRepository.findAll(PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, "datetime")));
+    Slice<Event> events = eventRepository.findAll(PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, "datetime")));
     logger.info("获取事件");
     return new ResponseEntity<>(events, HttpStatus.OK);
   }

@@ -61,7 +61,7 @@ public class AuthorServiceImpl implements AuthorService {
   }
 
   @Override
-  public Page<Author> getAuthor(Long mid, String text, Integer page, Integer pagesize) {
+  public Slice<Author> getAuthor(Long mid, String text, Integer page, Integer pagesize) {
     if(pagesize > PageSizeEnum.BIG_SIZE.getValue()){
       pagesize = PageSizeEnum.BIG_SIZE.getValue();
     }

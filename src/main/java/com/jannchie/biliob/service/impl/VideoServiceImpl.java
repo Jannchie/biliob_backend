@@ -13,7 +13,6 @@ import com.jannchie.biliob.utils.Result;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
@@ -67,7 +66,7 @@ public class VideoServiceImpl implements VideoService {
 	}
 
 	@Override
-	public Page<Video> getVideo(Long aid, String text, Integer page, Integer pagesize) {
+	public Slice<Video> getVideo(Long aid, String text, Integer page, Integer pagesize) {
     if(pagesize > PageSizeEnum.BIG_SIZE.getValue()){
       pagesize = PageSizeEnum.BIG_SIZE.getValue();
     }
@@ -81,7 +80,7 @@ public class VideoServiceImpl implements VideoService {
 					text, PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, "cView")));
 		} else {
 			logger.info("获取全部视频数据");
-			return respository.findByDataIsNotNull(
+			return respository.findAllByDataIsNotNull(
 					PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, "cView")));
 		}
 	}
