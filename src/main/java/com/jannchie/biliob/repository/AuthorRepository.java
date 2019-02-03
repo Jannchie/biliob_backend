@@ -38,7 +38,7 @@ public interface AuthorRepository
 	@Query(
 			fields = "{ 'name' : 1, 'mid' : 1, 'face' : 1, 'official' : 1, 'focus':1, 'forceFocus':1, 'sex':1,'level':1}"
 	)
-	Page<Author> findAllByDataIsNotNull(Pageable pageable);
+	Slice<Author> findAllByDataIsNotNull(Pageable pageable);
 
 	/**
 	 * 通过mid搜索作者
@@ -51,7 +51,7 @@ public interface AuthorRepository
 			value = "{'mid' : ?0}",
 			fields = "{ 'name' : 1, 'mid' : 1, 'face' : 1, 'official' : 1, 'focus':1, 'forceFocus':1, 'sex':1,'level':1}"
 	)
-	Page<Author> searchByMid(@Param("mid") Long mid, Pageable pageable);
+	Slice<Author> searchByMid(@Param("mid") Long mid, Pageable pageable);
 
 	/**
 	 * 通过文本搜索作者
@@ -64,7 +64,7 @@ public interface AuthorRepository
 			value = "{$or:[{name:{$regex:?0}},{official:{$regex:?0}}]}",
 			fields = "{ 'name' : 1, 'mid' : 1, 'face' : 1, 'official' : 1, 'focus':1, 'forceFocus':1, 'sex':1,'level':1}"
 	)
-	Page<Author> search(String text, Pageable pageable);
+	Slice<Author> search(String text, Pageable pageable);
 
 	/**
 	 * get user favorite author
