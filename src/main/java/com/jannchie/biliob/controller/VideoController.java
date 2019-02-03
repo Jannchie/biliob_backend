@@ -57,7 +57,7 @@ public class VideoController {
   }
 
   @RequestMapping(method = RequestMethod.GET, value = "/api/video")
-  public Page<Video> getVideo(
+  public Slice<Video> getVideo(
       @RequestParam(defaultValue = "0") Integer page,
       @RequestParam(defaultValue = "20") Integer pageSize,
       @RequestParam(defaultValue = "-1") Long aid,
