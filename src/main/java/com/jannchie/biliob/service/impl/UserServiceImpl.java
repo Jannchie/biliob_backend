@@ -1,17 +1,16 @@
 package com.jannchie.biliob.service.impl;
 
-import com.jannchie.biliob.constant.CreditConstant;
-import com.jannchie.biliob.constant.PageSizeEnum;
-import com.jannchie.biliob.constant.ResultEnum;
-import com.jannchie.biliob.constant.RoleEnum;
+import com.jannchie.biliob.constant.*;
 import com.jannchie.biliob.exception.UserAlreadyExistException;
 import com.jannchie.biliob.exception.UserAlreadyFavoriteAuthorException;
 import com.jannchie.biliob.exception.UserAlreadyFavoriteVideoException;
 import com.jannchie.biliob.exception.UserNotExistException;
 import com.jannchie.biliob.model.Author;
 import com.jannchie.biliob.model.CheckIn;
+import com.jannchie.biliob.model.Question;
 import com.jannchie.biliob.model.User;
 import com.jannchie.biliob.repository.AuthorRepository;
+import com.jannchie.biliob.repository.QuestionRepository;
 import com.jannchie.biliob.repository.UserRepository;
 import com.jannchie.biliob.repository.VideoRepository;
 import com.jannchie.biliob.service.UserService;
@@ -57,6 +56,8 @@ class UserServiceImpl implements UserService {
 
   private final AuthorRepository authorRepository;
 
+  private final QuestionRepository questionRepository;
+
   private final MongoTemplate mongoTemplate;
 
   private UserServiceImpl(
@@ -64,11 +65,13 @@ class UserServiceImpl implements UserService {
       UserRepository userRepository,
       VideoRepository videoRepository,
       AuthorRepository authorRepository,
+      QuestionRepository questionRepository,
       MongoTemplate mongoTemplate) {
     this.creditUtil = creditUtil;
     this.userRepository = userRepository;
     this.videoRepository = videoRepository;
     this.authorRepository = authorRepository;
+    this.questionRepository = questionRepository;
     this.mongoTemplate = mongoTemplate;
   }
 
@@ -285,7 +288,7 @@ class UserServiceImpl implements UserService {
     Subject subject = SecurityUtils.getSubject();
 
     User tempUser = userRepository.findByName(inputName);
-    if (tempUser == null){
+    if (tempUser == null) {
       return new ResponseEntity<>(new Result(ResultEnum.LOGIN_FAILED), HttpStatus.UNAUTHORIZED);
     }
 
@@ -336,7 +339,7 @@ class UserServiceImpl implements UserService {
   private ResponseEntity getResponseForCredit(User user, ResultEnum resultEnum) {
     Integer credit;
     HashMap<String, Integer> data = creditUtil.calculateCredit(user, CreditConstant.CHECK_IN);
-    if (data.get("credit") != -1) {
+    if (data.get(FieldConstant.CREDIT.getValue()) != -1) {
       logger.warn("用户：{}，因{}发生积分变动，当前积分：{}", user.getName(), resultEnum.getMsg(), data);
       return new ResponseEntity<>(new Result(resultEnum, data), HttpStatus.OK);
     } else {
@@ -408,9 +411,10 @@ class UserServiceImpl implements UserService {
       return new ResponseEntity<>(new Result(ResultEnum.ALREADY_FORCE_FOCUS), HttpStatus.ACCEPTED);
     }
 
-    HashMap<String, Integer> data  = creditUtil.calculateCredit(user, CreditConstant.SET_FORCE_OBSERVE);
+    HashMap<String, Integer> data =
+        creditUtil.calculateCredit(user, CreditConstant.SET_FORCE_OBSERVE);
 
-    if (data.get("credit") != -1) {
+    if (data.get(FieldConstant.CREDIT.getValue()) != -1) {
       mongoTemplate.updateFirst(
           query(where("mid").is(mid)), update("forceFocus", true), Author.class);
       logger.info("用户：{} 设置 {} 强制追踪状态为{}", user.getName(), mid, true);
@@ -418,6 +422,24 @@ class UserServiceImpl implements UserService {
     } else {
       return new ResponseEntity<>(new Result(ResultEnum.CREDIT_NOT_ENOUGH), HttpStatus.ACCEPTED);
     }
+  }
 
+  /**
+   * post a question
+   *
+   * @param question the question text
+   * @return the post result.
+   */
+  @Override
+  public ResponseEntity postQuestion(String question) {
+    User user = LoginCheck.checkInfo();
+    if (user == null) {
+      return new ResponseEntity<>(
+          new Result(ResultEnum.HAS_NOT_LOGGED_IN), HttpStatus.UNAUTHORIZED);
+    }
+    String userName = user.getName();
+    questionRepository.save(new Question(question, userName));
+    logger.info("用户：{} 提出了一个问题：{}", user.getName(), question);
+    return new ResponseEntity<>(new Result(ResultEnum.SUCCEED), HttpStatus.OK);
   }
 }

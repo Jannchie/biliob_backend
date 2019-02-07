@@ -3,6 +3,7 @@ package com.jannchie.biliob.controller;
 import com.jannchie.biliob.exception.UserAlreadyExistException;
 import com.jannchie.biliob.exception.UserAlreadyFavoriteAuthorException;
 import com.jannchie.biliob.exception.UserAlreadyFavoriteVideoException;
+import com.jannchie.biliob.model.Question;
 import com.jannchie.biliob.model.User;
 import com.jannchie.biliob.service.UserService;
 import com.jannchie.biliob.utils.Message;
@@ -106,5 +107,10 @@ public class UserController {
       @RequestParam(defaultValue = "false") @Valid Boolean forceFocus,
       @PathVariable("mid") @Valid Integer mid) {
     return userService.forceFocus(mid, forceFocus);
+  }
+
+  @RequestMapping(method = RequestMethod.POST, value = "/api/user/question")
+  public ResponseEntity postQuestion(@RequestBody @Valid Question question) {
+    return userService.postQuestion(question.getQuestion());
   }
 }

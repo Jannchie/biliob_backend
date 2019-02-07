@@ -71,7 +71,7 @@ public interface UserService {
   /**
    * Get user's favorite video page
    *
-   * @param page     page number
+   * @param page page number
    * @param pageSize page size
    * @return favorite video page
    */
@@ -80,7 +80,7 @@ public interface UserService {
   /**
    * Get user's favorite author page
    *
-   * @param page     page number
+   * @param page page number
    * @param pageSize page size
    * @return favorite author page
    */
@@ -127,9 +127,17 @@ public interface UserService {
   /**
    * Force Focus a Author or Not.
    *
-   * @param mid        author id
+   * @param mid author id
    * @param forceFocus force focus status
    * @return Force observation or cancel the force observation feedback.
    */
   ResponseEntity forceFocus(Integer mid, @Valid Boolean forceFocus);
+
+  /**
+   * post a question
+   *
+   * @param question the question text
+   * @return the post result.
+   */
+  ResponseEntity postQuestion(String question);
 }
