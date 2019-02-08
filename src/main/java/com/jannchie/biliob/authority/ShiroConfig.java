@@ -60,13 +60,17 @@ public class ShiroConfig {
 		filterChainDefinitionMap.put("/api/video/**", "anon");
 		// 允许发起注册请求
 		filterChainDefinitionMap.put("/api/user", "anon");
-		// 允许用户查看用户信息
-		filterChainDefinitionMap.put("/api/user/**", "roles[普通用户]");
-		// 管理员，需要角色权限 “admin”
-		filterChainDefinitionMap.put("/api/admin/**", "roles[admin]");
-		// 其余接口一律拦截
-		// 主要这行代码必须放在所有权限设置的最后，不然会导致所有 url 都被拦截
-		filterChainDefinitionMap.put("/**", "authc");
+    // Allow anyone view the handled questions.
+    filterChainDefinitionMap.put("/api/question/handled", "anon");
+    // 允许用户查看用户信息
+    filterChainDefinitionMap.put("/api/user/**", "roles[普通用户,管理员]");
+    // 管理员，需要角色权限 “admin”
+    filterChainDefinitionMap.put("/api/admin/**", "roles[管理员]");
+    // 管理员，需要角色权限 “admin”
+    filterChainDefinitionMap.put("/api/question/pending", "roles[管理员]");
+    // 其余接口一律拦截
+    // 主要这行代码必须放在所有权限设置的最后，不然会导致所有 url 都被拦截
+    filterChainDefinitionMap.put("/**", "authc");
 		shiroFilterFactoryBean.setFilterChainDefinitionMap(filterChainDefinitionMap);
 		return shiroFilterFactoryBean;
 	}
