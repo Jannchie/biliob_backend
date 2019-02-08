@@ -38,7 +38,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Objects;
 
-import static com.jannchie.biliob.constant.RoleEnum.NORMAL_USER;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 import static org.springframework.data.mongodb.core.query.Query.query;
 import static org.springframework.data.mongodb.core.query.Update.update;
@@ -301,12 +300,8 @@ class UserServiceImpl implements UserService {
     token.setRememberMe(true);
     subject.login(token);
     String role = getRole(inputName);
-    if (NORMAL_USER.getName().equals(role)) {
-      logger.info("普通用户：{} 登录成功", inputName);
-      return new ResponseEntity<>(
-          new Result(ResultEnum.LOGIN_SUCCEED, getUserInfo()), HttpStatus.OK);
-    }
-    return new ResponseEntity<>(new Result(ResultEnum.LOGIN_FAILED), HttpStatus.UNAUTHORIZED);
+    logger.info("{}：{} 登录成功", role, inputName);
+    return new ResponseEntity<>(new Result(ResultEnum.LOGIN_SUCCEED, getUserInfo()), HttpStatus.OK);
   }
 
   /**
