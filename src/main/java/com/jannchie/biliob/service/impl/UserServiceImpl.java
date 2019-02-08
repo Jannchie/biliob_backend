@@ -433,8 +433,14 @@ class UserServiceImpl implements UserService {
           new Result(ResultEnum.HAS_NOT_LOGGED_IN), HttpStatus.UNAUTHORIZED);
     }
     String userName = user.getName();
-    questionRepository.save(new Question(question, userName));
-    logger.info("用户：{} 提出了一个问题：{}", user.getName(), question);
-    return new ResponseEntity<>(new Result(ResultEnum.SUCCEED), HttpStatus.OK);
+    HashMap<String, Integer> data =
+        creditUtil.calculateCredit(user, CreditConstant.ASK_QUESTION);
+    if (data.get(FieldConstant.CREDIT.getValue()) != -1) {
+      questionRepository.save(new Question(question, userName));
+      logger.info("用户：{} 提出了一个问题：{}", user.getName(), question);
+      return new ResponseEntity<>(new Result(ResultEnum.SUCCEED, data), HttpStatus.OK);
+    } else {
+      return new ResponseEntity<>(new Result(ResultEnum.CREDIT_NOT_ENOUGH), HttpStatus.ACCEPTED);
+    }
   }
 }
