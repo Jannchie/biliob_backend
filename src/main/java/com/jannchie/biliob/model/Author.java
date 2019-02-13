@@ -163,6 +163,26 @@ public class Author {
     private Integer fansRank;
     private Integer archiveViewRank;
     private Integer articleViewRank;
+    private Integer dFansRank;
+    private Integer dArchiveViewRank;
+    private Integer dArticleViewRank;
+    private Date    updateTime;
+
+    public Integer getdFansRank() {
+      return dFansRank;
+    }
+
+    public Integer getdArchiveViewRank() {
+      return dArchiveViewRank;
+    }
+
+    public Integer getdArticleViewRank() {
+      return dArticleViewRank;
+    }
+
+    public Date getUpdateTime() {
+      return updateTime;
+    }
 
     public Integer getFansRank() {
       return fansRank;
