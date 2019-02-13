@@ -27,6 +27,9 @@ public interface AuthorRepository
 	 * @param mid 作者id
 	 * @return 作者对象
 	 */
+  @Query(
+      fields = "{ 'fansRate' : 0}"
+  )
 	Author findByMid(@Param("mid") Long mid);
 
 	/**
