@@ -24,6 +24,79 @@ public class Video {
 	private String pic;
 	private Boolean focus;
 	private ArrayList<Data> data;
+  private Rank rank;
+
+  public Rank getRank() {
+    return rank;
+  }
+
+  private class Rank {
+    private Integer cViewRank;
+    private Integer cLikeRank;
+    private Integer cDanmakuRank;
+    private Integer cFavoriteRank;
+    private Integer cCoinRank;
+    private Integer cShareRank;
+    private Integer dViewRank;
+    private Integer dLikeRank;
+    private Integer dDanmakuRank;
+    private Integer dFavoriteRank;
+    private Integer dCoinRank;
+    private Integer dShareRank;
+    private Date updateTime;
+
+    public Integer getcViewRank() {
+      return cViewRank;
+    }
+
+    public Integer getcLikeRank() {
+      return cLikeRank;
+    }
+
+    public Integer getcDanmakuRank() {
+      return cDanmakuRank;
+    }
+
+    public Integer getcFavoriteRank() {
+      return cFavoriteRank;
+    }
+
+    public Integer getcCoinRank() {
+      return cCoinRank;
+    }
+
+    public Integer getcShareRank() {
+      return cShareRank;
+    }
+
+    public Integer getdViewRank() {
+      return dViewRank;
+    }
+
+    public Integer getdLikeRank() {
+      return dLikeRank;
+    }
+
+    public Integer getdDanmakuRank() {
+      return dDanmakuRank;
+    }
+
+    public Integer getdFavoriteRank() {
+      return dFavoriteRank;
+    }
+
+    public Integer getdCoinRank() {
+      return dCoinRank;
+    }
+
+    public Integer getdShareRank() {
+      return dShareRank;
+    }
+
+    public Date getUpdateTime() {
+      return updateTime;
+    }
+  }
 
 	public Video(Long aid) {
 		this.aid = aid;
