@@ -4,7 +4,6 @@ import com.jannchie.biliob.utils.IpHandlerInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -16,12 +15,14 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
  */
 @Configuration
 public class ConfigService {
-  private final MongoTemplate mongotemplate;
+  private final IpHandlerInterceptor ipHandlerInterceptor;
 
   @Autowired
-  public ConfigService(MongoTemplate mongotemplate) {
-    this.mongotemplate = mongotemplate;
+  public ConfigService(IpHandlerInterceptor ipHandlerInterceptor) {
+    this.ipHandlerInterceptor = ipHandlerInterceptor;
   }
+
+
 
   @Bean
   public WebMvcConfigurer myConfigurer() {
@@ -39,9 +40,8 @@ public class ConfigService {
 
       @Override
       public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(new IpHandlerInterceptor(mongotemplate));
+        registry.addInterceptor(ipHandlerInterceptor);
       }
     };
-
   }
 }
