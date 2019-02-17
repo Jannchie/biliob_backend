@@ -7,10 +7,12 @@ import org.springframework.data.domain.Slice;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
+import org.springframework.stereotype.Repository;
 
 /**
  * @author jannchie
  */
+@Repository
 public interface QuestionRepository
     extends MongoRepository<Question, ObjectId>, PagingAndSortingRepository<Question, ObjectId> {
   /**

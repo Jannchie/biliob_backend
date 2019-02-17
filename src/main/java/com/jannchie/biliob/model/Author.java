@@ -18,12 +18,51 @@ public class Author {
 	private String official;
   private Integer level;
   private ArrayList<Data> data;
+  private ArrayList<Record> recordArrayList;
   private ArrayList<Channel> channels;
   private Rank rank;
   private Boolean focus;
   private Boolean forceFocus;
   private Integer cRate;
   private ArrayList<FansRate> fansRate;
+
+  public ArrayList<Record> getRecordArrayList() {
+    return recordArrayList;
+  }
+
+  public void setRecordArrayList(ArrayList<Record> recordArrayList) {
+    this.recordArrayList = recordArrayList;
+  }
+
+  private static class Record {
+    private Date recordDatetime;
+    private String message;
+    private Integer credit;
+
+    public Date getRecordDatetime() {
+      return recordDatetime;
+    }
+
+    public void setRecordDatetime(Date recordDatetime) {
+      this.recordDatetime = recordDatetime;
+    }
+
+    public String getMessage() {
+      return message;
+    }
+
+    public void setMessage(String message) {
+      this.message = message;
+    }
+
+    public Integer getCredit() {
+      return credit;
+    }
+
+    public void setCredit(Integer credit) {
+      this.credit = credit;
+    }
+  }
 
   public Rank getRank() {
     return rank;
@@ -159,7 +198,7 @@ public class Author {
 		return focus;
 	}
 
-  private class Rank{
+  private static class Rank {
     private Integer fansRank;
     private Integer archiveViewRank;
     private Integer articleViewRank;
@@ -196,8 +235,9 @@ public class Author {
       return articleViewRank;
     }
   }
-	private class Data {
-		private Integer fans;
+
+  private static class Data {
+    private Integer fans;
 		private Integer attention;
 		private Integer archive;
 		private Integer article;
@@ -262,8 +302,8 @@ public class Author {
 		}
 	}
 
-  private class Channel {
-		private Integer tid;
+  private static class Channel {
+    private Integer tid;
 		private Integer count;
 		private String name;
 
