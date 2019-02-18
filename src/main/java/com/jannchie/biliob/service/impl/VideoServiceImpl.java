@@ -7,6 +7,7 @@ import com.jannchie.biliob.repository.UserRepository;
 import com.jannchie.biliob.repository.VideoRepository;
 import com.jannchie.biliob.service.UserService;
 import com.jannchie.biliob.service.VideoService;
+import com.jannchie.biliob.utils.InputInspection;
 import com.jannchie.biliob.utils.Message;
 import com.jannchie.biliob.utils.MySlice;
 import org.apache.logging.log4j.LogManager;
@@ -78,7 +79,11 @@ public class VideoServiceImpl implements VideoService {
       return new MySlice<>(respository.searchByAid(
           aid, PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, "cView"))));
     } else if (!Objects.equals(text, "")) {
-			logger.info(text);
+      if (InputInspection.isId(text)) {
+        return new MySlice<>(respository.searchByAid(
+            Long.valueOf(text), PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, "cFans"))));
+      }
+      logger.info(text);
       return new MySlice<>(respository.searchByText(
           text, PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, "cView"))));
     } else {
