@@ -140,4 +140,12 @@ public interface UserService {
    * @return the post result.
    */
   ResponseEntity postQuestion(String question);
+
+  /**
+   * Refresh author data immediately.
+   *
+   * @param mid author id
+   * @return response
+   */
+  ResponseEntity refreshAuthor(@Valid Integer mid);
 }

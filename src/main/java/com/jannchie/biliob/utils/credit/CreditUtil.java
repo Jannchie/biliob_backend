@@ -1,4 +1,4 @@
-package com.jannchie.biliob.utils;
+package com.jannchie.biliob.utils.credit;
 
 import com.jannchie.biliob.constant.CreditConstant;
 import com.jannchie.biliob.model.User;
@@ -48,6 +48,7 @@ public class CreditUtil {
       data.put("credit", -1);
       return data;
     }
+
 
     Query query = new Query(where("name").is(userName));
     Update update = new Update();

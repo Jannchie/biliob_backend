@@ -1,8 +1,6 @@
 package com.jannchie.biliob.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import org.bson.types.ObjectId;
-import org.springframework.data.annotation.Id;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -12,8 +10,6 @@ import java.util.Date;
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Video {
-	@Id
-	private ObjectId id;
 	private Long aid;
 	private Long mid;
 	private String title;

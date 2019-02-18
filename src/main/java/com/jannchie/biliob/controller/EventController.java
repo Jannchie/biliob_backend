@@ -2,6 +2,7 @@ package com.jannchie.biliob.controller;
 
 import com.jannchie.biliob.service.EventService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -25,6 +26,6 @@ public class EventController {
   public ResponseEntity pageEvent(
       @RequestParam(defaultValue = "0") Integer page,
       @RequestParam(defaultValue = "20") Integer pagesize) {
-    return eventService.pageEvent(page, pagesize);
+    return new ResponseEntity<>(eventService.pageEvent(page, pagesize), HttpStatus.OK);
   }
 }

@@ -25,6 +25,7 @@ public class Author {
   private Integer cRate;
   private ArrayList<FansRate> fansRate;
 
+
   public Rank getRank() {
     return rank;
   }
@@ -159,7 +160,7 @@ public class Author {
 		return focus;
 	}
 
-  private class Rank{
+  private static class Rank {
     private Integer fansRank;
     private Integer archiveViewRank;
     private Integer articleViewRank;
@@ -196,8 +197,9 @@ public class Author {
       return articleViewRank;
     }
   }
-	private class Data {
-		private Integer fans;
+
+  private static class Data {
+    private Integer fans;
 		private Integer attention;
 		private Integer archive;
 		private Integer article;
@@ -262,8 +264,8 @@ public class Author {
 		}
 	}
 
-  private class Channel {
-		private Integer tid;
+  private static class Channel {
+    private Integer tid;
 		private Integer count;
 		private String name;
 

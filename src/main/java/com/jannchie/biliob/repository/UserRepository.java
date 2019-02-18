@@ -2,13 +2,16 @@ package com.jannchie.biliob.repository;
 
 import com.jannchie.biliob.model.User;
 import org.bson.types.ObjectId;
+import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
+import org.springframework.stereotype.Repository;
 
 /**
  * @author jannchie
  */
-public interface UserRepository extends PagingAndSortingRepository<User, ObjectId> {
+@Repository
+public interface UserRepository extends MongoRepository<User, ObjectId>, PagingAndSortingRepository<User, ObjectId> {
 
 	/**
 	 * 判断用户名是否已存在
