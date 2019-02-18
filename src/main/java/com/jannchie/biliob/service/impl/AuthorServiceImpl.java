@@ -7,6 +7,7 @@ import com.jannchie.biliob.model.Author;
 import com.jannchie.biliob.repository.AuthorRepository;
 import com.jannchie.biliob.service.AuthorService;
 import com.jannchie.biliob.service.UserService;
+import com.jannchie.biliob.utils.InputInspection;
 import com.jannchie.biliob.utils.MySlice;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -35,10 +36,9 @@ public class AuthorServiceImpl implements AuthorService {
   private final AuthorRepository respository;
   private final MongoTemplate mongoTemplate;
   private UserService userService;
-
   @Autowired
   public AuthorServiceImpl(
-      AuthorRepository respository, UserService userService, MongoTemplate mongoTemplate) {
+      AuthorRepository respository, UserService userService, MongoTemplate mongoTemplate, InputInspection inputInspection) {
     this.respository = respository;
     this.userService = userService;
     this.mongoTemplate = mongoTemplate;
@@ -69,10 +69,14 @@ public class AuthorServiceImpl implements AuthorService {
     }
     if (!(mid == -1)) {
       logger.info(mid);
-      return new MySlice<>(respository.search(
-          text, PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, "cFans"))));
+      return new MySlice<>(respository.searchByMid(
+          mid, PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, "cFans"))));
     } else if (!Objects.equals(text, "")) {
       logger.info(text);
+      if (InputInspection.isId(text)) {
+        return new MySlice<>(respository.searchByMid(
+            Long.valueOf(text), PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, "cFans"))));
+      }
       return new MySlice<>(respository.search(
           text, PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, "cFans"))));
     } else {
