@@ -4,8 +4,7 @@ import com.jannchie.biliob.exception.UserAlreadyFavoriteVideoException;
 import com.jannchie.biliob.exception.VideoAlreadyFocusedException;
 import com.jannchie.biliob.model.Video;
 import com.jannchie.biliob.utils.Message;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Slice;
+import com.jannchie.biliob.utils.MySlice;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -43,7 +42,7 @@ public interface VideoService {
 	 * @param pagesize 页大小
 	 * @return 视频页
 	 */
-	Page<Video> getVideo(Long aid, String text, Integer page, Integer pagesize);
+  MySlice<Video> getVideo(Long aid, String text, Integer page, Integer pagesize);
 
 	/**
 	 * 获取作者其他视频
@@ -54,7 +53,7 @@ public interface VideoService {
 	 * @param pagesize 页大小
 	 * @return 视频切片
 	 */
-	Slice<Video> getAuthorOtherVideo(Long aid, Long mid, Integer page, Integer pagesize);
+  MySlice<Video> getAuthorOtherVideo(Long aid, Long mid, Integer page, Integer pagesize);
 
   /**
    *  Get author top video.
@@ -65,12 +64,12 @@ public interface VideoService {
    * @param sort 0: order by view || 1: order by publish datetime.
    * @return slice of author's video
    */
-  ResponseEntity getAuthorTopVideo(Long mid, Integer page, Integer pagesize, Integer sort);
+  MySlice<Video> getAuthorTopVideo(Long mid, Integer page, Integer pagesize, Integer sort);
 
   /**
    * Get my video.
    *
    * @return one of my video
    */
-  ResponseEntity getMyVideo();
+  Video getMyVideo();
 }
