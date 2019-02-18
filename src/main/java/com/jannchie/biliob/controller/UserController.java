@@ -118,4 +118,8 @@ public class UserController {
   public ResponseEntity refreshAuthor(@PathVariable("mid") @Valid Integer mid) {
     return userService.refreshAuthor(mid);
   }
+  @RequestMapping(method = RequestMethod.PATCH, value = "/api/user/video/{aid}/data")
+  public ResponseEntity refreshVideo(@PathVariable("aid") @Valid Integer aid) {
+    return userService.refreshVideo(aid);
+  }
 }
