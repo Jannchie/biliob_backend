@@ -102,7 +102,7 @@ public class UserController {
     return userService.getCheckIn();
   }
 
-  @RequestMapping(method = RequestMethod.PATCH, value = "/api/user/author/{mid}/status")
+  @RequestMapping(method = RequestMethod.PUT, value = "/api/user/author/{mid}/status")
   public ResponseEntity forceFocus(
       @RequestParam(defaultValue = "false") @Valid Boolean forceFocus,
       @PathVariable("mid") @Valid Integer mid) {
@@ -114,11 +114,11 @@ public class UserController {
     return userService.postQuestion(question.getQuestion());
   }
 
-  @RequestMapping(method = RequestMethod.PATCH, value = "/api/user/author/{mid}/data")
+  @RequestMapping(method = RequestMethod.PUT, value = "/api/user/author/{mid}/data")
   public ResponseEntity refreshAuthor(@PathVariable("mid") @Valid Integer mid) {
     return userService.refreshAuthor(mid);
   }
-  @RequestMapping(method = RequestMethod.PATCH, value = "/api/user/video/{aid}/data")
+  @RequestMapping(method = RequestMethod.PUT, value = "/api/user/video/{aid}/data")
   public ResponseEntity refreshVideo(@PathVariable("aid") @Valid Integer aid) {
     return userService.refreshVideo(aid);
   }
