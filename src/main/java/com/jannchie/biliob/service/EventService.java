@@ -1,6 +1,7 @@
 package com.jannchie.biliob.service;
 
-import org.springframework.http.ResponseEntity;
+import com.jannchie.biliob.model.Event;
+import com.jannchie.biliob.utils.MySlice;
 import org.springframework.stereotype.Service;
 
 /**
@@ -16,5 +17,5 @@ public interface EventService {
    * @param pagesize page size
    * @return a slice of events
    */
-  ResponseEntity pageEvent(Integer page, Integer pagesize);
+  MySlice<Event> pageEvent(Integer page, Integer pagesize);
 }
