@@ -113,4 +113,9 @@ public class UserController {
   public ResponseEntity postQuestion(@RequestBody @Valid Question question) {
     return userService.postQuestion(question.getQuestion());
   }
+
+  @RequestMapping(method = RequestMethod.PATCH, value = "/api/user/author/{mid}/data")
+  public ResponseEntity refreshAuthor(@PathVariable("mid") @Valid Integer mid) {
+    return userService.refreshAuthor(mid);
+  }
 }
