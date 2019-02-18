@@ -148,4 +148,6 @@ public interface UserService {
    * @return response
    */
   ResponseEntity refreshAuthor(@Valid Integer mid);
+
+  ResponseEntity refreshVideo(@Valid Integer aid);
 }
