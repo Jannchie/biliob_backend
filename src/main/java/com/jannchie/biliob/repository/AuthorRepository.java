@@ -2,7 +2,6 @@ package com.jannchie.biliob.repository;
 
 import com.jannchie.biliob.model.Author;
 import org.bson.types.ObjectId;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -10,14 +9,14 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
-
 /**
  * @author jannchie
  */
+@Repository
 public interface AuthorRepository
 		extends MongoRepository<Author, ObjectId>, PagingAndSortingRepository<Author, ObjectId> {
 
@@ -41,7 +40,7 @@ public interface AuthorRepository
 	@Query(
 			fields = "{ 'name' : 1, 'mid' : 1, 'face' : 1, 'official' : 1, 'focus':1, 'forceFocus':1, 'sex':1,'level':1}"
 	)
-	Slice<Author> findAllByDataIsNotNull(Pageable pageable);
+  Slice<Author> findAllByDataIsNotNull(Pageable pageable);
 
 	/**
 	 * 通过mid搜索作者
@@ -74,8 +73,8 @@ public interface AuthorRepository
 	 *
 	 * @param mapsList author id map
 	 * @param of       page information
-	 * @return a slice of user favorite authors
-	 */
+   * @return a Slice of user favorite authors
+   */
 	@Query(
 			value = "{$or:?0,data:{$ne:null}}",
 			fields = "{ 'name' : 1, 'mid' : 1, 'face' : 1, 'official' : 1, 'focus':1, 'forceFocus':1, 'sex':1, 'level':1}"
@@ -86,7 +85,7 @@ public interface AuthorRepository
    * listTopIncreaseRate
    *
    * @param of page information
-   * @return a slice of top fans increase rate.
+   * @return a Slice of top fans increase rate.
    */
   @Query(
       value = "{cRate:{$ne:null}}",

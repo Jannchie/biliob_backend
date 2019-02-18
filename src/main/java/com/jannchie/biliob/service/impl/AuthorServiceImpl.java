@@ -7,11 +7,13 @@ import com.jannchie.biliob.model.Author;
 import com.jannchie.biliob.repository.AuthorRepository;
 import com.jannchie.biliob.service.AuthorService;
 import com.jannchie.biliob.service.UserService;
-import com.jannchie.biliob.utils.Result;
+import com.jannchie.biliob.utils.InputInspection;
+import com.jannchie.biliob.utils.MySlice;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
@@ -23,28 +25,27 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Objects;
 
-import static com.jannchie.biliob.constant.ResultEnum.PARAM_ERROR;
-
 /**
  * @author jannchie
  */
 @Service
+@CacheConfig(cacheNames = "authorService")
 public class AuthorServiceImpl implements AuthorService {
   private static final Logger logger = LogManager.getLogger(VideoServiceImpl.class);
 
   private final AuthorRepository respository;
   private final MongoTemplate mongoTemplate;
   private UserService userService;
-
   @Autowired
   public AuthorServiceImpl(
-      AuthorRepository respository, UserService userService, MongoTemplate mongoTemplate) {
+      AuthorRepository respository, UserService userService, MongoTemplate mongoTemplate, InputInspection inputInspection) {
     this.respository = respository;
     this.userService = userService;
     this.mongoTemplate = mongoTemplate;
   }
 
   @Override
+  @Cacheable(value = "author_detail", key = "#mid")
   public Author getAuthorDetails(Long mid) {
     return respository.findByMid(mid);
   }
@@ -61,22 +62,27 @@ public class AuthorServiceImpl implements AuthorService {
   }
 
   @Override
-  public Slice<Author> getAuthor(Long mid, String text, Integer page, Integer pagesize) {
+  @Cacheable(value = "author_slice", key = "#mid + #text + #page + #pagesize")
+  public MySlice<Author> getAuthor(Long mid, String text, Integer page, Integer pagesize) {
     if(pagesize > PageSizeEnum.BIG_SIZE.getValue()){
       pagesize = PageSizeEnum.BIG_SIZE.getValue();
     }
     if (!(mid == -1)) {
       logger.info(mid);
-      return respository.searchByMid(
-          mid, PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, "cFans")));
+      return new MySlice<>(respository.searchByMid(
+          mid, PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, "cFans"))));
     } else if (!Objects.equals(text, "")) {
       logger.info(text);
-      return respository.search(
-          text, PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, "cFans")));
+      if (InputInspection.isId(text)) {
+        return new MySlice<>(respository.searchByMid(
+            Long.valueOf(text), PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, "cFans"))));
+      }
+      return new MySlice<>(respository.search(
+          text, PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, "cFans"))));
     } else {
       logger.info("查看所有UP主列表");
-      return respository.findAllByDataIsNotNull(
-          PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, "cFans")));
+      return new MySlice<>(respository.findAllByDataIsNotNull(
+          PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, "cFans"))));
     }
   }
 

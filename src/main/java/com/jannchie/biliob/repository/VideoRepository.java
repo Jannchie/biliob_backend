@@ -2,7 +2,6 @@ package com.jannchie.biliob.repository;
 
 import com.jannchie.biliob.model.Video;
 import org.bson.types.ObjectId;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -10,6 +9,7 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -17,6 +17,7 @@ import java.util.HashMap;
 /**
  * @author jannchie
  */
+@Repository
 public interface VideoRepository
 		extends MongoRepository<Video, ObjectId>, PagingAndSortingRepository<Video, ObjectId> {
 
