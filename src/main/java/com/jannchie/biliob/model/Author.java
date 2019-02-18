@@ -19,10 +19,16 @@ public class Author {
   private Integer level;
   private ArrayList<Data> data;
   private ArrayList<Channel> channels;
+  private Rank rank;
   private Boolean focus;
   private Boolean forceFocus;
   private Integer cRate;
   private ArrayList<FansRate> fansRate;
+
+
+  public Rank getRank() {
+    return rank;
+  }
 
   public void setChannels(ArrayList<Channel> channels) {
     this.channels = channels;
@@ -154,15 +160,52 @@ public class Author {
 		return focus;
 	}
 
-	private class Data {
-		private Integer fans;
+  private static class Rank {
+    private Integer fansRank;
+    private Integer archiveViewRank;
+    private Integer articleViewRank;
+    private Integer dFansRank;
+    private Integer dArchiveViewRank;
+    private Integer dArticleViewRank;
+    private Date    updateTime;
+
+    public Integer getdFansRank() {
+      return dFansRank;
+    }
+
+    public Integer getdArchiveViewRank() {
+      return dArchiveViewRank;
+    }
+
+    public Integer getdArticleViewRank() {
+      return dArticleViewRank;
+    }
+
+    public Date getUpdateTime() {
+      return updateTime;
+    }
+
+    public Integer getFansRank() {
+      return fansRank;
+    }
+
+    public Integer getArchiveViewRank() {
+      return archiveViewRank;
+    }
+
+    public Integer getArticleViewRank() {
+      return articleViewRank;
+    }
+  }
+
+  private static class Data {
+    private Integer fans;
 		private Integer attention;
 		private Integer archive;
 		private Integer article;
     private Long archiveView;
     private Long articleView;
     private Date datetime;
-
 
     public void setFans(Integer fans) {
       this.fans = fans;
@@ -221,8 +264,8 @@ public class Author {
 		}
 	}
 
-  private class Channel {
-		private Integer tid;
+  private static class Channel {
+    private Integer tid;
 		private Integer count;
 		private String name;
 

@@ -5,9 +5,8 @@ import com.jannchie.biliob.exception.VideoAlreadyFocusedException;
 import com.jannchie.biliob.model.Video;
 import com.jannchie.biliob.service.VideoService;
 import com.jannchie.biliob.utils.Message;
+import com.jannchie.biliob.utils.MySlice;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Slice;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -32,7 +31,7 @@ public class VideoController {
   }
 
   @RequestMapping(method = RequestMethod.GET, value = "/api/author/{mid}/video/{aid}")
-  public Slice<Video> getAuthorVideo(
+  public MySlice<Video> getAuthorVideo(
       @PathVariable("aid") Long aid,
       @PathVariable("mid") Long mid,
       @RequestParam(defaultValue = "0") Integer page,
@@ -41,7 +40,7 @@ public class VideoController {
   }
 
   @RequestMapping(method = RequestMethod.GET, value = "/api/author/{mid}/video")
-  public ResponseEntity getAuthorTopVideo(
+  public MySlice<Video> getAuthorTopVideo(
       @PathVariable("mid") Long mid,
       @RequestParam(defaultValue = "0") Integer page,
       @RequestParam(defaultValue = "5") Integer pagesize,
@@ -57,7 +56,7 @@ public class VideoController {
   }
 
   @RequestMapping(method = RequestMethod.GET, value = "/api/video")
-  public Page<Video> getVideo(
+  public MySlice<Video> getVideo(
       @RequestParam(defaultValue = "0") Integer page,
       @RequestParam(defaultValue = "20") Integer pageSize,
       @RequestParam(defaultValue = "-1") Long aid,
@@ -66,7 +65,7 @@ public class VideoController {
   }
 
   @RequestMapping(method = RequestMethod.GET, value = "/api/video/ads")
-  public ResponseEntity getMyVideo() {
+  public Video getMyVideo() {
     return videoService.getMyVideo();
   }
 }

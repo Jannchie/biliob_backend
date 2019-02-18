@@ -2,6 +2,9 @@ spring:
   data:
     mongodb:
       uri: ${BILIOB_MONGO_URL}
+  redis:
+    host: ${BILIOB_REDIS_URL}
+    port: 6379
+    password: ${BILIOB_REDIS_PASSWD}
 server:
   port: ${BILIOB_MONGO_PORT}
-

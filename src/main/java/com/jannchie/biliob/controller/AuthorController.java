@@ -5,8 +5,8 @@ import com.jannchie.biliob.exception.UserAlreadyFavoriteAuthorException;
 import com.jannchie.biliob.model.Author;
 import com.jannchie.biliob.service.AuthorService;
 import com.jannchie.biliob.utils.Message;
+import com.jannchie.biliob.utils.MySlice;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -39,7 +39,7 @@ public class AuthorController {
   }
 
   @RequestMapping(method = RequestMethod.GET, value = "/api/author")
-  public Page<Author> getAuthor(
+  public MySlice<Author> getAuthor(
       @RequestParam(defaultValue = "0") Integer page,
       @RequestParam(defaultValue = "20") Integer pageSize,
       @RequestParam(defaultValue = "-1") Long mid,
