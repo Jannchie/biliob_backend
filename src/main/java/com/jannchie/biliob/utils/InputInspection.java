@@ -2,6 +2,7 @@ package com.jannchie.biliob.utils;
 
 import org.springframework.stereotype.Component;
 
+import java.util.Objects;
 import java.util.regex.Pattern;
 
 /**
@@ -9,10 +10,10 @@ import java.util.regex.Pattern;
  */
 @Component
 public class InputInspection {
-  private static final String ID_PATTERN = "^[\\d]*$";
+  private static final String ID_PATTERN = "^[\\d]{1,12}$";
   private static Pattern idPattern = Pattern.compile(ID_PATTERN);
 
   public static boolean isId(String str) {
-    return idPattern.matcher(str).matches();
+    return str != null && !Objects.equals(str, "0") && idPattern.matcher(str).matches();
   }
 }
