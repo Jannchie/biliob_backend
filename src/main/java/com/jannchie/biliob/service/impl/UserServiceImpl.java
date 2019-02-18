@@ -14,9 +14,10 @@ import com.jannchie.biliob.repository.QuestionRepository;
 import com.jannchie.biliob.repository.UserRepository;
 import com.jannchie.biliob.repository.VideoRepository;
 import com.jannchie.biliob.service.UserService;
-import com.jannchie.biliob.utils.CreditUtil;
 import com.jannchie.biliob.utils.LoginCheck;
 import com.jannchie.biliob.utils.Result;
+import com.jannchie.biliob.utils.credit.CreditUtil;
+import com.jannchie.biliob.utils.credit.RefreshAuthorCreditCalculator;
 import com.mongodb.BasicDBObject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -59,19 +60,22 @@ class UserServiceImpl implements UserService {
 
   private final MongoTemplate mongoTemplate;
 
+  private final RefreshAuthorCreditCalculator refreshAuthorCreditCalculator;
+
   private UserServiceImpl(
       CreditUtil creditUtil,
       UserRepository userRepository,
       VideoRepository videoRepository,
       AuthorRepository authorRepository,
       QuestionRepository questionRepository,
-      MongoTemplate mongoTemplate) {
+      MongoTemplate mongoTemplate, RefreshAuthorCreditCalculator refreshAuthorCreditCalculator) {
     this.creditUtil = creditUtil;
     this.userRepository = userRepository;
     this.videoRepository = videoRepository;
     this.authorRepository = authorRepository;
     this.questionRepository = questionRepository;
     this.mongoTemplate = mongoTemplate;
+    this.refreshAuthorCreditCalculator = refreshAuthorCreditCalculator;
   }
 
   @Override
@@ -443,4 +447,16 @@ class UserServiceImpl implements UserService {
       return new ResponseEntity<>(new Result(ResultEnum.CREDIT_NOT_ENOUGH), HttpStatus.ACCEPTED);
     }
   }
+
+  /**
+   * Refresh author data immediately.
+   *
+   * @param mid author id
+   * @return response
+   */
+  @Override
+  public ResponseEntity refreshAuthor(@Valid Integer mid) {
+    return refreshAuthorCreditCalculator.executeAndGetResponse(CreditConstant.REFRESH_AUTHOR_DATA, mid);
+  }
+
 }
