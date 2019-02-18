@@ -16,6 +16,7 @@ import com.jannchie.biliob.repository.VideoRepository;
 import com.jannchie.biliob.service.UserService;
 import com.jannchie.biliob.utils.LoginCheck;
 import com.jannchie.biliob.utils.Result;
+import com.jannchie.biliob.utils.credit.AbstractCreditCalculator;
 import com.jannchie.biliob.utils.credit.CreditUtil;
 import com.jannchie.biliob.utils.credit.RefreshAuthorCreditCalculator;
 import com.mongodb.BasicDBObject;
@@ -25,6 +26,7 @@ import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.crypto.hash.Md5Hash;
 import org.apache.shiro.subject.Subject;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -62,13 +64,16 @@ class UserServiceImpl implements UserService {
 
   private final RefreshAuthorCreditCalculator refreshAuthorCreditCalculator;
 
+  private final AbstractCreditCalculator refreshVideoCreditCalculator;
+
+  @Autowired
   private UserServiceImpl(
       CreditUtil creditUtil,
       UserRepository userRepository,
       VideoRepository videoRepository,
       AuthorRepository authorRepository,
       QuestionRepository questionRepository,
-      MongoTemplate mongoTemplate, RefreshAuthorCreditCalculator refreshAuthorCreditCalculator) {
+      MongoTemplate mongoTemplate, RefreshAuthorCreditCalculator refreshAuthorCreditCalculator, AbstractCreditCalculator refreshVideoCreditCalculator) {
     this.creditUtil = creditUtil;
     this.userRepository = userRepository;
     this.videoRepository = videoRepository;
@@ -76,6 +81,7 @@ class UserServiceImpl implements UserService {
     this.questionRepository = questionRepository;
     this.mongoTemplate = mongoTemplate;
     this.refreshAuthorCreditCalculator = refreshAuthorCreditCalculator;
+    this.refreshVideoCreditCalculator = refreshVideoCreditCalculator;
   }
 
   @Override
@@ -457,6 +463,11 @@ class UserServiceImpl implements UserService {
   @Override
   public ResponseEntity refreshAuthor(@Valid Integer mid) {
     return refreshAuthorCreditCalculator.executeAndGetResponse(CreditConstant.REFRESH_AUTHOR_DATA, mid);
+  }
+
+  @Override
+  public ResponseEntity refreshVideo(@Valid Integer aid) {
+    return refreshVideoCreditCalculator.executeAndGetResponse(CreditConstant.REFRESH_VIDEO_DATA, aid);
   }
 
 }
