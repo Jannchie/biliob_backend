@@ -3,8 +3,7 @@ package com.jannchie.biliob.service;
 import com.jannchie.biliob.exception.AuthorAlreadyFocusedException;
 import com.jannchie.biliob.exception.UserAlreadyFavoriteAuthorException;
 import com.jannchie.biliob.model.Author;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Slice;
+import com.jannchie.biliob.utils.MySlice;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -41,7 +40,7 @@ public interface AuthorService {
    * @param pagesize 页大小
    * @return 作者页
    */
-  Slice<Author> getAuthor(Long mid, String text, Integer page, Integer pagesize);
+  MySlice<Author> getAuthor(Long mid, String text, Integer page, Integer pagesize);
 
   /**
    * get a list of author's fans increase rate.
