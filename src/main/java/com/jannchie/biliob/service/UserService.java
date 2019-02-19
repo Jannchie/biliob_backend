@@ -11,9 +11,7 @@ import org.springframework.stereotype.Service;
 
 import javax.validation.Valid;
 
-/**
- * @author jannchie
- */
+/** @author jannchie */
 @Service
 public interface UserService {
 
@@ -149,5 +147,11 @@ public interface UserService {
    */
   ResponseEntity refreshAuthor(@Valid Integer mid);
 
+  /**
+   * Refresh video data immediately.
+   *
+   * @param aid video id
+   * @return response
+   */
   ResponseEntity refreshVideo(@Valid Integer aid);
 }
