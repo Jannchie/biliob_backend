@@ -9,6 +9,7 @@ import com.jannchie.biliob.service.AuthorService;
 import com.jannchie.biliob.service.UserService;
 import com.jannchie.biliob.utils.InputInspection;
 import com.jannchie.biliob.utils.MySlice;
+import com.jannchie.biliob.utils.RedisOps;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,23 +26,27 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Objects;
 
-/**
- * @author jannchie
- */
+/** @author jannchie */
 @Service
 @CacheConfig(cacheNames = "authorService")
 public class AuthorServiceImpl implements AuthorService {
   private static final Logger logger = LogManager.getLogger(VideoServiceImpl.class);
-
+  private final RedisOps redisOps;
   private final AuthorRepository respository;
   private final MongoTemplate mongoTemplate;
-  private UserService userService;
+  private final UserService userService;
+
   @Autowired
   public AuthorServiceImpl(
-      AuthorRepository respository, UserService userService, MongoTemplate mongoTemplate, InputInspection inputInspection) {
+      AuthorRepository respository,
+      UserService userService,
+      MongoTemplate mongoTemplate,
+      InputInspection inputInspection,
+      RedisOps redisOps) {
     this.respository = respository;
     this.userService = userService;
     this.mongoTemplate = mongoTemplate;
+    this.redisOps = redisOps;
   }
 
   @Override
@@ -54,35 +59,41 @@ public class AuthorServiceImpl implements AuthorService {
   public void postAuthorByMid(Long mid)
       throws AuthorAlreadyFocusedException, UserAlreadyFavoriteAuthorException {
     userService.addFavoriteAuthor(mid);
-    logger.info(mid);
+    AuthorServiceImpl.logger.info(mid);
     if (respository.findByMid(mid) != null) {
       throw new AuthorAlreadyFocusedException(mid);
     }
+    redisOps.postAuthorCrawlTask(mid);
     respository.save(new Author(mid));
   }
 
   @Override
   @Cacheable(value = "author_slice", key = "#mid + #text + #page + #pagesize")
   public MySlice<Author> getAuthor(Long mid, String text, Integer page, Integer pagesize) {
-    if(pagesize > PageSizeEnum.BIG_SIZE.getValue()){
+    if (pagesize > PageSizeEnum.BIG_SIZE.getValue()) {
       pagesize = PageSizeEnum.BIG_SIZE.getValue();
     }
     if (!(mid == -1)) {
-      logger.info(mid);
-      return new MySlice<>(respository.searchByMid(
-          mid, PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, "cFans"))));
+      AuthorServiceImpl.logger.info(mid);
+      return new MySlice<>(
+          respository.searchByMid(
+              mid, PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, "cFans"))));
     } else if (!Objects.equals(text, "")) {
-      logger.info(text);
+      AuthorServiceImpl.logger.info(text);
       if (InputInspection.isId(text)) {
-        return new MySlice<>(respository.searchByMid(
-            Long.valueOf(text), PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, "cFans"))));
+        return new MySlice<>(
+            respository.searchByMid(
+                Long.valueOf(text),
+                PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, "cFans"))));
       }
-      return new MySlice<>(respository.search(
-          text, PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, "cFans"))));
+      return new MySlice<>(
+          respository.search(
+              text, PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, "cFans"))));
     } else {
-      logger.info("查看所有UP主列表");
-      return new MySlice<>(respository.findAllByDataIsNotNull(
-          PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, "cFans"))));
+      AuthorServiceImpl.logger.info("查看所有UP主列表");
+      return new MySlice<>(
+          respository.findAllByDataIsNotNull(
+              PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, "cFans"))));
     }
   }
 
@@ -96,7 +107,7 @@ public class AuthorServiceImpl implements AuthorService {
     Slice slice =
         respository.listTopIncreaseRate(
             PageRequest.of(0, 20, new Sort(Sort.Direction.DESC, "cRate")));
-    logger.info("获得涨粉榜");
+    AuthorServiceImpl.logger.info("获得涨粉榜");
     return new ResponseEntity<>(slice, HttpStatus.OK);
   }
 
@@ -110,7 +121,7 @@ public class AuthorServiceImpl implements AuthorService {
     Slice slice =
         respository.listTopIncreaseRate(
             PageRequest.of(0, 20, new Sort(Sort.Direction.ASC, "cRate")));
-    logger.info("获得掉粉榜");
+    AuthorServiceImpl.logger.info("获得掉粉榜");
     return new ResponseEntity<>(slice, HttpStatus.OK);
   }
 
@@ -124,7 +135,7 @@ public class AuthorServiceImpl implements AuthorService {
   public ResponseEntity listFansRate(Long mid) {
     Author author = respository.getFansRate(mid);
     List data = author.getFansRate();
-    logger.info("获得粉丝变动率");
+    AuthorServiceImpl.logger.info("获得粉丝变动率");
     return new ResponseEntity<>(data, HttpStatus.OK);
   }
 }
