@@ -39,7 +39,6 @@ public class EventServiceImpl implements EventService {
    * @return a slice of events
    */
   @Override
-  @Cacheable(value = "event", key = "#page")
   public MySlice<Event> pageEvent(Integer page, Integer pagesize) {
     if (pagesize > PageSizeEnum.BIG_SIZE.getValue()) {
       return null;
