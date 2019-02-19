@@ -22,21 +22,19 @@ public class ConfigService {
     this.ipHandlerInterceptor = ipHandlerInterceptor;
   }
 
-
-
   @Bean
   public WebMvcConfigurer myConfigurer() {
     return new WebMvcConfigurer() {
       @Override
       public void addCorsMappings(CorsRegistry registry) {
         registry
-						.addMapping("/**")
-						.allowedOrigins("*")
-						.allowedMethods("*")
-						.allowedHeaders("*")
-						.allowCredentials(true)
-						.maxAge(3600);
-			}
+            .addMapping("/**")
+            .allowedOrigins("*")
+            .allowedMethods("*")
+            .allowedHeaders("*")
+            .allowCredentials(true)
+            .maxAge(3600);
+      }
 
       @Override
       public void addInterceptors(InterceptorRegistry registry) {
