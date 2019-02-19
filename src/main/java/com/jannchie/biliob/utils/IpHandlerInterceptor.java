@@ -28,7 +28,7 @@ public class IpHandlerInterceptor implements HandlerInterceptor {
 
 
   private static final Logger logger = LogManager.getLogger(IpHandlerInterceptor.class);
-  private static final Integer MAX_CUD_IN_MINUTE = 60;
+  private static final Integer MAX_CUD_IN_MINUTE = 180;
   private static final Integer MAX_R_IN_MINUTE = 360;
   private static final String IP = "ip";
   private static HashMap<String, Integer> blackIP = new HashMap<>(256);
