@@ -13,6 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Slice;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -30,7 +32,7 @@ public class UserController {
   }
 
   @RequestMapping(method = RequestMethod.POST, value = "/api/user")
-  public ResponseEntity createUser(HttpServletRequest request, @RequestBody @Valid User user)
+  public ResponseEntity<User> createUser(HttpServletRequest request, @RequestBody @Valid User user)
       throws UserAlreadyExistException {
     User newUser = userService.createUser(user);
     return new ResponseEntity<>(newUser, HttpStatus.CREATED);
@@ -67,12 +69,20 @@ public class UserController {
     return userService.getFavoriteAuthor(page, pageSize);
   }
 
-  @RequestMapping(method = RequestMethod.GET, value = "/api/no-login")
+  @RequestMapping(
+    method = {RequestMethod.GET, RequestMethod.PUT, RequestMethod.POST},
+    value = "/api/no-login"
+  )
   public ResponseEntity<Message> noLogin() {
-    return new ResponseEntity<>(new Message(403, "未登录"), HttpStatus.FORBIDDEN);
+
+    MultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
+    return new ResponseEntity<>(new Message(403, "未登录"), headers, HttpStatus.FORBIDDEN);
   }
 
-  @RequestMapping(method = RequestMethod.GET, value = "/api/no-rule")
+  @RequestMapping(
+    method = {RequestMethod.GET, RequestMethod.PUT, RequestMethod.POST},
+    value = "/api/no-rule"
+  )
   public ResponseEntity<Message> noRule() {
     return new ResponseEntity<>(new Message(403, "未授权"), HttpStatus.FORBIDDEN);
   }
@@ -118,6 +128,7 @@ public class UserController {
   public ResponseEntity refreshAuthor(@PathVariable("mid") @Valid Integer mid) {
     return userService.refreshAuthor(mid);
   }
+
   @RequestMapping(method = RequestMethod.PUT, value = "/api/user/video/{aid}/data")
   public ResponseEntity refreshVideo(@PathVariable("aid") @Valid Integer aid) {
     return userService.refreshVideo(aid);
