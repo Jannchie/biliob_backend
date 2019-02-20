@@ -74,7 +74,7 @@ public class VideoServiceImpl implements VideoService {
   }
 
   @Override
-  @Cacheable(value = "author_slice", key = "#aid + #text + #page + #pagesize")
+  @Cacheable(value = "video_slice", key = "#aid + #text + #page + #pagesize")
   public MySlice<Video> getVideo(Long aid, String text, Integer page, Integer pagesize) {
     if (pagesize > PageSizeEnum.BIG_SIZE.getValue()) {
       pagesize = PageSizeEnum.BIG_SIZE.getValue();
