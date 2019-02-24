@@ -1,6 +1,9 @@
 package com.jannchie.biliob.service.impl;
 
-import com.jannchie.biliob.constant.*;
+import com.jannchie.biliob.constant.CreditConstant;
+import com.jannchie.biliob.constant.FieldConstant;
+import com.jannchie.biliob.constant.ResultEnum;
+import com.jannchie.biliob.constant.RoleEnum;
 import com.jannchie.biliob.exception.UserAlreadyExistException;
 import com.jannchie.biliob.exception.UserAlreadyFavoriteAuthorException;
 import com.jannchie.biliob.exception.UserAlreadyFavoriteVideoException;
@@ -15,6 +18,7 @@ import com.jannchie.biliob.repository.UserRepository;
 import com.jannchie.biliob.repository.VideoRepository;
 import com.jannchie.biliob.service.UserService;
 import com.jannchie.biliob.utils.LoginCheck;
+import com.jannchie.biliob.utils.MySlice;
 import com.jannchie.biliob.utils.Result;
 import com.jannchie.biliob.utils.credit.AbstractCreditCalculator;
 import com.jannchie.biliob.utils.credit.CreditUtil;
@@ -29,6 +33,7 @@ import org.apache.shiro.subject.Subject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.BasicQuery;
 import org.springframework.data.mongodb.core.query.Query;
@@ -41,6 +46,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Objects;
 
+import static com.jannchie.biliob.constant.PageSizeEnum.BIG_SIZE;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 import static org.springframework.data.mongodb.core.query.Query.query;
 import static org.springframework.data.mongodb.core.query.Update.update;
@@ -73,7 +79,9 @@ class UserServiceImpl implements UserService {
       VideoRepository videoRepository,
       AuthorRepository authorRepository,
       QuestionRepository questionRepository,
-      MongoTemplate mongoTemplate, RefreshAuthorCreditCalculator refreshAuthorCreditCalculator, AbstractCreditCalculator refreshVideoCreditCalculator) {
+      MongoTemplate mongoTemplate,
+      RefreshAuthorCreditCalculator refreshAuthorCreditCalculator,
+      AbstractCreditCalculator refreshVideoCreditCalculator) {
     this.creditUtil = creditUtil;
     this.userRepository = userRepository;
     this.videoRepository = videoRepository;
@@ -93,7 +101,7 @@ class UserServiceImpl implements UserService {
 
     user.setPassword(new Md5Hash(user.getPassword(), user.getName()).toHex());
     userRepository.save(user);
-    logger.info(user.getName());
+    UserServiceImpl.logger.info(user.getName());
     return user;
   }
 
@@ -118,7 +126,7 @@ class UserServiceImpl implements UserService {
       return new ResponseEntity<>(
           new Result(ResultEnum.HAS_NOT_LOGGED_IN), HttpStatus.UNAUTHORIZED);
     }
-    logger.info(user.getName());
+    UserServiceImpl.logger.info(user.getName());
     return new ResponseEntity<>(user, HttpStatus.OK);
   }
 
@@ -135,14 +143,14 @@ class UserServiceImpl implements UserService {
       temp = user.getFavoriteMid();
     }
     if (temp.contains(mid)) {
-      logger.warn("用户：{} 试图重复关注{}", user.getName(), mid);
+      UserServiceImpl.logger.warn("用户：{} 试图重复关注{}", user.getName(), mid);
       return new ResponseEntity<>(
           new Result(ResultEnum.ALREADY_FAVORITE_AUTHOR), HttpStatus.ACCEPTED);
     }
     temp.add(mid);
     user.setFavoriteMid(new ArrayList<>(temp));
     userRepository.save(user);
-    logger.info("用户：{} 关注了{}", user.getName(), mid);
+    UserServiceImpl.logger.info("用户：{} 关注了{}", user.getName(), mid);
     return new ResponseEntity<>(new Result(ResultEnum.ADD_FAVORITE_AUTHOR_SUCCEED), HttpStatus.OK);
   }
 
@@ -158,14 +166,14 @@ class UserServiceImpl implements UserService {
       temp = user.getFavoriteAid();
     }
     if (temp.contains(aid)) {
-      logger.warn("用户：{} 试图重复收藏{}", user.getName(), aid);
+      UserServiceImpl.logger.warn("用户：{} 试图重复收藏{}", user.getName(), aid);
       return new ResponseEntity<>(
           new Result(ResultEnum.ALREADY_FAVORITE_VIDEO), HttpStatus.ACCEPTED);
     }
     temp.add(aid);
     user.setFavoriteAid(new ArrayList<>(temp));
     userRepository.save(user);
-    logger.info("用户：{} 关注了{}", user.getName(), aid);
+    UserServiceImpl.logger.info("用户：{} 关注了{}", user.getName(), aid);
     return new ResponseEntity<>(new Result(ResultEnum.ADD_FAVORITE_VIDEO_SUCCEED), HttpStatus.OK);
   }
 
@@ -178,8 +186,8 @@ class UserServiceImpl implements UserService {
    */
   @Override
   public Slice getFavoriteVideo(Integer page, Integer pageSize) {
-    if (pageSize > PageSizeEnum.BIG_SIZE.getValue()) {
-      pageSize = PageSizeEnum.BIG_SIZE.getValue();
+    if (pageSize > BIG_SIZE.getValue()) {
+      pageSize = BIG_SIZE.getValue();
     }
     User user = LoginCheck.checkInfo();
     if (user == null) {
@@ -195,7 +203,7 @@ class UserServiceImpl implements UserService {
       temp.put("aid", aid);
       mapsList.add(temp);
     }
-    logger.info(user.getName());
+    UserServiceImpl.logger.info(user.getName());
     return videoRepository.getFavoriteVideo(mapsList, PageRequest.of(page, pageSize));
   }
 
@@ -208,8 +216,8 @@ class UserServiceImpl implements UserService {
    */
   @Override
   public Slice getFavoriteAuthor(Integer page, Integer pageSize) {
-    if (pageSize > PageSizeEnum.BIG_SIZE.getValue()) {
-      pageSize = PageSizeEnum.BIG_SIZE.getValue();
+    if (pageSize > BIG_SIZE.getValue()) {
+      pageSize = BIG_SIZE.getValue();
     }
     User user = LoginCheck.checkInfo();
     if (user == null) {
@@ -225,7 +233,7 @@ class UserServiceImpl implements UserService {
       temp.put("mid", mid);
       mapsList.add(temp);
     }
-    logger.info(user.getName());
+    UserServiceImpl.logger.info(user.getName());
     return authorRepository.getFavoriteAuthor(mapsList, PageRequest.of(page, pageSize));
   }
 
@@ -248,11 +256,11 @@ class UserServiceImpl implements UserService {
         mids.remove(i);
         user.setFavoriteMid(mids);
         userRepository.save(user);
-        logger.info("删除{}关注的UP主：{}", user.getName(), mid);
+        UserServiceImpl.logger.info("删除{}关注的UP主：{}", user.getName(), mid);
         return new ResponseEntity<>(new Result(ResultEnum.DELETE_SUCCEED), HttpStatus.OK);
       }
     }
-    logger.warn("用户：{} 试图删除一个不存在的UP主", user.getName());
+    UserServiceImpl.logger.warn("用户：{} 试图删除一个不存在的UP主", user.getName());
     return new ResponseEntity<>(new Result(ResultEnum.AUTHOR_NOT_FOUND), HttpStatus.NOT_FOUND);
   }
 
@@ -275,11 +283,11 @@ class UserServiceImpl implements UserService {
         aids.remove(i);
         user.setFavoriteAid(aids);
         userRepository.save(user);
-        logger.info("用户：{} 删除了收藏的视频，aid：{}", user.getName(), aid);
+        UserServiceImpl.logger.info("用户：{} 删除了收藏的视频，aid：{}", user.getName(), aid);
         return new ResponseEntity<>(new Result(ResultEnum.DELETE_SUCCEED), HttpStatus.OK);
       }
     }
-    logger.warn("用户：{} 试图删除一个不存在的视频", user.getName());
+    UserServiceImpl.logger.warn("用户：{} 试图删除一个不存在的视频", user.getName());
     return new ResponseEntity<>(new Result(ResultEnum.AUTHOR_NOT_FOUND), HttpStatus.NOT_FOUND);
   }
 
@@ -310,7 +318,7 @@ class UserServiceImpl implements UserService {
     token.setRememberMe(true);
     subject.login(token);
     String role = getRole(inputName);
-    logger.info("{}：{} 登录成功", role, inputName);
+    UserServiceImpl.logger.info("{}：{} 登录成功", role, inputName);
     return new ResponseEntity<>(new Result(ResultEnum.LOGIN_SUCCEED, getUserInfo()), HttpStatus.OK);
   }
 
@@ -331,7 +339,7 @@ class UserServiceImpl implements UserService {
     String userName = user.getName();
     Integer credit = user.getCredit();
     if (isCheckedIn) {
-      logger.warn("用户：{}，试图重复签到，当前积分：{}", userName, credit);
+      UserServiceImpl.logger.warn("用户：{}，试图重复签到，当前积分：{}", userName, credit);
 
       return new ResponseEntity<>(new Result(ResultEnum.ALREADY_SIGNED), HttpStatus.ACCEPTED);
     } else {
@@ -345,10 +353,11 @@ class UserServiceImpl implements UserService {
     Integer credit;
     HashMap<String, Integer> data = creditUtil.calculateCredit(user, CreditConstant.CHECK_IN);
     if (data.get(FieldConstant.CREDIT.getValue()) != -1) {
-      logger.warn("用户：{}，因{}发生积分变动，当前积分：{}", user.getName(), resultEnum.getMsg(), data);
+      UserServiceImpl.logger.warn(
+          "用户：{}，因{}发生积分变动，当前积分：{}", user.getName(), resultEnum.getMsg(), data);
       return new ResponseEntity<>(new Result(resultEnum, data), HttpStatus.OK);
     } else {
-      logger.warn("用户：{}，因积分不足，扣分失败", user.getName());
+      UserServiceImpl.logger.warn("用户：{}，因积分不足，扣分失败", user.getName());
       return new ResponseEntity<>(new Result(ResultEnum.CREDIT_NOT_ENOUGH), HttpStatus.ACCEPTED);
     }
   }
@@ -369,7 +378,7 @@ class UserServiceImpl implements UserService {
         mongoTemplate.exists(new Query(where("name").is(user.getName())), "check_in");
     HashMap<String, Boolean> statusHashMap = new HashMap<>(1);
     statusHashMap.put("status", isCheckedIn);
-    logger.info("用户：{},签到状态为{}", user.getName(), isCheckedIn);
+    UserServiceImpl.logger.info("用户：{},签到状态为{}", user.getName(), isCheckedIn);
     return new ResponseEntity<>(statusHashMap, HttpStatus.OK);
   }
 
@@ -392,10 +401,10 @@ class UserServiceImpl implements UserService {
 
     if (!forceFocus) {
       // only admin can set force focus to false
-      if (Objects.equals(user.getRole(), RoleEnum.ADMIN.getName())) {
+      if (Objects.equals(user.getRole(), RoleEnum.NORMAL_USER.getName())) {
         mongoTemplate.updateFirst(
             query(where("mid").is(mid)), update("forceFocus", forceFocus), Author.class);
-        logger.info("用户：{}设置{}强制追踪状态为{}", user.getName(), mid, forceFocus);
+        UserServiceImpl.logger.info("用户：{}设置{}强制追踪状态为{}", user.getName(), mid, forceFocus);
         return new ResponseEntity<>(new Result(ResultEnum.SUCCEED), HttpStatus.OK);
       } else {
         return new ResponseEntity<>(
@@ -422,7 +431,7 @@ class UserServiceImpl implements UserService {
     if (data.get(FieldConstant.CREDIT.getValue()) != -1) {
       mongoTemplate.updateFirst(
           query(where("mid").is(mid)), update("forceFocus", true), Author.class);
-      logger.info("用户：{} 设置 {} 强制追踪状态为{}", user.getName(), mid, true);
+      UserServiceImpl.logger.info("用户：{} 设置 {} 强制追踪状态为{}", user.getName(), mid, true);
       return new ResponseEntity<>(new Result(ResultEnum.SUCCEED, data), HttpStatus.OK);
     } else {
       return new ResponseEntity<>(new Result(ResultEnum.CREDIT_NOT_ENOUGH), HttpStatus.ACCEPTED);
@@ -443,11 +452,10 @@ class UserServiceImpl implements UserService {
           new Result(ResultEnum.HAS_NOT_LOGGED_IN), HttpStatus.UNAUTHORIZED);
     }
     String userName = user.getName();
-    HashMap<String, Integer> data =
-        creditUtil.calculateCredit(user, CreditConstant.ASK_QUESTION);
+    HashMap<String, Integer> data = creditUtil.calculateCredit(user, CreditConstant.ASK_QUESTION);
     if (data.get(FieldConstant.CREDIT.getValue()) != -1) {
       questionRepository.save(new Question(question, userName));
-      logger.info("用户：{} 提出了一个问题：{}", user.getName(), question);
+      UserServiceImpl.logger.info("用户：{} 提出了一个问题：{}", user.getName(), question);
       return new ResponseEntity<>(new Result(ResultEnum.SUCCEED, data), HttpStatus.OK);
     } else {
       return new ResponseEntity<>(new Result(ResultEnum.CREDIT_NOT_ENOUGH), HttpStatus.ACCEPTED);
@@ -462,12 +470,33 @@ class UserServiceImpl implements UserService {
    */
   @Override
   public ResponseEntity refreshAuthor(@Valid Integer mid) {
-    return refreshAuthorCreditCalculator.executeAndGetResponse(CreditConstant.REFRESH_AUTHOR_DATA, mid);
+    return refreshAuthorCreditCalculator.executeAndGetResponse(
+        CreditConstant.REFRESH_AUTHOR_DATA, mid);
   }
 
   @Override
   public ResponseEntity refreshVideo(@Valid Integer aid) {
-    return refreshVideoCreditCalculator.executeAndGetResponse(CreditConstant.REFRESH_VIDEO_DATA, aid);
+    return refreshVideoCreditCalculator.executeAndGetResponse(
+        CreditConstant.REFRESH_VIDEO_DATA, aid);
   }
 
+  /**
+   * Rank of user, order by exp
+   *
+   * @param page offset
+   * @param pagesize number of element
+   * @return the slice of user rank
+   */
+  @Override
+  public MySlice<User> sliceUserRank(Integer page, Integer pagesize) {
+    // max size is 20
+    if (pagesize > BIG_SIZE.getValue()) {
+      pagesize = BIG_SIZE.getValue();
+    }
+    // get user slice
+    Slice<User> s =
+        userRepository.findTopUserByOrderByExp(
+            PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, "exp")));
+    return new MySlice<>(s);
+  }
 }
