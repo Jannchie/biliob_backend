@@ -23,8 +23,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -91,10 +89,9 @@ public class AuthorServiceImpl implements AuthorService {
       }
       // get text
       String[] textArray = text.split(" ");
-      ArrayList<String> arrayList = new ArrayList<>(Arrays.asList(textArray));
       return new MySlice<>(
           respository.findByKeywordContaining(
-              arrayList, PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, "cFans"))));
+              textArray, PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, "cFans"))));
     } else {
       AuthorServiceImpl.logger.info("查看所有UP主列表");
       return new MySlice<>(

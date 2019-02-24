@@ -30,7 +30,7 @@ public interface AuthorRepository
     fields =
         "{ 'name' : 1, 'mid' : 1, 'face' : 1, 'official' : 1, 'focus':1, 'forceFocus':1, 'sex':1,'level':1}"
   )
-  Slice<Author> findByKeywordContaining(ArrayList<String> keyword, Pageable pageable);
+  Slice<Author> findByKeywordContaining(String[] keyword, Pageable pageable);
 
   /**
    * 获得确定mid的作者信息
