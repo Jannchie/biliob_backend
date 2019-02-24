@@ -133,4 +133,11 @@ public class UserController {
   public ResponseEntity refreshVideo(@PathVariable("aid") @Valid Integer aid) {
     return userService.refreshVideo(aid);
   }
+
+  @RequestMapping(method = RequestMethod.GET, value = "/api/rank/user")
+  public ResponseEntity userRank(
+      @RequestParam(defaultValue = "0") Integer page,
+      @RequestParam(defaultValue = "20") Integer pagesize) {
+    return new ResponseEntity<>(userService.sliceUserRank(page, pagesize), HttpStatus.OK);
+  }
 }
