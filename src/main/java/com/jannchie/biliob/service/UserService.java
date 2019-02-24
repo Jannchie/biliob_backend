@@ -5,6 +5,7 @@ import com.jannchie.biliob.exception.UserAlreadyFavoriteAuthorException;
 import com.jannchie.biliob.exception.UserAlreadyFavoriteVideoException;
 import com.jannchie.biliob.exception.UserNotExistException;
 import com.jannchie.biliob.model.User;
+import com.jannchie.biliob.utils.MySlice;
 import org.springframework.data.domain.Slice;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -154,4 +155,13 @@ public interface UserService {
    * @return response
    */
   ResponseEntity refreshVideo(@Valid Integer aid);
+
+  /**
+   * Rank of user, order by exp
+   *
+   * @param page offset
+   * @param pagesize number of element
+   * @return the slice of user rank
+   */
+  MySlice<User> sliceUserRank(Integer page, Integer pagesize);
 }
