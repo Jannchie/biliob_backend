@@ -23,6 +23,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -81,14 +83,18 @@ public class AuthorServiceImpl implements AuthorService {
     } else if (!Objects.equals(text, "")) {
       AuthorServiceImpl.logger.info(text);
       if (InputInspection.isId(text)) {
+        // get a mid
         return new MySlice<>(
             respository.searchByMid(
                 Long.valueOf(text),
                 PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, "cFans"))));
       }
+      // get text
+      String[] textArray = text.split(" ");
+      ArrayList<String> arrayList = new ArrayList<>(Arrays.asList(textArray));
       return new MySlice<>(
-          respository.search(
-              text, PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, "cFans"))));
+          respository.findByKeywordContaining(
+              arrayList, PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, "cFans"))));
     } else {
       AuthorServiceImpl.logger.info("查看所有UP主列表");
       return new MySlice<>(
@@ -104,7 +110,7 @@ public class AuthorServiceImpl implements AuthorService {
    */
   @Override
   public ResponseEntity listFansIncreaseRate() {
-    Slice slice =
+    Slice<Author> slice =
         respository.listTopIncreaseRate(
             PageRequest.of(0, 20, new Sort(Sort.Direction.DESC, "cRate")));
     AuthorServiceImpl.logger.info("获得涨粉榜");
@@ -118,7 +124,7 @@ public class AuthorServiceImpl implements AuthorService {
    */
   @Override
   public ResponseEntity listFansDecreaseRate() {
-    Slice slice =
+    Slice<Author> slice =
         respository.listTopIncreaseRate(
             PageRequest.of(0, 20, new Sort(Sort.Direction.ASC, "cRate")));
     AuthorServiceImpl.logger.info("获得掉粉榜");
