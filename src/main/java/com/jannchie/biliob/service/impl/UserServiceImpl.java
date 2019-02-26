@@ -72,6 +72,8 @@ class UserServiceImpl implements UserService {
 
   private final AbstractCreditCalculator refreshVideoCreditCalculator;
 
+  private final AbstractCreditCalculator danmakuAggregateCreditCalculator;
+
   @Autowired
   private UserServiceImpl(
       CreditUtil creditUtil,
@@ -81,7 +83,8 @@ class UserServiceImpl implements UserService {
       QuestionRepository questionRepository,
       MongoTemplate mongoTemplate,
       RefreshAuthorCreditCalculator refreshAuthorCreditCalculator,
-      AbstractCreditCalculator refreshVideoCreditCalculator) {
+      AbstractCreditCalculator refreshVideoCreditCalculator,
+      AbstractCreditCalculator danmakuAggregateCreditCalculator) {
     this.creditUtil = creditUtil;
     this.userRepository = userRepository;
     this.videoRepository = videoRepository;
@@ -90,6 +93,7 @@ class UserServiceImpl implements UserService {
     this.mongoTemplate = mongoTemplate;
     this.refreshAuthorCreditCalculator = refreshAuthorCreditCalculator;
     this.refreshVideoCreditCalculator = refreshVideoCreditCalculator;
+    this.danmakuAggregateCreditCalculator = danmakuAggregateCreditCalculator;
   }
 
   @Override
@@ -469,13 +473,13 @@ class UserServiceImpl implements UserService {
    * @return response
    */
   @Override
-  public ResponseEntity refreshAuthor(@Valid Integer mid) {
+  public ResponseEntity refreshAuthor(@Valid Long mid) {
     return refreshAuthorCreditCalculator.executeAndGetResponse(
         CreditConstant.REFRESH_AUTHOR_DATA, mid);
   }
 
   @Override
-  public ResponseEntity refreshVideo(@Valid Integer aid) {
+  public ResponseEntity refreshVideo(@Valid Long aid) {
     return refreshVideoCreditCalculator.executeAndGetResponse(
         CreditConstant.REFRESH_VIDEO_DATA, aid);
   }
@@ -498,5 +502,17 @@ class UserServiceImpl implements UserService {
         userRepository.findTopUserByOrderByExp(
             PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, "exp")));
     return new MySlice<>(s);
+  }
+
+  /**
+   * User starts a danmaku aggregate task.
+   *
+   * @param aid the video id being aggregated
+   * @return the response
+   */
+  @Override
+  public ResponseEntity danmakuAggregate(@Valid Long aid) {
+    return danmakuAggregateCreditCalculator.executeAndGetResponse(
+        CreditConstant.DANMAKU_AGGREGATE, aid);
   }
 }

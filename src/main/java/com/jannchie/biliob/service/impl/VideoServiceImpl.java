@@ -3,6 +3,7 @@ package com.jannchie.biliob.service.impl;
 import com.jannchie.biliob.constant.PageSizeEnum;
 import com.jannchie.biliob.exception.UserAlreadyFavoriteVideoException;
 import com.jannchie.biliob.model.Video;
+import com.jannchie.biliob.model.VideoOnline;
 import com.jannchie.biliob.repository.UserRepository;
 import com.jannchie.biliob.repository.VideoRepository;
 import com.jannchie.biliob.service.UserService;
@@ -20,11 +21,17 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.Aggregation;
+import org.springframework.data.mongodb.core.aggregation.AggregationResults;
+import org.springframework.data.mongodb.core.aggregation.ComparisonOperators;
+import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.Calendar;
+import java.util.List;
 import java.util.Objects;
 
 import static com.jannchie.biliob.constant.SortEnum.PUBLISH_TIME;
@@ -56,6 +63,7 @@ public class VideoServiceImpl implements VideoService {
   }
 
   @Override
+  @Cacheable(value = "video_detail", key = "#aid")
   public Video getVideoDetails(Long aid) {
     VideoServiceImpl.logger.info(aid);
     return respository.findByAid(aid);
@@ -92,9 +100,11 @@ public class VideoServiceImpl implements VideoService {
                 PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, "cFans"))));
       }
       VideoServiceImpl.logger.info(text);
+      // get text
+      String[] textArray = text.split(" ");
       return new MySlice<>(
-          respository.searchByText(
-              text, PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, "cView"))));
+          respository.findByKeywordContaining(
+              textArray, PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, "cView"))));
     } else {
       VideoServiceImpl.logger.info("获取全部视频数据");
       return new MySlice<>(
@@ -151,12 +161,37 @@ public class VideoServiceImpl implements VideoService {
    * @return the latest of my video
    */
   @Override
-  @Cacheable(value = "my", key = "'latest'")
   public Video getMyVideo() {
     Query q = new Query(where("mid").is(1850091)).with(new Sort(Sort.Direction.DESC, "datetime"));
     q.fields().exclude("data");
     Video video = mongoTemplate.findOne(q, Video.class);
     VideoServiceImpl.logger.info("获取广告");
     return video;
+  }
+
+  /**
+   * Get top online video in one day.
+   *
+   * @return top online video response.
+   */
+  @Override
+  public ResponseEntity listOnlineVideo() {
+    Calendar todayStart = Calendar.getInstance();
+    todayStart.add(Calendar.DATE, -1);
+    Aggregation aggregation =
+        Aggregation.newAggregation(
+            Aggregation.match(Criteria.where("data.datetime").gt(todayStart.getTime())),
+            Aggregation.limit(20),
+            Aggregation.project("title", "author")
+                .and("data")
+                .filter(
+                    "item",
+                    ComparisonOperators.Gte.valueOf("$$item.datetime")
+                        .greaterThanEqualToValue(todayStart.getTime()))
+                .as("$data"));
+    AggregationResults<VideoOnline> aggregationResults =
+        mongoTemplate.aggregate(aggregation, "video_online", VideoOnline.class);
+    List<VideoOnline> videoOnlineList = aggregationResults.getMappedResults();
+    return new ResponseEntity<>(videoOnlineList, HttpStatus.OK);
   }
 }

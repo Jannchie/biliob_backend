@@ -8,37 +8,37 @@ import org.springframework.stereotype.Component;
 
 /** @author jannchie */
 @Component
-public class RefreshVideoCreditCalculator extends AbstractCreditCalculator {
+public class DanmakuAggregateCreditCalculator extends AbstractCreditCalculator {
 
   private final RedisOps redisOps;
 
   @Autowired
-  public RefreshVideoCreditCalculator(
+  public DanmakuAggregateCreditCalculator(
       MongoOperations mongoTemplate,
       RedisOps redisOps) {
     super(mongoTemplate);
     this.redisOps = redisOps;
+
   }
 
   /**
    * Execute the service
    *
    * @param data just param
-   * @return Whether the service executed correctly.
    */
   @Override
   void execute(Object data) {
-    Long aid = (Long) data;
-    redisOps.postVideoCrawlTask(aid);
+    redisOps.postDanmakuAggregateTask((Long)data);
   }
 
   /**
    * Execute the service
    *
    * @param id just id param
+   * @return Whether the service executed correctly.
    */
   @Override
   void execute(Long id) {
-    redisOps.postVideoCrawlTask(id);
+    redisOps.postDanmakuAggregateTask(id);
   }
 }
