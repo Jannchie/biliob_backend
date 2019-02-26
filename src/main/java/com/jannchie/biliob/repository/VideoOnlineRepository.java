@@ -10,5 +10,5 @@ import org.springframework.stereotype.Repository;
  * @author jannchie
  */
 @Repository
-public interface VideoOnlineRepository extends MongoRepository<Video, ObjectId>, PagingAndSortingRepository<Video, ObjectId> {
-}
+public interface VideoOnlineRepository
+    extends MongoRepository<Video, ObjectId>, PagingAndSortingRepository<Video, ObjectId> {}
