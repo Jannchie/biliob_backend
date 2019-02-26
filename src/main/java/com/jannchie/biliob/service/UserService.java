@@ -5,15 +5,14 @@ import com.jannchie.biliob.exception.UserAlreadyFavoriteAuthorException;
 import com.jannchie.biliob.exception.UserAlreadyFavoriteVideoException;
 import com.jannchie.biliob.exception.UserNotExistException;
 import com.jannchie.biliob.model.User;
+import com.jannchie.biliob.utils.MySlice;
 import org.springframework.data.domain.Slice;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import javax.validation.Valid;
 
-/**
- * @author jannchie
- */
+/** @author jannchie */
 @Service
 public interface UserService {
 
@@ -147,7 +146,30 @@ public interface UserService {
    * @param mid author id
    * @return response
    */
-  ResponseEntity refreshAuthor(@Valid Integer mid);
+  ResponseEntity refreshAuthor(@Valid Long mid);
 
-  ResponseEntity refreshVideo(@Valid Integer aid);
+  /**
+   * Refresh video data immediately.
+   *
+   * @param aid video id
+   * @return response
+   */
+  ResponseEntity refreshVideo(@Valid Long aid);
+
+  /**
+   * Rank of user, order by exp
+   *
+   * @param page offset
+   * @param pagesize number of element
+   * @return the slice of user rank
+   */
+  MySlice<User> sliceUserRank(Integer page, Integer pagesize);
+
+  /**
+   * User starts a danmaku aggregate task.
+   *
+   * @param aid the video id being aggregated
+   * @return the response
+   */
+  ResponseEntity danmakuAggregate(@Valid Long aid);
 }

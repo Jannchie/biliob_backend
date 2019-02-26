@@ -125,12 +125,24 @@ public class UserController {
   }
 
   @RequestMapping(method = RequestMethod.PUT, value = "/api/user/author/{mid}/data")
-  public ResponseEntity refreshAuthor(@PathVariable("mid") @Valid Integer mid) {
+  public ResponseEntity refreshAuthor(@PathVariable("mid") @Valid Long mid) {
     return userService.refreshAuthor(mid);
   }
 
   @RequestMapping(method = RequestMethod.PUT, value = "/api/user/video/{aid}/data")
-  public ResponseEntity refreshVideo(@PathVariable("aid") @Valid Integer aid) {
+  public ResponseEntity refreshVideo(@PathVariable("aid") @Valid Long aid) {
     return userService.refreshVideo(aid);
+  }
+
+  @RequestMapping(method = RequestMethod.GET, value = "/api/rank/user")
+  public ResponseEntity userRank(
+      @RequestParam(defaultValue = "0") Integer page,
+      @RequestParam(defaultValue = "20") Integer pagesize) {
+    return new ResponseEntity<>(userService.sliceUserRank(page, pagesize), HttpStatus.OK);
+  }
+
+  @RequestMapping(method = RequestMethod.PUT, value = "/api/user/video/{aid}/danmaku")
+  public ResponseEntity danmakuAggregate(@PathVariable("aid") @Valid Long aid) {
+    return userService.danmakuAggregate(aid);
   }
 }
