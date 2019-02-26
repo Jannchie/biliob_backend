@@ -14,14 +14,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-
-/**
- * @author jannchie
- */
+/** @author jannchie */
 @Service
 public class SiteServiceImpl implements SiteService {
 
-  private static final  Integer MAX_ONLINE_PLAY_RANGE = 7;
+  private static final Integer MAX_ONLINE_PLAY_RANGE = 30;
   private static final Integer HOUR_IN_DAY = 24;
 
   private static final Logger logger = LogManager.getLogger(VideoServiceImpl.class);
@@ -40,13 +37,13 @@ public class SiteServiceImpl implements SiteService {
    */
   @Override
   public ResponseEntity listOnline(Integer days) {
-    if (days > MAX_ONLINE_PLAY_RANGE) {
+    if (days > SiteServiceImpl.MAX_ONLINE_PLAY_RANGE) {
       return new ResponseEntity<>(new Result(ResultEnum.OUT_OF_RANGE), HttpStatus.BAD_REQUEST);
     }
-    Integer limit = days * HOUR_IN_DAY;
+    Integer limit = days * SiteServiceImpl.HOUR_IN_DAY;
     Query query = new Query();
     query.limit(limit).with(new Sort(Sort.Direction.DESC, "datetime"));
-    logger.info("获得全站在线播放数据");
-    return new ResponseEntity<>(mongoTemplate.find(query, Site.class, "site_info"),HttpStatus.OK);
+    SiteServiceImpl.logger.info("获得全站在线播放数据");
+    return new ResponseEntity<>(mongoTemplate.find(query, Site.class, "site_info"), HttpStatus.OK);
   }
 }
