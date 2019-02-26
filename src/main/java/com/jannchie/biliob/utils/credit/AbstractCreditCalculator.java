@@ -6,6 +6,7 @@ import com.jannchie.biliob.model.User;
 import com.jannchie.biliob.model.UserRecord;
 import com.jannchie.biliob.repository.UserRepository;
 import com.jannchie.biliob.utils.LoginCheck;
+import com.jannchie.biliob.utils.RedisOps;
 import com.jannchie.biliob.utils.Result;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -22,20 +23,15 @@ import java.util.HashMap;
 
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
-/**
- * @author jannchie
- */
+/** @author jannchie */
 @Component
 public abstract class AbstractCreditCalculator {
   private static final Logger logger = LogManager.getLogger(AbstractCreditCalculator.class);
 
-  private final UserRepository userRepository;
   private final MongoOperations mongoTemplate;
-
   @Autowired
   public AbstractCreditCalculator(
-      MongoOperations mongoTemplate, UserRepository userRepository) {
-    this.userRepository = userRepository;
+      MongoOperations mongoTemplate) {
     this.mongoTemplate = mongoTemplate;
   }
 
@@ -45,14 +41,13 @@ public abstract class AbstractCreditCalculator {
    * @param creditConstant the operation value.
    * @return The response of user's request.
    */
-  public ResponseEntity executeAndGetResponse(CreditConstant creditConstant, Object d) {
+  public ResponseEntity executeAndGetResponse(CreditConstant creditConstant, Long d) {
     User user = LoginCheck.checkInfo();
     if (user == null) {
       return new ResponseEntity<>(
           new Result(ResultEnum.HAS_NOT_LOGGED_IN), HttpStatus.UNAUTHORIZED);
     }
     String userName = user.getName();
-
 
     Integer value = creditConstant.getValue();
     Integer credit = user.getCredit() + value;
@@ -70,7 +65,8 @@ public abstract class AbstractCreditCalculator {
     Update update = new Update();
     update.set("credit", credit);
     update.set("exp", exp);
-    update.addToSet("record", new UserRecord(new Date(), creditConstant.getMsg(), creditConstant.getValue()));
+    update.addToSet(
+        "record", new UserRecord(new Date(), creditConstant.getMsg(), creditConstant.getValue()));
     mongoTemplate.updateFirst(query, update, User.class);
 
     // log
@@ -82,7 +78,6 @@ public abstract class AbstractCreditCalculator {
     data.put("credit", credit);
 
     return new ResponseEntity<>(new Result(ResultEnum.SUCCEED, data), HttpStatus.OK);
-
   }
 
   /**
@@ -92,4 +87,10 @@ public abstract class AbstractCreditCalculator {
    */
   abstract void execute(Object data);
 
+  /**
+   * Execute the service
+   *
+   * @param id just id param
+   */
+  abstract void execute(Long id);
 }

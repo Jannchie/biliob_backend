@@ -44,8 +44,7 @@ public class VideoController {
       @PathVariable("mid") Long mid,
       @RequestParam(defaultValue = "0") Integer page,
       @RequestParam(defaultValue = "5") Integer pagesize,
-      @RequestParam(defaultValue = "0") Integer sort
-  ) {
+      @RequestParam(defaultValue = "0") Integer sort) {
     return videoService.getAuthorTopVideo(mid, page, pagesize, sort);
   }
 
@@ -67,5 +66,10 @@ public class VideoController {
   @RequestMapping(method = RequestMethod.GET, value = "/api/video/ads")
   public Video getMyVideo() {
     return videoService.getMyVideo();
+  }
+
+  @RequestMapping(method = RequestMethod.GET, value = "/api/video/online")
+  public ResponseEntity listOnlineVideo() {
+    return videoService.listOnlineVideo();
   }
 }

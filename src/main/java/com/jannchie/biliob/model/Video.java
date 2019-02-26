@@ -1,9 +1,11 @@
 package com.jannchie.biliob.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 
 /** @author jannchie */
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -78,7 +80,14 @@ public class Video {
     return datetime;
   }
 
-  private class Rank {
+  @Field("danmaku_aggregate")
+  private HashMap<Object,Object> danmakuAggregate;
+
+  public HashMap<Object, Object> getDanmakuAggregate() {
+    return danmakuAggregate;
+  }
+
+  private static class Rank {
     private Integer cViewRank;
     private Integer cLikeRank;
     private Integer cDanmakuRank;
@@ -92,6 +101,9 @@ public class Video {
     private Integer dCoinRank;
     private Integer dShareRank;
     private Date updateTime;
+
+    public  Rank() {
+    }
 
     public Integer getcViewRank() {
       return cViewRank;
@@ -146,7 +158,7 @@ public class Video {
     }
   }
 
-  public class Data {
+  public static class Data {
     private Integer view;
     private Integer favorite;
     private Integer danmaku;
@@ -155,6 +167,9 @@ public class Video {
     private Integer like;
     private Integer dislike;
     private Date datetime;
+
+    public Data() {
+    }
 
     public Integer getView() {
       return view;

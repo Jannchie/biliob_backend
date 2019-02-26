@@ -146,7 +146,7 @@ public interface UserService {
    * @param mid author id
    * @return response
    */
-  ResponseEntity refreshAuthor(@Valid Integer mid);
+  ResponseEntity refreshAuthor(@Valid Long mid);
 
   /**
    * Refresh video data immediately.
@@ -154,7 +154,7 @@ public interface UserService {
    * @param aid video id
    * @return response
    */
-  ResponseEntity refreshVideo(@Valid Integer aid);
+  ResponseEntity refreshVideo(@Valid Long aid);
 
   /**
    * Rank of user, order by exp
@@ -164,4 +164,12 @@ public interface UserService {
    * @return the slice of user rank
    */
   MySlice<User> sliceUserRank(Integer page, Integer pagesize);
+
+  /**
+   * User starts a danmaku aggregate task.
+   *
+   * @param aid the video id being aggregated
+   * @return the response
+   */
+  ResponseEntity danmakuAggregate(@Valid Long aid);
 }
