@@ -19,11 +19,11 @@ public interface UserService {
   /**
    * 创建用户
    *
-   * @param user 用户信息
-   * @return 用户
-   * @throws UserAlreadyExistException user already exist
+   * @param userName 用户名
+   * @param password 密码
+   * @return 创建结果
    */
-  User createUser(User user) throws UserAlreadyExistException;
+  ResponseEntity createUser(String userName,String password);
 
   /**
    * 获取密码
