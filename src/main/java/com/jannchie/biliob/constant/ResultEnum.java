@@ -26,7 +26,7 @@ public enum ResultEnum {
   SIGN_SUCCEED(1, "签到成功"),
   PERMISSION_DENIED(-1, "权限不足"),
   CREDIT_NOT_ENOUGH(-1, "积分不足"),
-  ALREADY_FORCE_FOCUS(-1, "已经强制观测了该作者" );
+  ALREADY_FORCE_FOCUS(-1, "已经强制观测了该作者" ), USER_ALREADY_EXIST(-1,"用户名已被占用" );
 
   private int code;
   private String msg;
