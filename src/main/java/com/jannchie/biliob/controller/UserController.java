@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.util.Map;
 
 /** @author jannchie */
 @RestController
@@ -32,10 +33,8 @@ public class UserController {
   }
 
   @RequestMapping(method = RequestMethod.POST, value = "/api/user")
-  public ResponseEntity<User> createUser(HttpServletRequest request, @RequestBody @Valid User user)
-      throws UserAlreadyExistException {
-    User newUser = userService.createUser(user);
-    return new ResponseEntity<>(newUser, HttpStatus.CREATED);
+  public ResponseEntity createUser(@RequestBody @Valid Map<String,String> requestMap) {
+    return userService.createUser(requestMap.get("name"),requestMap.get("password"));
   }
 
   @RequestMapping(method = RequestMethod.POST, value = "/api/user/author")
