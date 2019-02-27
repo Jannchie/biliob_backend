@@ -4,7 +4,6 @@ import com.jannchie.biliob.constant.CreditConstant;
 import com.jannchie.biliob.constant.FieldConstant;
 import com.jannchie.biliob.constant.ResultEnum;
 import com.jannchie.biliob.constant.RoleEnum;
-import com.jannchie.biliob.exception.UserAlreadyExistException;
 import com.jannchie.biliob.exception.UserAlreadyFavoriteAuthorException;
 import com.jannchie.biliob.exception.UserAlreadyFavoriteVideoException;
 import com.jannchie.biliob.exception.UserNotExistException;
@@ -97,16 +96,19 @@ class UserServiceImpl implements UserService {
   }
 
   @Override
-  public User createUser(User user) throws UserAlreadyExistException {
+  public ResponseEntity createUser(String username, String password) {
+    User user = new User(username, password, RoleEnum.NORMAL_USER.getName());
     if (1 == userRepository.countByName(user.getName())) {
       // 已存在同名
-      throw new UserAlreadyExistException(user.getName());
+      return new ResponseEntity<>(
+          new Result(ResultEnum.USER_ALREADY_EXIST), HttpStatus.BAD_REQUEST);
     }
-
     user.setPassword(new Md5Hash(user.getPassword(), user.getName()).toHex());
     userRepository.save(user);
     UserServiceImpl.logger.info(user.getName());
-    return user;
+    // 不要返回密码
+    user.setPassword(null);
+    return new ResponseEntity<>(user, HttpStatus.OK);
   }
 
   @Override
