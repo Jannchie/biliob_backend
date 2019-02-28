@@ -9,9 +9,7 @@ import org.springframework.data.mongodb.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.stereotype.Repository;
 
-/**
- * @author jannchie
- */
+/** @author jannchie */
 @Repository
 public interface QuestionRepository
     extends MongoRepository<Question, ObjectId>, PagingAndSortingRepository<Question, ObjectId> {

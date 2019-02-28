@@ -9,15 +9,12 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheConfig;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-/**
- * @author jannchie
- */
+/** @author jannchie */
 @Service
 @CacheConfig(cacheNames = "event")
 public class EventServiceImpl implements EventService {
@@ -29,7 +26,6 @@ public class EventServiceImpl implements EventService {
   public EventServiceImpl(EventRepository eventRepository) {
     this.eventRepository = eventRepository;
   }
-
 
   /**
    * Get the data of important events.
@@ -43,8 +39,9 @@ public class EventServiceImpl implements EventService {
     if (pagesize > PageSizeEnum.BIG_SIZE.getValue()) {
       return null;
     }
-    Slice<Event> e = eventRepository.findAll(
-        PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, "datetime")));
+    Slice<Event> e =
+        eventRepository.findAll(
+            PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, "datetime")));
     logger.info("获取事件");
     return new MySlice<>(e);
   }

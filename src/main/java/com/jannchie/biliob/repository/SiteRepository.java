@@ -6,10 +6,7 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.stereotype.Repository;
 
-/**
- * @author jannchie
- */
+/** @author jannchie */
 @Repository
 public interface SiteRepository
-    extends MongoRepository<Site, ObjectId>, PagingAndSortingRepository<Site, ObjectId> {
-}
+    extends MongoRepository<Site, ObjectId>, PagingAndSortingRepository<Site, ObjectId> {}

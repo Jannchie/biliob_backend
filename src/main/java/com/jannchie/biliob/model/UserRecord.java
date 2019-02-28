@@ -2,9 +2,7 @@ package com.jannchie.biliob.model;
 
 import java.util.Date;
 
-/**
- * @author jannchie
- */
+/** @author jannchie */
 public class UserRecord {
 
   private Date recordDatetime;

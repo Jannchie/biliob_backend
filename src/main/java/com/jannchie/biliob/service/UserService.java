@@ -1,6 +1,5 @@
 package com.jannchie.biliob.service;
 
-import com.jannchie.biliob.exception.UserAlreadyExistException;
 import com.jannchie.biliob.exception.UserAlreadyFavoriteAuthorException;
 import com.jannchie.biliob.exception.UserAlreadyFavoriteVideoException;
 import com.jannchie.biliob.exception.UserNotExistException;
@@ -23,7 +22,7 @@ public interface UserService {
    * @param password 密码
    * @return 创建结果
    */
-  ResponseEntity createUser(String userName,String password);
+  ResponseEntity createUser(String userName, String password);
 
   /**
    * 获取密码

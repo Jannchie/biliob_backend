@@ -6,9 +6,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import java.util.Date;
 import java.util.List;
 
-/**
- * @author jannchie
- */
+/** @author jannchie */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Document(collection = "donghua")
 public class Donghua {
@@ -79,15 +77,23 @@ public class Donghua {
     this.currentDanmaku = currentDanmaku;
   }
 
+  public String getTitle() {
+    return title;
+  }
+
   public void setTitle(String title) {
     this.title = title;
+  }
+
+  public List getTag() {
+    return tag;
   }
 
   public void setTag(List tag) {
     this.tag = tag;
   }
 
-  private class Data{
+  private class Data {
     private String danmaku;
     private String watch;
     private String play;
@@ -113,13 +119,5 @@ public class Donghua {
     public Date getDatetime() {
       return datetime;
     }
-  }
-
-  public String getTitle() {
-    return title;
-  }
-
-  public List getTag() {
-    return tag;
   }
 }

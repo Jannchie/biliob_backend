@@ -1,8 +1,6 @@
 package com.jannchie.biliob.constant;
 
-/**
- * @author jannchie
- */
+/** @author jannchie */
 public enum SortEnum {
   /** SIGN: Every eight hour, user can sign in once time. */
   VIEW_COUNT(0),

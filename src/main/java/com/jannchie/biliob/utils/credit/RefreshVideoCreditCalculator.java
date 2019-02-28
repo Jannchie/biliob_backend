@@ -1,6 +1,5 @@
 package com.jannchie.biliob.utils.credit;
 
-import com.jannchie.biliob.repository.UserRepository;
 import com.jannchie.biliob.utils.RedisOps;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoOperations;
@@ -13,9 +12,7 @@ public class RefreshVideoCreditCalculator extends AbstractCreditCalculator {
   private final RedisOps redisOps;
 
   @Autowired
-  public RefreshVideoCreditCalculator(
-      MongoOperations mongoTemplate,
-      RedisOps redisOps) {
+  public RefreshVideoCreditCalculator(MongoOperations mongoTemplate, RedisOps redisOps) {
     super(mongoTemplate);
     this.redisOps = redisOps;
   }
