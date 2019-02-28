@@ -3,8 +3,15 @@ spring:
     mongodb:
       uri: ${BILIOB_MONGO_URL}
   redis:
+    lettuce:
+      pool:
+        max-active: 128
+        max-idle: 32
+        min-idle: 8
+        max-wait: 10000
     host: ${BILIOB_REDIS_URL}
     port: 6379
     password: ${BILIOB_REDIS_PASSWD}
+    timeout: 10000
 server:
   port: ${BILIOB_MONGO_PORT}
