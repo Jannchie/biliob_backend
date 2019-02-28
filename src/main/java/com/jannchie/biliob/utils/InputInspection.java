@@ -5,9 +5,7 @@ import org.springframework.stereotype.Component;
 import java.util.Objects;
 import java.util.regex.Pattern;
 
-/**
- * @author jannchie
- */
+/** @author jannchie */
 @Component
 public class InputInspection {
   private static final String ID_PATTERN = "^[\\d]{1,12}$";

@@ -1,13 +1,8 @@
 package com.jannchie.biliob.constant;
 
-/**
- * @author jannchie
- */
-
+/** @author jannchie */
 public enum FieldConstant {
-  /**
-   * CREDIT: Credit of user.
-   */
+  /** CREDIT: Credit of user. */
   CREDIT("credit");
 
   private String value;

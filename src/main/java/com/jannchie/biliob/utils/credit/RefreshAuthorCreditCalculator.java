@@ -1,17 +1,13 @@
 package com.jannchie.biliob.utils.credit;
 
-import com.jannchie.biliob.repository.UserRepository;
 import com.jannchie.biliob.utils.RedisOps;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.stereotype.Component;
 
-/**
- * @author jannchie
- */
+/** @author jannchie */
 @Component
 public class RefreshAuthorCreditCalculator extends AbstractCreditCalculator {
-
 
   private final RedisOps redisOps;
 
@@ -20,7 +16,6 @@ public class RefreshAuthorCreditCalculator extends AbstractCreditCalculator {
     super(mongoTemplate);
     this.redisOps = redisOps;
   }
-
 
   /**
    * Execute the service

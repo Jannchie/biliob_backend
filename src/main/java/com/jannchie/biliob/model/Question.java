@@ -9,14 +9,11 @@ import org.springframework.data.mongodb.core.mapping.Field;
 
 import javax.validation.constraints.NotBlank;
 
-/**
- * @author jannchie
- */
+/** @author jannchie */
 @Document(collection = "question")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Question {
-  @Id
-  private ObjectId id;
+  @Id private ObjectId id;
 
   @Field("question")
   @NotBlank(message = "问题不能为空！")
@@ -32,8 +29,7 @@ public class Question {
   @Field("statues")
   private String statues;
 
-  public Question() {
-  }
+  public Question() {}
 
   public Question(String question, String user) {
     this.question = question;

@@ -8,14 +8,11 @@ import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.util.Date;
 
-/**
- * @author jannchie
- */
+/** @author jannchie */
 @Document(collection = "site_info")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Site {
-  @Id
-  private ObjectId id;
+  @Id private ObjectId id;
 
   @Field("play_online")
   private int playOnline;

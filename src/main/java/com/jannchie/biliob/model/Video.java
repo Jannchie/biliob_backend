@@ -22,6 +22,8 @@ public class Video {
   private ArrayList<Data> data;
   private ArrayList<String> keyword;
   private Rank rank;
+  @Field("danmaku_aggregate")
+  private HashMap<Object, Object> danmakuAggregate;
 
   public Video(Long aid) {
     this.aid = aid;
@@ -80,9 +82,6 @@ public class Video {
     return datetime;
   }
 
-  @Field("danmaku_aggregate")
-  private HashMap<Object,Object> danmakuAggregate;
-
   public HashMap<Object, Object> getDanmakuAggregate() {
     return danmakuAggregate;
   }
@@ -102,8 +101,7 @@ public class Video {
     private Integer dShareRank;
     private Date updateTime;
 
-    public  Rank() {
-    }
+    public Rank() {}
 
     public Integer getcViewRank() {
       return cViewRank;
@@ -168,8 +166,7 @@ public class Video {
     private Integer dislike;
     private Date datetime;
 
-    public Data() {
-    }
+    public Data() {}
 
     public Integer getView() {
       return view;

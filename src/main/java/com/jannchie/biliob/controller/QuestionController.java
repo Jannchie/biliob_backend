@@ -8,9 +8,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-/**
- * @author jannchie
- */
+/** @author jannchie */
 @RestController
 public class QuestionController {
 
@@ -34,5 +32,4 @@ public class QuestionController {
       @RequestParam(defaultValue = "20") Integer pagesize) {
     return questionService.getPendingQuestion(page, pagesize);
   }
-
 }

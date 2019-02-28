@@ -1,8 +1,6 @@
 package com.jannchie.biliob.exception;
 
-/**
- * @author jannchie
- */
+/** @author jannchie */
 public class UserAlreadyFavoriteAuthorException extends Exception {
 
   private Long mid;

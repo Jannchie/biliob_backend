@@ -1,20 +1,16 @@
 package com.jannchie.biliob.constant;
 
-/**
- * @author jannchie
- */
+/** @author jannchie */
 public enum CreditConstant {
   /**
-   * CHECK_IN: Every eight hour, user can sign in once time.
-   * WATCH_AD: Every eight hour, user can watch ad to earn credit once time.
-   * MODIFY_NAME: User modify his username.
-   * SET_FORCE_OBSERVE: User set one video or author permanently be observed.
-   * SET_STRONG_OBSERVE: User set one video or author be observed strongly and the frequency is once an hour.
-   * SET_KICHIKU_OBSERVE: User set one video or author be observed kichiku and the frequency is once a minutes.
-   * ASK_QUESTION: User are able to ask question and I will give my answer.
-   * DONATE: If user try to donate money to me, he will earn credit.
-   * REFRESH_AUTHOR_DATA: Refresh author data immediately.
-   * REFRESH_AUTHOR_DATA: Refresh video data immediately.
+   * CHECK_IN: Every eight hour, user can sign in once time. WATCH_AD: Every eight hour, user can
+   * watch ad to earn credit once time. MODIFY_NAME: User modify his username. SET_FORCE_OBSERVE:
+   * User set one video or author permanently be observed. SET_STRONG_OBSERVE: User set one video or
+   * author be observed strongly and the frequency is once an hour. SET_KICHIKU_OBSERVE: User set
+   * one video or author be observed kichiku and the frequency is once a minutes. ASK_QUESTION: User
+   * are able to ask question and I will give my answer. DONATE: If user try to donate money to me,
+   * he will earn credit. REFRESH_AUTHOR_DATA: Refresh author data immediately. REFRESH_AUTHOR_DATA:
+   * Refresh video data immediately.
    */
   CHECK_IN(10, "签到"),
   WATCH_AD(10, "点击广告"),

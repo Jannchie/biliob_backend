@@ -3,16 +3,14 @@ package com.jannchie.biliob.service;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-/**
- * @author jannchie
- */
+/** @author jannchie */
 @Service
 public interface QuestionService {
 
   /**
    * get a slice of handled question
    *
-   * @param page     page number
+   * @param page page number
    * @param pagesize page size
    * @return a slice of questions
    */
@@ -21,7 +19,7 @@ public interface QuestionService {
   /**
    * get a slice of pending question
    *
-   * @param page     page number
+   * @param page page number
    * @param pagesize page size
    * @return a slice of questions
    */
