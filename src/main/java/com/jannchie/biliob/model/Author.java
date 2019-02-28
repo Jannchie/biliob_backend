@@ -148,7 +148,22 @@ public class Author {
     private Integer dFansRank;
     private Integer dArchiveViewRank;
     private Integer dArticleViewRank;
+    private Double pFansRank;
+    private Double pArchiveViewRank;
+    private Double pArticleViewRank;
     private Date updateTime;
+
+    public Double getpFansRank() {
+      return pFansRank;
+    }
+
+    public Double getpArchiveViewRank() {
+      return pArchiveViewRank;
+    }
+
+    public Double getpArticleViewRank() {
+      return pArticleViewRank;
+    }
 
     public Integer getdFansRank() {
       return dFansRank;
