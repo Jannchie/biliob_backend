@@ -16,9 +16,7 @@ import org.springframework.stereotype.Service;
 
 import static com.jannchie.biliob.constant.ResultEnum.PARAM_ERROR;
 
-/**
- * @author jannchie
- */
+/** @author jannchie */
 @Service
 public class QuestionServiceImpl implements QuestionService {
 
@@ -33,7 +31,7 @@ public class QuestionServiceImpl implements QuestionService {
   /**
    * get a slice of handled question
    *
-   * @param page     page number
+   * @param page page number
    * @param pagesize page size
    * @return a slice of questions
    */
@@ -51,7 +49,7 @@ public class QuestionServiceImpl implements QuestionService {
   /**
    * get a slice of pending question
    *
-   * @param page     page number
+   * @param page page number
    * @param pagesize page size
    * @return a slice of questions
    */

@@ -1,13 +1,9 @@
 package com.jannchie.biliob.constant;
 
-/**
- * @author jannchie
- */
+/** @author jannchie */
 public enum ExceptionEnum {
 
-  /**
-   * Parameter out of range
-   */
+  /** Parameter out of range */
   OUT_OF_RANGE(-1, "参数超出范围");
 
   private Integer code;

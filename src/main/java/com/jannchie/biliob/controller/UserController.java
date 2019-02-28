@@ -1,6 +1,5 @@
 package com.jannchie.biliob.controller;
 
-import com.jannchie.biliob.exception.UserAlreadyExistException;
 import com.jannchie.biliob.exception.UserAlreadyFavoriteAuthorException;
 import com.jannchie.biliob.exception.UserAlreadyFavoriteVideoException;
 import com.jannchie.biliob.model.Question;
@@ -17,7 +16,6 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.Map;
 
@@ -33,8 +31,8 @@ public class UserController {
   }
 
   @RequestMapping(method = RequestMethod.POST, value = "/api/user")
-  public ResponseEntity createUser(@RequestBody @Valid Map<String,String> requestMap) {
-    return userService.createUser(requestMap.get("name"),requestMap.get("password"));
+  public ResponseEntity createUser(@RequestBody @Valid Map<String, String> requestMap) {
+    return userService.createUser(requestMap.get("name"), requestMap.get("password"));
   }
 
   @RequestMapping(method = RequestMethod.POST, value = "/api/user/author")

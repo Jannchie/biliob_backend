@@ -1,8 +1,6 @@
 package com.jannchie.biliob.constant;
 
-/**
- * @author jannchie
- */
+/** @author jannchie */
 public enum RoleEnum {
   /**
    * the role of the site.

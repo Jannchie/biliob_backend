@@ -6,9 +6,7 @@ import org.apache.shiro.SecurityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-/**
- * @author jannchie
- */
+/** @author jannchie */
 @Component
 public class LoginCheck {
   private static UserRepository userRepository;

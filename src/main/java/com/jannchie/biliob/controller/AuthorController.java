@@ -13,9 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
-/**
- * @author jannchie
- */
+/** @author jannchie */
 @RestController
 public class AuthorController {
 

@@ -4,7 +4,6 @@ import com.jannchie.biliob.utils.ExceptionResult;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.shiro.ShiroException;
-import org.apache.shiro.authc.AccountException;
 import org.apache.shiro.authc.IncorrectCredentialsException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -12,15 +11,13 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-/**
- * @author jannchie
- */
+/** @author jannchie */
 @RestControllerAdvice
 public class AccountExceptionHandler {
 
-	private static final Logger logger = LogManager.getLogger(AccountExceptionHandler.class);
+  private static final Logger logger = LogManager.getLogger(AccountExceptionHandler.class);
 
-	@ResponseBody
+  @ResponseBody
   @ExceptionHandler(IncorrectCredentialsException.class)
   @ResponseStatus(value = HttpStatus.FORBIDDEN)
   public ExceptionResult handleAccountException() {
