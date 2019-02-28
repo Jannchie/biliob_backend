@@ -61,4 +61,12 @@ public interface AuthorService {
    * @return list of fans
    */
   ResponseEntity listFansRate(Long mid);
+
+  /**
+   * get author information exclude history data.
+   *
+   * @param mid author id
+   * @return author
+   */
+  Author getAuthorInfo(Long mid);
 }
