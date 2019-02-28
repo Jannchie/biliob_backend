@@ -141,4 +141,15 @@ public class AuthorServiceImpl implements AuthorService {
     AuthorServiceImpl.logger.info("获得粉丝变动率");
     return new ResponseEntity<>(data, HttpStatus.OK);
   }
+
+  /**
+   * get author information exclude history data.
+   *
+   * @param mid author id
+   * @return author
+   */
+  @Override
+  public Author getAuthorInfo(Long mid) {
+    return respository.findAuthorByMid(mid);
+  }
 }
