@@ -31,6 +31,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 
@@ -97,14 +98,22 @@ public class VideoServiceImpl implements VideoService {
         return new MySlice<>(
             respository.searchByAid(
                 Long.valueOf(text),
-                PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, "cFans"))));
+                PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, "cView"))));
       }
       VideoServiceImpl.logger.info(text);
       // get text
       String[] textArray = text.split(" ");
-      return new MySlice<>(
+      MySlice<Video> mySlice = new MySlice<>(
           respository.findByKeywordContaining(
               textArray, PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, "cView"))));
+      if (mySlice.getContent().isEmpty()) {
+        for (String eachText : textArray) {
+          HashMap<String, String> map = new HashMap<>(1);
+          map.put("aid", eachText);
+          mongoTemplate.insert(map, "search_word");
+        }
+      }
+      return mySlice;
     } else {
       VideoServiceImpl.logger.info("获取全部视频数据");
       return new MySlice<>(
