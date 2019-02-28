@@ -41,6 +41,17 @@ public interface AuthorRepository
   @Query(fields = "{ 'fansRate' : 0}")
   Author findByMid(@Param("mid") Long mid);
 
+
+  /**
+   * get author exclude data and fansRate
+   *
+   * @param mid 作者id
+   * @return 作者对象
+   */
+  @Query(fields = "{ 'fansRate': 0, 'data': 0}")
+  Author findAuthorByMid(@Param("mid") Long mid);
+
+
   /**
    * 获得分页的作者信息，作者数据必须非空
    *

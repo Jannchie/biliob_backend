@@ -45,6 +45,12 @@ public class AuthorController {
     return authorService.getAuthor(mid, text, page, pageSize);
   }
 
+  @RequestMapping(method = RequestMethod.GET, value = "/api/author/{mid}/info")
+  public Author getAuthorInfo(@PathVariable("mid") Long mid) {
+    return authorService.getAuthorInfo(mid);
+  }
+
+
   @RequestMapping(method = RequestMethod.GET, value = "/api/rank/fans-increase-rate")
   public ResponseEntity listFansIncreaseRate() {
     return authorService.listFansIncreaseRate();
