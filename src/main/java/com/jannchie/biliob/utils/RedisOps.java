@@ -11,7 +11,8 @@ public class RedisOps {
   private static final String VIDEO_KEY = "videoRedis:start_urls";
   private static final String AUTHOR_URL = "https://api.bilibili.com/x/web-interface/card?mid=%d";
   private static final String AUTHOR_KEY = "authorRedis:start_urls";
-  private static final String DANMAKU_FROM_AID_URL = "https://api.bilibili.com/x/web-interface/view?aid=%d";
+  private static final String DANMAKU_FROM_AID_URL =
+      "https://api.bilibili.com/x/web-interface/view?aid=%d";
   private static final String DANMAKU_KEY = "DanmakuAggregate:start_urls";
   private final RedisTemplate<String, String> redisTemplate;
 
@@ -29,6 +30,7 @@ public class RedisOps {
     String url = String.format(RedisOps.AUTHOR_URL, mid);
     redisTemplate.opsForList().rightPush(RedisOps.AUTHOR_KEY, url);
   }
+
   public void postDanmakuAggregateTask(Long aid) {
     String url = String.format(RedisOps.DANMAKU_FROM_AID_URL, aid);
     redisTemplate.opsForList().rightPush(RedisOps.DANMAKU_KEY, url);

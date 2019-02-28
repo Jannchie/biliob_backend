@@ -1,13 +1,9 @@
 package com.jannchie.biliob.service;
 
-import com.jannchie.biliob.utils.Result;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-
-/**
- * @author jannchie
- */
+/** @author jannchie */
 @Service
 public interface SiteService {
 

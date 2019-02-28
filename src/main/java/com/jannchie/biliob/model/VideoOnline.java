@@ -6,9 +6,7 @@ import org.bson.types.ObjectId;
 import java.util.ArrayList;
 import java.util.Date;
 
-/**
- * @author jannchie
- */
+/** @author jannchie */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class VideoOnline {
   private ObjectId id;

@@ -7,9 +7,7 @@ import org.springframework.data.domain.Slice;
 
 import java.util.List;
 
-/**
- * @author jannchie
- */
+/** @author jannchie */
 public class MySlice<T> {
   private List<T> content;
   private Integer number;
@@ -35,8 +33,7 @@ public class MySlice<T> {
     this.numberOfElements = numberOfElements;
   }
 
-  public MySlice(
-      Slice<T> slice) {
+  public MySlice(Slice<T> slice) {
     this.content = slice.getContent();
     this.number = slice.getNumber();
     this.size = slice.getSize();

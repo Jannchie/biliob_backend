@@ -8,9 +8,7 @@ import com.jannchie.biliob.utils.MySlice;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-/**
- * @author jannchie
- */
+/** @author jannchie */
 @Service
 public interface VideoService {
 
@@ -28,7 +26,7 @@ public interface VideoService {
    * @param aid 视频id
    * @return 成功观测的应答
    * @throws UserAlreadyFavoriteVideoException 用户已关注视频
-   * @throws VideoAlreadyFocusedException      视频已在观测
+   * @throws VideoAlreadyFocusedException 视频已在观测
    */
   ResponseEntity<Message> postVideoByAid(Long aid)
       throws UserAlreadyFavoriteVideoException, VideoAlreadyFocusedException;

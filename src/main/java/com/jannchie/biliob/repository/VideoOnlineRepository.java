@@ -6,9 +6,7 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.stereotype.Repository;
 
-/**
- * @author jannchie
- */
+/** @author jannchie */
 @Repository
 public interface VideoOnlineRepository
     extends MongoRepository<Video, ObjectId>, PagingAndSortingRepository<Video, ObjectId> {}

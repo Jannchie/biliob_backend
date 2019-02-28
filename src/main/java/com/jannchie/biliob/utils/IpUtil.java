@@ -1,11 +1,8 @@
 package com.jannchie.biliob.utils;
 
-
 import javax.servlet.http.HttpServletRequest;
 
-/**
- * @author jannchie
- */
+/** @author jannchie */
 class IpUtil {
   private static final String UNKNOWN = "unknown";
   private static final String COMMA = ",";

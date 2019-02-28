@@ -5,9 +5,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.Date;
 
-/**
- * @author jannchie
- */
+/** @author jannchie */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Document(collection = "check_in")
 public class CheckIn {

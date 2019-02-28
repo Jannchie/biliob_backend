@@ -4,9 +4,7 @@ import com.jannchie.biliob.constant.CreditConstant;
 import com.jannchie.biliob.constant.ResultEnum;
 import com.jannchie.biliob.model.User;
 import com.jannchie.biliob.model.UserRecord;
-import com.jannchie.biliob.repository.UserRepository;
 import com.jannchie.biliob.utils.LoginCheck;
-import com.jannchie.biliob.utils.RedisOps;
 import com.jannchie.biliob.utils.Result;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -29,9 +27,9 @@ public abstract class AbstractCreditCalculator {
   private static final Logger logger = LogManager.getLogger(AbstractCreditCalculator.class);
 
   private final MongoOperations mongoTemplate;
+
   @Autowired
-  public AbstractCreditCalculator(
-      MongoOperations mongoTemplate) {
+  public AbstractCreditCalculator(MongoOperations mongoTemplate) {
     this.mongoTemplate = mongoTemplate;
   }
 

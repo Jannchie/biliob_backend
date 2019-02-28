@@ -20,12 +20,9 @@ import java.util.Objects;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 import static org.springframework.data.mongodb.core.query.Query.query;
 
-/**
- * @author jannchie
- */
+/** @author jannchie */
 @Component
 public class IpHandlerInterceptor implements HandlerInterceptor {
-
 
   private static final Logger logger = LogManager.getLogger(IpHandlerInterceptor.class);
   private static final Integer MAX_CUD_IN_MINUTE = 180;
@@ -38,16 +35,12 @@ public class IpHandlerInterceptor implements HandlerInterceptor {
     this.mongoTemplate = mongoTemplate;
   }
 
-
-  /**
-   * controller 执行之前调用
-   */
+  /** controller 执行之前调用 */
   @Override
   public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
       throws Exception {
 
     String ip = IpUtil.getIpAddress(request);
-
 
     // 在黑名单中直接处决
     if (mongoTemplate.exists(query(where(IP).is(ip)), Blacklist.class)) {
@@ -56,7 +49,10 @@ public class IpHandlerInterceptor implements HandlerInterceptor {
     }
 
     Integer limitCount = Integer.MAX_VALUE;
-    if (Objects.equals(request.getMethod(), HttpMethod.DELETE.name()) || Objects.equals(request.getMethod(), HttpMethod.POST.name()) || Objects.equals(request.getMethod(), HttpMethod.PATCH.name()) || Objects.equals(request.getMethod(), HttpMethod.PUT.name())) {
+    if (Objects.equals(request.getMethod(), HttpMethod.DELETE.name())
+        || Objects.equals(request.getMethod(), HttpMethod.POST.name())
+        || Objects.equals(request.getMethod(), HttpMethod.PATCH.name())
+        || Objects.equals(request.getMethod(), HttpMethod.PUT.name())) {
       // POST或PATCH或PUT或DELETE方法
       limitCount = MAX_CUD_IN_MINUTE;
     } else if (Objects.equals(request.getMethod(), HttpMethod.GET.name())) {
@@ -101,5 +97,4 @@ public class IpHandlerInterceptor implements HandlerInterceptor {
       }
     }
   }
-
 }

@@ -9,9 +9,7 @@ import org.springframework.data.mongodb.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.stereotype.Repository;
 
-/**
- * @author jannchie
- */
+/** @author jannchie */
 @Repository
 public interface DonghuaRepository
     extends MongoRepository<Donghua, ObjectId>, PagingAndSortingRepository<Donghua, ObjectId> {
@@ -22,9 +20,6 @@ public interface DonghuaRepository
    * @param of page param
    * @return a slice
    */
-  @Query(
-      value = "{}",
-      fields = "{'data':0}"
-  )
+  @Query(value = "{}", fields = "{'data':0}")
   Slice sliceDonghua(PageRequest of);
 }

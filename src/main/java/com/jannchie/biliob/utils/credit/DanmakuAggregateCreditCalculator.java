@@ -1,6 +1,5 @@
 package com.jannchie.biliob.utils.credit;
 
-import com.jannchie.biliob.repository.UserRepository;
 import com.jannchie.biliob.utils.RedisOps;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoOperations;
@@ -13,12 +12,9 @@ public class DanmakuAggregateCreditCalculator extends AbstractCreditCalculator {
   private final RedisOps redisOps;
 
   @Autowired
-  public DanmakuAggregateCreditCalculator(
-      MongoOperations mongoTemplate,
-      RedisOps redisOps) {
+  public DanmakuAggregateCreditCalculator(MongoOperations mongoTemplate, RedisOps redisOps) {
     super(mongoTemplate);
     this.redisOps = redisOps;
-
   }
 
   /**
@@ -28,7 +24,7 @@ public class DanmakuAggregateCreditCalculator extends AbstractCreditCalculator {
    */
   @Override
   void execute(Object data) {
-    redisOps.postDanmakuAggregateTask((Long)data);
+    redisOps.postDanmakuAggregateTask((Long) data);
   }
 
   /**

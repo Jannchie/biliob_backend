@@ -1,8 +1,6 @@
 package com.jannchie.biliob.constant;
 
-/**
- * @author jannchie
- */
+/** @author jannchie */
 public enum ResultEnum {
   /**
    * Enumerated all possible information returned, where the first item is a status code, the second
@@ -26,7 +24,8 @@ public enum ResultEnum {
   SIGN_SUCCEED(1, "签到成功"),
   PERMISSION_DENIED(-1, "权限不足"),
   CREDIT_NOT_ENOUGH(-1, "积分不足"),
-  ALREADY_FORCE_FOCUS(-1, "已经强制观测了该作者" ), USER_ALREADY_EXIST(-1,"用户名已被占用" );
+  ALREADY_FORCE_FOCUS(-1, "已经强制观测了该作者"),
+  USER_ALREADY_EXIST(-1, "用户名已被占用");
 
   private int code;
   private String msg;

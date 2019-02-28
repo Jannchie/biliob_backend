@@ -3,25 +3,10 @@ package com.jannchie.biliob.utils;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.jannchie.biliob.constant.ResultEnum;
 
-/**
- * @author jannchie
- */
+/** @author jannchie */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Result {
   private Integer code;
-
-  public Integer getCode() {
-    return code;
-  }
-
-  public String getMsg() {
-    return msg;
-  }
-
-  public Object getData() {
-    return data;
-  }
-
   private String msg;
   private Object data;
 
@@ -35,5 +20,16 @@ public class Result {
     this.msg = resultEnum.getMsg();
     this.data = data;
   }
-}
 
+  public Integer getCode() {
+    return code;
+  }
+
+  public String getMsg() {
+    return msg;
+  }
+
+  public Object getData() {
+    return data;
+  }
+}

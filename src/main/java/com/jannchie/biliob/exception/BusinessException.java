@@ -2,9 +2,7 @@ package com.jannchie.biliob.exception;
 
 import com.jannchie.biliob.constant.ExceptionEnum;
 
-/**
- * @author jannchie
- */
+/** @author jannchie */
 public class BusinessException extends RuntimeException {
 
   private final ExceptionEnum exceptionEnum;
