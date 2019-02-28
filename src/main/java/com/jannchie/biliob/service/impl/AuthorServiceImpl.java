@@ -23,6 +23,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 
@@ -89,9 +90,17 @@ public class AuthorServiceImpl implements AuthorService {
       }
       // get text
       String[] textArray = text.split(" ");
-      return new MySlice<>(
+      MySlice<Author> mySlice = new MySlice<>(
           respository.findByKeywordContaining(
               textArray, PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, "cFans"))));
+      if (mySlice.getContent().isEmpty()) {
+        for (String eachText : textArray) {
+          HashMap<String, String> map = new HashMap<>(1);
+          map.put("mid", eachText);
+          mongoTemplate.insert(map, "search_word");
+        }
+      }
+      return mySlice;
     } else {
       AuthorServiceImpl.logger.info("查看所有UP主列表");
       return new MySlice<>(
