@@ -16,7 +16,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
 import javax.servlet.Filter;
+import java.security.NoSuchAlgorithmException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 /** @author jannchie */
@@ -107,7 +110,7 @@ public class ShiroConfig implements EnvironmentAware {
   @Bean
   public DefaultWebSessionManager sessionManager() {
     Cookie cookie = new SimpleCookie(ShiroHttpSession.DEFAULT_SESSION_ID_NAME);
-    cookie.setMaxAge(60 * 60 * 24 * 3);
+    cookie.setMaxAge(60 * 60 * 24);
     cookie.setHttpOnly(true);
     DefaultWebSessionManager sessionManager = new DefaultWebSessionManager();
     sessionManager.setSessionIdCookie(cookie);
@@ -118,14 +121,15 @@ public class ShiroConfig implements EnvironmentAware {
   public SimpleCookie rememberMeCookie() {
     SimpleCookie cookie = new SimpleCookie("rememberMe");
     cookie.setHttpOnly(true);
-    cookie.setMaxAge(60 * 60 * 24 * 3);
+    // remember me retain 7 days
+    cookie.setMaxAge(60 * 60 * 24 * 7);
     return cookie;
   }
 
   @Bean
   public CookieRememberMeManager rememberMeManager() {
     CookieRememberMeManager rememberMeManager = new CookieRememberMeManager();
-    rememberMeManager.setCipherKey(Base64.decode(cipherKey));
+    rememberMeManager.setCipherKey(Base64.decode(this.cipherKey));
     rememberMeManager.setCookie(rememberMeCookie());
     return rememberMeManager;
   }
