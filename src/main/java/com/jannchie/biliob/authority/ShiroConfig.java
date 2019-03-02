@@ -110,7 +110,7 @@ public class ShiroConfig implements EnvironmentAware {
   @Bean
   public DefaultWebSessionManager sessionManager() {
     Cookie cookie = new SimpleCookie(ShiroHttpSession.DEFAULT_SESSION_ID_NAME);
-    cookie.setMaxAge(60 * 60 * 24 * 3);
+    cookie.setMaxAge(60 * 60 * 24);
     cookie.setHttpOnly(true);
     DefaultWebSessionManager sessionManager = new DefaultWebSessionManager();
     sessionManager.setSessionIdCookie(cookie);
@@ -121,7 +121,8 @@ public class ShiroConfig implements EnvironmentAware {
   public SimpleCookie rememberMeCookie() {
     SimpleCookie cookie = new SimpleCookie("rememberMe");
     cookie.setHttpOnly(true);
-    cookie.setMaxAge(60 * 60 * 24 * 3);
+    // remember me retain 7 days
+    cookie.setMaxAge(60 * 60 * 24 * 7);
     return cookie;
   }
 
