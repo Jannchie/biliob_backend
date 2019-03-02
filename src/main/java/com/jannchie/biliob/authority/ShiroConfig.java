@@ -16,7 +16,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
 import javax.servlet.Filter;
+import java.security.NoSuchAlgorithmException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 /** @author jannchie */
@@ -125,7 +128,7 @@ public class ShiroConfig implements EnvironmentAware {
   @Bean
   public CookieRememberMeManager rememberMeManager() {
     CookieRememberMeManager rememberMeManager = new CookieRememberMeManager();
-    rememberMeManager.setCipherKey(Base64.decode(cipherKey));
+    rememberMeManager.setCipherKey(Base64.decode(this.cipherKey));
     rememberMeManager.setCookie(rememberMeCookie());
     return rememberMeManager;
   }
