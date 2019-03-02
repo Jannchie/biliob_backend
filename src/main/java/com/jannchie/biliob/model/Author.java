@@ -23,6 +23,11 @@ public class Author {
   private Integer cRate;
   private ArrayList<FansRate> fansRate;
   private ArrayList<String> keyword;
+  private Integer cFans;
+
+  public Integer getcFans() {
+    return cFans;
+  }
 
   public Author() {
     focus = true;
