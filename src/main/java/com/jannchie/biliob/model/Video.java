@@ -22,6 +22,7 @@ public class Video {
   private ArrayList<Data> data;
   private ArrayList<String> keyword;
   private Rank rank;
+
   @Field("danmaku_aggregate")
   private HashMap<Object, Object> danmakuAggregate;
 
@@ -99,9 +100,39 @@ public class Video {
     private Integer dFavoriteRank;
     private Integer dCoinRank;
     private Integer dShareRank;
+    private Double pViewRank;
+    private Double pLikeRank;
+    private Double pDanmakuRank;
+    private Double pFavoriteRank;
+    private Double pCoinRank;
+    private Double pShareRank;
     private Date updateTime;
 
     public Rank() {}
+
+    public Double getpViewRank() {
+      return pViewRank;
+    }
+
+    public Double getpLikeRank() {
+      return pLikeRank;
+    }
+
+    public Double getpDanmakuRank() {
+      return pDanmakuRank;
+    }
+
+    public Double getpFavoriteRank() {
+      return pFavoriteRank;
+    }
+
+    public Double getpCoinRank() {
+      return pCoinRank;
+    }
+
+    public Double getpShareRank() {
+      return pShareRank;
+    }
 
     public Integer getcViewRank() {
       return cViewRank;
