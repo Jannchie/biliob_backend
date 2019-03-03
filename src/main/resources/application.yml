@@ -9,9 +9,10 @@ spring:
         max-idle: 8
         min-idle: 0
         max-wait: -1
+      shutdown-timeout: 30000
     host: ${BILIOB_REDIS_URL}
     port: 6379
     password: ${BILIOB_REDIS_PASSWD}
-    timeout: 10000
+    timeout: 30000
 server:
   port: ${BILIOB_MONGO_PORT}
