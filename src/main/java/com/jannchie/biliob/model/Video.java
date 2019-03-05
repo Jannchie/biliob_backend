@@ -22,7 +22,6 @@ public class Video {
   private ArrayList<Data> data;
   private ArrayList<String> keyword;
   private Rank rank;
-
   @Field("danmaku_aggregate")
   private HashMap<Object, Object> danmakuAggregate;
 

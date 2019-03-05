@@ -38,9 +38,10 @@ public interface VideoService {
    * @param text 搜索文本
    * @param page 页数
    * @param pagesize 页大小
+   * @param sort 排序
    * @return 视频页
    */
-  MySlice<Video> getVideo(Long aid, String text, Integer page, Integer pagesize);
+  MySlice<Video> getVideo(Long aid, String text, Integer page, Integer pagesize, Integer sort);
 
   /**
    * 获取作者其他视频
