@@ -36,9 +36,10 @@ public interface AuthorService {
    * @param text 文本
    * @param page 页数
    * @param pagesize 页大小
+   * @param sort sort field
    * @return 作者页
    */
-  MySlice<Author> getAuthor(Long mid, String text, Integer page, Integer pagesize);
+  MySlice<Author> getAuthor(Long mid, String text, Integer page, Integer pagesize, Integer sort);
 
   /**
    * get a list of author's fans increase rate.
