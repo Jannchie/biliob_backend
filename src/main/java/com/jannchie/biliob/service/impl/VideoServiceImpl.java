@@ -64,7 +64,6 @@ public class VideoServiceImpl implements VideoService {
   }
 
   @Override
-  @Cacheable(value = "video_detail", key = "#aid")
   public Video getVideoDetails(Long aid) {
     VideoServiceImpl.logger.info(aid);
     return respository.findByAid(aid);
