@@ -1,6 +1,7 @@
 package com.jannchie.biliob.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -25,9 +26,11 @@ public class Author {
   private ArrayList<String> keyword;
   private Integer cFans;
 
-  public Integer getcFans() {
-    return cFans;
-  }
+  @Field("cArchive_view")
+  private Integer cArchiveView;
+
+  @Field("cArticle_view")
+  private Integer cArticleView;
 
   public Author() {
     focus = true;
@@ -36,6 +39,18 @@ public class Author {
   public Author(Long mid) {
     this.mid = mid;
     focus = true;
+  }
+
+  public Integer getcArchiveView() {
+    return cArchiveView;
+  }
+
+  public Integer getcArticleView() {
+    return cArticleView;
+  }
+
+  public Integer getcFans() {
+    return cFans;
   }
 
   public ArrayList<String> getKeyword() {
