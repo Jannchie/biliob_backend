@@ -51,7 +51,6 @@ public class AuthorServiceImpl implements AuthorService {
   }
 
   @Override
-  @Cacheable(value = "author_detail", key = "#mid")
   public Author getAuthorDetails(Long mid) {
     return respository.findByMid(mid);
   }
