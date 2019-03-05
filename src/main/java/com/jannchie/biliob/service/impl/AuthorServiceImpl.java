@@ -1,5 +1,6 @@
 package com.jannchie.biliob.service.impl;
 
+import com.jannchie.biliob.constant.AuthorSortEnum;
 import com.jannchie.biliob.constant.PageSizeEnum;
 import com.jannchie.biliob.exception.AuthorAlreadyFocusedException;
 import com.jannchie.biliob.exception.UserAlreadyFavoriteAuthorException;
@@ -26,7 +27,6 @@ import org.springframework.stereotype.Service;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
-
 /** @author jannchie */
 @Service
 @CacheConfig(cacheNames = "authorService")
@@ -68,16 +68,20 @@ public class AuthorServiceImpl implements AuthorService {
   }
 
   @Override
-  @Cacheable(value = "author_slice", key = "#mid + #text + #page + #pagesize")
-  public MySlice<Author> getAuthor(Long mid, String text, Integer page, Integer pagesize) {
+  @Cacheable(value = "author_slice", key = "#mid + #text + #page + #pagesize + #sort")
+  public MySlice<Author> getAuthor(
+      Long mid, String text, Integer page, Integer pagesize, Integer sort) {
     if (pagesize > PageSizeEnum.BIG_SIZE.getValue()) {
       pagesize = PageSizeEnum.BIG_SIZE.getValue();
     }
+    String sortKey = AuthorSortEnum.getKeyByFlag(sort);
     if (!(mid == -1)) {
       AuthorServiceImpl.logger.info(mid);
       return new MySlice<>(
           respository.searchByMid(
-              mid, PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, "cFans"))));
+              mid,
+              PageRequest.of(
+                  page, pagesize, new Sort(Sort.Direction.DESC, sortKey))));
     } else if (!Objects.equals(text, "")) {
       AuthorServiceImpl.logger.info(text);
       if (InputInspection.isId(text)) {
@@ -85,13 +89,17 @@ public class AuthorServiceImpl implements AuthorService {
         return new MySlice<>(
             respository.searchByMid(
                 Long.valueOf(text),
-                PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, "cFans"))));
+                PageRequest.of(
+                    page, pagesize, new Sort(Sort.Direction.DESC, sortKey))));
       }
       // get text
       String[] textArray = text.split(" ");
-      MySlice<Author> mySlice = new MySlice<>(
-          respository.findByKeywordContaining(
-              textArray, PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, "cFans"))));
+      MySlice<Author> mySlice =
+          new MySlice<>(
+              respository.findByKeywordContaining(
+                  textArray,
+                  PageRequest.of(
+                      page, pagesize, new Sort(Sort.Direction.DESC, sortKey))));
       if (mySlice.getContent().isEmpty()) {
         for (String eachText : textArray) {
           HashMap<String, String> map = new HashMap<>(1);
@@ -104,7 +112,8 @@ public class AuthorServiceImpl implements AuthorService {
       AuthorServiceImpl.logger.info("查看所有UP主列表");
       return new MySlice<>(
           respository.findAllByDataIsNotNull(
-              PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, "cFans"))));
+              PageRequest.of(
+                  page, pagesize, new Sort(Sort.Direction.DESC, sortKey))));
     }
   }
 

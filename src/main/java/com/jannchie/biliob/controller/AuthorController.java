@@ -38,18 +38,18 @@ public class AuthorController {
 
   @RequestMapping(method = RequestMethod.GET, value = "/api/author")
   public MySlice<Author> getAuthor(
+      @RequestParam(defaultValue = "0") Integer sort,
       @RequestParam(defaultValue = "0") Integer page,
       @RequestParam(defaultValue = "20") Integer pageSize,
       @RequestParam(defaultValue = "-1") Long mid,
       @RequestParam(defaultValue = "") String text) {
-    return authorService.getAuthor(mid, text, page, pageSize);
+    return authorService.getAuthor(mid, text, page, pageSize, sort);
   }
 
   @RequestMapping(method = RequestMethod.GET, value = "/api/author/{mid}/info")
   public Author getAuthorInfo(@PathVariable("mid") Long mid) {
     return authorService.getAuthorInfo(mid);
   }
-
 
   @RequestMapping(method = RequestMethod.GET, value = "/api/rank/fans-increase-rate")
   public ResponseEntity listFansIncreaseRate() {
