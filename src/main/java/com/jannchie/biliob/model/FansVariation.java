@@ -13,11 +13,11 @@ public class FansVariation {
   private String face;
   private String info;
   private Integer rate;
-  private Integer deltaRate;
+  private String deltaRate;
   private String datetime;
   private Cause cause;
 
-  public Integer getDeltaRate() {
+  public String getDeltaRate() {
     return deltaRate;
   }
 
