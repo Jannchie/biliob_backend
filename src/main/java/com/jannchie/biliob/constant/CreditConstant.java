@@ -20,9 +20,9 @@ public enum CreditConstant {
   SET_KICHIKU_OBSERVE(-300, "设置鬼畜级频率追踪一周"),
   ASK_QUESTION(-30, "提出问题"),
   DONATE(100, "试图捐款"),
-  REFRESH_AUTHOR_DATA(-5, "立即刷新作者数据"),
-  REFRESH_VIDEO_DATA(-1, "立即刷新视频数据"),
-  DANMAKU_AGGREGATE(-10, "进行弹幕分析");
+  REFRESH_AUTHOR_DATA(-5, "立即刷新id为 %s 的UP主数据"),
+  REFRESH_VIDEO_DATA(-1, "立即刷新 av%s 的视频数据"),
+  DANMAKU_AGGREGATE(-10, "对 av%s 进行弹幕分析");
 
   private Integer value;
   private String msg;
@@ -36,6 +36,9 @@ public enum CreditConstant {
     this.value = value;
   }
 
+  public String getMsg(Long d) {
+    return String.format(msg, d);
+  }
   public String getMsg() {
     return msg;
   }
