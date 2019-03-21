@@ -4,7 +4,9 @@ package com.jannchie.biliob.constant;
 public enum ExceptionEnum {
 
   /** Parameter out of range */
-  OUT_OF_RANGE(-1, "参数超出范围");
+  ALREADY_SIGNED(-1, "已经签过到了"),
+  OUT_OF_RANGE(-1, "参数超出范围"),
+  EXECUTE_FAILURE(-1, "执行失败");
 
   private Integer code;
   private String msg;
