@@ -10,11 +10,10 @@ import com.jannchie.biliob.exception.UserNotExistException;
 import com.jannchie.biliob.model.Author;
 import com.jannchie.biliob.model.Question;
 import com.jannchie.biliob.model.User;
-import com.jannchie.biliob.repository.AuthorRepository;
-import com.jannchie.biliob.repository.QuestionRepository;
-import com.jannchie.biliob.repository.UserRepository;
-import com.jannchie.biliob.repository.VideoRepository;
+import com.jannchie.biliob.model.UserRecord;
+import com.jannchie.biliob.repository.*;
 import com.jannchie.biliob.service.UserService;
+import com.jannchie.biliob.utils.DataReducer;
 import com.jannchie.biliob.utils.LoginChecker;
 import com.jannchie.biliob.utils.MySlice;
 import com.jannchie.biliob.utils.Result;
@@ -60,6 +59,8 @@ class UserServiceImpl implements UserService {
 
   private final AuthorRepository authorRepository;
 
+  private final UserRecordRepository userRecordRepository;
+
   private final QuestionRepository questionRepository;
 
   private final MongoTemplate mongoTemplate;
@@ -79,6 +80,7 @@ class UserServiceImpl implements UserService {
       VideoRepository videoRepository,
       AuthorRepository authorRepository,
       QuestionRepository questionRepository,
+      UserRecordRepository userRecordRepository,
       MongoTemplate mongoTemplate,
       RefreshAuthorCreditCalculator refreshAuthorCreditCalculator,
       RefreshVideoCreditCalculator refreshVideoCreditCalculator,
@@ -89,6 +91,7 @@ class UserServiceImpl implements UserService {
     this.videoRepository = videoRepository;
     this.authorRepository = authorRepository;
     this.questionRepository = questionRepository;
+    this.userRecordRepository = userRecordRepository;
     this.mongoTemplate = mongoTemplate;
     this.refreshAuthorCreditCalculator = refreshAuthorCreditCalculator;
     this.refreshVideoCreditCalculator = refreshVideoCreditCalculator;
@@ -339,7 +342,7 @@ class UserServiceImpl implements UserService {
     return checkInCreditCalculator.executeAndGetResponse(CreditConstant.CHECK_IN);
   }
 
-  private ResponseEntity getResponseForCredit(User user, ResultEnum resultEnum) {
+  private ResponseEntity<Result> getResponseForCredit(User user, ResultEnum resultEnum) {
     Integer credit;
     HashMap<String, Integer> data = creditUtil.calculateCredit(user, CreditConstant.CHECK_IN);
     if (data.get(FieldConstant.CREDIT.getValue()) != -1) {
@@ -500,5 +503,27 @@ class UserServiceImpl implements UserService {
   public ResponseEntity danmakuAggregate(@Valid Long aid) {
     return danmakuAggregateCreditCalculator.executeAndGetResponse(
         CreditConstant.DANMAKU_AGGREGATE, aid);
+  }
+
+  /**
+   * slice the user record
+   *
+   * @param page page number
+   * @param pagesize page size
+   * @return the slice of user record
+   */
+  @Override
+  public MySlice<UserRecord> sliceUserRecord(Integer page, Integer pagesize) {
+    pagesize = DataReducer.limitPagesize(pagesize);
+    User user = LoginChecker.checkInfo();
+    if (user != null) {
+      String userName = user.getName();
+      Slice<UserRecord> slice =
+          userRecordRepository.findByUserNameOrderByDatetimeDesc(
+              userName, PageRequest.of(page, pagesize));
+      return new MySlice<>(slice);
+    } else {
+      return null;
+    }
   }
 }

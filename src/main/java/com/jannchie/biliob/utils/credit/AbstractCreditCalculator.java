@@ -64,7 +64,7 @@ public abstract class AbstractCreditCalculator {
       String userName = user.getName();
 
       // update record
-      String date = new java.text.SimpleDateFormat("yyyy-MM-dd hh:mm:ss").format(new Date());
+      String date = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
       UserRecord userRecord = new UserRecord(date, creditConstant.getMsg(id), value, userName);
       mongoTemplate.insert(userRecord, "user_record");
       ObjectId objectId = userRecord.getId();
@@ -80,7 +80,8 @@ public abstract class AbstractCreditCalculator {
       mongoTemplate.updateFirst(query, update, User.class);
 
       // log
-      AbstractCreditCalculator.logger.info("用户：{} 积分变动:{} 原因:{}", user.getName(), value, creditConstant.getMsg(id));
+      AbstractCreditCalculator.logger.info(
+          "用户：{} 积分变动:{} 原因:{}", user.getName(), value, creditConstant.getMsg(id));
       data = new HashMap<>(2);
       data.put("exp", exp);
       data.put("credit", credit);
@@ -131,7 +132,8 @@ public abstract class AbstractCreditCalculator {
       mongoTemplate.updateFirst(query, update, User.class);
 
       // log
-      AbstractCreditCalculator.logger.info("用户：{} 积分变动:{} 原因:{}", user.getName(), value, creditConstant.getMsg());
+      AbstractCreditCalculator.logger.info(
+          "用户：{} 积分变动:{} 原因:{}", user.getName(), value, creditConstant.getMsg());
 
       data = new HashMap<>(2);
       data.put("exp", exp);

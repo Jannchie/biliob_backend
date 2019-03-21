@@ -1,9 +1,13 @@
 package com.jannchie.biliob.model;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 /** @author jannchie */
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@Document(collection = "user_record")
 public class UserRecord {
 
   @Id private ObjectId id;
