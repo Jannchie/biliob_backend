@@ -8,7 +8,6 @@ import com.jannchie.biliob.exception.UserAlreadyFavoriteAuthorException;
 import com.jannchie.biliob.exception.UserAlreadyFavoriteVideoException;
 import com.jannchie.biliob.exception.UserNotExistException;
 import com.jannchie.biliob.model.Author;
-import com.jannchie.biliob.model.CheckIn;
 import com.jannchie.biliob.model.Question;
 import com.jannchie.biliob.model.User;
 import com.jannchie.biliob.repository.AuthorRepository;
@@ -16,12 +15,10 @@ import com.jannchie.biliob.repository.QuestionRepository;
 import com.jannchie.biliob.repository.UserRepository;
 import com.jannchie.biliob.repository.VideoRepository;
 import com.jannchie.biliob.service.UserService;
-import com.jannchie.biliob.utils.LoginCheck;
+import com.jannchie.biliob.utils.LoginChecker;
 import com.jannchie.biliob.utils.MySlice;
 import com.jannchie.biliob.utils.Result;
-import com.jannchie.biliob.utils.credit.AbstractCreditCalculator;
-import com.jannchie.biliob.utils.credit.CreditUtil;
-import com.jannchie.biliob.utils.credit.RefreshAuthorCreditCalculator;
+import com.jannchie.biliob.utils.credit.*;
 import com.mongodb.BasicDBObject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -69,12 +66,14 @@ class UserServiceImpl implements UserService {
 
   private final RefreshAuthorCreditCalculator refreshAuthorCreditCalculator;
 
-  private final AbstractCreditCalculator refreshVideoCreditCalculator;
+  private final RefreshVideoCreditCalculator refreshVideoCreditCalculator;
 
-  private final AbstractCreditCalculator danmakuAggregateCreditCalculator;
+  private final DanmakuAggregateCreditCalculator danmakuAggregateCreditCalculator;
+
+  private final CheckInCreditCalculator checkInCreditCalculator;
 
   @Autowired
-  private UserServiceImpl(
+  public UserServiceImpl(
       CreditUtil creditUtil,
       UserRepository userRepository,
       VideoRepository videoRepository,
@@ -82,8 +81,9 @@ class UserServiceImpl implements UserService {
       QuestionRepository questionRepository,
       MongoTemplate mongoTemplate,
       RefreshAuthorCreditCalculator refreshAuthorCreditCalculator,
-      AbstractCreditCalculator refreshVideoCreditCalculator,
-      AbstractCreditCalculator danmakuAggregateCreditCalculator) {
+      RefreshVideoCreditCalculator refreshVideoCreditCalculator,
+      DanmakuAggregateCreditCalculator danmakuAggregateCreditCalculator,
+      CheckInCreditCalculator checkInCreditCalculator) {
     this.creditUtil = creditUtil;
     this.userRepository = userRepository;
     this.videoRepository = videoRepository;
@@ -93,6 +93,7 @@ class UserServiceImpl implements UserService {
     this.refreshAuthorCreditCalculator = refreshAuthorCreditCalculator;
     this.refreshVideoCreditCalculator = refreshVideoCreditCalculator;
     this.danmakuAggregateCreditCalculator = danmakuAggregateCreditCalculator;
+    this.checkInCreditCalculator = checkInCreditCalculator;
   }
 
   @Override
@@ -127,7 +128,7 @@ class UserServiceImpl implements UserService {
 
   @Override
   public ResponseEntity getUserInfo() {
-    User user = LoginCheck.checkInfo();
+    User user = LoginChecker.checkInfo();
     if (user == null) {
       return new ResponseEntity<>(
           new Result(ResultEnum.HAS_NOT_LOGGED_IN), HttpStatus.UNAUTHORIZED);
@@ -139,7 +140,7 @@ class UserServiceImpl implements UserService {
   @Override
   public ResponseEntity addFavoriteAuthor(@Valid Long mid)
       throws UserAlreadyFavoriteAuthorException {
-    User user = LoginCheck.check();
+    User user = LoginChecker.check();
     if (user == null) {
       return new ResponseEntity<>(
           new Result(ResultEnum.HAS_NOT_LOGGED_IN), HttpStatus.UNAUTHORIZED);
@@ -162,7 +163,7 @@ class UserServiceImpl implements UserService {
 
   @Override
   public ResponseEntity addFavoriteVideo(@Valid Long aid) throws UserAlreadyFavoriteVideoException {
-    User user = LoginCheck.check();
+    User user = LoginChecker.check();
     if (user == null) {
       return new ResponseEntity<>(
           new Result(ResultEnum.HAS_NOT_LOGGED_IN), HttpStatus.UNAUTHORIZED);
@@ -195,7 +196,7 @@ class UserServiceImpl implements UserService {
     if (pageSize > BIG_SIZE.getValue()) {
       pageSize = BIG_SIZE.getValue();
     }
-    User user = LoginCheck.checkInfo();
+    User user = LoginChecker.checkInfo();
     if (user == null) {
       return null;
     }
@@ -225,7 +226,7 @@ class UserServiceImpl implements UserService {
     if (pageSize > BIG_SIZE.getValue()) {
       pageSize = BIG_SIZE.getValue();
     }
-    User user = LoginCheck.checkInfo();
+    User user = LoginChecker.checkInfo();
     if (user == null) {
       return null;
     }
@@ -251,7 +252,7 @@ class UserServiceImpl implements UserService {
    */
   @Override
   public ResponseEntity deleteFavoriteAuthorByMid(Long mid) {
-    User user = LoginCheck.check();
+    User user = LoginChecker.check();
     if (user == null) {
       return new ResponseEntity<>(
           new Result(ResultEnum.HAS_NOT_LOGGED_IN), HttpStatus.UNAUTHORIZED);
@@ -278,7 +279,7 @@ class UserServiceImpl implements UserService {
    */
   @Override
   public ResponseEntity deleteFavoriteVideoByAid(Long aid) {
-    User user = LoginCheck.check();
+    User user = LoginChecker.check();
     if (user == null) {
       return new ResponseEntity<>(
           new Result(ResultEnum.HAS_NOT_LOGGED_IN), HttpStatus.UNAUTHORIZED);
@@ -335,24 +336,7 @@ class UserServiceImpl implements UserService {
    */
   @Override
   public ResponseEntity postCheckIn() {
-    User user = LoginCheck.checkInfo();
-    if (user == null) {
-      return new ResponseEntity<>(
-          new Result(ResultEnum.HAS_NOT_LOGGED_IN), HttpStatus.UNAUTHORIZED);
-    }
-    Boolean isCheckedIn =
-        mongoTemplate.exists(new Query(where("name").is(user.getName())), "check_in");
-    String userName = user.getName();
-    Integer credit = user.getCredit();
-    if (isCheckedIn) {
-      UserServiceImpl.logger.warn("用户：{}，试图重复签到，当前积分：{}", userName, credit);
-
-      return new ResponseEntity<>(new Result(ResultEnum.ALREADY_SIGNED), HttpStatus.ACCEPTED);
-    } else {
-      // 插入已签到集合
-      mongoTemplate.insert(new CheckIn(userName), "check_in");
-      return getResponseForCredit(user, ResultEnum.SIGN_SUCCEED);
-    }
+    return checkInCreditCalculator.executeAndGetResponse(CreditConstant.CHECK_IN);
   }
 
   private ResponseEntity getResponseForCredit(User user, ResultEnum resultEnum) {
@@ -375,7 +359,7 @@ class UserServiceImpl implements UserService {
    */
   @Override
   public ResponseEntity getCheckIn() {
-    User user = LoginCheck.checkInfo();
+    User user = LoginChecker.checkInfo();
     if (user == null) {
       return new ResponseEntity<>(
           new Result(ResultEnum.HAS_NOT_LOGGED_IN), HttpStatus.UNAUTHORIZED);
@@ -398,7 +382,7 @@ class UserServiceImpl implements UserService {
   @Override
   public ResponseEntity forceFocus(Integer mid, @Valid Boolean forceFocus) {
 
-    User user = LoginCheck.checkInfo();
+    User user = LoginChecker.checkInfo();
 
     if (user == null) {
       return new ResponseEntity<>(
@@ -452,7 +436,7 @@ class UserServiceImpl implements UserService {
    */
   @Override
   public ResponseEntity postQuestion(String question) {
-    User user = LoginCheck.checkInfo();
+    User user = LoginChecker.checkInfo();
     if (user == null) {
       return new ResponseEntity<>(
           new Result(ResultEnum.HAS_NOT_LOGGED_IN), HttpStatus.UNAUTHORIZED);
