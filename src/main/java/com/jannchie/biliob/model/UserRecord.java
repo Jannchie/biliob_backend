@@ -1,26 +1,59 @@
 package com.jannchie.biliob.model;
 
-import java.util.Date;
+import org.bson.types.ObjectId;
+import org.springframework.data.annotation.Id;
 
 /** @author jannchie */
 public class UserRecord {
 
-  private Date recordDatetime;
+  @Id private ObjectId id;
+  private String userName;
+  private String datetime;
   private String message;
   private Integer credit;
+  private Boolean isExecuted;
 
-  public UserRecord(Date recordDatetime, String message, Integer credit) {
-    this.recordDatetime = recordDatetime;
+  public UserRecord() {}
+
+  public UserRecord(String datetime, String message, Integer credit, String userName) {
+    this.datetime = datetime;
     this.message = message;
     this.credit = credit;
+    this.userName = userName;
+    this.isExecuted = false;
   }
 
-  public Date getRecordDatetime() {
-    return recordDatetime;
+  public UserRecord(
+      String datetime, String message, Integer credit, String userName, Boolean isExecuted) {
+    this.datetime = datetime;
+    this.message = message;
+    this.credit = credit;
+    this.userName = userName;
+    this.isExecuted = isExecuted;
   }
 
-  public void setRecordDatetime(Date recordDatetime) {
-    this.recordDatetime = recordDatetime;
+  public ObjectId getId() {
+    return id;
+  }
+
+  public void setId(ObjectId id) {
+    this.id = id;
+  }
+
+  public Boolean getExecuted() {
+    return isExecuted;
+  }
+
+  public void setExecuted(Boolean executed) {
+    isExecuted = executed;
+  }
+
+  public String getDatetime() {
+    return datetime;
+  }
+
+  public void setDatetime(String datetime) {
+    this.datetime = datetime;
   }
 
   public String getMessage() {
@@ -37,5 +70,13 @@ public class UserRecord {
 
   public void setCredit(Integer credit) {
     this.credit = credit;
+  }
+
+  public String getUserName() {
+    return userName;
+  }
+
+  public void setUserName(String userName) {
+    this.userName = userName;
   }
 }
