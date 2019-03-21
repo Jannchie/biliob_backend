@@ -11,7 +11,7 @@ import org.apache.shiro.authz.SimpleAuthorizationInfo;
 import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.context.annotation.Lazy;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -19,11 +19,10 @@ import java.util.List;
 import java.util.Set;
 
 /** @author jannchie */
-@Component
 public class UserRealm extends AuthorizingRealm {
 
   private static final Logger logger = LogManager.getLogger(UserRealm.class);
-  @Autowired private UserService userService;
+  @Autowired @Lazy private UserService userService;
 
   /**
    * 获取身份验证信息Shiro中，最终是通过 Realm 来获取应用程序中的用户、角色及权限信息的。
@@ -39,7 +38,7 @@ public class UserRealm extends AuthorizingRealm {
     // 从数据库获取对应用户名密码的用户
     String password = userService.getPassword(token.getUsername());
 
-    logger.info(token.getUsername());
+    UserRealm.logger.info(token.getUsername());
     return new SimpleAuthenticationInfo(token.getPrincipal(), password, getName());
   }
 
@@ -65,7 +64,7 @@ public class UserRealm extends AuthorizingRealm {
     permissions.add(permission);
     // 设置权限
     info.addStringPermissions(permissions);
-    logger.info(role);
+    UserRealm.logger.info(role);
     return info;
   }
 }

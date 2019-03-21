@@ -1,5 +1,7 @@
-package com.jannchie.biliob.authority;
+package com.jannchie.biliob.config;
 
+import com.jannchie.biliob.authority.MyRolesAuthorizationFilter;
+import com.jannchie.biliob.authority.UserRealm;
 import org.apache.shiro.cache.MemoryConstrainedCacheManager;
 import org.apache.shiro.codec.Base64;
 import org.apache.shiro.mgt.SecurityManager;
@@ -14,12 +16,10 @@ import org.apache.shiro.web.session.mgt.DefaultWebSessionManager;
 import org.springframework.context.EnvironmentAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.core.env.Environment;
 
-import javax.crypto.KeyGenerator;
-import javax.crypto.SecretKey;
 import javax.servlet.Filter;
-import java.security.NoSuchAlgorithmException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 /** @author jannchie */
@@ -81,6 +81,7 @@ public class ShiroConfig implements EnvironmentAware {
 
   /** 注入 securityManager 安全管理器 */
   @Bean
+  @Lazy
   public DefaultWebSecurityManager securityManager() {
     DefaultWebSecurityManager securityManager = new DefaultWebSecurityManager();
     // 设置realm.
@@ -142,4 +143,6 @@ public class ShiroConfig implements EnvironmentAware {
   public void setEnvironment(Environment environment) {
     this.cipherKey = environment.getProperty("CIPHER_KEY");
   }
+
+
 }

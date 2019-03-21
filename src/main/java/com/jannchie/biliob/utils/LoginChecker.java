@@ -8,12 +8,12 @@ import org.springframework.stereotype.Component;
 
 /** @author jannchie */
 @Component
-public class LoginCheck {
+public class LoginChecker {
   private static UserRepository userRepository;
 
   @Autowired
-  public LoginCheck(UserRepository userRepository) {
-    LoginCheck.userRepository = userRepository;
+  public LoginChecker(UserRepository userRepository) {
+    LoginChecker.userRepository = userRepository;
   }
 
   /**

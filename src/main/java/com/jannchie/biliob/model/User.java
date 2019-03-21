@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import org.bson.types.ObjectId;
 import org.hibernate.validator.constraints.Length;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Field;
 
 import javax.validation.constraints.NotBlank;
 import java.util.ArrayList;
@@ -29,9 +28,6 @@ public class User {
   private Integer credit;
   private Integer exp;
 
-  @Field("record")
-  private ArrayList<UserRecord> recordArrayList;
-
   public User(String name, String password, String role) {
     this.name = name;
     this.password = password;
@@ -46,13 +42,6 @@ public class User {
     this.exp = 0;
   }
 
-  public ArrayList<UserRecord> getRecordArrayList() {
-    return recordArrayList;
-  }
-
-  public void setRecordArrayList(ArrayList<UserRecord> recordArrayList) {
-    this.recordArrayList = recordArrayList;
-  }
 
   public Integer getExp() {
     return exp;

@@ -25,7 +25,8 @@ public enum ResultEnum {
   PERMISSION_DENIED(-1, "权限不足"),
   CREDIT_NOT_ENOUGH(-1, "积分不足"),
   ALREADY_FORCE_FOCUS(-1, "已经强制观测了该作者"),
-  USER_ALREADY_EXIST(-1, "用户名已被占用");
+  USER_ALREADY_EXIST(-1, "用户名已被占用"),
+  EXECUTE_FAILURE(-1, "执行失败");
 
   private int code;
   private String msg;
