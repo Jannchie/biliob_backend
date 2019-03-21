@@ -138,6 +138,13 @@ public class UserController {
     return new ResponseEntity<>(userService.sliceUserRank(page, pagesize), HttpStatus.OK);
   }
 
+  @RequestMapping(method = RequestMethod.GET, value = "/api/user/record")
+  public ResponseEntity userRecord(
+      @RequestParam(defaultValue = "0") Integer page,
+      @RequestParam(defaultValue = "20") Integer pagesize) {
+    return new ResponseEntity<>(userService.sliceUserRecord(page, pagesize), HttpStatus.OK);
+  }
+
   @RequestMapping(method = RequestMethod.PUT, value = "/api/user/video/{aid}/danmaku")
   public ResponseEntity danmakuAggregate(@PathVariable("aid") @Valid Long aid) {
     return userService.danmakuAggregate(aid);

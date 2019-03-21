@@ -4,6 +4,7 @@ import com.jannchie.biliob.exception.UserAlreadyFavoriteAuthorException;
 import com.jannchie.biliob.exception.UserAlreadyFavoriteVideoException;
 import com.jannchie.biliob.exception.UserNotExistException;
 import com.jannchie.biliob.model.User;
+import com.jannchie.biliob.model.UserRecord;
 import com.jannchie.biliob.utils.MySlice;
 import org.springframework.data.domain.Slice;
 import org.springframework.http.ResponseEntity;
@@ -171,4 +172,13 @@ public interface UserService {
    * @return the response
    */
   ResponseEntity danmakuAggregate(@Valid Long aid);
+
+  /**
+   * slice the user record
+   *
+   * @param page page number
+   * @param pagesize page size
+   * @return the slice of user record
+   */
+  MySlice<UserRecord> sliceUserRecord(Integer page, Integer pagesize);
 }
