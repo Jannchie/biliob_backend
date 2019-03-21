@@ -1,5 +1,6 @@
 package com.jannchie.biliob;
 
+import com.jannchie.biliob.utils.DataReducerTest;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -8,6 +9,5 @@ import org.springframework.test.context.web.WebAppConfiguration;
 @RunWith(Suite.class)
 @SpringBootTest
 @WebAppConfiguration
-@Suite.SuiteClasses({RedisTests.class, UtilTests.class})
-public class BiliobApplicationTests {
-}
+@Suite.SuiteClasses({RedisTests.class, UtilTests.class, DataReducerTest.class})
+public class BiliobApplicationTests {}
