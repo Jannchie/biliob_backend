@@ -23,28 +23,36 @@ public class RedisOps {
     this.redisTemplate = redisTemplate;
   }
 
+  private void sentRequest(String key, String value) {
+    try {
+      redisTemplate.opsForList().rightPush(key, value);
+    } catch (Exception e) {
+      redisTemplate.opsForList().rightPush(key, value);
+    }
+  }
+
   public void postVideoCrawlTask(Long aid) {
     String url = String.format(RedisOps.VIDEO_URL, aid, null);
-    redisTemplate.opsForList().rightPush(RedisOps.VIDEO_KEY, url);
+    sentRequest(RedisOps.VIDEO_KEY, url);
   }
 
   public void postVideoCrawlTask(Long aid, ObjectId objectId) {
     String url = String.format(RedisOps.VIDEO_URL, aid, objectId);
-    redisTemplate.opsForList().rightPush(RedisOps.VIDEO_KEY, url);
+    sentRequest(RedisOps.VIDEO_KEY, url);
   }
 
   public void postAuthorCrawlTask(Long mid, ObjectId objectId) {
     String url = String.format(RedisOps.AUTHOR_URL, mid, objectId);
-    redisTemplate.opsForList().rightPush(RedisOps.AUTHOR_KEY, url);
+    sentRequest(RedisOps.AUTHOR_KEY, url);
   }
 
   public void postAuthorCrawlTask(Long mid) {
     String url = String.format(RedisOps.AUTHOR_URL, mid, null);
-    redisTemplate.opsForList().rightPush(RedisOps.AUTHOR_KEY, url);
+    sentRequest(RedisOps.AUTHOR_KEY, url);
   }
 
   public void postDanmakuAggregateTask(Long aid, ObjectId objectId) {
     String url = String.format(RedisOps.DANMAKU_FROM_AID_URL, aid, objectId);
-    redisTemplate.opsForList().rightPush(RedisOps.DANMAKU_KEY, url);
+    sentRequest(RedisOps.DANMAKU_KEY, url);
   }
 }
