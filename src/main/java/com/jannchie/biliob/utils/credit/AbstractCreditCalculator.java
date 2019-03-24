@@ -116,7 +116,7 @@ public abstract class AbstractCreditCalculator {
       String userName = user.getName();
 
       // update record
-      String date = new java.text.SimpleDateFormat("yyyy-MM-dd hh:mm:ss").format(new Date());
+      String date = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
       UserRecord userRecord = new UserRecord(date, creditConstant.getMsg(), value, userName);
       mongoTemplate.insert(userRecord, "user_record");
       ObjectId objectId = userRecord.getId();
