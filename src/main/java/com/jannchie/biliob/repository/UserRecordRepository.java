@@ -5,6 +5,7 @@ import org.bson.types.ObjectId;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.mongodb.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.stereotype.Repository;
 
@@ -21,5 +22,6 @@ public interface UserRecordRepository
    * @param pageable page information
    * @return the slice of user
    */
+  @Query(fields = "{ 'userName': 0, 'id': 0}")
   Slice<UserRecord> findByUserNameOrderByDatetimeDesc(String userName, Pageable pageable);
 }
