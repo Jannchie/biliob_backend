@@ -9,6 +9,8 @@ import org.springframework.data.mongodb.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.ArrayList;
+
 /** @author jannchie */
 @Repository
 public interface UserRecordRepository
@@ -24,4 +26,13 @@ public interface UserRecordRepository
    */
   @Query(fields = "{ 'userName': 0, 'id': 0}")
   Slice<UserRecord> findByUserNameOrderByDatetimeDesc(String userName, Pageable pageable);
+
+  /**
+   * Get user record array list order by datetime desc.
+   *
+   * @param userName user's name
+   * @return the slice of user
+   */
+  @Query(fields = "{ 'userName': 0, 'id': 0}")
+  ArrayList<UserRecord> findAllByUserNameOrderByDatetimeDesc(String userName);
 }
