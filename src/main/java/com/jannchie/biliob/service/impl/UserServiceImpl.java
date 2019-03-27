@@ -526,4 +526,20 @@ class UserServiceImpl implements UserService {
       return null;
     }
   }
+
+  /**
+   * Get user's all records.
+   *
+   * @return user record array list
+   */
+  @Override
+  public ArrayList<UserRecord> getUserAllRecord() {
+    User user = LoginChecker.checkInfo();
+    if (user != null) {
+      String userName = user.getName();
+      return userRecordRepository.findAllByUserNameOrderByDatetimeDesc(userName);
+    } else {
+      return null;
+    }
+  }
 }
