@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import javax.validation.Valid;
+import java.util.ArrayList;
 
 /** @author jannchie */
 @Service
@@ -181,4 +182,11 @@ public interface UserService {
    * @return the slice of user record
    */
   MySlice<UserRecord> sliceUserRecord(Integer page, Integer pagesize);
+
+  /**
+   * Get user's all records.
+   *
+   * @return user record array list
+   */
+  ArrayList<UserRecord> getUserAllRecord();
 }

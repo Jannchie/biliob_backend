@@ -139,10 +139,8 @@ public class UserController {
   }
 
   @RequestMapping(method = RequestMethod.GET, value = "/api/user/record")
-  public ResponseEntity userRecord(
-      @RequestParam(defaultValue = "0") Integer page,
-      @RequestParam(defaultValue = "20") Integer pagesize) {
-    return new ResponseEntity<>(userService.sliceUserRecord(page, pagesize), HttpStatus.OK);
+  public ResponseEntity userRecord() {
+    return new ResponseEntity<>(userService.getUserAllRecord(), HttpStatus.OK);
   }
 
   @RequestMapping(method = RequestMethod.PUT, value = "/api/user/video/{aid}/danmaku")
