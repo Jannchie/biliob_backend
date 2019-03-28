@@ -27,10 +27,10 @@ public class Author {
   private Integer cFans;
 
   @Field("cArchive_view")
-  private Integer cArchiveView;
+  private Long cArchiveView;
 
   @Field("cArticle_view")
-  private Integer cArticleView;
+  private Long cArticleView;
 
   public Author() {
     focus = true;
@@ -41,11 +41,11 @@ public class Author {
     focus = true;
   }
 
-  public Integer getcArchiveView() {
+  public Long getcArchiveView() {
     return cArchiveView;
   }
 
-  public Integer getcArticleView() {
+  public Long getcArticleView() {
     return cArticleView;
   }
 
