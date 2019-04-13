@@ -5,7 +5,9 @@ import com.jannchie.biliob.constant.PageSizeEnum;
 import com.jannchie.biliob.exception.AuthorAlreadyFocusedException;
 import com.jannchie.biliob.exception.UserAlreadyFavoriteAuthorException;
 import com.jannchie.biliob.model.Author;
+import com.jannchie.biliob.model.RealTimeFans;
 import com.jannchie.biliob.repository.AuthorRepository;
+import com.jannchie.biliob.repository.RealTimeFansRepository;
 import com.jannchie.biliob.service.AuthorService;
 import com.jannchie.biliob.service.UserService;
 import com.jannchie.biliob.utils.InputInspection;
@@ -24,9 +26,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Objects;
+import java.text.SimpleDateFormat;
+import java.util.*;
+
 /** @author jannchie */
 @Service
 @CacheConfig(cacheNames = "authorService")
@@ -34,6 +36,7 @@ public class AuthorServiceImpl implements AuthorService {
   private static final Logger logger = LogManager.getLogger(VideoServiceImpl.class);
   private final RedisOps redisOps;
   private final AuthorRepository respository;
+  private final RealTimeFansRepository realTimeFansRepository;
   private final MongoTemplate mongoTemplate;
   private final UserService userService;
 
@@ -43,10 +46,12 @@ public class AuthorServiceImpl implements AuthorService {
       UserService userService,
       MongoTemplate mongoTemplate,
       InputInspection inputInspection,
+      RealTimeFansRepository realTimeFansRepository,
       RedisOps redisOps) {
     this.respository = respository;
     this.userService = userService;
     this.mongoTemplate = mongoTemplate;
+    this.realTimeFansRepository = realTimeFansRepository;
     this.redisOps = redisOps;
   }
 
@@ -79,9 +84,7 @@ public class AuthorServiceImpl implements AuthorService {
       AuthorServiceImpl.logger.info(mid);
       return new MySlice<>(
           respository.searchByMid(
-              mid,
-              PageRequest.of(
-                  page, pagesize, new Sort(Sort.Direction.DESC, sortKey))));
+              mid, PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, sortKey))));
     } else if (!Objects.equals(text, "")) {
       AuthorServiceImpl.logger.info(text);
       if (InputInspection.isId(text)) {
@@ -89,8 +92,7 @@ public class AuthorServiceImpl implements AuthorService {
         return new MySlice<>(
             respository.searchByMid(
                 Long.valueOf(text),
-                PageRequest.of(
-                    page, pagesize, new Sort(Sort.Direction.DESC, sortKey))));
+                PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, sortKey))));
       }
       // get text
       String[] textArray = text.split(" ");
@@ -98,8 +100,7 @@ public class AuthorServiceImpl implements AuthorService {
           new MySlice<>(
               respository.findByKeywordContaining(
                   textArray,
-                  PageRequest.of(
-                      page, pagesize, new Sort(Sort.Direction.DESC, sortKey))));
+                  PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, sortKey))));
       if (mySlice.getContent().isEmpty()) {
         for (String eachText : textArray) {
           HashMap<String, String> map = new HashMap<>(1);
@@ -112,8 +113,7 @@ public class AuthorServiceImpl implements AuthorService {
       AuthorServiceImpl.logger.info("查看所有UP主列表");
       return new MySlice<>(
           respository.findAllByDataIsNotNull(
-              PageRequest.of(
-                  page, pagesize, new Sort(Sort.Direction.DESC, sortKey))));
+              PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, sortKey))));
     }
   }
 
@@ -168,5 +168,47 @@ public class AuthorServiceImpl implements AuthorService {
   @Override
   public Author getAuthorInfo(Long mid) {
     return respository.findAuthorByMid(mid);
+  }
+
+  /**
+   * list real time data
+   *
+   * @param aMid one author id
+   * @param bMid another author id
+   * @return Real time fans responseEntity
+   */
+  @Override
+  public ResponseEntity getRealTimeData(Long aMid, Long bMid) {
+    // TODO: enhance it please
+
+    Calendar c = Calendar.getInstance();
+    SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    format.setTimeZone(TimeZone.getTimeZone("GMT+:00:00"));
+
+    List<RealTimeFans> aRealTimeFans = listRealTimeFans(aMid);
+    ArrayList<Integer> aFans = new ArrayList<>();
+    ArrayList<String> datetime = new ArrayList<>();
+    for (RealTimeFans item : aRealTimeFans) {
+      c.setTime(item.getDatetime());
+      datetime.add(format.format(c.getTime()));
+      aFans.add(item.getFans());
+    }
+
+    List<RealTimeFans> bRealTimeFans = listRealTimeFans(bMid);
+    ArrayList<Integer> bFans = new ArrayList<>();
+    for (RealTimeFans item : bRealTimeFans) {
+      bFans.add(item.getFans());
+    }
+
+    HashMap<String, Cloneable> result = new HashMap<>(3);
+    result.put("aFans", aFans);
+    result.put("bFans", bFans);
+    result.put("datetime", datetime);
+
+    return new ResponseEntity<>(result, HttpStatus.OK);
+  }
+
+  private List<RealTimeFans> listRealTimeFans(Long mid) {
+    return realTimeFansRepository.findByMid(mid);
   }
 }
