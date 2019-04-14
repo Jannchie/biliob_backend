@@ -147,4 +147,18 @@ public class UserController {
   public ResponseEntity danmakuAggregate(@PathVariable("aid") @Valid Long aid) {
     return userService.danmakuAggregate(aid);
   }
+
+  @RequestMapping(method = RequestMethod.POST, value = "/api/user/video/{aid}/data")
+  public ResponseEntity videoObserveAlterFrequency(
+      @PathVariable("aid") @Valid Long aid,
+      @RequestParam(defaultValue = "1") @Valid Integer timeDurationFlag) {
+    return userService.videoObserveAlterFrequency(aid, timeDurationFlag);
+  }
+
+  @RequestMapping(method = RequestMethod.POST, value = "/api/user/author/{mid}/data")
+  public ResponseEntity authorObserveAlterFrequency(
+      @PathVariable("mid") @Valid Long mid,
+      @RequestParam(defaultValue = "1") @Valid Integer typeFlag) {
+    return userService.authorObserveAlterFrequency(mid, typeFlag);
+  }
 }
