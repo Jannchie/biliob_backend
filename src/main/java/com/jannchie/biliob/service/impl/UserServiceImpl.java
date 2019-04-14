@@ -542,4 +542,28 @@ class UserServiceImpl implements UserService {
       return null;
     }
   }
+
+  /**
+   * video observe frequency alter
+   *
+   * @param aid video id
+   * @param typeFlag type flag
+   * @return operation result
+   */
+  @Override
+  public ResponseEntity videoObserveAlterFrequency(@Valid Long aid, @Valid Integer typeFlag) {
+    return null;
+  }
+
+  /**
+   * author observe frequency alter
+   *
+   * @param mid video id
+   * @param typeFlag type flag
+   * @return operation result
+   */
+  @Override
+  public ResponseEntity authorObserveAlterFrequency(@Valid Long mid, @Valid Integer typeFlag) {
+    return null;
+  }
 }
