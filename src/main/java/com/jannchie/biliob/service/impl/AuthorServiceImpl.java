@@ -209,6 +209,6 @@ public class AuthorServiceImpl implements AuthorService {
   }
 
   private List<RealTimeFans> listRealTimeFans(Long mid) {
-    return realTimeFansRepository.findByMid(mid);
+    return realTimeFansRepository.findTop180ByMidOrderByDatetimeDesc(mid);
   }
 }
