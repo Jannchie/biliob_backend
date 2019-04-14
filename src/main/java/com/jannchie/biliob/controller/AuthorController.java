@@ -65,4 +65,10 @@ public class AuthorController {
   public ResponseEntity listFansRate(@PathVariable("mid") Long mid) {
     return authorService.listFansRate(mid);
   }
+
+  @RequestMapping(method = RequestMethod.GET, value = "/api/author/real-time")
+  public ResponseEntity lisRealTime(
+      @RequestParam(defaultValue = "0") Long aMid, @RequestParam(defaultValue = "0") Long bMid) {
+    return authorService.getRealTimeData(aMid, bMid);
+  }
 }

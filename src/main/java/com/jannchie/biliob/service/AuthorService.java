@@ -70,4 +70,13 @@ public interface AuthorService {
    * @return author
    */
   Author getAuthorInfo(Long mid);
+
+  /**
+   * list real time data
+   *
+   * @param aMid one author id
+   * @param bMid another author id
+   * @return Real time fans responseEntity
+   */
+  ResponseEntity getRealTimeData(Long aMid, Long bMid);
 }

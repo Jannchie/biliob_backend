@@ -189,4 +189,22 @@ public interface UserService {
    * @return user record array list
    */
   ArrayList<UserRecord> getUserAllRecord();
+
+  /**
+   * video observe frequency alter
+   *
+   * @param aid video id
+   * @param typeFlag type flag
+   * @return operation result
+   */
+  ResponseEntity videoObserveAlterFrequency(@Valid Long aid, @Valid Integer typeFlag);
+
+  /**
+   * author observe frequency alter
+   *
+   * @param mid video id
+   * @param typeFlag type flag
+   * @return operation result
+   */
+  ResponseEntity authorObserveAlterFrequency(@Valid Long mid, @Valid Integer typeFlag);
 }
