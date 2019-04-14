@@ -16,5 +16,5 @@ public interface RealTimeFansRepository extends MongoRepository<RealTimeFans, Ob
    * @param mid author id
    * @return list of real time fans data
    */
-  List<RealTimeFans> findByMid(Long mid);
+  List<RealTimeFans> findTop180ByMidOrderByDatetimeDesc(Long mid);
 }
