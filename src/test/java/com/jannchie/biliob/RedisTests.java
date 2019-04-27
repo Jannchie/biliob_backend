@@ -1,5 +1,6 @@
 package com.jannchie.biliob;
 
+import com.jannchie.biliob.utils.RedisOps;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -17,7 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class RedisTests {
 
   private String userKey = "userKey";
-
+  @Autowired private RedisOps redisOps;
   @Autowired private RedisTemplate redisTemplate;
   @Autowired private StringRedisTemplate stringRedisTemplate;
 
@@ -34,5 +35,13 @@ public class RedisTests {
             "authorRedis:start_urls", "https://api.bilibili.com/x/web-interface/card?mid=1850091");
     String s = stringRedisTemplate.opsForList().leftPop("authorRedis:start_urls");
     Assert.assertEquals("URL添加与删除测试失败", testString, s);
+  }
+
+  @Test
+  @Transactional
+  public void getAuthorQueueLength() {
+    Long authorCrawlTaskQueueLength = redisOps.getAuthorQueueLength();
+    Assert.assertEquals(
+        "返回值非Long类型", "class java.lang.Long", authorCrawlTaskQueueLength.getClass().toString());
   }
 }
