@@ -23,6 +23,24 @@ public class RedisOps {
     this.redisTemplate = redisTemplate;
   }
 
+  public Long getAuthorQueueLength() {
+    try {
+      return redisTemplate.opsForList().size(RedisOps.AUTHOR_KEY);
+    } catch (Exception e) {
+      // occurred error when getting the length of author crawl tasks queue
+      return null;
+    }
+  }
+
+  public Long getVideoQueueLength() {
+    try {
+      return redisTemplate.opsForList().size(RedisOps.VIDEO_KEY);
+    } catch (Exception e) {
+      // occurred error when getting the length of author crawl tasks queue
+      return null;
+    }
+  }
+
   private void sentRequest(String key, String value) {
     try {
       redisTemplate.opsForList().rightPush(key, value);
