@@ -15,11 +15,16 @@ public class Bangumi {
   private List tag;
   private List<Data> data;
   private String squareCover;
+  private String cover;
   private Integer currentPlay;
   private Integer currentPts;
   private Integer currentReview;
   private Integer currentWatch;
   private Integer currentDanmaku;
+
+  public String getCover() {
+    return cover;
+  }
 
   public List<Data> getData() {
     return data;
