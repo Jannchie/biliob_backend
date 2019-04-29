@@ -78,4 +78,11 @@ public interface VideoService {
    * @return top online video response.
    */
   ResponseEntity listOnlineVideo();
+
+  /**
+   * Get the number of video be observed.
+   *
+   * @return the number of video be observed.
+   */
+  Long getNumberOfVideo();
 }
