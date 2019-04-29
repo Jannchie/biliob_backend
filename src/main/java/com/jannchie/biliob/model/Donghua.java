@@ -14,12 +14,17 @@ public class Donghua {
   private String title;
   private List tag;
   private List<Data> data;
+  private String cover;
   private String squareCover;
   private Integer currentPlay;
   private Integer currentPts;
   private Integer currentReview;
   private Integer currentWatch;
   private Integer currentDanmaku;
+
+  public String getCover() {
+    return cover;
+  }
 
   public List<Data> getData() {
     return data;
