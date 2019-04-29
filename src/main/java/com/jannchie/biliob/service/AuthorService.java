@@ -79,4 +79,11 @@ public interface AuthorService {
    * @return Real time fans responseEntity
    */
   ResponseEntity getRealTimeData(Long aMid, Long bMid);
+
+  /**
+   * Get the number of author be observed.
+   *
+   * @return the number of author be observed.
+   */
+  Long getNumberOfAuthor();
 }

@@ -11,6 +11,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.HashMap;
+import java.util.Map;
 
 /** @author jannchie */
 @RestController
@@ -70,5 +72,12 @@ public class VideoController {
   @RequestMapping(method = RequestMethod.GET, value = "/api/video/online")
   public ResponseEntity listOnlineVideo() {
     return videoService.listOnlineVideo();
+  }
+
+  @RequestMapping(method = RequestMethod.GET, value = "/api/video/number")
+  public Map<String, Long> getNumberOfVideo() {
+    Map<String, Long> result = new HashMap<>(1);
+    result.put("videoNumber", videoService.getNumberOfVideo());
+    return result;
   }
 }
