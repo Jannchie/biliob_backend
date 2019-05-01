@@ -22,6 +22,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -179,8 +180,6 @@ public class AuthorServiceImpl implements AuthorService {
    */
   @Override
   public ResponseEntity getRealTimeData(Long aMid, Long bMid) {
-    // TODO: enhance it please
-
     Calendar c = Calendar.getInstance();
     SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     format.setTimeZone(TimeZone.getTimeZone("GMT+:00:00"));
@@ -210,5 +209,15 @@ public class AuthorServiceImpl implements AuthorService {
 
   private List<RealTimeFans> listRealTimeFans(Long mid) {
     return realTimeFansRepository.findTop180ByMidOrderByDatetimeDesc(mid);
+  }
+
+  /**
+   * Get the number of author be observed.
+   *
+   * @return the number of author be observed.
+   */
+  @Override
+  public Long getNumberOfAuthor() {
+    return mongoTemplate.count(new Query(), "author");
   }
 }
