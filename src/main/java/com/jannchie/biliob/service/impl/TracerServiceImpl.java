@@ -1,10 +1,12 @@
 package com.jannchie.biliob.service.impl;
 
+import com.jannchie.biliob.repository.TracerRepository;
 import com.jannchie.biliob.service.TracerService;
 import com.jannchie.biliob.utils.RedisOps;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,11 +24,14 @@ public class TracerServiceImpl implements TracerService {
 
   private static final Logger logger = LogManager.getLogger(VideoServiceImpl.class);
   private final MongoTemplate mongoTemplate;
+  private final TracerRepository tracerRepository;
   private final RedisOps redisOps;
 
   @Autowired
-  public TracerServiceImpl(MongoTemplate mongoTemplate, RedisOps redisOps) {
+  public TracerServiceImpl(
+      MongoTemplate mongoTemplate, TracerRepository tracerRepository, RedisOps redisOps) {
     this.mongoTemplate = mongoTemplate;
+    this.tracerRepository = tracerRepository;
     this.redisOps = redisOps;
   }
 
@@ -86,5 +91,22 @@ public class TracerServiceImpl implements TracerService {
   @Override
   public ResponseEntity sliceProgressTask(Integer page, Integer pagesize) {
     return null;
+  }
+
+  /**
+   * Get the slice of spider task of the system.
+   *
+   * <p>It is able to get the status of Biliob spider task.
+   *
+   * @param page The page number of the task slice.
+   * @param pagesize The page size of the task slice.
+   * @return tTe slice of exists task of the system.
+   */
+  @Override
+  public ResponseEntity sliceSpiderTask(Integer page, Integer pagesize) {
+    return new ResponseEntity<>(
+        tracerRepository.findTracerByClassNameOrderByUpdateTimeDesc(
+            "SpiderTask", PageRequest.of(page, pagesize)),
+        HttpStatus.OK);
   }
 }

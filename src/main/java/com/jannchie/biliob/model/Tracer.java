@@ -29,6 +29,12 @@ public class Tracer {
   @Field("current_value")
   private Integer currentValue;
 
+  @Field("crawl_count")
+  private Integer crawlCount;
+
+  @Field("crawl_failed")
+  private Integer crawlFailed;
+
   @Field("start_time")
   private Date startTime;
 
