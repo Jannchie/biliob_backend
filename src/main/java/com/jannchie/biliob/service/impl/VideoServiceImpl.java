@@ -207,4 +207,14 @@ public class VideoServiceImpl implements VideoService {
     List<VideoOnline> videoOnlineList = aggregationResults.getMappedResults();
     return new ResponseEntity<>(videoOnlineList, HttpStatus.OK);
   }
+
+  /**
+   * Get the number of video be observed.
+   *
+   * @return the number of video be observed.
+   */
+  @Override
+  public Long getNumberOfVideo() {
+    return mongoTemplate.count(new Query(), "video");
+  }
 }
