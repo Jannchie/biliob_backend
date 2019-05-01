@@ -55,4 +55,36 @@ public class TracerServiceImpl implements TracerService {
     result.put("length", videoCrawlTasksQueueLength);
     return new ResponseEntity<>(result, HttpStatus.OK);
   }
+
+  /**
+   * Get the slice of exists task of the system.
+   *
+   * <p>
+   *
+   * <p>It is able to get the status of Biliob scheduler and Biliob spider.
+   *
+   * @param page The page number of the task slice.
+   * @param pagesize The page size of the task slice.
+   * @return tTe slice of exists task of the system.
+   */
+  @Override
+  public ResponseEntity sliceExistsTask(Integer page, Integer pagesize) {
+    return null;
+  }
+
+  /**
+   * Get the slice of progress task of the system.
+   *
+   * <p>
+   *
+   * <p>It is able to get the status of Biliob link generate task.
+   *
+   * @param page The page number of the task slice.
+   * @param pagesize The page size of the task slice.
+   * @return tTe slice of exists task of the system.
+   */
+  @Override
+  public ResponseEntity sliceProgressTask(Integer page, Integer pagesize) {
+    return null;
+  }
 }
