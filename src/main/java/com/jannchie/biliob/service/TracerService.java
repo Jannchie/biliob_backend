@@ -1,5 +1,6 @@
 package com.jannchie.biliob.service;
 
+import org.springframework.data.domain.Slice;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -45,4 +46,17 @@ public interface TracerService {
    * @return tTe slice of exists task of the system.
    */
   ResponseEntity sliceProgressTask(Integer page, Integer pagesize);
+
+  /**
+   * Get the slice of spider task of the system.
+   *
+   * <p>
+   *
+   * <p>It is able to get the status of Biliob spider task.
+   *
+   * @param page The page number of the task slice.
+   * @param pagesize The page size of the task slice.
+   * @return tTe slice of exists task of the system.
+   */
+  ResponseEntity<Slice> sliceSpiderTask(Integer page, Integer pagesize);
 }
