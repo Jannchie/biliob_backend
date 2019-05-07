@@ -1,6 +1,5 @@
 package com.jannchie.biliob.service;
 
-import org.springframework.data.domain.Slice;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -58,5 +57,5 @@ public interface TracerService {
    * @param pagesize The page size of the task slice.
    * @return tTe slice of exists task of the system.
    */
-  ResponseEntity<Slice> sliceSpiderTask(Integer page, Integer pagesize);
+  ResponseEntity sliceSpiderTask(Integer page, Integer pagesize);
 }

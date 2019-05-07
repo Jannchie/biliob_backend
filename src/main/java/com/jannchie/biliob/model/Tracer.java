@@ -41,6 +41,22 @@ public class Tracer {
   @Field("update_time")
   private Date updateTime;
 
+  public Integer getCrawlCount() {
+    return crawlCount;
+  }
+
+  public void setCrawlCount(Integer crawlCount) {
+    this.crawlCount = crawlCount;
+  }
+
+  public Integer getCrawlFailed() {
+    return crawlFailed;
+  }
+
+  public void setCrawlFailed(Integer crawlFailed) {
+    this.crawlFailed = crawlFailed;
+  }
+
   public String getClassName() {
     return className;
   }
