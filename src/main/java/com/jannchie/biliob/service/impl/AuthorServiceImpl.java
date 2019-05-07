@@ -9,6 +9,7 @@ import com.jannchie.biliob.model.RealTimeFans;
 import com.jannchie.biliob.repository.AuthorRepository;
 import com.jannchie.biliob.repository.RealTimeFansRepository;
 import com.jannchie.biliob.service.AuthorService;
+import com.jannchie.biliob.service.SiteService;
 import com.jannchie.biliob.service.UserService;
 import com.jannchie.biliob.utils.InputInspection;
 import com.jannchie.biliob.utils.MySlice;
@@ -22,7 +23,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -40,6 +40,7 @@ public class AuthorServiceImpl implements AuthorService {
   private final RealTimeFansRepository realTimeFansRepository;
   private final MongoTemplate mongoTemplate;
   private final UserService userService;
+  private final SiteService siteService;
 
   @Autowired
   public AuthorServiceImpl(
@@ -48,12 +49,14 @@ public class AuthorServiceImpl implements AuthorService {
       MongoTemplate mongoTemplate,
       InputInspection inputInspection,
       RealTimeFansRepository realTimeFansRepository,
-      RedisOps redisOps) {
+      RedisOps redisOps,
+      SiteService siteService) {
     this.respository = respository;
     this.userService = userService;
     this.mongoTemplate = mongoTemplate;
     this.realTimeFansRepository = realTimeFansRepository;
     this.redisOps = redisOps;
+    this.siteService = siteService;
   }
 
   @Override
@@ -209,15 +212,5 @@ public class AuthorServiceImpl implements AuthorService {
 
   private List<RealTimeFans> listRealTimeFans(Long mid) {
     return realTimeFansRepository.findTop180ByMidOrderByDatetimeDesc(mid);
-  }
-
-  /**
-   * Get the number of author be observed.
-   *
-   * @return the number of author be observed.
-   */
-  @Override
-  public Long getNumberOfAuthor() {
-    return mongoTemplate.count(new Query(), "author");
   }
 }

@@ -24,4 +24,25 @@ public interface SiteService {
    *     observers.
    */
   Map getBiliOBCounter();
+
+  /**
+   * Get the number of author be observed.
+   *
+   * @return the number of author be observed.
+   */
+  Map getAuthorCount();
+
+  /**
+   * Get the number of video be observed.
+   *
+   * @return the number of video be observed.
+   */
+  Map getVideoCount();
+
+  /**
+   * Get the number of user be observed.
+   *
+   * @return the number of user be observed.
+   */
+  Map getUserCount();
 }
