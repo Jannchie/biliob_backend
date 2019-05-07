@@ -56,38 +56,11 @@ public class SiteServiceImpl implements SiteService {
   @Cacheable(value = "biliob_counter")
   public Map getBiliOBCounter() {
 
-    Long videoFocusCount =
-        mongoTemplate.count(new Query(Criteria.where("focus").is(true)), "video");
-    Long videoNotFocusCount =
-        mongoTemplate.count(new Query(Criteria.where("focus").is(false)), "video");
+    Map<String, Long> videoResult = getVideoCount();
 
-    Long authorForceFocusCount =
-        mongoTemplate.count(new Query(Criteria.where("forceFocus").is(true)), "author");
+    Map<String, Long> authorResult = getAuthorCount();
 
-    Long authorFocusCount =
-        mongoTemplate.count(
-            new Query(Criteria.where("focus").is(true).and("forceFocus").exists(false)), "author");
-
-    Long authorNotFocusCount =
-        mongoTemplate.count(
-            new Query(Criteria.where("focus").is(false).and("forceFocus").exists(false)), "author");
-
-    Long userCount = mongoTemplate.count(new Query(), "user");
-
-    Map<String, Long> videoResult = new HashMap<>(2);
-
-    videoResult.put("focusCount", videoFocusCount);
-    videoResult.put("count", videoFocusCount + videoNotFocusCount);
-
-    Map<String, Long> authorResult = new HashMap<>(3);
-
-    authorResult.put("forceFocusCount", authorForceFocusCount);
-    authorResult.put("focusCount", authorFocusCount);
-    authorResult.put("count", authorForceFocusCount + authorFocusCount + authorNotFocusCount);
-
-    Map<String, Long> userResult = new HashMap<>(1);
-
-    userResult.put("count", userCount);
+    Map<String, Long> userResult = getUserCount();
 
     Map<String, Object> result = new HashMap<>(3);
     result.put("video", videoResult);
@@ -101,5 +74,42 @@ public class SiteServiceImpl implements SiteService {
 
     SiteServiceImpl.logger.info("刷新全站数量统计");
     return result;
+  }
+
+  @Override
+  public Map<String, Long> getUserCount() {
+    Long userCount = mongoTemplate.count(new Query(), "user");
+    Map<String, Long> userResult = new HashMap<>(1);
+    userResult.put("count", userCount);
+    return userResult;
+  }
+
+  @Override
+  public Map<String, Long> getAuthorCount() {
+    Long authorForceFocusCount =
+        mongoTemplate.count(new Query(Criteria.where("forceFocus").is(true)), "author");
+    Long authorFocusCount =
+        mongoTemplate.count(
+            new Query(Criteria.where("focus").is(true).and("forceFocus").exists(false)), "author");
+    Long authorNotFocusCount =
+        mongoTemplate.count(
+            new Query(Criteria.where("focus").is(false).and("forceFocus").exists(false)), "author");
+    Map<String, Long> authorResult = new HashMap<>(3);
+    authorResult.put("forceFocusCount", authorForceFocusCount);
+    authorResult.put("focusCount", authorFocusCount);
+    authorResult.put("count", authorForceFocusCount + authorFocusCount + authorNotFocusCount);
+    return authorResult;
+  }
+
+  @Override
+  public Map<String, Long> getVideoCount() {
+    Long videoFocusCount =
+        mongoTemplate.count(new Query(Criteria.where("focus").is(true)), "video");
+    Long videoNotFocusCount =
+        mongoTemplate.count(new Query(Criteria.where("focus").is(false)), "video");
+    Map<String, Long> videoResult = new HashMap<>(2);
+    videoResult.put("focusCount", videoFocusCount);
+    videoResult.put("count", videoFocusCount + videoNotFocusCount);
+    return videoResult;
   }
 }
