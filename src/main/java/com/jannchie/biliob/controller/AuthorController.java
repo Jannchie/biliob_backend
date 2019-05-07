@@ -12,8 +12,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.HashMap;
-import java.util.Map;
 
 /** @author jannchie */
 @RestController
@@ -72,12 +70,5 @@ public class AuthorController {
   public ResponseEntity lisRealTime(
       @RequestParam(defaultValue = "0") Long aMid, @RequestParam(defaultValue = "0") Long bMid) {
     return authorService.getRealTimeData(aMid, bMid);
-  }
-
-  @RequestMapping(method = RequestMethod.GET, value = "/api/author/number")
-  public Map<String, Long> getNumberOfVideo() {
-    Map<String, Long> result = new HashMap<>(1);
-    result.put("videoNumber", authorService.getNumberOfAuthor());
-    return result;
   }
 }
