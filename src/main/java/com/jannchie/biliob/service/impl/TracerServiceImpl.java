@@ -64,8 +64,6 @@ public class TracerServiceImpl implements TracerService {
   /**
    * Get the slice of exists task of the system.
    *
-   * <p>
-   *
    * <p>It is able to get the status of Biliob scheduler and Biliob spider.
    *
    * @param page The page number of the task slice.
@@ -74,13 +72,14 @@ public class TracerServiceImpl implements TracerService {
    */
   @Override
   public ResponseEntity sliceExistsTask(Integer page, Integer pagesize) {
-    return null;
+    return new ResponseEntity<>(
+        tracerRepository.findTracerByClassNameOrderByUpdateTimeDesc(
+            "ExistsTask", PageRequest.of(page, pagesize)),
+        HttpStatus.OK);
   }
 
   /**
    * Get the slice of progress task of the system.
-   *
-   * <p>
    *
    * <p>It is able to get the status of Biliob link generate task.
    *
@@ -90,7 +89,10 @@ public class TracerServiceImpl implements TracerService {
    */
   @Override
   public ResponseEntity sliceProgressTask(Integer page, Integer pagesize) {
-    return null;
+    return new ResponseEntity<>(
+        tracerRepository.findTracerByClassNameOrderByUpdateTimeDesc(
+            "ProgressTask", PageRequest.of(page, pagesize)),
+        HttpStatus.OK);
   }
 
   /**
