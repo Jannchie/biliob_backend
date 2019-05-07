@@ -30,8 +30,23 @@ public class SiteController {
     return siteService.listOnline(days);
   }
 
-  @RequestMapping(method = RequestMethod.GET, value = "/api/site/counter")
-  public Map getBiliOBCounter() {
+  @RequestMapping(method = RequestMethod.GET, value = "/api/site/count")
+  public Map getBiliOBCount() {
     return siteService.getBiliOBCounter();
+  }
+
+  @RequestMapping(method = RequestMethod.GET, value = "/api/site/video/count")
+  public Map getVideoCount() {
+    return siteService.getVideoCount();
+  }
+
+  @RequestMapping(method = RequestMethod.GET, value = "/api/site/author/count")
+  public Map getAuthorCount() {
+    return siteService.getAuthorCount();
+  }
+
+  @RequestMapping(method = RequestMethod.GET, value = "/api/site/user/count")
+  public Map getUserCount() {
+    return siteService.getUserCount();
   }
 }
