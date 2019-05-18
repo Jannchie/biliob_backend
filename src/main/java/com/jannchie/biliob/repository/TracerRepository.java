@@ -31,4 +31,14 @@ public interface TracerRepository
    */
   Slice<Tracer> findTracerByClassNameOrderByUpdateTimeDesc(
       String className, PageRequest pageRequest);
+  /**
+   * Find tracer by class name order bby update time desc.
+   *
+   * @param className Task class Name
+   * @param status Task status
+   * @param pageRequest Page request
+   * @return the slice of tracer task.
+   */
+  Slice<Tracer> findTracerByClassNameAndStatusOrderByUpdateTimeDesc(
+      String className, Integer status, PageRequest pageRequest);
 }

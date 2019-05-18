@@ -26,13 +26,8 @@ public class TracerScheduler {
   public void checkDeadTask() {
     Date deadDate = getDeadDate();
     mongoTemplate.updateMulti(
-        Query.query(
-            Criteria.where("update_time").lt(deadDate).and("status").is(TracerStatus.UPDATE)),
-        Update.update("status", TracerStatus.DEAD),
-        com.jannchie.biliob.model.Tracer.class);
-    mongoTemplate.updateMulti(
-        Query.query(Criteria.where("update_time").lt(deadDate)),
-        Update.update("msg", "该任务已离线"),
+        Query.query(Criteria.where("update_time").lt(deadDate).and("status").ne(TracerStatus.DEAD)),
+        Update.update("status", TracerStatus.DEAD).set("msg", "该任务已离线"),
         com.jannchie.biliob.model.Tracer.class);
   }
 
