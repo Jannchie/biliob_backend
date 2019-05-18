@@ -23,12 +23,15 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
+
+import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 /** @author jannchie */
 @Service
@@ -61,7 +64,10 @@ public class AuthorServiceImpl implements AuthorService {
 
   @Override
   public Author getAuthorDetails(Long mid) {
-    return respository.findByMid(mid);
+    AuthorServiceImpl.logger.info("查询mid为{}的作者详情", mid);
+    Query query = new Query(where("mid").is(mid));
+    query.fields().exclude("fansRate");
+    return mongoTemplate.findOne(query, Author.class, "author");
   }
 
   @Override

@@ -3,7 +3,7 @@ package com.jannchie.biliob.utils;
 import com.jannchie.biliob.model.Author;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import static com.jannchie.biliob.constant.PageSizeEnum.BIG_SIZE;
 
@@ -15,7 +15,7 @@ public class DataReducer {
     // author data become very big.
     // It is necessary to down sampling the author data in order to optimize user loading
     // experience.
-    ArrayList dataArrayList = author.getData();
+    List dataArrayList = author.getData();
     if (dataArrayList.size() >= 2000) {
       return author;
     }
