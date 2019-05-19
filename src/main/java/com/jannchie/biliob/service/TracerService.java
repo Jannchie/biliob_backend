@@ -55,7 +55,8 @@ public interface TracerService {
    *
    * @param page The page number of the task slice.
    * @param pagesize The page size of the task slice.
+   * @param type The type of task slice.
    * @return tTe slice of exists task of the system.
    */
-  ResponseEntity sliceSpiderTask(Integer page, Integer pagesize);
+  ResponseEntity sliceSpiderTask(Integer page, Integer pagesize, Integer type);
 }

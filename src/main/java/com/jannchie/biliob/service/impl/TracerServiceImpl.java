@@ -1,5 +1,6 @@
 package com.jannchie.biliob.service.impl;
 
+import com.jannchie.biliob.constant.TaskStatusEnum;
 import com.jannchie.biliob.repository.TracerRepository;
 import com.jannchie.biliob.service.TracerService;
 import com.jannchie.biliob.utils.RedisOps;
@@ -14,6 +15,9 @@ import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import static com.jannchie.biliob.constant.TaskTypeEnum.GET_ALL;
+import static com.jannchie.biliob.constant.TaskTypeEnum.GET_RUNNING;
 
 /** @author jannchie */
 @Service
@@ -95,17 +99,19 @@ public class TracerServiceImpl implements TracerService {
         HttpStatus.OK);
   }
 
-  /**
-   * Get the slice of spider task of the system.
-   *
-   * <p>It is able to get the status of Biliob spider task.
-   *
-   * @param page The page number of the task slice.
-   * @param pagesize The page size of the task slice.
-   * @return tTe slice of exists task of the system.
-   */
   @Override
-  public ResponseEntity sliceSpiderTask(Integer page, Integer pagesize) {
+  public ResponseEntity sliceSpiderTask(Integer page, Integer pagesize, Integer type) {
+    if (type.equals(GET_ALL.value)) {
+      return new ResponseEntity<>(
+          tracerRepository.findTracerByClassNameOrderByUpdateTimeDesc(
+              "SpiderTask", PageRequest.of(page, pagesize)),
+          HttpStatus.OK);
+    } else if (type.equals(GET_RUNNING.value)) {
+      return new ResponseEntity<>(
+          tracerRepository.findTracerByClassNameAndStatusOrderByUpdateTimeDesc(
+              "SpiderTask", TaskStatusEnum.ALIVE.value, PageRequest.of(page, pagesize)),
+          HttpStatus.OK);
+    }
     return new ResponseEntity<>(
         tracerRepository.findTracerByClassNameOrderByUpdateTimeDesc(
             "SpiderTask", PageRequest.of(page, pagesize)),
