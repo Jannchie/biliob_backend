@@ -54,4 +54,9 @@ public class TracerController {
       @RequestParam(defaultValue = "0") Integer page) {
     return tracerService.sliceProgressTask(page, pagesize);
   }
+
+  @RequestMapping(method = RequestMethod.GET, value = "/api/tracer/dashboard")
+  public ResponseEntity getDashboardData() {
+    return tracerService.getDashboardData();
+  }
 }

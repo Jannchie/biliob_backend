@@ -9,7 +9,7 @@ import java.util.Date;
 /** @author jannchie */
 @Document(collection = "tracer")
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class Tracer {
+public class TracerTask {
   @Field("class_name")
   private String className;
 
