@@ -1,5 +1,6 @@
 package com.jannchie.biliob.utils;
 
+import com.jannchie.biliob.model.TracerTask;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -28,7 +29,7 @@ public class TracerScheduler {
     mongoTemplate.updateMulti(
         Query.query(Criteria.where("update_time").lt(deadDate).and("status").ne(TracerStatus.DEAD)),
         Update.update("status", TracerStatus.DEAD).set("msg", "该任务已离线"),
-        com.jannchie.biliob.model.Tracer.class);
+        TracerTask.class);
   }
 
   Date getDeadDate() {

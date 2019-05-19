@@ -15,7 +15,7 @@ import java.util.Date;
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @WebAppConfiguration
-public class TracerSchedulerTest {
+public class TracerTaskSchedulerTest {
   @Autowired MongoTemplate mongoTemplate;
   @Autowired private TracerScheduler t = new TracerScheduler(mongoTemplate);
 
