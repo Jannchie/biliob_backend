@@ -43,8 +43,9 @@ public class TracerController {
   @RequestMapping(method = RequestMethod.GET, value = "/api/tracer/spider-tasks")
   public ResponseEntity sliceSpiderTask(
       @RequestParam(defaultValue = "20") Integer pagesize,
-      @RequestParam(defaultValue = "0") Integer page) {
-    return tracerService.sliceSpiderTask(page, pagesize);
+      @RequestParam(defaultValue = "0") Integer page,
+      @RequestParam(defaultValue = "0") Integer type) {
+    return tracerService.sliceSpiderTask(page, pagesize, type);
   }
 
   @RequestMapping(method = RequestMethod.GET, value = "/api/tracer/progress-task")
@@ -52,5 +53,10 @@ public class TracerController {
       @RequestParam(defaultValue = "20") Integer pagesize,
       @RequestParam(defaultValue = "0") Integer page) {
     return tracerService.sliceProgressTask(page, pagesize);
+  }
+
+  @RequestMapping(method = RequestMethod.GET, value = "/api/tracer/dashboard")
+  public ResponseEntity getDashboardData() {
+    return tracerService.getDashboardData();
   }
 }
