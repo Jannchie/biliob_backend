@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 /** @author jannchie */
 @Service
 public interface TracerService {
+
   /**
    * It is the function to get authors' queue status.
    *
@@ -29,7 +30,7 @@ public interface TracerService {
    *
    * @param page The page number of the task slice.
    * @param pagesize The page size of the task slice.
-   * @return tTe slice of exists task of the system.
+   * @return the slice of exists task of the system.
    */
   ResponseEntity sliceExistsTask(Integer page, Integer pagesize);
 
@@ -42,21 +43,27 @@ public interface TracerService {
    *
    * @param page The page number of the task slice.
    * @param pagesize The page size of the task slice.
-   * @return tTe slice of exists task of the system.
+   * @return the slice of exists task of the system.
    */
   ResponseEntity sliceProgressTask(Integer page, Integer pagesize);
-
   /**
-   * Get the slice of spider task of the system.
+   * Get the slice of progress task of the system.
    *
    * <p>
    *
-   * <p>It is able to get the status of Biliob spider task.
+   * <p>It is able to get the status of Biliob link generate task.
    *
    * @param page The page number of the task slice.
    * @param pagesize The page size of the task slice.
-   * @param type The type of task slice.
-   * @return tTe slice of exists task of the system.
+   * @param type The type of the task slice.
+   * @return the slice of exists task of the system.
    */
   ResponseEntity sliceSpiderTask(Integer page, Integer pagesize, Integer type);
+
+  /**
+   * Get the data for the dashboard page.
+   *
+   * @return the slice of exists task of the system.
+   */
+  ResponseEntity getDashboardData();
 }
