@@ -137,16 +137,16 @@ public class TracerServiceImpl implements TracerService {
     getCheckedInCount(resultMap);
     getUserCount(resultMap);
     getLatestProgressTask(resultMap);
+    getWeeklyCheckIn(resultMap);
+    getMonthlySignIn(resultMap);
+    getRecordCount(resultMap);
 
     return new ResponseEntity<>(resultMap, HttpStatus.OK);
   }
 
   private void getBucketUserCreditList(Map<String, Object> resultMap) {
     Aggregation bucketUserCreditAggregation =
-        Aggregation.newAggregation(
-            Aggregation.bucket("exp")
-                .withBoundaries(0, 100, 500, 1000, 2000, 3000, 5000)
-                .withDefaultBucket("未签过到"));
+        Aggregation.newAggregation(Aggregation.bucketAuto("exp", 20));
 
     AggregationResults<Map> bucketUserCreditAggregationResult =
         mongoTemplate.aggregate(bucketUserCreditAggregation, "user", Map.class);
@@ -186,12 +186,72 @@ public class TracerServiceImpl implements TracerService {
   }
 
   private void getLatestProgressTask(Map<String, Object> resultMap) {
-    Map task =
+    Map lastRunningProgressTask =
         mongoTemplate.findOne(
-            Query.query(Criteria.where("class_name").is("ProgressTask"))
+            Query.query(
+                    Criteria.where("class_name")
+                        .is("ProgressTask")
+                        .and("status")
+                        .is(TaskStatusEnum.UPDATE.value))
                 .with(Sort.by("start_time").descending()),
             Map.class,
             "tracer");
-    resultMap.put("latestProgressTask", task);
+    Map lastFinishedProgressTask =
+        mongoTemplate.findOne(
+            Query.query(
+                    Criteria.where("class_name")
+                        .is("ProgressTask")
+                        .and("status")
+                        .is(TaskStatusEnum.FINISHED.value))
+                .with(Sort.by("start_time").descending()),
+            Map.class,
+            "tracer");
+    resultMap.put("lastRunningProgressTask", lastRunningProgressTask);
+    resultMap.put("lastFinishedProgressTask", lastFinishedProgressTask);
+  }
+
+  private void getWeeklyCheckIn(Map<String, Object> resultMap) {
+    resultMap.put(
+        "weeklyCheckIn",
+        mongoTemplate
+            .aggregate(
+                Aggregation.newAggregation(
+                    Aggregation.match(Criteria.where("message").is("签到")),
+                    Aggregation.project()
+                        .andExpression("week(_id)")
+                        .as("week")
+                        .andExpression("year(_id)")
+                        .as("year"),
+                    Aggregation.group("year", "week").count().as("count"),
+                    Aggregation.sort(Sort.by("year").ascending().and(Sort.by("week").ascending())),
+                    Aggregation.skip(1L),
+                    Aggregation.limit(10)),
+                "user_record",
+                Map.class)
+            .getMappedResults());
+  }
+
+  private void getMonthlySignIn(Map<String, Object> resultMap) {
+    resultMap.put(
+        "monthlySignIn",
+        mongoTemplate
+            .aggregate(
+                Aggregation.newAggregation(
+                    Aggregation.project()
+                        .andExpression("month(_id)")
+                        .as("month")
+                        .andExpression("year(_id)")
+                        .as("year"),
+                    Aggregation.group("year", "month").count().as("count"),
+                    Aggregation.sort(Sort.by("year").ascending().and(Sort.by("month").ascending())),
+                    Aggregation.skip(1L),
+                    Aggregation.limit(10)),
+                "user",
+                Map.class)
+            .getMappedResults());
+  }
+
+  private void getRecordCount(Map<String, Object> resultMap) {
+    resultMap.put("recordCount", mongoTemplate.count(new Query(), "user_record"));
   }
 }
