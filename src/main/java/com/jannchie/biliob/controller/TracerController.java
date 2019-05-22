@@ -59,4 +59,9 @@ public class TracerController {
   public ResponseEntity getDashboardData() {
     return tracerService.getDashboardData();
   }
+
+  @RequestMapping(method = RequestMethod.GET, value = "/api/tracer/latest-progress")
+  public ResponseEntity getLatestProgress() {
+    return tracerService.getLatestProgressTaskResponse();
+  }
 }

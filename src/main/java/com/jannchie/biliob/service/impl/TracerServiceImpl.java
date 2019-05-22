@@ -140,7 +140,16 @@ public class TracerServiceImpl implements TracerService {
     getWeeklyCheckIn(resultMap);
     getMonthlySignIn(resultMap);
     getRecordCount(resultMap);
+    resultMap.put("authorCrawlLength", redisOps.getAuthorQueueLength());
+    resultMap.put("videoCrawlLength", redisOps.getVideoQueueLength());
 
+    return new ResponseEntity<>(resultMap, HttpStatus.OK);
+  }
+
+  @Override
+  public ResponseEntity getLatestProgressTaskResponse() {
+    Map<String, Object> resultMap = new HashMap<>(2);
+    getLatestProgressTask(resultMap);
     return new ResponseEntity<>(resultMap, HttpStatus.OK);
   }
 
