@@ -70,16 +70,18 @@
             <version>2.7</version>
         </dependency>
 
+        <!-- https://mvnrepository.com/artifact/org.apache.shiro/shiro-all -->
         <dependency>
             <groupId>org.apache.shiro</groupId>
             <artifactId>shiro-all</artifactId>
-            <version>1.4.0</version>
+            <version>1.4.1</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.opensymphony.quartz</groupId>
                     <artifactId>quartz</artifactId>
                 </exclusion>
             </exclusions>
+            <type>pom</type>
         </dependency>
 
         <!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-data-redis -->
