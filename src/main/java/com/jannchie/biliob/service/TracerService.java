@@ -66,4 +66,11 @@ public interface TracerService {
    * @return the slice of exists task of the system.
    */
   ResponseEntity getDashboardData();
+
+  /**
+   * Get latest progress task response.
+   *
+   * @return response entity of latest progress task.
+   */
+  ResponseEntity getLatestProgressTaskResponse();
 }
