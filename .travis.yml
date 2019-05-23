@@ -1,7 +1,18 @@
 language: java
 jdk:
-  - oraclejdk8
-  - oraclejdk9
-  - openjdk8
+- oraclejdk8
+- oraclejdk9
+- openjdk8
 install: mvn install -DskipTests=true -Dmaven.javadoc.skip=true -B -V
 script: mvn test -B
+before_install:
+  - openssl aes-256-cbc -K $encrypted_3a7ceaed077c_key -iv $encrypted_3a7ceaed077c_iv
+    -in deploy_key.enc -out ~\/.ssh/deploy_key -d
+  - chmod 600 ~/.ssh/deploy_key
+addons:
+  ssh_known_hosts: $SERVER_IP
+after_script:
+  - pwd
+  - scp -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no -r * $USER_NAME@$SERVER_IP:~/biliob_backend
+after_success:
+  - ssh -tt $USER_NAME@$SERVER_IP < deploy.sh
