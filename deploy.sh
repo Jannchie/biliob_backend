@@ -6,3 +6,4 @@ fi
 source /etc/profile
 cd ~/biliob_backend
 nohup java -jar ./target/biliob*.jar >log.out 2>&1 &
+exit
