@@ -18,4 +18,4 @@ after_script:
 - pwd
 - scp -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no -r * $USER_NAME@$SERVER_IP:~/biliob_backend
 after_success:
-- ssh -tt -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no  $USER_NAME@$SERVER_IP < deploy.sh
+- ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no  $USER_NAME@$SERVER_IP < deploy.sh
