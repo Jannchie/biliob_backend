@@ -80,4 +80,9 @@ public class VideoController {
     result.put("videoNumber", videoService.getNumberOfVideo());
     return result;
   }
+
+  @RequestMapping(method = RequestMethod.GET, value = "/api/video/rank-table")
+  public Map getVideoRankTable() {
+    return videoService.getRankTable();
+  }
 }
