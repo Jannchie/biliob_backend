@@ -15,7 +15,7 @@ import java.util.Date;
 /** @author jannchie */
 @Component
 public class TracerScheduler {
-  private static final Integer DAEAD_MINUTES = -5;
+  private static final Integer DEAD_MINUTES = -5;
   private final MongoTemplate mongoTemplate;
 
   @Autowired
@@ -40,7 +40,7 @@ public class TracerScheduler {
 
   Date getDeadDate() {
     Calendar c = Calendar.getInstance();
-    c.add(Calendar.MINUTE, TracerScheduler.DAEAD_MINUTES);
+    c.add(Calendar.MINUTE, TracerScheduler.DEAD_MINUTES);
     c.add(Calendar.HOUR, 8);
     return c.getTime();
   }
