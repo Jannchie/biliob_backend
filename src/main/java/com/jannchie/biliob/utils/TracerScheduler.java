@@ -15,7 +15,7 @@ import java.util.Date;
 /** @author jannchie */
 @Component
 public class TracerScheduler {
-  private static final Integer DAEAD_MINUTES = -5;
+  private static final Integer DEAD_MINUTES = -5;
   private final MongoTemplate mongoTemplate;
 
   @Autowired
@@ -28,18 +28,14 @@ public class TracerScheduler {
     Date deadDate = getDeadDate();
     mongoTemplate.updateMulti(
         Query.query(
-            Criteria.where("update_time")
-                .lt(deadDate)
-                .orOperator(
-                    Criteria.where("status").ne(TracerStatus.FINISHED),
-                    Criteria.where("status").ne(TracerStatus.DEAD))),
+            Criteria.where("update_time").lt(deadDate).and("status").ne(TracerStatus.FINISHED)),
         Update.update("status", TracerStatus.DEAD).set("msg", "该任务已离线"),
         TracerTask.class);
   }
 
   Date getDeadDate() {
     Calendar c = Calendar.getInstance();
-    c.add(Calendar.MINUTE, TracerScheduler.DAEAD_MINUTES);
+    c.add(Calendar.MINUTE, TracerScheduler.DEAD_MINUTES);
     c.add(Calendar.HOUR, 8);
     return c.getTime();
   }
