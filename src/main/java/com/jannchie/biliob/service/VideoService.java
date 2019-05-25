@@ -8,6 +8,8 @@ import com.jannchie.biliob.utils.MySlice;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.Map;
+
 /** @author jannchie */
 @Service
 public interface VideoService {
@@ -85,4 +87,6 @@ public interface VideoService {
    * @return the number of video.
    */
   Long getNumberOfVideo();
+
+  Map getRankTable();
 }
