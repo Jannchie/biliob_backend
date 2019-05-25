@@ -73,4 +73,10 @@ public interface TracerService {
    * @return response entity of latest progress task.
    */
   ResponseEntity getLatestProgressTaskResponse();
+  /**
+   * Get latest spider task response.
+   *
+   * @return response entity of latest spider task.
+   */
+  ResponseEntity getLatestSpiderTaskResponse();
 }
