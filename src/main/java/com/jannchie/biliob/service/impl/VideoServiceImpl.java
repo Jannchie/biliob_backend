@@ -31,10 +31,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 import static com.jannchie.biliob.constant.SortEnum.PUBLISH_TIME;
 import static com.jannchie.biliob.constant.SortEnum.VIEW_COUNT;
@@ -216,5 +213,11 @@ public class VideoServiceImpl implements VideoService {
   @Override
   public Long getNumberOfVideo() {
     return mongoTemplate.count(new Query(), "video");
+  }
+
+  @Override
+  public Map getRankTable() {
+    return mongoTemplate.findOne(
+        Query.query(Criteria.where("name").is("video_rank")), Map.class, "rank_table");
   }
 }
