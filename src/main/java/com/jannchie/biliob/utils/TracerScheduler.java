@@ -28,12 +28,7 @@ public class TracerScheduler {
     Date deadDate = getDeadDate();
     mongoTemplate.updateMulti(
         Query.query(
-            Criteria.where("update_time")
-                .lt(deadDate)
-                .and("status")
-                .ne(TracerStatus.FINISHED)
-                .and("status")
-                .ne(TracerStatus.DEAD)),
+            Criteria.where("update_time").lt(deadDate).and("status").ne(TracerStatus.FINISHED)),
         Update.update("status", TracerStatus.DEAD).set("msg", "该任务已离线"),
         TracerTask.class);
   }
