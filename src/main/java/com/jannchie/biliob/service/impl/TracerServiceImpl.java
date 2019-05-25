@@ -140,8 +140,7 @@ public class TracerServiceImpl implements TracerService {
     getWeeklyCheckIn(resultMap);
     getMonthlySignIn(resultMap);
     getRecordCount(resultMap);
-    resultMap.put("authorCrawlLength", redisOps.getAuthorQueueLength());
-    resultMap.put("videoCrawlLength", redisOps.getVideoQueueLength());
+    getLatestSpiderTask(resultMap);
 
     return new ResponseEntity<>(resultMap, HttpStatus.OK);
   }
@@ -151,6 +150,23 @@ public class TracerServiceImpl implements TracerService {
     Map<String, Object> resultMap = new HashMap<>(2);
     getLatestProgressTask(resultMap);
     return new ResponseEntity<>(resultMap, HttpStatus.OK);
+  }
+
+  /**
+   * Get latest spider task response.
+   *
+   * @return response entity of latest spider task.
+   */
+  @Override
+  public ResponseEntity getLatestSpiderTaskResponse() {
+    Map<String, Object> resultMap = new HashMap<>(2);
+    getLatestSpiderTask(resultMap);
+    return new ResponseEntity<>(resultMap, HttpStatus.OK);
+  }
+
+  private void getLatestSpiderTask(Map<String, Object> resultMap) {
+    resultMap.put("authorCrawlLength", redisOps.getAuthorQueueLength());
+    resultMap.put("videoCrawlLength", redisOps.getVideoQueueLength());
   }
 
   private void getBucketUserCreditList(Map<String, Object> resultMap) {
