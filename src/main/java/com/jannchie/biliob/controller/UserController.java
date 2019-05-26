@@ -112,7 +112,7 @@ public class UserController {
   @RequestMapping(method = RequestMethod.PUT, value = "/api/user/author/{mid}/status")
   public ResponseEntity forceFocus(
       @RequestParam(defaultValue = "false") @Valid Boolean forceFocus,
-      @PathVariable("mid") @Valid Integer mid) {
+      @PathVariable("mid") @Valid Long mid) {
     return userService.forceFocus(mid, forceFocus);
   }
 

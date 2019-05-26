@@ -37,6 +37,17 @@ public abstract class AbstractCreditCalculator {
     this.mongoTemplate = mongoTemplate;
   }
 
+  private ResponseEntity checkCredit(User user, Integer value) {
+    if (user == null) {
+      return new ResponseEntity<>(
+          new Result(ResultEnum.HAS_NOT_LOGGED_IN), HttpStatus.UNAUTHORIZED);
+    } else if (value < 0 && user.getCredit() < (-value)) {
+      AbstractCreditCalculator.logger.info("用户：{},积分不足,当前积分：{}", user.getName(), user.getCredit());
+      return new ResponseEntity<>(new Result(ResultEnum.CREDIT_NOT_ENOUGH), HttpStatus.ACCEPTED);
+    } else {
+      return null;
+    }
+  }
   /**
    * Execute with an id; return user's new credit.
    *
@@ -48,45 +59,43 @@ public abstract class AbstractCreditCalculator {
   public ResponseEntity executeAndGetResponse(CreditConstant creditConstant, Long id) {
 
     User user = LoginChecker.checkInfo();
-    Integer value = creditConstant.getValue();
-    ResponseEntity r;
     HashMap<String, Integer> data;
-
-    if (user == null) {
-      r = new ResponseEntity<>(new Result(ResultEnum.HAS_NOT_LOGGED_IN), HttpStatus.UNAUTHORIZED);
-    } else if (value < 0 && user.getCredit() < (-value)) {
-      AbstractCreditCalculator.logger.info("用户：{},积分不足,当前积分：{}", user.getName(), user.getCredit());
-      r = new ResponseEntity<>(new Result(ResultEnum.CREDIT_NOT_ENOUGH), HttpStatus.ACCEPTED);
-    } else {
-
-      Integer credit = user.getCredit() + value;
-      Integer exp = user.getExp() + Math.abs(value);
-      String userName = user.getName();
-
-      // update record
-      String date = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
-      UserRecord userRecord = new UserRecord(date, creditConstant.getMsg(id), value, userName);
-      mongoTemplate.insert(userRecord, "user_record");
-      ObjectId objectId = userRecord.getId();
-
-      // execute
-      execute(id, objectId);
-
-      // update user info
-      Query query = new Query(where("name").is(userName));
-      Update update = new Update();
-      update.set("credit", credit);
-      update.set("exp", exp);
-      mongoTemplate.updateFirst(query, update, User.class);
-
-      // log
-      AbstractCreditCalculator.logger.info(
-          "用户：{} 积分变动:{} 原因:{}", user.getName(), value, creditConstant.getMsg(id));
-      data = new HashMap<>(2);
-      data.put("exp", exp);
-      data.put("credit", credit);
-      r = new ResponseEntity<>(new Result(ResultEnum.SUCCEED, data), HttpStatus.OK);
+    Integer value = creditConstant.getValue();
+    ResponseEntity r = checkCredit(user, value);
+    if (r != null) {
+      return r;
     }
+    Integer credit = user.getCredit() + value;
+    Integer exp = user.getExp() + Math.abs(value);
+    String userName = user.getName();
+
+    // update record
+    String date = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
+    UserRecord userRecord = new UserRecord(date, creditConstant.getMsg(id), value, userName);
+    mongoTemplate.insert(userRecord, "user_record");
+    ObjectId objectId = userRecord.getId();
+
+    // execute
+    ResponseEntity executeError = execute(id, objectId);
+    if (executeError != null) {
+      return executeError;
+    }
+
+    // update user info
+    Query query = new Query(where("name").is(userName));
+    Update update = new Update();
+    update.set("credit", credit);
+    update.set("exp", exp);
+    mongoTemplate.updateFirst(query, update, User.class);
+
+    // log
+    AbstractCreditCalculator.logger.info(
+        "用户：{} 积分变动:{} 原因:{}", user.getName(), value, creditConstant.getMsg(id));
+    data = new HashMap<>(2);
+    data.put("exp", exp);
+    data.put("credit", credit);
+    r = new ResponseEntity<>(new Result(ResultEnum.SUCCEED, data), HttpStatus.OK);
+
     return r;
   }
 
@@ -100,47 +109,52 @@ public abstract class AbstractCreditCalculator {
   public ResponseEntity executeAndGetResponse(CreditConstant creditConstant) {
     User user = LoginChecker.checkInfo();
     Integer value = creditConstant.getValue();
-    ResponseEntity r;
     HashMap<String, Integer> data;
 
-    if (user == null) {
-      r = new ResponseEntity<>(new Result(ResultEnum.HAS_NOT_LOGGED_IN), HttpStatus.UNAUTHORIZED);
-    } else if (value < 0 && user.getCredit() < (-value)) {
-      AbstractCreditCalculator.logger.info("用户：{},积分不足,当前积分：{}", user.getName(), user.getCredit());
-      r = new ResponseEntity<>(new Result(ResultEnum.CREDIT_NOT_ENOUGH), HttpStatus.ACCEPTED);
-    } else {
+    ResponseEntity r = checkCredit(user, value);
 
-      Integer credit = user.getCredit() + value;
-      Integer exp = user.getExp() + Math.abs(value);
-
-      String userName = user.getName();
-
-      // update record
-      String date = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
-      UserRecord userRecord = new UserRecord(date, creditConstant.getMsg(), value, userName);
-      mongoTemplate.insert(userRecord, "user_record");
-      ObjectId objectId = userRecord.getId();
-
-      // execute
-      execute(user, objectId);
-
-      // update user info
-      Query query = new Query(where("name").is(userName));
-      Update update = new Update();
-      update.set("credit", credit);
-      update.set("exp", exp);
-      mongoTemplate.updateFirst(query, update, User.class);
-
-      // log
-      AbstractCreditCalculator.logger.info(
-          "用户：{} 积分变动:{} 原因:{}", user.getName(), value, creditConstant.getMsg());
-
-      data = new HashMap<>(2);
-      data.put("exp", exp);
-      data.put("credit", credit);
-      r = new ResponseEntity<>(new Result(ResultEnum.SUCCEED, data), HttpStatus.OK);
+    if (r != null) {
+      return r;
     }
+
+    Integer credit = user.getCredit() + value;
+    Integer exp = user.getExp() + Math.abs(value);
+
+    String userName = user.getName();
+
+    // update record
+    ObjectId objectId = getObjectIdAndSaveRecord(creditConstant, value, userName);
+
+    // execute
+    ResponseEntity executeError = execute(user, objectId);
+    if (executeError != null) {
+      return executeError;
+    }
+
+    // update user info
+    Query query = new Query(where("name").is(userName));
+    Update update = new Update();
+    update.set("credit", credit);
+    update.set("exp", exp);
+    mongoTemplate.updateFirst(query, update, User.class);
+
+    // log
+    AbstractCreditCalculator.logger.info(
+        "用户：{} 积分变动:{} 原因:{}", user.getName(), value, creditConstant.getMsg());
+
+    data = new HashMap<>(2);
+    data.put("exp", exp);
+    data.put("credit", credit);
+    r = new ResponseEntity<>(new Result(ResultEnum.SUCCEED, data), HttpStatus.OK);
     return r;
+  }
+
+  private ObjectId getObjectIdAndSaveRecord(
+      CreditConstant creditConstant, Integer value, String userName) {
+    String date = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
+    UserRecord userRecord = new UserRecord(date, creditConstant.getMsg(), value, userName);
+    mongoTemplate.insert(userRecord, "user_record");
+    return userRecord.getId();
   }
 
   ResponseEntity getResponseEntity(HashMap data) {
@@ -153,7 +167,7 @@ public abstract class AbstractCreditCalculator {
    * @param id just id param
    * @param objectId Record id. The spider will use it to set record status.
    */
-  void execute(Long id, ObjectId objectId) {
+  ResponseEntity execute(Long id, ObjectId objectId) {
     throw new BusinessException(ExceptionEnum.EXECUTE_FAILURE);
   }
 
@@ -163,7 +177,15 @@ public abstract class AbstractCreditCalculator {
    * @param user just id user
    * @param objectId Record id. The spider will use it to set record status.
    */
-  void execute(User user, ObjectId objectId) {
+  ResponseEntity execute(User user, ObjectId objectId) {
     throw new BusinessException(ExceptionEnum.EXECUTE_FAILURE);
+  }
+
+  void setExecuted(ObjectId objectId) {
+    // update execute status
+    Query query = new Query(where("_id").is(objectId));
+    Update update = new Update();
+    update.set("isExecuted", true);
+    mongoTemplate.updateFirst(query, update, "user_record");
   }
 }
