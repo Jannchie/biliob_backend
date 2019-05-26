@@ -62,9 +62,98 @@ public class VideoServiceImpl implements VideoService {
   }
 
   @Override
-  public Video getVideoDetails(Long aid) {
+  public Video getAggregatedData(Long aid) {
+    Aggregation a =
+        Aggregation.newAggregation(
+            Aggregation.match(Criteria.where("aid").is(aid)),
+            Aggregation.unwind("$data"),
+            Aggregation.project()
+                .andExpression("year($data.datetime)")
+                .as("year")
+                .andExpression("month($data.datetime)")
+                .as("month")
+                .andExpression("dayOfMonth($data.datetime)")
+                .as("day")
+                .andInclude(
+                    "data",
+                    "aid",
+                    "mid",
+                    "author",
+                    "title",
+                    "focus",
+                    "forceFocus",
+                    "pic",
+                    "cCoin",
+                    "cDanmaku",
+                    "cShare",
+                    "cLike",
+                    "cFavorite",
+                    "cView",
+                    "cDatetime",
+                    "datetime",
+                    "channel",
+                    "danmakuAggregate",
+                    "subChannel"),
+            Aggregation.group(
+                    "year",
+                    "month",
+                    "day",
+                    "aid",
+                    "mid",
+                    "author",
+                    "title",
+                    "focus",
+                    "forceFocus",
+                    "pic",
+                    "cCoin",
+                    "cDanmaku",
+                    "danmakuAggregate",
+                    "cShare",
+                    "cLike",
+                    "cFavorite",
+                    "cView",
+                    "cDatetime",
+                    "datetime",
+                    "channel",
+                    "subChannel")
+                .max("data")
+                .as("data"),
+            Aggregation.group(
+                    "aid",
+                    "mid",
+                    "author",
+                    "title",
+                    "focus",
+                    "forceFocus",
+                    "pic",
+                    "cCoin",
+                    "cDanmaku",
+                    "danmakuAggregate",
+                    "cShare",
+                    "cLike",
+                    "cFavorite",
+                    "cView",
+                    "cDatetime",
+                    "datetime",
+                    "channel",
+                    "subChannel")
+                .push("data")
+                .as("data"));
+    return mongoTemplate.aggregate(a, "video", Video.class).getMappedResults().get(0);
+  }
+
+  @Override
+  public Video getVideoDetails(Long aid, Integer type) {
     VideoServiceImpl.logger.info(aid);
-    return respository.findByAid(aid);
+    Video video = new Video();
+    switch (type) {
+      case 0:
+        return respository.findByAid(aid);
+      case 1:
+        return getAggregatedData(aid);
+      default:
+        return getAggregatedData(aid);
+    }
   }
 
   @Override
