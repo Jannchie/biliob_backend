@@ -7,7 +7,6 @@ import com.jannchie.biliob.constant.RoleEnum;
 import com.jannchie.biliob.exception.UserAlreadyFavoriteAuthorException;
 import com.jannchie.biliob.exception.UserAlreadyFavoriteVideoException;
 import com.jannchie.biliob.exception.UserNotExistException;
-import com.jannchie.biliob.model.Author;
 import com.jannchie.biliob.model.Question;
 import com.jannchie.biliob.model.User;
 import com.jannchie.biliob.model.UserRecord;
@@ -18,7 +17,6 @@ import com.jannchie.biliob.utils.LoginChecker;
 import com.jannchie.biliob.utils.MySlice;
 import com.jannchie.biliob.utils.Result;
 import com.jannchie.biliob.utils.credit.*;
-import com.mongodb.BasicDBObject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.shiro.SecurityUtils;
@@ -30,7 +28,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.query.BasicQuery;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -43,8 +40,6 @@ import java.util.Objects;
 
 import static com.jannchie.biliob.constant.PageSizeEnum.BIG_SIZE;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
-import static org.springframework.data.mongodb.core.query.Query.query;
-import static org.springframework.data.mongodb.core.query.Update.update;
 
 /** @author jannchie */
 @Service
@@ -73,6 +68,8 @@ class UserServiceImpl implements UserService {
 
   private final CheckInCreditCalculator checkInCreditCalculator;
 
+  private final ForceFocusCreditCalculator forceFocusCreditCalculator;
+
   @Autowired
   public UserServiceImpl(
       CreditUtil creditUtil,
@@ -84,6 +81,7 @@ class UserServiceImpl implements UserService {
       MongoTemplate mongoTemplate,
       RefreshAuthorCreditCalculator refreshAuthorCreditCalculator,
       RefreshVideoCreditCalculator refreshVideoCreditCalculator,
+      ForceFocusCreditCalculator forceFocusCreditCalculator,
       DanmakuAggregateCreditCalculator danmakuAggregateCreditCalculator,
       CheckInCreditCalculator checkInCreditCalculator) {
     this.creditUtil = creditUtil;
@@ -94,6 +92,7 @@ class UserServiceImpl implements UserService {
     this.userRecordRepository = userRecordRepository;
     this.mongoTemplate = mongoTemplate;
     this.refreshAuthorCreditCalculator = refreshAuthorCreditCalculator;
+    this.forceFocusCreditCalculator = forceFocusCreditCalculator;
     this.refreshVideoCreditCalculator = refreshVideoCreditCalculator;
     this.danmakuAggregateCreditCalculator = danmakuAggregateCreditCalculator;
     this.checkInCreditCalculator = checkInCreditCalculator;
@@ -383,52 +382,8 @@ class UserServiceImpl implements UserService {
    * @return Force observation or cancel the force observation feedback.
    */
   @Override
-  public ResponseEntity forceFocus(Integer mid, @Valid Boolean forceFocus) {
-
-    User user = LoginChecker.checkInfo();
-
-    if (user == null) {
-      return new ResponseEntity<>(
-          new Result(ResultEnum.HAS_NOT_LOGGED_IN), HttpStatus.UNAUTHORIZED);
-    }
-
-    if (!forceFocus) {
-      // only admin can set force focus to false
-      if (Objects.equals(user.getRole(), RoleEnum.NORMAL_USER.getName())) {
-        mongoTemplate.updateFirst(
-            query(where("mid").is(mid)), update("forceFocus", forceFocus), Author.class);
-        UserServiceImpl.logger.info("用户：{}设置{}强制追踪状态为{}", user.getName(), mid, forceFocus);
-        return new ResponseEntity<>(new Result(ResultEnum.SUCCEED), HttpStatus.OK);
-      } else {
-        return new ResponseEntity<>(
-            new Result(ResultEnum.PERMISSION_DENIED), HttpStatus.UNAUTHORIZED);
-      }
-    }
-    BasicDBObject fieldsObject = new BasicDBObject();
-    BasicDBObject dbObject = new BasicDBObject();
-    dbObject.put("mid", mid);
-    fieldsObject.put("forceFocus", true);
-    Author author =
-        mongoTemplate.findOne(
-            new BasicQuery(dbObject.toJson(), fieldsObject.toJson()), Author.class);
-
-    if (author == null) {
-      return new ResponseEntity<>(new Result(ResultEnum.AUTHOR_NOT_FOUND), HttpStatus.ACCEPTED);
-    } else if (author.getForceFocus() != null && author.getForceFocus()) {
-      return new ResponseEntity<>(new Result(ResultEnum.ALREADY_FORCE_FOCUS), HttpStatus.ACCEPTED);
-    }
-
-    HashMap<String, Integer> data =
-        creditUtil.calculateCredit(user, CreditConstant.SET_FORCE_OBSERVE);
-
-    if (data.get(FieldConstant.CREDIT.getValue()) != -1) {
-      mongoTemplate.updateFirst(
-          query(where("mid").is(mid)), update("forceFocus", true), Author.class);
-      UserServiceImpl.logger.info("用户：{} 设置 {} 强制追踪状态为{}", user.getName(), mid, true);
-      return new ResponseEntity<>(new Result(ResultEnum.SUCCEED, data), HttpStatus.OK);
-    } else {
-      return new ResponseEntity<>(new Result(ResultEnum.CREDIT_NOT_ENOUGH), HttpStatus.ACCEPTED);
-    }
+  public ResponseEntity forceFocus(Long mid, @Valid Boolean forceFocus) {
+    return forceFocusCreditCalculator.executeAndGetResponse(CreditConstant.SET_FORCE_OBSERVE, mid);
   }
 
   /**
