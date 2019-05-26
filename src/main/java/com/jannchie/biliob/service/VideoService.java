@@ -18,9 +18,10 @@ public interface VideoService {
    * 获得视频详情
    *
    * @param aid 视频id
+   * @param type 0: original data; 1: aggregated by day
    * @return 视频详情
    */
-  Video getVideoDetails(Long aid);
+  Video getVideoDetails(Long aid, Integer type);
 
   /**
    * 提交一个作品追踪
@@ -88,5 +89,18 @@ public interface VideoService {
    */
   Long getNumberOfVideo();
 
+  /**
+   * gete video rank table
+   *
+   * @return the map of video rank table
+   */
   Map getRankTable();
+
+  /**
+   * get aggregated video data
+   *
+   * @param aid video id
+   * @return video
+   */
+  Video getAggregatedData(Long aid);
 }

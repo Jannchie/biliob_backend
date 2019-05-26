@@ -23,6 +23,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.Aggregation;
+import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -63,11 +65,85 @@ public class AuthorServiceImpl implements AuthorService {
   }
 
   @Override
-  public Author getAuthorDetails(Long mid) {
+  public Author getAggregatedData(Long mid) {
+    Aggregation a =
+        Aggregation.newAggregation(
+            Aggregation.match(Criteria.where("mid").is(mid)),
+            Aggregation.unwind("$data"),
+            Aggregation.project()
+                .andExpression("year($data.datetime)")
+                .as("year")
+                .andExpression("month($data.datetime)")
+                .as("month")
+                .andExpression("dayOfMonth($data.datetime)")
+                .as("day")
+                .andInclude(
+                    "data",
+                    "mid",
+                    "name",
+                    "face",
+                    "sex",
+                    "official",
+                    "level",
+                    "channels",
+                    "rank",
+                    "focus",
+                    "forceFocus",
+                    "cRate",
+                    "cFans",
+                    "cArchiveView",
+                    "cArticleView"),
+            Aggregation.group(
+                    "year",
+                    "month",
+                    "day",
+                    "mid",
+                    "name",
+                    "face",
+                    "sex",
+                    "official",
+                    "level",
+                    "channels",
+                    "rank",
+                    "focus",
+                    "forceFocus",
+                    "cRate",
+                    "cFans",
+                    "cArchiveView",
+                    "cArticleView")
+                .max("data")
+                .as("data"),
+            Aggregation.group(
+                    "mid",
+                    "name",
+                    "face",
+                    "sex",
+                    "official",
+                    "level",
+                    "channels",
+                    "rank",
+                    "focus",
+                    "forceFocus",
+                    "cRate",
+                    "cFans",
+                    "cArchiveView",
+                    "cArticleView")
+                .push("data")
+                .as("data"));
+    return mongoTemplate.aggregate(a, "author", Author.class).getMappedResults().get(0);
+  }
+
+  @Override
+  public Author getAuthorDetails(Long mid, Integer type) {
     AuthorServiceImpl.logger.info("查询mid为{}的作者详情", mid);
-    Query query = new Query(where("mid").is(mid));
-    query.fields().exclude("fansRate");
-    return mongoTemplate.findOne(query, Author.class, "author");
+    switch (type) {
+      case 1:
+        return getAggregatedData(mid);
+      default:
+        Query query = new Query(where("mid").is(mid));
+        query.fields().exclude("fansRate");
+        return mongoTemplate.findOne(query, Author.class, "author");
+    }
   }
 
   @Override
