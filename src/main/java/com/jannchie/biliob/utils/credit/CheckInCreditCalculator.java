@@ -32,7 +32,7 @@ public class CheckInCreditCalculator extends AbstractCreditCalculator {
   }
 
   @Override
-  public void execute(User user, ObjectId objectId) {
+  public ResponseEntity execute(User user, ObjectId objectId) {
     Boolean isCheckedIn =
         mongoTemplate.exists(new Query(where("name").is(user.getName())), "check_in");
     String userName = user.getName();
@@ -49,6 +49,7 @@ public class CheckInCreditCalculator extends AbstractCreditCalculator {
       update.set("isExecuted", true);
       mongoTemplate.updateFirst(query, update, "user_record");
     }
+    return null;
   }
 
   @Override

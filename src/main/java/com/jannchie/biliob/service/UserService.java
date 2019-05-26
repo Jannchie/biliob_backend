@@ -131,7 +131,7 @@ public interface UserService {
    * @param forceFocus force focus status
    * @return Force observation or cancel the force observation feedback.
    */
-  ResponseEntity forceFocus(Integer mid, @Valid Boolean forceFocus);
+  ResponseEntity forceFocus(Long mid, @Valid Boolean forceFocus);
 
   /**
    * post a question

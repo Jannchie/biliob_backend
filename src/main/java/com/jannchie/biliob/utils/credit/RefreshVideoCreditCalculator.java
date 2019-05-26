@@ -4,6 +4,7 @@ import com.jannchie.biliob.utils.RedisOps;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 /** @author jannchie */
@@ -19,7 +20,8 @@ public class RefreshVideoCreditCalculator extends AbstractCreditCalculator {
   }
 
   @Override
-  void execute(Long id, ObjectId objectId) {
+  ResponseEntity execute(Long id, ObjectId objectId) {
     redisOps.postVideoCrawlTask(id, objectId);
+    return null;
   }
 }
