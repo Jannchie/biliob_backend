@@ -113,6 +113,7 @@ public class AuthorServiceImpl implements AuthorService {
                     "cArticleView")
                 .max("data")
                 .as("data"),
+            Aggregation.sort(Sort.Direction.DESC, "year", "month", "day"),
             Aggregation.group(
                     "mid",
                     "name",
