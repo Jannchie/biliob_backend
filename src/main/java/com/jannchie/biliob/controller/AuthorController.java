@@ -25,8 +25,9 @@ public class AuthorController {
   }
 
   @RequestMapping(method = RequestMethod.GET, value = "/api/author/{mid}")
-  public Author getAuthorDetails(@PathVariable("mid") Long mid) {
-    return authorService.getAuthorDetails(mid);
+  public Author getAuthorDetails(
+      @PathVariable("mid") Long mid, @RequestParam(defaultValue = "1") Integer type) {
+    return authorService.getAuthorDetails(mid, type);
   }
 
   @RequestMapping(method = RequestMethod.POST, value = "/api/author")

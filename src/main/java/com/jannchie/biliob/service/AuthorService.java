@@ -15,10 +15,18 @@ public interface AuthorService {
    * 获取作者详情
    *
    * @param mid 作者id
+   * @param type default: get original data; 1: get aggregated data
    * @return 作者详细信息
    */
-  Author getAuthorDetails(Long mid);
+  Author getAuthorDetails(Long mid, Integer type);
 
+  /**
+   * get aggregated data of author
+   *
+   * @param mid author id
+   * @return author
+   */
+  Author getAggregatedData(Long mid);
   /**
    * 添加作者追踪
    *
