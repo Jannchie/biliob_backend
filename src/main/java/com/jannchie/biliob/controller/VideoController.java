@@ -26,8 +26,9 @@ public class VideoController {
   }
 
   @RequestMapping(method = RequestMethod.GET, value = "/api/video/{aid}")
-  public Video getVideoDetails(@PathVariable("aid") Long aid) {
-    return videoService.getVideoDetails(aid);
+  public Video getVideoDetails(
+      @PathVariable("aid") Long aid, @RequestParam(defaultValue = "1") Integer type) {
+    return videoService.getVideoDetails(aid, type);
   }
 
   @RequestMapping(method = RequestMethod.GET, value = "/api/author/{mid}/video/{aid}")
