@@ -37,7 +37,7 @@ public abstract class AbstractCreditCalculator {
     this.mongoTemplate = mongoTemplate;
   }
 
-  private ResponseEntity checkCredit(User user, Integer value) {
+  private ResponseEntity checkCredit(User user, Double value) {
     if (user == null) {
       return new ResponseEntity<>(
           new Result(ResultEnum.HAS_NOT_LOGGED_IN), HttpStatus.UNAUTHORIZED);
@@ -59,14 +59,14 @@ public abstract class AbstractCreditCalculator {
   public ResponseEntity executeAndGetResponse(CreditConstant creditConstant, Long id) {
 
     User user = LoginChecker.checkInfo();
-    HashMap<String, Integer> data;
-    Integer value = creditConstant.getValue();
+    HashMap<String, Double> data;
+    Double value = creditConstant.getValue();
     ResponseEntity r = checkCredit(user, value);
     if (r != null) {
       return r;
     }
-    Integer credit = user.getCredit() + value;
-    Integer exp = user.getExp() + Math.abs(value);
+    Double credit = user.getCredit() + value;
+    Double exp = user.getExp() + Math.abs(value);
     String userName = user.getName();
 
     // update record
@@ -108,8 +108,8 @@ public abstract class AbstractCreditCalculator {
   @Transactional(rollbackFor = {Exception.class})
   public ResponseEntity executeAndGetResponse(CreditConstant creditConstant) {
     User user = LoginChecker.checkInfo();
-    Integer value = creditConstant.getValue();
-    HashMap<String, Integer> data;
+    Double value = creditConstant.getValue();
+    HashMap<String, Double> data;
 
     ResponseEntity r = checkCredit(user, value);
 
@@ -117,8 +117,8 @@ public abstract class AbstractCreditCalculator {
       return r;
     }
 
-    Integer credit = user.getCredit() + value;
-    Integer exp = user.getExp() + Math.abs(value);
+    Double credit = user.getCredit() + value;
+    Double exp = user.getExp() + Math.abs(value);
 
     String userName = user.getName();
 
@@ -150,7 +150,7 @@ public abstract class AbstractCreditCalculator {
   }
 
   private ObjectId getObjectIdAndSaveRecord(
-      CreditConstant creditConstant, Integer value, String userName) {
+      CreditConstant creditConstant, Double value, String userName) {
     String date = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
     UserRecord userRecord = new UserRecord(date, creditConstant.getMsg(), value, userName);
     mongoTemplate.insert(userRecord, "user_record");

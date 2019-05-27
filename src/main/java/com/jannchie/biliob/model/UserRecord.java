@@ -14,12 +14,12 @@ public class UserRecord {
   private String userName;
   private String datetime;
   private String message;
-  private Integer credit;
+  private Double credit;
   private Boolean isExecuted;
 
   public UserRecord() {}
 
-  public UserRecord(String datetime, String message, Integer credit, String userName) {
+  public UserRecord(String datetime, String message, Double credit, String userName) {
     this.datetime = datetime;
     this.message = message;
     this.credit = credit;
@@ -28,7 +28,7 @@ public class UserRecord {
   }
 
   public UserRecord(
-      String datetime, String message, Integer credit, String userName, Boolean isExecuted) {
+      String datetime, String message, Double credit, String userName, Boolean isExecuted) {
     this.datetime = datetime;
     this.message = message;
     this.credit = credit;
@@ -68,11 +68,11 @@ public class UserRecord {
     this.message = message;
   }
 
-  public Integer getCredit() {
+  public Double getCredit() {
     return credit;
   }
 
-  public void setCredit(Integer credit) {
+  public void setCredit(Double credit) {
     this.credit = credit;
   }
 

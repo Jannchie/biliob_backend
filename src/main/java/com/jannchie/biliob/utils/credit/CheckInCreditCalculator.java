@@ -36,7 +36,7 @@ public class CheckInCreditCalculator extends AbstractCreditCalculator {
     Boolean isCheckedIn =
         mongoTemplate.exists(new Query(where("name").is(user.getName())), "check_in");
     String userName = user.getName();
-    Integer credit = user.getCredit();
+    Double credit = user.getCredit();
     if (isCheckedIn) {
       throw new BusinessException(ExceptionEnum.ALREADY_SIGNED);
     } else {

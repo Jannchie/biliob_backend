@@ -26,7 +26,8 @@ public enum ResultEnum {
   CREDIT_NOT_ENOUGH(-1, "积分不足"),
   ALREADY_FORCE_FOCUS(-1, "已经强制观测了该作者"),
   USER_ALREADY_EXIST(-1, "用户名已被占用"),
-  EXECUTE_FAILURE(-1, "执行失败");
+  EXECUTE_FAILURE(-1, "执行失败"),
+  AUTHOR_ALREADY_SUPPORTED(-1, "用户的应援会已建立过");
 
   private int code;
   private String msg;
