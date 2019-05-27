@@ -88,6 +88,7 @@ public class VideoServiceImpl implements VideoService {
                     "cShare",
                     "cLike",
                     "cFavorite",
+                    "tag",
                     "cView",
                     "cDatetime",
                     "datetime",
@@ -115,6 +116,7 @@ public class VideoServiceImpl implements VideoService {
                     "cDatetime",
                     "datetime",
                     "channel",
+                    "tag",
                     "subChannel")
                 .max("data")
                 .as("data"),
@@ -135,6 +137,7 @@ public class VideoServiceImpl implements VideoService {
                     "cView",
                     "cDatetime",
                     "datetime",
+                    "tag",
                     "channel",
                     "subChannel")
                 .push("data")
@@ -191,11 +194,20 @@ public class VideoServiceImpl implements VideoService {
       VideoServiceImpl.logger.info(text);
       // get text
       String[] textArray = text.split(" ");
-      MySlice<Video> mySlice =
-          new MySlice<>(
-              respository.findByKeywordContaining(
-                  textArray,
-                  PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, sortKey))));
+      MySlice<Video> mySlice;
+      if (textArray.length != 1) {
+        mySlice =
+            new MySlice<>(
+                respository.findByKeywordContaining(
+                    textArray,
+                    PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, sortKey))));
+      } else {
+        mySlice =
+            new MySlice<>(
+                respository.findByOneKeyword(
+                    textArray[0],
+                    PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, sortKey))));
+      }
       if (mySlice.getContent().isEmpty()) {
         for (String eachText : textArray) {
           HashMap<String, String> map = new HashMap<>(1);

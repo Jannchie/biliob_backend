@@ -50,7 +50,7 @@ public interface VideoRepository
   @Query(
     value = "{'aid' : ?0}",
     fields =
-        "{ 'pic' : 1, 'mid' : 1, 'author' : 1, 'channel' : 1, 'title' : 1, 'aid' : 1, 'focus':1}"
+        "{ 'pic' : 1, 'mid' : 1, 'author' : 1, 'channel' : 1, 'title' : 1, 'aid' : 1, 'focus':1, 'tag': 1}"
   )
   Slice<Video> searchByAid(@Param("aid") Long aid, Pageable pageable);
 
@@ -64,22 +64,37 @@ public interface VideoRepository
   @Query(
     value = "{$or:[{channel:{$regex:?0}},{author:{$regex:?0}},{title:{$regex:?0}}]}",
     fields =
-        "{ 'pic' : 1, 'mid' : 1, 'author' : 1, 'channel' : 1, 'title' : 1, 'aid' : 1, 'focus':1}"
+        "{ 'pic' : 1, 'mid' : 1, 'author' : 1, 'channel' : 1, 'title' : 1, 'aid' : 1, 'focus':1, 'tag': 1}"
   )
   Slice<Video> searchByText(String text, Pageable pageable);
 
   /**
-   * 通过关键字搜索视频
+   * `通过关键字列表搜索视频
    *
    * @param keyword 关键字
    * @param pageable 分页
    * @return 视频页
    */
   @Query(
+    value = "{$or:[{'tag': {'$all': ?0}},{'keyword': {'$all': ?0}}]}",
     fields =
-        "{ 'pic' : 1, 'mid' : 1, 'author' : 1, 'channel' : 1, 'title' : 1, 'aid' : 1, 'focus':1}"
+        "{ 'pic' : 1, 'mid' : 1, 'author' : 1, 'channel' : 1, 'title' : 1, 'aid' : 1, 'focus':1, 'tag': 1}"
   )
   Slice<Video> findByKeywordContaining(String[] keyword, Pageable pageable);
+
+  /**
+   * `通过关键字搜索视频
+   *
+   * @param keyword 关键字
+   * @param pageable 分页
+   * @return 视频页
+   */
+  @Query(
+    value = "{$or:[{'tag': ?0},{'keyword': ?0}]}",
+    fields =
+        "{ 'pic' : 1, 'mid' : 1, 'author' : 1, 'channel' : 1, 'title' : 1, 'aid' : 1, 'focus':1, 'tag': 1}"
+  )
+  Slice<Video> findByOneKeyword(String keyword, Pageable pageable);
 
   /**
    * 寻找Data不是空的视频
@@ -89,7 +104,7 @@ public interface VideoRepository
    */
   @Query(
     fields =
-        "{ 'pic' : 1, 'mid' : 1, 'author' : 1, 'channel' : 1, 'title' : 1, 'aid' : 1, 'focus':1}"
+        "{ 'pic' : 1, 'mid' : 1, 'author' : 1, 'channel' : 1, 'title' : 1, 'aid' : 1, 'focus':1, 'tag': 1}"
   )
   Slice<Video> findAllByDataIsNotNull(Pageable pageable);
 
@@ -130,7 +145,7 @@ public interface VideoRepository
   @Query(
     value = "{$or:?0,data:{$ne:null}}",
     fields =
-        "{ 'pic' : 1, 'mid' : 1, 'author' : 1, 'channel' : 1, 'title' : 1, 'aid' : 1, 'focus':1}"
+        "{ 'pic' : 1, 'mid' : 1, 'author' : 1, 'channel' : 1, 'title' : 1, 'aid' : 1, 'focus': 1, 'tag': 1}"
   )
   Slice getFavoriteVideo(ArrayList<HashMap<String, Long>> aids, PageRequest of);
 }
