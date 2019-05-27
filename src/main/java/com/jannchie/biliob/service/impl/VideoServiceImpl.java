@@ -151,12 +151,50 @@ public class VideoServiceImpl implements VideoService {
     Video video = new Video();
     switch (type) {
       case 0:
-        return respository.findByAid(aid);
+        video = respository.findByAid(aid);
+        break;
       case 1:
-        return getAggregatedData(aid);
+        video = getAggregatedData(aid);
+        break;
       default:
-        return getAggregatedData(aid);
+        video = getAggregatedData(aid);
     }
+    HashMap rankTable =
+        mongoTemplate.findOne(
+            Query.query(Criteria.where("name").is("video_rank")), HashMap.class, "rank_table");
+    String[] keys = {"cCoin", "cView", "cDanmaku", "cLike", "cShare", "cFavorite"};
+    HashMap<String, Object> rank = new HashMap<>(6);
+    if (rankTable != null) {
+      for (String eachKey : keys) {
+        String cKey = eachKey + "Rank";
+        HashMap map = (HashMap) rankTable.get(eachKey);
+        if (map.containsKey(video.getTitle())) {
+          rank.put(cKey, map.get(video.getTitle()));
+        } else {
+          ArrayList valueArray = (ArrayList) map.get("rate");
+          Integer cValue = video.getValue(eachKey);
+          for (Integer i = 1; i <= valueArray.size(); i++) {
+            Integer rangeBValue = (Integer) valueArray.get(i);
+            Integer rangeTValue = (Integer) valueArray.get(i - 1);
+            if (cValue > rangeBValue) {
+              String pKey = eachKey.replace('c', 'p') + "Rank";
+              rank.put(
+                  pKey,
+                  String.format(
+                      "%.2f",
+                      (float)
+                          (i - 1 + (cValue - rangeBValue) / (float) (rangeTValue - rangeBValue))));
+              break;
+            }
+          }
+        }
+      }
+      if (rankTable.containsKey("updateTime")) {
+        rank.put("updateTime", rankTable.get("updateTime"));
+      }
+      video.setRank(rank);
+    }
+    return video;
   }
 
   @Override
