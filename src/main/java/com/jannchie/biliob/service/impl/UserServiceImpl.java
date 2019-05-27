@@ -343,7 +343,7 @@ class UserServiceImpl implements UserService {
 
   private ResponseEntity<Result> getResponseForCredit(User user, ResultEnum resultEnum) {
     Integer credit;
-    HashMap<String, Integer> data = creditUtil.calculateCredit(user, CreditConstant.CHECK_IN);
+    HashMap<String, Double> data = creditUtil.calculateCredit(user, CreditConstant.CHECK_IN);
     if (data.get(FieldConstant.CREDIT.getValue()) != -1) {
       UserServiceImpl.logger.warn(
           "用户：{}，因{}发生积分变动，当前积分：{}", user.getName(), resultEnum.getMsg(), data);
@@ -400,7 +400,7 @@ class UserServiceImpl implements UserService {
           new Result(ResultEnum.HAS_NOT_LOGGED_IN), HttpStatus.UNAUTHORIZED);
     }
     String userName = user.getName();
-    HashMap<String, Integer> data = creditUtil.calculateCredit(user, CreditConstant.ASK_QUESTION);
+    HashMap<String, Double> data = creditUtil.calculateCredit(user, CreditConstant.ASK_QUESTION);
     if (data.get(FieldConstant.CREDIT.getValue()) != -1) {
       questionRepository.save(new Question(question, userName));
       UserServiceImpl.logger.info("用户：{} 提出了一个问题：{}", user.getName(), question);

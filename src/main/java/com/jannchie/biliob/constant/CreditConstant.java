@@ -12,33 +12,34 @@ public enum CreditConstant {
    * he will earn credit. REFRESH_AUTHOR_DATA: Refresh author data immediately. REFRESH_AUTHOR_DATA:
    * Refresh video data immediately.
    */
-  CHECK_IN(10, "签到"),
-  WATCH_AD(10, "点击广告"),
-  MODIFY_NAME(-50, "改名"),
-  SET_FORCE_OBSERVE(-200, "设置强制追踪"),
-  SET_STRONG_OBSERVE(-150, "设置高频率追踪一周"),
-  SET_KICHIKU_OBSERVE(-300, "设置鬼畜级频率追踪一周"),
-  ASK_QUESTION(-30, "提出问题"),
-  DONATE(100, "试图捐款"),
-  REFRESH_AUTHOR_DATA(-5, "立即刷新id为 %s 的UP主数据"),
-  REFRESH_VIDEO_DATA(-1, "立即刷新 av%s 的视频数据"),
-  DANMAKU_AGGREGATE(-10, "对 av%s 进行弹幕分析");
+  CHECK_IN(10D, "签到"),
+  WATCH_AD(10D, "点击广告"),
+  MODIFY_NAME(-50D, "改名"),
+  SET_FORCE_OBSERVE(-200D, "设置强制追踪"),
+  SET_STRONG_OBSERVE(-150D, "设置高频率追踪一周"),
+  SET_KICHIKU_OBSERVE(-300D, "设置鬼畜级频率追踪一周"),
+  ASK_QUESTION(-30D, "提出问题"),
+  DONATE(100D, "试图捐款"),
+  REFRESH_AUTHOR_DATA(-5D, "立即刷新id为 %s 的UP主数据"),
+  REFRESH_VIDEO_DATA(-1D, "立即刷新 av%s 的视频数据"),
+  DANMAKU_AGGREGATE(-10D, "对 av%s 进行弹幕分析");
 
-  private Integer value;
+  private Double value;
   private String msg;
 
-  CreditConstant(Integer value, String msg) {
+  CreditConstant(Double value, String msg) {
     this.value = value;
     this.msg = msg;
   }
 
-  CreditConstant(Integer value) {
+  CreditConstant(Double value) {
     this.value = value;
   }
 
   public String getMsg(Long d) {
     return String.format(msg, d);
   }
+
   public String getMsg() {
     return msg;
   }
@@ -47,11 +48,11 @@ public enum CreditConstant {
     this.msg = msg;
   }
 
-  public Integer getValue() {
+  public Double getValue() {
     return value;
   }
 
-  public void setValue(Integer value) {
+  public void setValue(Double value) {
     this.value = value;
   }
 }
