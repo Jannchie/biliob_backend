@@ -1,4 +1,4 @@
-package com.jannchie.biliob.utils.credit;
+package com.jannchie.biliob.utils.credit.calculator;
 
 import com.jannchie.biliob.constant.ResultEnum;
 import com.jannchie.biliob.model.Author;

@@ -4,17 +4,29 @@ package com.jannchie.biliob.constant;
 public enum CreditConstant {
   /**
    * CHECK_IN: Every eight hour, user can sign in once time. WATCH_AD: Every eight hour, user can
-   * watch ad to earn credit once time. MODIFY_NAME: User modify his username. SET_FORCE_OBSERVE:
-   * User set one video or author permanently be observed. SET_STRONG_OBSERVE: User set one video or
-   * author be observed strongly and the frequency is once an hour. SET_KICHIKU_OBSERVE: User set
-   * one video or author be observed kichiku and the frequency is once a minutes. ASK_QUESTION: User
-   * are able to ask question and I will give my answer. DONATE: If user try to donate money to me,
-   * he will earn credit. REFRESH_AUTHOR_DATA: Refresh author data immediately. REFRESH_AUTHOR_DATA:
-   * Refresh video data immediately.
+   * watch ad to earn credit once time.
+   *
+   * <p>MODIFY_NAME: User modify his username.
+   *
+   * <p>SET_FORCE_OBSERVE: User set one video or author permanently be observed.
+   *
+   * <p>SET_STRONG_OBSERVE: User set one video or author be observed strongly and the frequency is
+   * once an hour.
+   *
+   * <p>SET_KICHIKU_OBSERVE: User set one video or author be observed kichiku and the frequency is
+   * once a minutes.
+   *
+   * <p>ASK_QUESTION: User are able to ask question and I will give my answer.
+   *
+   * <p>DONATE: If user try to donate money to me, he will earn credit.
+   *
+   * <p>REFRESH_AUTHOR_DATA: Refresh author data immediately.
+   *
+   * <p>REFRESH_AUTHOR_DATA: Refresh video data immediately.
    */
   CHECK_IN(10D, "签到"),
   WATCH_AD(10D, "点击广告"),
-  MODIFY_NAME(-50D, "改名"),
+  MODIFY_NAME(-50D, "改名为 %s"),
   SET_FORCE_OBSERVE(-200D, "设置强制追踪"),
   SET_STRONG_OBSERVE(-150D, "设置高频率追踪一周"),
   SET_KICHIKU_OBSERVE(-300D, "设置鬼畜级频率追踪一周"),
@@ -54,5 +66,9 @@ public enum CreditConstant {
 
   public void setValue(Double value) {
     this.value = value;
+  }
+
+  public <T> String getMsg(T data) {
+    return String.format(msg, data);
   }
 }

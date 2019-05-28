@@ -1,4 +1,4 @@
-package com.jannchie.biliob.utils.credit;
+package com.jannchie.biliob.utils.credit.calculator;
 
 import com.jannchie.biliob.constant.CreditConstant;
 import com.jannchie.biliob.model.User;

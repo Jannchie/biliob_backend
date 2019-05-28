@@ -1,4 +1,4 @@
-package com.jannchie.biliob.utils.credit;
+package com.jannchie.biliob.utils.credit.calculator;
 
 import com.jannchie.biliob.constant.CreditConstant;
 import com.jannchie.biliob.constant.ExceptionEnum;
@@ -11,7 +11,6 @@ import com.jannchie.biliob.utils.Result;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.bson.types.ObjectId;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
@@ -27,17 +26,23 @@ import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 /** @author jannchie */
 @Component
-public abstract class AbstractCreditCalculator {
+public abstract class AbstractCreditCalculator<T> {
 
   private static final Logger logger = LogManager.getLogger(AbstractCreditCalculator.class);
   private final MongoTemplate mongoTemplate;
+  private T data;
+  private CreditConstant creditConstant;
 
-  @Autowired
   public AbstractCreditCalculator(MongoTemplate mongoTemplate) {
     this.mongoTemplate = mongoTemplate;
   }
 
-  private ResponseEntity checkCredit(User user, Double value) {
+  public AbstractCreditCalculator(MongoTemplate mongoTemplate, CreditConstant creditConstant) {
+    this.mongoTemplate = mongoTemplate;
+    this.creditConstant = creditConstant;
+  }
+
+  private ResponseEntity<Result> checkCredit(User user, Double value) {
     if (user == null) {
       return new ResponseEntity<>(
           new Result(ResultEnum.HAS_NOT_LOGGED_IN), HttpStatus.UNAUTHORIZED);
@@ -48,6 +53,7 @@ public abstract class AbstractCreditCalculator {
       return null;
     }
   }
+
   /**
    * Execute with an id; return user's new credit.
    *
@@ -57,11 +63,11 @@ public abstract class AbstractCreditCalculator {
    */
   @Transactional(rollbackFor = {Exception.class})
   public ResponseEntity executeAndGetResponse(CreditConstant creditConstant, Long id) {
-
+    this.creditConstant = creditConstant;
     User user = LoginChecker.checkInfo();
-    HashMap<String, Double> data;
     Double value = creditConstant.getValue();
-    ResponseEntity r = checkCredit(user, value);
+    ResponseEntity<Result> r = checkCredit(user, value);
+
     if (r != null) {
       return r;
     }
@@ -71,7 +77,7 @@ public abstract class AbstractCreditCalculator {
 
     // update record
     String date = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
-    UserRecord userRecord = new UserRecord(date, creditConstant.getMsg(id), value, userName);
+    UserRecord userRecord = new UserRecord(date, this.creditConstant.getMsg(id), value, userName);
     mongoTemplate.insert(userRecord, "user_record");
     ObjectId objectId = userRecord.getId();
 
@@ -82,21 +88,27 @@ public abstract class AbstractCreditCalculator {
     }
 
     // update user info
-    Query query = new Query(where("name").is(userName));
-    Update update = new Update();
-    update.set("credit", credit);
-    update.set("exp", exp);
-    mongoTemplate.updateFirst(query, update, User.class);
+    updateUserInfo(credit, exp, userName);
 
     // log
-    AbstractCreditCalculator.logger.info(
-        "用户：{} 积分变动:{} 原因:{}", user.getName(), value, creditConstant.getMsg(id));
+    log(value, user.getName(), this.creditConstant.getMsg(id));
+
+    HashMap<String, Double> data;
+
     data = new HashMap<>(2);
     data.put("exp", exp);
     data.put("credit", credit);
     r = new ResponseEntity<>(new Result(ResultEnum.SUCCEED, data), HttpStatus.OK);
 
     return r;
+  }
+
+  private void updateUserInfo(Double credit, Double exp, String userName) {
+    Query query = new Query(where("name").is(userName));
+    Update update = new Update();
+    update.set("credit", credit);
+    update.set("exp", exp);
+    mongoTemplate.updateFirst(query, update, User.class);
   }
 
   /**
@@ -107,11 +119,12 @@ public abstract class AbstractCreditCalculator {
    */
   @Transactional(rollbackFor = {Exception.class})
   public ResponseEntity executeAndGetResponse(CreditConstant creditConstant) {
+    this.creditConstant = creditConstant;
+
     User user = LoginChecker.checkInfo();
     Double value = creditConstant.getValue();
-    HashMap<String, Double> data;
 
-    ResponseEntity r = checkCredit(user, value);
+    ResponseEntity<Result> r = checkCredit(user, value);
 
     if (r != null) {
       return r;
@@ -132,15 +145,11 @@ public abstract class AbstractCreditCalculator {
     }
 
     // update user info
-    Query query = new Query(where("name").is(userName));
-    Update update = new Update();
-    update.set("credit", credit);
-    update.set("exp", exp);
-    mongoTemplate.updateFirst(query, update, User.class);
+    updateUserInfo(credit, exp, userName);
 
     // log
-    AbstractCreditCalculator.logger.info(
-        "用户：{} 积分变动:{} 原因:{}", user.getName(), value, creditConstant.getMsg());
+    log(value, user.getName(), creditConstant.getMsg());
+    HashMap<String, Double> data;
 
     data = new HashMap<>(2);
     data.put("exp", exp);
@@ -149,10 +158,60 @@ public abstract class AbstractCreditCalculator {
     return r;
   }
 
+  /**
+   * Execute without id; return user's new credit.
+   *
+   * @param data the operation value.
+   * @return The response of user's request.
+   */
+  @Transactional(rollbackFor = {Exception.class})
+  public ResponseEntity executeAndGetResponse(T data) {
+
+    User user = LoginChecker.checkInfo();
+    Double value = this.creditConstant.getValue();
+
+    ResponseEntity<Result> r = checkCredit(user, value);
+
+    if (r != null) {
+      return r;
+    }
+
+    Double credit = user.getCredit() + value;
+    Double exp = user.getExp() + Math.abs(value);
+
+    String userName = user.getName();
+
+    // update record
+    ObjectId objectId = getObjectIdAndSaveRecord(creditConstant, value, userName);
+
+    // execute
+    ResponseEntity executeError = execute(user, data, objectId);
+    if (executeError != null) {
+      return executeError;
+    }
+
+    // update user info
+    updateUserInfo(credit, exp, userName);
+
+    // log
+    log(value, user.getName(), creditConstant.getMsg(data));
+    HashMap<String, Double> result;
+
+    result = new HashMap<>(2);
+    result.put("exp", exp);
+    result.put("credit", credit);
+    r = new ResponseEntity<>(new Result(ResultEnum.SUCCEED, result), HttpStatus.OK);
+    return r;
+  }
+
+  private void log(Double value, String name, String msg) {
+    AbstractCreditCalculator.logger.info("用户：{} 积分变动:{} 原因:{}", name, value, msg);
+  }
+
   private ObjectId getObjectIdAndSaveRecord(
       CreditConstant creditConstant, Double value, String userName) {
     String date = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
-    UserRecord userRecord = new UserRecord(date, creditConstant.getMsg(), value, userName);
+    UserRecord userRecord = new UserRecord(date, creditConstant.getMsg(data), value, userName);
     mongoTemplate.insert(userRecord, "user_record");
     return userRecord.getId();
   }
@@ -178,6 +237,10 @@ public abstract class AbstractCreditCalculator {
    * @param objectId Record id. The spider will use it to set record status.
    */
   ResponseEntity execute(User user, ObjectId objectId) {
+    throw new BusinessException(ExceptionEnum.EXECUTE_FAILURE);
+  }
+
+  ResponseEntity execute(User user, T data, ObjectId objectId) {
     throw new BusinessException(ExceptionEnum.EXECUTE_FAILURE);
   }
 
