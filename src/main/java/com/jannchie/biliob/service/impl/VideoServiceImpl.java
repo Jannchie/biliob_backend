@@ -61,6 +61,35 @@ public class VideoServiceImpl implements VideoService {
     this.redisOps = redisOps;
   }
 
+  /**
+   * get popular keyword
+   *
+   * @return
+   */
+  @Override
+  public Map getPopularKeyword() {
+    Aggregation a =
+        Aggregation.newAggregation(
+            Aggregation.match(Criteria.where("aid").gt(53000000)),
+            Aggregation.project("tag", "cView")
+                .andExpression("year(datetime)")
+                .as("year")
+                .andExpression("month(datetime)")
+                .as("month")
+                .andExpression("dayOfMonth(datetime)")
+                .as("day"),
+            Aggregation.unwind("tag"),
+            Aggregation.group("year", "month", "day", "tag").sum("cView").as("totalView"),
+            Aggregation.sort(Sort.Direction.DESC, "totalView"),
+            Aggregation.group("year", "month", "day")
+                .push("tag")
+                .as("tags")
+                .push("totalView")
+                .as("totalViews"),
+            Aggregation.limit(20));
+    return mongoTemplate.aggregate(a, "video", Map.class).getMappedResults().get(0);
+  }
+
   @Override
   public Video getAggregatedData(Long aid) {
     Aggregation a =

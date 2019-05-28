@@ -103,4 +103,11 @@ public interface VideoService {
    * @return video
    */
   Video getAggregatedData(Long aid);
+
+  /**
+   * get popular keyword
+   *
+   * @return
+   */
+  Map getPopularKeyword();
 }
