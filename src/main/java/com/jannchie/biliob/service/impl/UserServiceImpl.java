@@ -12,11 +12,8 @@ import com.jannchie.biliob.model.User;
 import com.jannchie.biliob.model.UserRecord;
 import com.jannchie.biliob.repository.*;
 import com.jannchie.biliob.service.UserService;
-import com.jannchie.biliob.utils.DataReducer;
-import com.jannchie.biliob.utils.LoginChecker;
-import com.jannchie.biliob.utils.MySlice;
-import com.jannchie.biliob.utils.Result;
-import com.jannchie.biliob.utils.credit.*;
+import com.jannchie.biliob.utils.*;
+import com.jannchie.biliob.utils.credit.calculator.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.shiro.SecurityUtils;
@@ -28,6 +25,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -70,6 +68,10 @@ class UserServiceImpl implements UserService {
 
   private final ForceFocusCreditCalculator forceFocusCreditCalculator;
 
+  private final ModifyNickNameCreditCalculator modifyNickNameCreditCalculator;
+
+  private final MailUtil mailUtil;
+
   @Autowired
   public UserServiceImpl(
       CreditUtil creditUtil,
@@ -83,7 +85,9 @@ class UserServiceImpl implements UserService {
       RefreshVideoCreditCalculator refreshVideoCreditCalculator,
       ForceFocusCreditCalculator forceFocusCreditCalculator,
       DanmakuAggregateCreditCalculator danmakuAggregateCreditCalculator,
-      CheckInCreditCalculator checkInCreditCalculator) {
+      CheckInCreditCalculator checkInCreditCalculator,
+      ModifyNickNameCreditCalculator modifyNickNameCreditCalculator,
+      MailUtil mailUtil) {
     this.creditUtil = creditUtil;
     this.userRepository = userRepository;
     this.videoRepository = videoRepository;
@@ -96,17 +100,28 @@ class UserServiceImpl implements UserService {
     this.refreshVideoCreditCalculator = refreshVideoCreditCalculator;
     this.danmakuAggregateCreditCalculator = danmakuAggregateCreditCalculator;
     this.checkInCreditCalculator = checkInCreditCalculator;
+    this.modifyNickNameCreditCalculator = modifyNickNameCreditCalculator;
+    this.mailUtil = mailUtil;
   }
 
   @Override
-  public ResponseEntity createUser(String username, String password) {
+  public ResponseEntity createUser(
+      String username, String password, String mail, String activationCode) {
     User user = new User(username, password, RoleEnum.NORMAL_USER.getName());
+    // activation code unmatched
     if (1 == userRepository.countByName(user.getName())) {
       // 已存在同名
       return new ResponseEntity<>(
           new Result(ResultEnum.USER_ALREADY_EXIST), HttpStatus.BAD_REQUEST);
     }
+    if (!mailUtil.checkActivationCode(mail, activationCode)) {
+      return new ResponseEntity<>(
+          new Result(ResultEnum.ACTIVATION_CODE_UNMATCHED), HttpStatus.BAD_REQUEST);
+    }
+    user.setName(user.getName());
     user.setPassword(new Md5Hash(user.getPassword(), user.getName()).toHex());
+    user.setNickName(user.getName());
+    user.setMail(mail);
     userRepository.save(user);
     UserServiceImpl.logger.info(user.getName());
     // 不要返回密码
@@ -300,17 +315,20 @@ class UserServiceImpl implements UserService {
     return new ResponseEntity<>(new Result(ResultEnum.AUTHOR_NOT_FOUND), HttpStatus.NOT_FOUND);
   }
 
-  /**
-   * login
-   *
-   * @param user user information
-   * @return login information
-   */
   @Override
-  public ResponseEntity login(User user) {
+  public ResponseEntity login(String name, String passwd) {
+    User user =
+        mongoTemplate.findOne(
+            Query.query(
+                new Criteria()
+                    .orOperator(Criteria.where("name").is(name), Criteria.where("mail").is(name))),
+            User.class,
+            "user");
+    if (user == null) {
+      return new ResponseEntity<>(new Result(ResultEnum.LOGIN_FAILED), HttpStatus.UNAUTHORIZED);
+    }
     String inputName = user.getName();
-    String inputPassword = user.getPassword();
-    String encodedPassword = new Md5Hash(inputPassword, inputName).toHex();
+    String encodedPassword = new Md5Hash(passwd, inputName).toHex();
     Subject subject = SecurityUtils.getSubject();
 
     User tempUser = userRepository.findByName(inputName);
@@ -343,7 +361,7 @@ class UserServiceImpl implements UserService {
 
   private ResponseEntity<Result> getResponseForCredit(User user, ResultEnum resultEnum) {
     Integer credit;
-    HashMap<String, Integer> data = creditUtil.calculateCredit(user, CreditConstant.CHECK_IN);
+    HashMap<String, Double> data = creditUtil.calculateCredit(user, CreditConstant.CHECK_IN);
     if (data.get(FieldConstant.CREDIT.getValue()) != -1) {
       UserServiceImpl.logger.warn(
           "用户：{}，因{}发生积分变动，当前积分：{}", user.getName(), resultEnum.getMsg(), data);
@@ -400,7 +418,7 @@ class UserServiceImpl implements UserService {
           new Result(ResultEnum.HAS_NOT_LOGGED_IN), HttpStatus.UNAUTHORIZED);
     }
     String userName = user.getName();
-    HashMap<String, Integer> data = creditUtil.calculateCredit(user, CreditConstant.ASK_QUESTION);
+    HashMap<String, Double> data = creditUtil.calculateCredit(user, CreditConstant.ASK_QUESTION);
     if (data.get(FieldConstant.CREDIT.getValue()) != -1) {
       questionRepository.save(new Question(question, userName));
       UserServiceImpl.logger.info("用户：{} 提出了一个问题：{}", user.getName(), question);
@@ -520,5 +538,27 @@ class UserServiceImpl implements UserService {
   @Override
   public ResponseEntity authorObserveAlterFrequency(@Valid Long mid, @Valid Integer typeFlag) {
     return null;
+  }
+
+  /**
+   * modify user's name
+   *
+   * @param newUserName new user name
+   * @return operation result
+   */
+  @Override
+  public ResponseEntity modifyUserName(@Valid String newUserName) {
+    return modifyNickNameCreditCalculator.executeAndGetResponse(newUserName);
+  }
+
+  /**
+   * Get activation code
+   *
+   * @param mail user's email
+   * @return operation result
+   */
+  @Override
+  public ResponseEntity sendActivationCode(@Valid String mail) {
+    return mailUtil.sendActivationCode(mail);
   }
 }

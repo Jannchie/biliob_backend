@@ -86,4 +86,9 @@ public class VideoController {
   public Map getVideoRankTable() {
     return videoService.getRankTable();
   }
+
+  @RequestMapping(method = RequestMethod.GET, value = "/api/video/popular-keyword")
+  public Map getPopularKeyword() {
+    return videoService.getPopularKeyword();
+  }
 }

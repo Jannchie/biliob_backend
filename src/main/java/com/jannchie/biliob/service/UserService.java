@@ -22,9 +22,11 @@ public interface UserService {
    *
    * @param userName 用户名
    * @param password 密码
+   * @param mail user mail
+   * @param activationCode activation code
    * @return 创建结果
    */
-  ResponseEntity createUser(String userName, String password);
+  ResponseEntity createUser(String userName, String password, String mail, String activationCode);
 
   /**
    * 获取密码
@@ -105,10 +107,11 @@ public interface UserService {
   /**
    * login
    *
-   * @param user user information
+   * @param name user name or email
+   * @param passwd user password
    * @return login response
    */
-  ResponseEntity login(User user);
+  ResponseEntity login(String name, String passwd);
 
   /**
    * user can check in and get credit every eight hour.
@@ -207,4 +210,20 @@ public interface UserService {
    * @return operation result
    */
   ResponseEntity authorObserveAlterFrequency(@Valid Long mid, @Valid Integer typeFlag);
+
+  /**
+   * modify user's name
+   *
+   * @param newUserName new user name
+   * @return operation result
+   */
+  ResponseEntity modifyUserName(@Valid String newUserName);
+
+  /**
+   * Get activation code
+   *
+   * @param mail user's email
+   * @return operation result
+   */
+  ResponseEntity sendActivationCode(@Valid String mail);
 }

@@ -17,5 +17,14 @@ spring:
     port: 6379
     password: ${BILIOB_REDIS_PASSWD}
     timeout: 30000
+  mail:
+    host: smtp.biliob.com
+    password: ${BILIOB_MAIL_PASSWORD}
+    username: jannchie@biliob.com
+    port: 25
+    default-encoding: UTF-8
+    properties:
+      mail.smtp.socketFactory.fallback : true
+      mail.smtp.starttls.enable: true
 server:
   port: ${BILIOB_MONGO_PORT}

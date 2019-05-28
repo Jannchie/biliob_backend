@@ -61,6 +61,35 @@ public class VideoServiceImpl implements VideoService {
     this.redisOps = redisOps;
   }
 
+  /**
+   * get popular keyword
+   *
+   * @return
+   */
+  @Override
+  public Map getPopularKeyword() {
+    Aggregation a =
+        Aggregation.newAggregation(
+            Aggregation.match(Criteria.where("aid").gt(53000000)),
+            Aggregation.project("tag", "cView")
+                .andExpression("year(datetime)")
+                .as("year")
+                .andExpression("month(datetime)")
+                .as("month")
+                .andExpression("dayOfMonth(datetime)")
+                .as("day"),
+            Aggregation.unwind("tag"),
+            Aggregation.group("year", "month", "day", "tag").sum("cView").as("totalView"),
+            Aggregation.sort(Sort.Direction.DESC, "totalView"),
+            Aggregation.group("year", "month", "day")
+                .push("tag")
+                .as("tags")
+                .push("totalView")
+                .as("totalViews"),
+            Aggregation.limit(20));
+    return mongoTemplate.aggregate(a, "video", Map.class).getMappedResults().get(0);
+  }
+
   @Override
   public Video getAggregatedData(Long aid) {
     Aggregation a =
@@ -88,6 +117,7 @@ public class VideoServiceImpl implements VideoService {
                     "cShare",
                     "cLike",
                     "cFavorite",
+                    "tag",
                     "cView",
                     "cDatetime",
                     "datetime",
@@ -115,6 +145,7 @@ public class VideoServiceImpl implements VideoService {
                     "cDatetime",
                     "datetime",
                     "channel",
+                    "tag",
                     "subChannel")
                 .max("data")
                 .as("data"),
@@ -135,6 +166,7 @@ public class VideoServiceImpl implements VideoService {
                     "cView",
                     "cDatetime",
                     "datetime",
+                    "tag",
                     "channel",
                     "subChannel")
                 .push("data")
@@ -148,12 +180,50 @@ public class VideoServiceImpl implements VideoService {
     Video video = new Video();
     switch (type) {
       case 0:
-        return respository.findByAid(aid);
+        video = respository.findByAid(aid);
+        break;
       case 1:
-        return getAggregatedData(aid);
+        video = getAggregatedData(aid);
+        break;
       default:
-        return getAggregatedData(aid);
+        video = getAggregatedData(aid);
     }
+    HashMap rankTable =
+        mongoTemplate.findOne(
+            Query.query(Criteria.where("name").is("video_rank")), HashMap.class, "rank_table");
+    String[] keys = {"cCoin", "cView", "cDanmaku", "cLike", "cShare", "cFavorite"};
+    HashMap<String, Object> rank = new HashMap<>(6);
+    if (rankTable != null) {
+      for (String eachKey : keys) {
+        String cKey = eachKey + "Rank";
+        HashMap map = (HashMap) rankTable.get(eachKey);
+        if (map.containsKey(video.getTitle())) {
+          rank.put(cKey, map.get(video.getTitle()));
+        } else {
+          ArrayList valueArray = (ArrayList) map.get("rate");
+          Integer cValue = video.getValue(eachKey);
+          for (Integer i = 1; i <= valueArray.size(); i++) {
+            Integer rangeBValue = (Integer) valueArray.get(i);
+            Integer rangeTValue = (Integer) valueArray.get(i - 1);
+            if (cValue > rangeBValue) {
+              String pKey = eachKey.replace('c', 'p') + "Rank";
+              rank.put(
+                  pKey,
+                  String.format(
+                      "%.2f",
+                      (float)
+                          (i - 1 + (cValue - rangeBValue) / (float) (rangeTValue - rangeBValue))));
+              break;
+            }
+          }
+        }
+      }
+      if (rankTable.containsKey("updateTime")) {
+        rank.put("updateTime", rankTable.get("updateTime"));
+      }
+      video.setRank(rank);
+    }
+    return video;
   }
 
   @Override
@@ -191,11 +261,20 @@ public class VideoServiceImpl implements VideoService {
       VideoServiceImpl.logger.info(text);
       // get text
       String[] textArray = text.split(" ");
-      MySlice<Video> mySlice =
-          new MySlice<>(
-              respository.findByKeywordContaining(
-                  textArray,
-                  PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, sortKey))));
+      MySlice<Video> mySlice;
+      if (textArray.length != 1) {
+        mySlice =
+            new MySlice<>(
+                respository.findByKeywordContaining(
+                    textArray,
+                    PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, sortKey))));
+      } else {
+        mySlice =
+            new MySlice<>(
+                respository.findByOneKeyword(
+                    textArray[0],
+                    PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, sortKey))));
+      }
       if (mySlice.getContent().isEmpty()) {
         for (String eachText : textArray) {
           HashMap<String, String> map = new HashMap<>(1);
