@@ -3,7 +3,6 @@ package com.jannchie.biliob.controller;
 import com.jannchie.biliob.exception.UserAlreadyFavoriteAuthorException;
 import com.jannchie.biliob.exception.UserAlreadyFavoriteVideoException;
 import com.jannchie.biliob.model.Question;
-import com.jannchie.biliob.model.User;
 import com.jannchie.biliob.service.UserService;
 import com.jannchie.biliob.utils.Message;
 import org.apache.logging.log4j.LogManager;
@@ -30,9 +29,18 @@ public class UserController {
     this.userService = userService;
   }
 
+  @RequestMapping(method = RequestMethod.POST, value = "/api/user/activation-code")
+  public ResponseEntity getActivationCode(@RequestParam @Valid String mail) {
+    return userService.sendActivationCode(mail);
+  }
+
   @RequestMapping(method = RequestMethod.POST, value = "/api/user")
   public ResponseEntity createUser(@RequestBody @Valid Map<String, String> requestMap) {
-    return userService.createUser(requestMap.get("name"), requestMap.get("password"));
+    return userService.createUser(
+        requestMap.get("name"),
+        requestMap.get("password"),
+        requestMap.get("mail"),
+        requestMap.get("activationCode"));
   }
 
   @RequestMapping(method = RequestMethod.POST, value = "/api/user/author")
@@ -85,8 +93,8 @@ public class UserController {
   }
 
   @RequestMapping(method = RequestMethod.POST, value = "/api/login")
-  public ResponseEntity login(@RequestBody @Valid User user) {
-    return userService.login(user);
+  public ResponseEntity login(@RequestBody Map<String, String> map) {
+    return userService.login(map.get("name"), map.get("password"));
   }
 
   @RequestMapping(method = RequestMethod.DELETE, value = "/api/user/video/{aid}")
@@ -124,6 +132,11 @@ public class UserController {
   @RequestMapping(method = RequestMethod.PUT, value = "/api/user/author/{mid}/data")
   public ResponseEntity refreshAuthor(@PathVariable("mid") @Valid Long mid) {
     return userService.refreshAuthor(mid);
+  }
+
+  @RequestMapping(method = RequestMethod.PUT, value = "/api/user/name")
+  public ResponseEntity modifyUserName(@RequestParam(defaultValue = "") @Valid String name) {
+    return userService.modifyUserName(name);
   }
 
   @RequestMapping(method = RequestMethod.PUT, value = "/api/user/video/{aid}/data")

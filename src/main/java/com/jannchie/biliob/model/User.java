@@ -6,6 +6,7 @@ import org.bson.types.ObjectId;
 import org.hibernate.validator.constraints.Length;
 import org.springframework.data.annotation.Id;
 
+import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import java.util.ArrayList;
 
@@ -28,6 +29,14 @@ public class User {
   private Double credit;
   private Integer exp;
 
+  @NotBlank(message = "用户ID不能为空")
+  @Length(max = 16, message = "账号最长为16位")
+  private String nickName;
+
+  @Email(message = "邮箱格式错误")
+  @NotBlank(message = "邮箱不能为空")
+  private String mail;
+
   public User(String name, String password, String role) {
     this.name = name;
     this.password = password;
@@ -40,6 +49,22 @@ public class User {
     this.role = "普通用户";
     this.credit = 0D;
     this.exp = 0;
+  }
+
+  public String getMail() {
+    return mail;
+  }
+
+  public void setMail(String mail) {
+    this.mail = mail;
+  }
+
+  public String getNickName() {
+    return nickName;
+  }
+
+  public void setNickName(String nickName) {
+    this.nickName = nickName;
   }
 
   public Integer getExp() {

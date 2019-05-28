@@ -48,6 +48,8 @@ public class ShiroConfig implements EnvironmentAware {
     Map<String, String> filterChainDefinitionMap = new LinkedHashMap<>();
     // 允许发起登录请求
     filterChainDefinitionMap.put("/api/login", "anon");
+    // Allow anyone get activation code
+    filterChainDefinitionMap.put("/api/user/activation-code", "anon");
     // Allow anyone view the site information.
     filterChainDefinitionMap.put("/api/site/**", "anon");
     // Allow anyone view the event information.
