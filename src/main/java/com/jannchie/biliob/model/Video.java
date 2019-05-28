@@ -6,6 +6,7 @@ import org.springframework.data.mongodb.core.mapping.Field;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Map;
 
 /** @author jannchie */
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -21,7 +22,14 @@ public class Video {
   private Boolean focus;
   private ArrayList<Data> data;
   private ArrayList<String> keyword;
-  private Rank rank;
+  private Map rank;
+  private Integer cView;
+  private Integer cFavorite;
+  private Integer cDanmaku;
+  private Integer cCoin;
+  private Integer cShare;
+  private Integer cLike;
+
   @Field("danmaku_aggregate")
   private HashMap<Object, Object> danmakuAggregate;
 
@@ -34,156 +42,175 @@ public class Video {
     this.focus = true;
   }
 
+  public Integer getValue(String key) {
+    switch (key) {
+      case "cView":
+        return getcView();
+      case "cFavorite":
+        return getcFavorite();
+      case "cDanmaku":
+        return getcDanmaku();
+      case "cCoin":
+        return getcCoin();
+      case "cShare":
+        return getcShare();
+      case "cLike":
+        return getcLike();
+      default:
+        return null;
+    }
+  }
+
+  public Integer getcView() {
+    return cView;
+  }
+
+  public void setcView(Integer cView) {
+    this.cView = cView;
+  }
+
+  public Integer getcFavorite() {
+    return cFavorite;
+  }
+
+  public void setcFavorite(Integer cFavorite) {
+    this.cFavorite = cFavorite;
+  }
+
+  public Integer getcDanmaku() {
+    return cDanmaku;
+  }
+
+  public void setcDanmaku(Integer cDanmaku) {
+    this.cDanmaku = cDanmaku;
+  }
+
+  public Integer getcCoin() {
+    return cCoin;
+  }
+
+  public void setcCoin(Integer cCoin) {
+    this.cCoin = cCoin;
+  }
+
+  public Integer getcShare() {
+    return cShare;
+  }
+
+  public void setcShare(Integer cShare) {
+    this.cShare = cShare;
+  }
+
+  public Integer getcLike() {
+    return cLike;
+  }
+
+  public void setcLike(Integer cLike) {
+    this.cLike = cLike;
+  }
+
   public ArrayList<String> getKeyword() {
     return keyword;
   }
 
-  public Rank getRank() {
+  public void setKeyword(ArrayList<String> keyword) {
+    this.keyword = keyword;
+  }
+
+  public Map getRank() {
     return rank;
+  }
+
+  public void setRank(Map rank) {
+    this.rank = rank;
   }
 
   public Long getAid() {
     return aid;
   }
 
+  public void setAid(Long aid) {
+    this.aid = aid;
+  }
+
   public Long getMid() {
     return mid;
+  }
+
+  public void setMid(Long mid) {
+    this.mid = mid;
   }
 
   public String getTitle() {
     return title;
   }
 
+  public void setTitle(String title) {
+    this.title = title;
+  }
+
   public String getAuthor() {
     return author;
+  }
+
+  public void setAuthor(String author) {
+    this.author = author;
   }
 
   public String getChannel() {
     return channel;
   }
 
+  public void setChannel(String channel) {
+    this.channel = channel;
+  }
+
   public String getSubChannel() {
     return subChannel;
+  }
+
+  public void setSubChannel(String subChannel) {
+    this.subChannel = subChannel;
   }
 
   public String getPic() {
     return pic;
   }
 
+  public void setPic(String pic) {
+    this.pic = pic;
+  }
+
   public ArrayList<Data> getData() {
     return data;
+  }
+
+  public void setData(ArrayList<Data> data) {
+    this.data = data;
   }
 
   public Boolean getFocus() {
     return focus;
   }
 
+  public void setFocus(Boolean focus) {
+    this.focus = focus;
+  }
+
   public Date getDatetime() {
     return datetime;
+  }
+
+  public void setDatetime(Date datetime) {
+    this.datetime = datetime;
   }
 
   public HashMap<Object, Object> getDanmakuAggregate() {
     return danmakuAggregate;
   }
 
-  private static class Rank {
-    private Integer cViewRank;
-    private Integer cLikeRank;
-    private Integer cDanmakuRank;
-    private Integer cFavoriteRank;
-    private Integer cCoinRank;
-    private Integer cShareRank;
-    private Integer dViewRank;
-    private Integer dLikeRank;
-    private Integer dDanmakuRank;
-    private Integer dFavoriteRank;
-    private Integer dCoinRank;
-    private Integer dShareRank;
-    private Double pViewRank;
-    private Double pLikeRank;
-    private Double pDanmakuRank;
-    private Double pFavoriteRank;
-    private Double pCoinRank;
-    private Double pShareRank;
-    private Date updateTime;
-
-    public Rank() {}
-
-    public Double getpViewRank() {
-      return pViewRank;
-    }
-
-    public Double getpLikeRank() {
-      return pLikeRank;
-    }
-
-    public Double getpDanmakuRank() {
-      return pDanmakuRank;
-    }
-
-    public Double getpFavoriteRank() {
-      return pFavoriteRank;
-    }
-
-    public Double getpCoinRank() {
-      return pCoinRank;
-    }
-
-    public Double getpShareRank() {
-      return pShareRank;
-    }
-
-    public Integer getcViewRank() {
-      return cViewRank;
-    }
-
-    public Integer getcLikeRank() {
-      return cLikeRank;
-    }
-
-    public Integer getcDanmakuRank() {
-      return cDanmakuRank;
-    }
-
-    public Integer getcFavoriteRank() {
-      return cFavoriteRank;
-    }
-
-    public Integer getcCoinRank() {
-      return cCoinRank;
-    }
-
-    public Integer getcShareRank() {
-      return cShareRank;
-    }
-
-    public Integer getdViewRank() {
-      return dViewRank;
-    }
-
-    public Integer getdLikeRank() {
-      return dLikeRank;
-    }
-
-    public Integer getdDanmakuRank() {
-      return dDanmakuRank;
-    }
-
-    public Integer getdFavoriteRank() {
-      return dFavoriteRank;
-    }
-
-    public Integer getdCoinRank() {
-      return dCoinRank;
-    }
-
-    public Integer getdShareRank() {
-      return dShareRank;
-    }
-
-    public Date getUpdateTime() {
-      return updateTime;
-    }
+  public void setDanmakuAggregate(HashMap<Object, Object> danmakuAggregate) {
+    this.danmakuAggregate = danmakuAggregate;
   }
 
   public static class Data {

@@ -1,4 +1,4 @@
-package com.jannchie.biliob.utils.credit;
+package com.jannchie.biliob.utils.credit.calculator;
 
 import com.jannchie.biliob.constant.CreditConstant;
 import com.jannchie.biliob.model.User;
@@ -30,20 +30,20 @@ public class CreditUtil {
    *
    * @param user user information.
    * @param creditConstant the operation value.
-   * @return -1: user's credit not enough || positive integer: the credit after calculate.
+   * @return -1: user's credit not enough || positive Double: the credit after calculate.
    */
-  public HashMap<String, Integer> calculateCredit(User user, CreditConstant creditConstant) {
+  public HashMap<String, Double> calculateCredit(User user, CreditConstant creditConstant) {
 
-    Integer value = creditConstant.getValue();
-    Integer credit = user.getCredit() + value;
-    Integer exp = user.getExp() + Math.abs(value);
+    Double value = creditConstant.getValue();
+    Double credit = user.getCredit() + value;
+    Double exp = user.getExp() + Math.abs(value);
     String userName = user.getName();
 
     if (value < 0 && user.getCredit() < (-value)) {
-      logger.info("用户：{},积分不足,当前积分：{}", userName, user.getCredit());
-      HashMap<String, Integer> data = new HashMap<>(2);
+      CreditUtil.logger.info("用户：{},积分不足,当前积分：{}", userName, user.getCredit());
+      HashMap<String, Double> data = new HashMap<>(2);
       data.put("exp", exp);
-      data.put("credit", -1);
+      data.put("credit", -1D);
       return data;
     }
 
@@ -52,10 +52,10 @@ public class CreditUtil {
     update.set("credit", credit);
     update.set("exp", exp);
     mongoTemplate.updateFirst(query, update, User.class);
-    HashMap<String, Integer> data = new HashMap<>(2);
+    HashMap<String, Double> data = new HashMap<>(2);
     data.put("exp", exp);
     data.put("credit", credit);
-    logger.info("用户：{},积分变动,当前积分：{}", userName, credit);
+    CreditUtil.logger.info("用户：{},积分变动,当前积分：{}", userName, credit);
     return data;
   }
 }
