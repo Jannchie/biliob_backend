@@ -1,4 +1,4 @@
-package com.jannchie.biliob.utils.credit;
+package com.jannchie.biliob.utils.credit.calculator;
 
 import com.jannchie.biliob.utils.RedisOps;
 import org.bson.types.ObjectId;
@@ -6,24 +6,22 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 /** @author jannchie */
 @Component
-@Transactional(rollbackFor = Exception.class)
-public class RefreshAuthorCreditCalculator extends AbstractCreditCalculator {
+public class RefreshVideoCreditCalculator extends AbstractCreditCalculator {
 
   private final RedisOps redisOps;
 
   @Autowired
-  public RefreshAuthorCreditCalculator(MongoTemplate mongoTemplate, RedisOps redisOps) {
+  public RefreshVideoCreditCalculator(MongoTemplate mongoTemplate, RedisOps redisOps) {
     super(mongoTemplate);
     this.redisOps = redisOps;
   }
 
   @Override
   ResponseEntity execute(Long id, ObjectId objectId) {
-    redisOps.postAuthorCrawlTask(id, objectId);
+    redisOps.postVideoCrawlTask(id, objectId);
     return null;
   }
 }
