@@ -27,7 +27,10 @@ public enum ResultEnum {
   ALREADY_FORCE_FOCUS(-1, "已经强制观测了该作者"),
   USER_ALREADY_EXIST(-1, "用户名已被占用"),
   EXECUTE_FAILURE(-1, "执行失败"),
-  AUTHOR_ALREADY_SUPPORTED(-1, "用户的应援会已建立过");
+  AUTHOR_ALREADY_SUPPORTED(-1, "用户的应援会已建立过"),
+  ACTIVATION_CODE_UNMATCHED(-1, "验证激活码错误"),
+  MAIL_HAD_BEEN_REGISTERED(-1, "邮箱已被注册"),
+  SEND_MAIL_FAILED(-1, "发送邮件失败,可能是目标邮箱不受支持");
 
   private int code;
   private String msg;
