@@ -21,10 +21,14 @@ spring:
     host: smtp.biliob.com
     password: ${BILIOB_MAIL_PASSWORD}
     username: jannchie@biliob.com
-    port: 25
+    port: 465
     default-encoding: UTF-8
     properties:
       mail.smtp.socketFactory.fallback : true
+      mail.smtp.socketFactory.class: javax.net.ssl.SSLSocketFactory
       mail.smtp.starttls.enable: true
+      mail.smtp.auth: true
+      mail.smtp.ssl:
+        enable: true
 server:
   port: ${BILIOB_MONGO_PORT}
