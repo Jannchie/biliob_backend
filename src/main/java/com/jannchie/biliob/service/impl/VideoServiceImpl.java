@@ -90,6 +90,58 @@ public class VideoServiceImpl implements VideoService {
     return mongoTemplate.aggregate(a, "video", Map.class).getMappedResults().get(0);
   }
 
+  /**
+   * get recommend video
+   *
+   * @param data keyword of tag
+   * @return recommend video list
+   */
+  @Override
+  public List getRecommendVideoByTag(Map<String, Integer> data) {
+    Set<String> set = data.keySet();
+    Collection<Integer> values = data.values();
+    String[] keys = set.toArray(new String[0]);
+    List result = new ArrayList();
+    //    while(result.size()<= 5){
+    //      String[] selectedKey;
+    //      Integer point = 0;
+    ////      mongoTemplate.findOne(Query.query(Criteria.where("aid").in()))
+    //    }
+    return null;
+  }
+
+  /**
+   * get guest prefer keyword
+   *
+   * @param data video id visit count map
+   * @return keyword map
+   */
+  @Override
+  public Map getPreferKeyword(Map<String, Integer> data) {
+    Set<String> set = data.keySet();
+    ArrayList<Long> videoIdList = new ArrayList<Long>();
+    for (String eachKey : set) {
+      videoIdList.add(Long.valueOf(eachKey));
+    }
+    Aggregation a =
+        Aggregation.newAggregation(
+            Aggregation.match(Criteria.where("aid").in(videoIdList)),
+            Aggregation.project("tag", "aid"),
+            Aggregation.unwind("tag"),
+            Aggregation.group("tag", "aid").count().as("count"));
+    List<Map> list = mongoTemplate.aggregate(a, "video", Map.class).getMappedResults();
+    Map<String, Integer> result = new HashMap<>(10);
+    for (Map item : list) {
+      Integer tempCount = (Integer) item.get("count");
+      Integer weight = data.get(String.valueOf(item.get("aid")));
+      if (!result.containsKey(item.get("tag"))) {
+        result.put((String) item.get("tag"), 0);
+      }
+      result.put((String) item.get("tag"), result.get((item.get("tag"))) + tempCount * weight);
+    }
+    return result;
+  }
+
   @Override
   public Video getAggregatedData(Long aid) {
     Aggregation a =
