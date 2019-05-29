@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /** @author jannchie */
@@ -90,5 +91,18 @@ public class VideoController {
   @RequestMapping(method = RequestMethod.GET, value = "/api/video/popular-keyword")
   public Map getPopularKeyword() {
     return videoService.getPopularKeyword();
+  }
+
+  @RequestMapping(method = RequestMethod.POST, value = "/api/video/prefer-keyword")
+  public Map getPreferKeyword(@RequestBody Map<String, Integer> data) {
+    return videoService.getPreferKeyword(data);
+  }
+
+  @RequestMapping(method = RequestMethod.POST, value = "/api/video/recommend")
+  public List getRecommendVideo(
+      @RequestBody Map<String, Integer> data,
+      @RequestParam(defaultValue = "0") Integer page,
+      @RequestParam(defaultValue = "20") Integer pagesize) {
+    return videoService.getRecommendVideoByTag(data, page, pagesize);
   }
 }
