@@ -34,6 +34,7 @@ import org.springframework.stereotype.Service;
 import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 import static com.jannchie.biliob.constant.PageSizeEnum.BIG_SIZE;
@@ -71,6 +72,7 @@ class UserServiceImpl implements UserService {
   private final ModifyNickNameCreditCalculator modifyNickNameCreditCalculator;
 
   private final MailUtil mailUtil;
+  private final RecommendVideo recommendVideo;
 
   @Autowired
   public UserServiceImpl(
@@ -87,7 +89,8 @@ class UserServiceImpl implements UserService {
       DanmakuAggregateCreditCalculator danmakuAggregateCreditCalculator,
       CheckInCreditCalculator checkInCreditCalculator,
       ModifyNickNameCreditCalculator modifyNickNameCreditCalculator,
-      MailUtil mailUtil) {
+      MailUtil mailUtil,
+      RecommendVideo recommendVideo) {
     this.creditUtil = creditUtil;
     this.userRepository = userRepository;
     this.videoRepository = videoRepository;
@@ -102,6 +105,7 @@ class UserServiceImpl implements UserService {
     this.checkInCreditCalculator = checkInCreditCalculator;
     this.modifyNickNameCreditCalculator = modifyNickNameCreditCalculator;
     this.mailUtil = mailUtil;
+    this.recommendVideo = recommendVideo;
   }
 
   @Override
@@ -560,5 +564,30 @@ class UserServiceImpl implements UserService {
   @Override
   public ResponseEntity sendActivationCode(@Valid String mail) {
     return mailUtil.sendActivationCode(mail);
+  }
+
+  @Override
+  public Map<String, Integer> getUserPreferKeyword() {
+    User user = LoginChecker.checkInfo();
+    if (user == null) {
+      return null;
+    }
+    ArrayList<Long> aidList = user.getFavoriteAid();
+    Map<String, Integer> result = new HashMap<>(aidList.size());
+    for (Long eachAid : aidList) {
+      result.put(String.valueOf(eachAid), 1);
+    }
+    return recommendVideo.getKeyWordMapFromAidCountMap(result);
+  }
+
+  /**
+   * get user prefer video by user favorite videos
+   *
+   * @return video list
+   */
+  @Override
+  public ArrayList getUserPreferVideoByFavoriteVideo(Integer page, Integer pagesize) {
+    return recommendVideo.getRecommendVideoByTagCountMap(
+        this.getUserPreferKeyword(), page, pagesize);
   }
 }

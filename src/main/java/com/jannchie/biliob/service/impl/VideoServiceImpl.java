@@ -9,10 +9,7 @@ import com.jannchie.biliob.repository.UserRepository;
 import com.jannchie.biliob.repository.VideoRepository;
 import com.jannchie.biliob.service.UserService;
 import com.jannchie.biliob.service.VideoService;
-import com.jannchie.biliob.utils.InputInspection;
-import com.jannchie.biliob.utils.Message;
-import com.jannchie.biliob.utils.MySlice;
-import com.jannchie.biliob.utils.RedisOps;
+import com.jannchie.biliob.utils.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,6 +44,7 @@ public class VideoServiceImpl implements VideoService {
   private final VideoRepository respository;
   private final UserService userService;
   private final MongoTemplate mongoTemplate;
+  private final RecommendVideo recommendVideo;
 
   @Autowired
   public VideoServiceImpl(
@@ -54,11 +52,13 @@ public class VideoServiceImpl implements VideoService {
       UserRepository userRepository,
       UserService userService,
       MongoTemplate mongoTemplate,
-      RedisOps redisOps) {
+      RedisOps redisOps,
+      RecommendVideo recommendVideo) {
     this.respository = respository;
     this.userService = userService;
     this.mongoTemplate = mongoTemplate;
     this.redisOps = redisOps;
+    this.recommendVideo = recommendVideo;
   }
 
   /**
@@ -88,6 +88,30 @@ public class VideoServiceImpl implements VideoService {
                 .as("totalViews"),
             Aggregation.limit(20));
     return mongoTemplate.aggregate(a, "video", Map.class).getMappedResults().get(0);
+  }
+
+  /**
+   * get recommend video
+   *
+   * @param data keyword of tag
+   * @return recommend video list
+   */
+  @Override
+  public ArrayList<Video> getRecommendVideoByTag(
+      Map<String, Integer> data, Integer page, Integer pagesize) {
+    VideoServiceImpl.logger.info("从tag列表获取推荐视频");
+    return recommendVideo.getRecommendVideoByTagCountMap(data, page, pagesize);
+  }
+
+  /**
+   * get guest prefer keyword
+   *
+   * @param data id visit count map
+   * @return keyword map
+   */
+  @Override
+  public Map getPreferKeyword(Map<String, Integer> data) {
+    return recommendVideo.getKeyWordMapFromAidCountMap(data);
   }
 
   @Override
@@ -202,7 +226,7 @@ public class VideoServiceImpl implements VideoService {
         } else {
           ArrayList valueArray = (ArrayList) map.get("rate");
           Integer cValue = video.getValue(eachKey);
-          for (Integer i = 1; i <= valueArray.size(); i++) {
+          for (Integer i = 1; i < valueArray.size(); i++) {
             Integer rangeBValue = (Integer) valueArray.get(i);
             Integer rangeTValue = (Integer) valueArray.get(i - 1);
             if (cValue > rangeBValue) {

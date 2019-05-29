@@ -8,6 +8,7 @@ import com.jannchie.biliob.utils.MySlice;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Map;
 
 /** @author jannchie */
@@ -110,4 +111,23 @@ public interface VideoService {
    * @return
    */
   Map getPopularKeyword();
+
+  /**
+   * get guest prefer keyword
+   *
+   * @param data video id visit count map
+   * @return keyword map
+   */
+  Map getPreferKeyword(Map<String, Integer> data);
+
+  /**
+   * get recommend video
+   *
+   * @param data     keyword of tag
+   * @param page     page
+   * @param pagesize pagesize
+   * @return recommend video list
+   */
+  ArrayList<Video> getRecommendVideoByTag(
+      Map<String, Integer> data, Integer page, Integer pagesize);
 }
