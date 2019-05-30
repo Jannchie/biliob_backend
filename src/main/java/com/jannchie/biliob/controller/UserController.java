@@ -16,6 +16,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.ArrayList;
 import java.util.Map;
 
 /** @author jannchie */
@@ -173,5 +174,17 @@ public class UserController {
       @PathVariable("mid") @Valid Long mid,
       @RequestParam(defaultValue = "1") @Valid Integer typeFlag) {
     return userService.authorObserveAlterFrequency(mid, typeFlag);
+  }
+
+  @RequestMapping(method = RequestMethod.GET, value = "/api/user/video/keyword")
+  public Map getUserPreferKeyWord() {
+    return userService.getUserPreferKeyword();
+  }
+
+  @RequestMapping(method = RequestMethod.GET, value = "/api/user/video/recommend")
+  public ArrayList getUserPreferVideoByFavoriteVideo(
+      @RequestParam(defaultValue = "0") Integer page,
+      @RequestParam(defaultValue = "20") Integer pagesize) {
+    return userService.getUserPreferVideoByFavoriteVideo(page, pagesize);
   }
 }
