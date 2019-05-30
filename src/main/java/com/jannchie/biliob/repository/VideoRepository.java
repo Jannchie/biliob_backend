@@ -12,6 +12,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 
 /** @author jannchie */
@@ -48,9 +49,9 @@ public interface VideoRepository
    * @return 视频页
    */
   @Query(
-    value = "{'aid' : ?0}",
+      value = "{'aid' : ?0 }",
     fields =
-        "{ 'pic' : 1, 'mid' : 1, 'author' : 1, 'channel' : 1, 'title' : 1, 'aid' : 1, 'focus':1, 'tag': 1}"
+        "{ 'pic' : 1, 'mid' : 1, 'author' : 1, 'channel' : 1, 'title' : 1, 'aid' : 1, 'focus':1, 'tag': 1, 'datetime':1}"
   )
   Slice<Video> searchByAid(@Param("aid") Long aid, Pageable pageable);
 
@@ -76,7 +77,7 @@ public interface VideoRepository
    * @return 视频页
    */
   @Query(
-    value = "{$or:[{'tag': {'$all': ?0}},{'keyword': {'$all': ?0}}]}",
+      value = "{$or:[{'tag': {'$in': ?0}},{'keyword': {'$all': ?0}}]}",
     fields =
         "{ 'pic' : 1, 'mid' : 1, 'author' : 1, 'channel' : 1, 'title' : 1, 'aid' : 1, 'focus':1, 'tag': 1}"
   )
@@ -99,14 +100,40 @@ public interface VideoRepository
   /**
    * 寻找Data不是空的视频
    *
+   * @param date date
    * @param pageable 分页
    * @return 视频页
    */
   @Query(
     fields =
-        "{ 'pic' : 1, 'mid' : 1, 'author' : 1, 'channel' : 1, 'title' : 1, 'aid' : 1, 'focus':1, 'tag': 1}"
+        "{ 'pic' : 1, 'mid' : 1, 'author' : 1, 'channel' : 1, 'title' : 1, 'aid' : 1, 'focus':1, 'tag': 1, 'datetime': 1}"
+  )
+  Slice<Video> findAllByDatetimeGreaterThan(Date date, Pageable pageable);
+
+  /**
+   * 寻找Data不是空的视频
+   *
+   * @param pageable 分页
+   * @return 视频页
+   */
+  @Query(
+      fields =
+          "{ 'pic' : 1, 'mid' : 1, 'author' : 1, 'channel' : 1, 'title' : 1, 'aid' : 1, 'focus':1, 'tag': 1, 'datetime': 1}"
   )
   Slice<Video> findAllByDataIsNotNull(Pageable pageable);
+
+
+  /**
+   * 寻找所有视频
+   *
+   * @param pageable 分页
+   * @return 视频页
+   */
+  @Query(
+      fields =
+          "{ 'pic' : 1, 'mid' : 1, 'author' : 1, 'channel' : 1, 'title' : 1, 'aid' : 1, 'focus':1, 'tag': 1, 'datetime': 1}"
+  )
+  Slice<Video> findVideoBy(Pageable pageable);
 
   /**
    * 获得作者的其他视频
