@@ -9,10 +9,7 @@ import com.jannchie.biliob.repository.UserRepository;
 import com.jannchie.biliob.repository.VideoRepository;
 import com.jannchie.biliob.service.UserService;
 import com.jannchie.biliob.service.VideoService;
-import com.jannchie.biliob.utils.InputInspection;
-import com.jannchie.biliob.utils.Message;
-import com.jannchie.biliob.utils.MySlice;
-import com.jannchie.biliob.utils.RedisOps;
+import com.jannchie.biliob.utils.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,6 +44,7 @@ public class VideoServiceImpl implements VideoService {
   private final VideoRepository respository;
   private final UserService userService;
   private final MongoTemplate mongoTemplate;
+  private final RecommendVideo recommendVideo;
 
   @Autowired
   public VideoServiceImpl(
@@ -54,11 +52,13 @@ public class VideoServiceImpl implements VideoService {
       UserRepository userRepository,
       UserService userService,
       MongoTemplate mongoTemplate,
-      RedisOps redisOps) {
+      RedisOps redisOps,
+      RecommendVideo recommendVideo) {
     this.respository = respository;
     this.userService = userService;
     this.mongoTemplate = mongoTemplate;
     this.redisOps = redisOps;
+    this.recommendVideo = recommendVideo;
   }
 
   /**
@@ -97,17 +97,37 @@ public class VideoServiceImpl implements VideoService {
    * @return recommend video list
    */
   @Override
-  public List getRecommendVideoByTag(Map<String, Integer> data) {
-    Set<String> set = data.keySet();
-    Collection<Integer> values = data.values();
-    String[] keys = set.toArray(new String[0]);
-    List result = new ArrayList();
-    //    while(result.size()<= 5){
-    //      String[] selectedKey;
-    //      Integer point = 0;
-    ////      mongoTemplate.findOne(Query.query(Criteria.where("aid").in()))
-    //    }
-    return null;
+  public ArrayList<Video> getRecommendVideoByTag(
+      Map<String, Integer> data, Integer page, Integer pagesize) {
+    VideoServiceImpl.logger.info("从tag列表获取推荐视频");
+    return recommendVideo.getRecommendVideoByTagCountMap(data, page, pagesize);
+  }
+
+  /**
+   * get top online video
+   *
+   * @return top online video
+   */
+  @Override
+  public Map getTopOnlineVideo() {
+    Aggregation a =
+        Aggregation.newAggregation(
+            Aggregation.unwind("data"),
+            Aggregation.sort(Sort.Direction.DESC, "data.datetime"),
+            Aggregation.project("author", "title", "pic", "data"),
+            Aggregation.limit(20));
+    List<Map> l = mongoTemplate.aggregate(a, "video_online", Map.class).getMappedResults();
+    ArrayList<Map> arrayList = new ArrayList<>();
+    arrayList.addAll(l);
+    arrayList.sort(
+        (aMap, bMap) -> {
+          Map aData = (Map) aMap.get("data");
+          Integer aNumber = Integer.valueOf((String) aData.get("number"));
+          Map bData = (Map) bMap.get("data");
+          Integer bNumber = Integer.valueOf((String) bData.get("number"));
+          return bNumber - aNumber;
+        });
+    return arrayList.get(0);
   }
 
   /**
@@ -118,28 +138,7 @@ public class VideoServiceImpl implements VideoService {
    */
   @Override
   public Map getPreferKeyword(Map<String, Integer> data) {
-    Set<String> set = data.keySet();
-    ArrayList<Long> videoIdList = new ArrayList<Long>();
-    for (String eachKey : set) {
-      videoIdList.add(Long.valueOf(eachKey));
-    }
-    Aggregation a =
-        Aggregation.newAggregation(
-            Aggregation.match(Criteria.where("aid").in(videoIdList)),
-            Aggregation.project("tag", "aid"),
-            Aggregation.unwind("tag"),
-            Aggregation.group("tag", "aid").count().as("count"));
-    List<Map> list = mongoTemplate.aggregate(a, "video", Map.class).getMappedResults();
-    Map<String, Integer> result = new HashMap<>(10);
-    for (Map item : list) {
-      Integer tempCount = (Integer) item.get("count");
-      Integer weight = data.get(String.valueOf(item.get("aid")));
-      if (!result.containsKey(item.get("tag"))) {
-        result.put((String) item.get("tag"), 0);
-      }
-      result.put((String) item.get("tag"), result.get((item.get("tag"))) + tempCount * weight);
-    }
-    return result;
+    return recommendVideo.getKeyWordMapFromAidCountMap(data);
   }
 
   @Override
@@ -174,7 +173,7 @@ public class VideoServiceImpl implements VideoService {
                     "cDatetime",
                     "datetime",
                     "channel",
-                    "danmakuAggregate",
+                    "danmaku_aggregate",
                     "subChannel"),
             Aggregation.group(
                     "year",
@@ -189,7 +188,7 @@ public class VideoServiceImpl implements VideoService {
                     "pic",
                     "cCoin",
                     "cDanmaku",
-                    "danmakuAggregate",
+                    "danmaku_aggregate",
                     "cShare",
                     "cLike",
                     "cFavorite",
@@ -211,7 +210,6 @@ public class VideoServiceImpl implements VideoService {
                     "pic",
                     "cCoin",
                     "cDanmaku",
-                    "danmakuAggregate",
                     "cShare",
                     "cLike",
                     "cFavorite",
@@ -219,6 +217,7 @@ public class VideoServiceImpl implements VideoService {
                     "cDatetime",
                     "datetime",
                     "tag",
+                    "danmaku_aggregate",
                     "channel",
                     "subChannel")
                 .push("data")
@@ -254,7 +253,7 @@ public class VideoServiceImpl implements VideoService {
         } else {
           ArrayList valueArray = (ArrayList) map.get("rate");
           Integer cValue = video.getValue(eachKey);
-          for (Integer i = 1; i <= valueArray.size(); i++) {
+          for (Integer i = 1; i < valueArray.size(); i++) {
             Integer rangeBValue = (Integer) valueArray.get(i);
             Integer rangeTValue = (Integer) valueArray.get(i - 1);
             if (cValue > rangeBValue) {
@@ -291,13 +290,17 @@ public class VideoServiceImpl implements VideoService {
   }
 
   @Override
-  @Cacheable(value = "video_slice", key = "#aid + #text + #page + #pagesize + #sort")
+  @Cacheable(value = "video_slice", key = "#aid + #text + #page + #pagesize + #sort + #days")
   public MySlice<Video> getVideo(
-      Long aid, String text, Integer page, Integer pagesize, Integer sort) {
+      Long aid, String text, Integer page, Integer pagesize, Integer sort, Integer days) {
+
+    Calendar c = Calendar.getInstance();
+
     String sortKey = VideoSortEnum.getKeyByFlag(sort);
     if (pagesize > PageSizeEnum.BIG_SIZE.getValue()) {
       pagesize = PageSizeEnum.BIG_SIZE.getValue();
     }
+
     if (!(aid == -1)) {
       VideoServiceImpl.logger.info(aid);
       return new MySlice<>(
@@ -336,10 +339,20 @@ public class VideoServiceImpl implements VideoService {
       }
       return mySlice;
     } else {
-      VideoServiceImpl.logger.info("获取全部视频数据");
-      return new MySlice<>(
-          respository.findAllByDataIsNotNull(
-              PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, sortKey))));
+
+      if (days >= 0 && days <= 30) {
+        VideoServiceImpl.logger.info("获取指定日期内的视频数据");
+        c.add(Calendar.DATE, -days);
+        Date date = c.getTime();
+        return new MySlice<>(
+            respository.findAllByDatetimeGreaterThan(
+                date, PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, sortKey))));
+      } else {
+        VideoServiceImpl.logger.info("获取全部视频数据");
+        return new MySlice<>(
+            respository.findVideoBy(
+                PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, sortKey))));
+      }
     }
   }
 

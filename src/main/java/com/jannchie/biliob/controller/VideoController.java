@@ -60,10 +60,11 @@ public class VideoController {
   public MySlice<Video> getVideo(
       @RequestParam(defaultValue = "0") Integer page,
       @RequestParam(defaultValue = "20") Integer pageSize,
+      @RequestParam(defaultValue = "0") Integer days,
       @RequestParam(defaultValue = "-1") Long aid,
       @RequestParam(defaultValue = "") String text,
       @RequestParam(defaultValue = "0") Integer sort) {
-    return videoService.getVideo(aid, text, page, pageSize, sort);
+    return videoService.getVideo(aid, text, page, pageSize, sort, days);
   }
 
   @RequestMapping(method = RequestMethod.GET, value = "/api/video/ads")
@@ -74,6 +75,11 @@ public class VideoController {
   @RequestMapping(method = RequestMethod.GET, value = "/api/video/online")
   public ResponseEntity listOnlineVideo() {
     return videoService.listOnlineVideo();
+  }
+
+  @RequestMapping(method = RequestMethod.GET, value = "/api/video/online/top")
+  public Map getTopOnlineVideo() {
+    return videoService.getTopOnlineVideo();
   }
 
   @RequestMapping(method = RequestMethod.GET, value = "/api/video/number")
@@ -94,11 +100,16 @@ public class VideoController {
   }
 
   @RequestMapping(method = RequestMethod.POST, value = "/api/video/prefer-keyword")
-  public Map getPreferKeyword(@RequestBody Map<String,Integer>  data) {
+
+  public Map getPreferKeyword(@RequestBody Map<String, Integer> data) {
     return videoService.getPreferKeyword(data);
   }
+
   @RequestMapping(method = RequestMethod.POST, value = "/api/video/recommend")
-  public List getRecommendVideo(@RequestBody Map<String,Integer> data) {
-    return videoService.getRecommendVideoByTag(data);
+  public List getRecommendVideo(
+      @RequestBody Map<String, Integer> data,
+      @RequestParam(defaultValue = "0") Integer page,
+      @RequestParam(defaultValue = "20") Integer pagesize) {
+    return videoService.getRecommendVideoByTag(data, page, pagesize);
   }
 }

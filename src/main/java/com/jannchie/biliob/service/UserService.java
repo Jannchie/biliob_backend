@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import javax.validation.Valid;
 import java.util.ArrayList;
+import java.util.Map;
 
 /** @author jannchie */
 @Service
@@ -226,4 +227,20 @@ public interface UserService {
    * @return operation result
    */
   ResponseEntity sendActivationCode(@Valid String mail);
+
+  /**
+   * get user's prefer keywords
+   *
+   * @return map of user's prefer keywords
+   */
+  Map getUserPreferKeyword();
+
+  /**
+   * get user prefer video by user favorite videos
+   *
+   * @param page     page number
+   * @param pagesize page size
+   * @return video list
+   */
+  ArrayList getUserPreferVideoByFavoriteVideo(Integer page, Integer pagesize);
 }

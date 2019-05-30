@@ -29,6 +29,7 @@ public class Video {
   private Integer cCoin;
   private Integer cShare;
   private Integer cLike;
+  private ArrayList<String> tag;
 
   @Field("danmaku_aggregate")
   private HashMap<Object, Object> danmakuAggregate;
@@ -40,6 +41,14 @@ public class Video {
 
   public Video() {
     this.focus = true;
+  }
+
+  public ArrayList<String> getTag() {
+    return tag;
+  }
+
+  public void setTag(ArrayList<String> tag) {
+    this.tag = tag;
   }
 
   public Integer getValue(String key) {
@@ -211,6 +220,14 @@ public class Video {
 
   public void setDanmakuAggregate(HashMap<Object, Object> danmakuAggregate) {
     this.danmakuAggregate = danmakuAggregate;
+  }
+
+  public Integer getScore(Map<String, Integer> data) {
+    Integer score = 0;
+    for (String tagName : this.tag) {
+      score += data.get(tagName);
+    }
+    return score;
   }
 
   public static class Data {
