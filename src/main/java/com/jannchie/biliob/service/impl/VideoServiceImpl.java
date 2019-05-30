@@ -67,27 +67,36 @@ public class VideoServiceImpl implements VideoService {
    * @return
    */
   @Override
-  public Map getPopularKeyword() {
+  public List getPopularKeyword() {
+    VideoServiceImpl.logger.info("获取最流行的TAG列表");
+    Calendar c = Calendar.getInstance();
+    c.add(Calendar.DATE, -14);
     Aggregation a =
         Aggregation.newAggregation(
-            Aggregation.match(Criteria.where("aid").gt(53000000)),
-            Aggregation.project("tag", "cView")
-                .andExpression("year(datetime)")
-                .as("year")
-                .andExpression("month(datetime)")
-                .as("month")
-                .andExpression("dayOfMonth(datetime)")
-                .as("day"),
+            //            Aggregation.match(Criteria.where("tag").is("华为")),
+            Aggregation.match(Criteria.where("datetime").gt(c.getTime())),
+            Aggregation.project("tag", "cView", "datetime")
+                .andExpression("dayOfMonth($datetime)")
+                .as("week"),
             Aggregation.unwind("tag"),
-            Aggregation.group("year", "month", "day", "tag").sum("cView").as("totalView"),
-            Aggregation.sort(Sort.Direction.DESC, "totalView"),
-            Aggregation.group("year", "month", "day")
-                .push("tag")
-                .as("tags")
-                .push("totalView")
-                .as("totalViews"),
-            Aggregation.limit(20));
-    return mongoTemplate.aggregate(a, "video", Map.class).getMappedResults().get(0);
+            Aggregation.group("tag", "week").sum("cView").as("totalView").count().as("count"),
+            Aggregation.sort(Sort.Direction.DESC, "week"),
+            Aggregation.group("tag")
+                .first("week")
+                .as("firstWeek")
+                .last("week")
+                .as("lastWeek")
+                .first("totalView")
+                .as("firstView")
+                .last("totalView")
+                .as("lastView"),
+            Aggregation.match(Criteria.where("lastView").gt(100000)),
+            Aggregation.project("firstView", "lastView", "firstWeek", "lastWeek")
+                .andExpression("{'$divide':{'$firstView','$lastView'}}")
+                .as("delta"),
+            Aggregation.sort(Sort.Direction.DESC, "delta"),
+            Aggregation.limit(50));
+    return mongoTemplate.aggregate(a, "video", Map.class).getMappedResults();
   }
 
   /**
