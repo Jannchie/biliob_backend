@@ -104,6 +104,33 @@ public class VideoServiceImpl implements VideoService {
   }
 
   /**
+   * get top online video
+   *
+   * @return top online video
+   */
+  @Override
+  public Map getTopOnlineVideo() {
+    Aggregation a =
+        Aggregation.newAggregation(
+            Aggregation.unwind("data"),
+            Aggregation.sort(Sort.Direction.DESC, "data.datetime"),
+            Aggregation.project("author", "title", "pic", "data"),
+            Aggregation.limit(20));
+    List<Map> l = mongoTemplate.aggregate(a, "video_online", Map.class).getMappedResults();
+    ArrayList<Map> arrayList = new ArrayList<>();
+    arrayList.addAll(l);
+    arrayList.sort(
+        (aMap, bMap) -> {
+          Map aData = (Map) aMap.get("data");
+          Integer aNumber = Integer.valueOf((String) aData.get("number"));
+          Map bData = (Map) bMap.get("data");
+          Integer bNumber = Integer.valueOf((String) bData.get("number"));
+          return bNumber - aNumber;
+        });
+    return arrayList.get(0);
+  }
+
+  /**
    * get guest prefer keyword
    *
    * @param data id visit count map
@@ -263,13 +290,17 @@ public class VideoServiceImpl implements VideoService {
   }
 
   @Override
-  @Cacheable(value = "video_slice", key = "#aid + #text + #page + #pagesize + #sort")
+  @Cacheable(value = "video_slice", key = "#aid + #text + #page + #pagesize + #sort + #days")
   public MySlice<Video> getVideo(
-      Long aid, String text, Integer page, Integer pagesize, Integer sort) {
+      Long aid, String text, Integer page, Integer pagesize, Integer sort, Integer days) {
+
+    Calendar c = Calendar.getInstance();
+
     String sortKey = VideoSortEnum.getKeyByFlag(sort);
     if (pagesize > PageSizeEnum.BIG_SIZE.getValue()) {
       pagesize = PageSizeEnum.BIG_SIZE.getValue();
     }
+
     if (!(aid == -1)) {
       VideoServiceImpl.logger.info(aid);
       return new MySlice<>(
@@ -308,10 +339,20 @@ public class VideoServiceImpl implements VideoService {
       }
       return mySlice;
     } else {
-      VideoServiceImpl.logger.info("获取全部视频数据");
-      return new MySlice<>(
-          respository.findAllByDataIsNotNull(
-              PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, sortKey))));
+
+      if (days >= 0 && days <= 30) {
+        VideoServiceImpl.logger.info("获取指定日期内的视频数据");
+        c.add(Calendar.DATE, -days);
+        Date date = c.getTime();
+        return new MySlice<>(
+            respository.findAllByDatetimeGreaterThan(
+                date, PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, sortKey))));
+      } else {
+        VideoServiceImpl.logger.info("获取全部视频数据");
+        return new MySlice<>(
+            respository.findVideoBy(PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, sortKey))));
+      }
+
     }
   }
 

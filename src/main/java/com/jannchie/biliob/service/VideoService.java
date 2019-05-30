@@ -43,9 +43,10 @@ public interface VideoService {
    * @param page 页数
    * @param pagesize 页大小
    * @param sort 排序
+   * @param days days
    * @return 视频页
    */
-  MySlice<Video> getVideo(Long aid, String text, Integer page, Integer pagesize, Integer sort);
+  MySlice<Video> getVideo(Long aid, String text, Integer page, Integer pagesize, Integer sort, Integer days);
 
   /**
    * 获取作者其他视频
@@ -123,11 +124,18 @@ public interface VideoService {
   /**
    * get recommend video
    *
-   * @param data     keyword of tag
-   * @param page     page
+   * @param data keyword of tag
+   * @param page page
    * @param pagesize pagesize
    * @return recommend video list
    */
   ArrayList<Video> getRecommendVideoByTag(
       Map<String, Integer> data, Integer page, Integer pagesize);
+
+  /**
+   * get top online video
+   *
+   * @return top online video
+   */
+  Map getTopOnlineVideo();
 }
