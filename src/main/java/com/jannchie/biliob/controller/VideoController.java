@@ -95,7 +95,7 @@ public class VideoController {
   }
 
   @RequestMapping(method = RequestMethod.GET, value = "/api/video/popular-keyword")
-  public Map getPopularKeyword() {
+  public List getPopularKeyword() {
     return videoService.getPopularKeyword();
   }
 
