@@ -173,7 +173,7 @@ public class VideoServiceImpl implements VideoService {
                     "cDatetime",
                     "datetime",
                     "channel",
-                    "danmakuAggregate",
+                    "danmaku_aggregate",
                     "subChannel"),
             Aggregation.group(
                     "year",
@@ -188,7 +188,7 @@ public class VideoServiceImpl implements VideoService {
                     "pic",
                     "cCoin",
                     "cDanmaku",
-                    "danmakuAggregate",
+                    "danmaku_aggregate",
                     "cShare",
                     "cLike",
                     "cFavorite",
@@ -210,7 +210,6 @@ public class VideoServiceImpl implements VideoService {
                     "pic",
                     "cCoin",
                     "cDanmaku",
-                    "danmakuAggregate",
                     "cShare",
                     "cLike",
                     "cFavorite",
@@ -218,6 +217,7 @@ public class VideoServiceImpl implements VideoService {
                     "cDatetime",
                     "datetime",
                     "tag",
+                    "danmaku_aggregate",
                     "channel",
                     "subChannel")
                 .push("data")
@@ -350,9 +350,9 @@ public class VideoServiceImpl implements VideoService {
       } else {
         VideoServiceImpl.logger.info("获取全部视频数据");
         return new MySlice<>(
-            respository.findVideoBy(PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, sortKey))));
+            respository.findVideoBy(
+                PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, sortKey))));
       }
-
     }
   }
 
