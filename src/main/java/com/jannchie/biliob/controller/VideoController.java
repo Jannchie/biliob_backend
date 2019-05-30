@@ -100,6 +100,7 @@ public class VideoController {
   }
 
   @RequestMapping(method = RequestMethod.POST, value = "/api/video/prefer-keyword")
+
   public Map getPreferKeyword(@RequestBody Map<String, Integer> data) {
     return videoService.getPreferKeyword(data);
   }

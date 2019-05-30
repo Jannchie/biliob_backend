@@ -133,7 +133,7 @@ public class VideoServiceImpl implements VideoService {
   /**
    * get guest prefer keyword
    *
-   * @param data id visit count map
+   * @param data video id visit count map
    * @return keyword map
    */
   @Override
