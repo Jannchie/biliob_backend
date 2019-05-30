@@ -62,7 +62,7 @@ public class MailUtil {
       helper = new MimeMessageHelper(message, true);
       helper.setFrom(sender);
       helper.setTo(receiver);
-      helper.setSubject("邮件测试");
+      helper.setSubject("BiliOB观测者 - 账号激活");
       String code = String.valueOf((int) ((Math.random() * 9 + 1) * 100000));
       String temp =
           "<div style=\"margin: auto;text-align: center; color: dimgray; max-width: 800px\">\n"
@@ -82,8 +82,7 @@ public class MailUtil {
           Update.update("mail", receiver).set("code", code).set("createTime", new Date()),
           MailUtil.ACTIVATION_CODE_COLLECTION);
       mailSender.send(message);
-    } catch (MessagingException e) {
-      e.printStackTrace();
+    } catch (Exception e) {
       return new ResponseEntity<>(new Result(ResultEnum.SEND_MAIL_FAILED), HttpStatus.OK);
     }
     return new ResponseEntity<>(new Result(ResultEnum.SUCCEED), HttpStatus.OK);
