@@ -47,7 +47,8 @@ public interface VideoService {
    * @param days
    * @return 视频页
    */
-  MySlice<Video> getVideo(Long aid, String text, Integer page, Integer pagesize, Integer sort, Integer days);
+  MySlice<Video> getVideo(
+      Long aid, String text, Integer page, Integer pagesize, Integer sort, Integer days);
 
   /**
    * 获取作者其他视频
@@ -139,4 +140,11 @@ public interface VideoService {
    * @return top online video
    */
   Map getTopOnlineVideo();
+
+  /**
+   * get most popular tag
+   *
+   * @return most popular tag
+   */
+  List listMostPopularTag();
 }
