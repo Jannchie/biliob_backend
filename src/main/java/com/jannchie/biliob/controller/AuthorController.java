@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
 
 /** @author jannchie */
 @RestController
@@ -68,8 +69,21 @@ public class AuthorController {
   }
 
   @RequestMapping(method = RequestMethod.GET, value = "/api/author/real-time")
-  public ResponseEntity lisRealTime(
+  public ResponseEntity listRealTime(
       @RequestParam(defaultValue = "0") Long aMid, @RequestParam(defaultValue = "0") Long bMid) {
     return authorService.getRealTimeData(aMid, bMid);
+  }
+
+  @RequestMapping(method = RequestMethod.GET, value = "/api/author/tag")
+  public List listAuthorTag(
+      @RequestParam(defaultValue = "0") Long mid,
+      @RequestParam(defaultValue = "10") Integer limit) {
+    return authorService.listAuthorTag(mid, limit);
+  }
+
+  @RequestMapping(method = RequestMethod.GET, value = "/api/author/{mid}/relationship")
+  public List listRelateAuthor(
+      @PathVariable("mid") Long mid, @RequestParam(defaultValue = "10") Integer limit) {
+    return authorService.listRelatedAuthorByMid(mid, limit);
   }
 }
