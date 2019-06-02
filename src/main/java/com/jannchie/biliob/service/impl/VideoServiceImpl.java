@@ -70,31 +70,15 @@ public class VideoServiceImpl implements VideoService {
   public List getPopularKeyword() {
     VideoServiceImpl.logger.info("获取最流行的TAG列表");
     Calendar c = Calendar.getInstance();
-    c.add(Calendar.DATE, -14);
+    c.add(Calendar.DATE, -3);
     Aggregation a =
         Aggregation.newAggregation(
-            //            Aggregation.match(Criteria.where("tag").is("华为")),
             Aggregation.match(Criteria.where("datetime").gt(c.getTime())),
-            Aggregation.project("tag", "cView", "datetime")
-                .andExpression("dayOfMonth($datetime)")
-                .as("week"),
+            Aggregation.project("tag", "cView", "datetime"),
             Aggregation.unwind("tag"),
-            Aggregation.group("tag", "week").sum("cView").as("totalView").count().as("count"),
-            Aggregation.sort(Sort.Direction.DESC, "week"),
-            Aggregation.group("tag")
-                .first("week")
-                .as("firstWeek")
-                .last("week")
-                .as("lastWeek")
-                .first("totalView")
-                .as("firstView")
-                .last("totalView")
-                .as("lastView"),
-            Aggregation.match(Criteria.where("lastView").gt(100000)),
-            Aggregation.project("firstView", "lastView", "firstWeek", "lastWeek")
-                .andExpression("{'$divide':{'$firstView','$lastView'}}")
-                .as("delta"),
-            Aggregation.sort(Sort.Direction.DESC, "delta"),
+            Aggregation.group("tag").avg("cView").as("value").count().as("count"),
+            Aggregation.match(Criteria.where("count").gt(10)),
+            Aggregation.sort(Sort.Direction.DESC, "value"),
             Aggregation.limit(50));
     return mongoTemplate.aggregate(a, "video", Map.class).getMappedResults();
   }
@@ -461,5 +445,24 @@ public class VideoServiceImpl implements VideoService {
   public Map getRankTable() {
     return mongoTemplate.findOne(
         Query.query(Criteria.where("name").is("video_rank")), Map.class, "rank_table");
+  }
+
+  /**
+   * get most popular tag
+   *
+   * @return most popular tag
+   */
+  @Override
+  public List listMostPopularTag() {
+    return mongoTemplate
+        .aggregate(
+            Aggregation.newAggregation(
+                Aggregation.unwind("tag"),
+                Aggregation.group("tag").sum("cView").as("totalView"),
+                Aggregation.sort(Sort.Direction.DESC, "totalView"),
+                Aggregation.limit(100)),
+            "video",
+            Map.class)
+        .getMappedResults();
   }
 }

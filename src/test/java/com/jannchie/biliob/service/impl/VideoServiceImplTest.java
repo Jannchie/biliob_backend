@@ -15,6 +15,27 @@ public class VideoServiceImplTest {
   @Autowired VideoService videoService;
 
   @Test
+  public void getPopularKeyword() throws Exception {
+  }
+
+  @Test
+  public void getRecommendVideoByTag() throws Exception {
+  }
+
+  @Test
+  public void getTopOnlineVideo() throws Exception {
+  }
+
+  @Test
+  public void getPreferKeyword() throws Exception {
+  }
+
+  @Test
+  public void listMostPopularTag() throws Exception {
+//    videoService.listMostPopularTag();
+  }
+
+  @Test
   public void getAggregatedData() throws Exception {
     videoService.getAggregatedData(18089528L);
   }
