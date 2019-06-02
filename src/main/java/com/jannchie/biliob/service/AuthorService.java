@@ -7,6 +7,8 @@ import com.jannchie.biliob.utils.MySlice;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 /** @author jannchie */
 @Service
 public interface AuthorService {
@@ -87,4 +89,22 @@ public interface AuthorService {
    * @return Real time fans responseEntity
    */
   ResponseEntity getRealTimeData(Long aMid, Long bMid);
+
+  /**
+   * list author tag
+   *
+   * @param mid   author id
+   * @param limit length of result list
+   * @return tag list
+   */
+  List listAuthorTag(Long mid, Integer limit);
+
+  /**
+   * list relate author by author id
+   *
+   * @param mid   author id
+   * @param limit length of result list
+   * @return author list
+   */
+  List listRelatedAuthorByMid(Long mid, Integer limit);
 }

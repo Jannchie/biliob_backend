@@ -296,4 +296,118 @@ public class AuthorServiceImpl implements AuthorService {
   private List<RealTimeFans> listRealTimeFans(Long mid) {
     return realTimeFansRepository.findTop180ByMidOrderByDatetimeDesc(mid);
   }
+
+  /**
+   * list author tag
+   *
+   * @param mid author id
+   * @return tag list
+   */
+  @Override
+  public List<Map> listAuthorTag(Long mid, Integer limit) {
+    Aggregation a =
+        Aggregation.newAggregation(
+            Aggregation.match(Criteria.where("mid").is(mid)),
+            Aggregation.unwind("tag"),
+            Aggregation.project("tag", "cView"),
+            Aggregation.group("tag").sum("cView").as("totalView"),
+            Aggregation.sort(Sort.Direction.DESC, "totalView"),
+            Aggregation.limit(limit));
+    return mongoTemplate.aggregate(a, "video", Map.class).getMappedResults();
+  }
+
+  /**
+   * list relate author by author id
+   *
+   * @param mid author id
+   * @param limit length of result list
+   * @return author list
+   */
+  @Override
+  @Cacheable(value = "relate_author", key = "#mid + #limit")
+  public List listRelatedAuthorByMid(Long mid, Integer limit) {
+    int tagLimit = limit;
+    List<Map> tagMap = listAuthorTag(mid, 5);
+    List cList = new ArrayList<>();
+    for (Map item : tagMap) {
+      cList.add(item.get("_id"));
+    }
+    List<Map> result = new ArrayList<>();
+    Calendar c = Calendar.getInstance();
+    c.add(Calendar.MONTH, -3);
+
+    Aggregation a =
+        Aggregation.newAggregation(
+            Aggregation.match(Criteria.where("mid").is(mid)),
+            Aggregation.lookup("author", "mid", "mid", "authorDoc"),
+            Aggregation.unwind("tag"),
+            Aggregation.group("mid")
+                .count()
+                .as("count")
+                .avg("cView")
+                .as("value")
+                .last("author")
+                .as("name")
+                .addToSet("tag")
+                .as("tag")
+                .last("authorDoc.face")
+                .as("face"),
+            Aggregation.unwind("face"),
+            Aggregation.sort(Sort.Direction.DESC, "value"));
+    Map host = mongoTemplate.aggregate(a, "video", Map.class).getUniqueMappedResult();
+    while (result.size() <= 6) {
+      List hostTag = (List) (host != null ? host.get("tag") : null);
+      Aggregation b =
+          Aggregation.newAggregation(
+              Aggregation.match(
+                  Criteria.where("datetime")
+                      .gt(c.getTime())
+                      .and("tag")
+                      .all(cList)
+                      .and("mid")
+                      .ne(mid)),
+              Aggregation.limit(5000),
+              Aggregation.lookup("author", "mid", "mid", "authorDoc"),
+              Aggregation.unwind("tag"),
+              Aggregation.group("mid")
+                  .count()
+                  .as("count")
+                  .avg("cView")
+                  .as("value")
+                  .last("author")
+                  .as("name")
+                  .addToSet("tag")
+                  .as("tag")
+                  .last("authorDoc.face")
+                  .as("face"),
+              Aggregation.unwind("face"),
+              Aggregation.sort(Sort.Direction.DESC, "value"),
+              Aggregation.limit(20));
+
+      for (Map item : mongoTemplate.aggregate(b, "video", Map.class).getMappedResults()) {
+        Boolean flag = false;
+        for (Map resultItem : result) {
+          if (item.get("_id").equals(resultItem.get("_id"))) {
+            flag = true;
+          }
+        }
+        if (!flag) {
+          List<String> tempTagList = new ArrayList<>();
+          for (String tag : (List<String>) item.get("tag")) {
+            if (hostTag != null && hostTag.contains(tag)) {
+              tempTagList.add(tag);
+            }
+          }
+          item.put("tag", tempTagList);
+          result.add(item);
+        }
+      }
+      if (cList.size() <= 1) {
+        break;
+      }
+      cList.remove(cList.size() - 1);
+    }
+    result.add(host);
+    return result;
+  }
 }
