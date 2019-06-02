@@ -319,7 +319,7 @@ public class AuthorServiceImpl implements AuthorService {
   /**
    * list relate author by author id
    *
-   * @param mid   author id
+   * @param mid author id
    * @param limit length of result list
    * @return author list
    */
@@ -338,14 +338,14 @@ public class AuthorServiceImpl implements AuthorService {
 
     Aggregation a =
         Aggregation.newAggregation(
-            Aggregation.match(Criteria.where("datetime").gt(c.getTime()).and("mid").is(mid)),
+            Aggregation.match(Criteria.where("mid").is(mid)),
             Aggregation.lookup("author", "mid", "mid", "authorDoc"),
             Aggregation.unwind("tag"),
             Aggregation.group("mid")
                 .count()
                 .as("count")
-                .sum("cView")
-                .as("totalView")
+                .avg("cView")
+                .as("value")
                 .last("author")
                 .as("name")
                 .addToSet("tag")
@@ -353,21 +353,27 @@ public class AuthorServiceImpl implements AuthorService {
                 .last("authorDoc.face")
                 .as("face"),
             Aggregation.unwind("face"),
-            Aggregation.sort(Sort.Direction.DESC, "totalView"));
+            Aggregation.sort(Sort.Direction.DESC, "value"));
     Map host = mongoTemplate.aggregate(a, "video", Map.class).getUniqueMappedResult();
     while (result.size() <= 6) {
       List hostTag = (List) (host != null ? host.get("tag") : null);
       Aggregation b =
           Aggregation.newAggregation(
-              Aggregation.match(Criteria.where("datetime").gt(c.getTime()).and("tag").all(cList).and("mid").ne(mid)),
+              Aggregation.match(
+                  Criteria.where("datetime")
+                      .gt(c.getTime())
+                      .and("tag")
+                      .all(cList)
+                      .and("mid")
+                      .ne(mid)),
               Aggregation.limit(5000),
               Aggregation.lookup("author", "mid", "mid", "authorDoc"),
               Aggregation.unwind("tag"),
               Aggregation.group("mid")
                   .count()
                   .as("count")
-                  .sum("cView")
-                  .as("totalView")
+                  .avg("cView")
+                  .as("value")
                   .last("author")
                   .as("name")
                   .addToSet("tag")
@@ -375,7 +381,7 @@ public class AuthorServiceImpl implements AuthorService {
                   .last("authorDoc.face")
                   .as("face"),
               Aggregation.unwind("face"),
-              Aggregation.sort(Sort.Direction.DESC, "totalView"),
+              Aggregation.sort(Sort.Direction.DESC, "value"),
               Aggregation.limit(20));
 
       for (Map item : mongoTemplate.aggregate(b, "video", Map.class).getMappedResults()) {

@@ -76,9 +76,9 @@ public class VideoServiceImpl implements VideoService {
             Aggregation.match(Criteria.where("datetime").gt(c.getTime())),
             Aggregation.project("tag", "cView", "datetime"),
             Aggregation.unwind("tag"),
-            Aggregation.group("tag").avg("cView").as("totalView").count().as("count"),
+            Aggregation.group("tag").avg("cView").as("value").count().as("count"),
             Aggregation.match(Criteria.where("count").gt(10)),
-            Aggregation.sort(Sort.Direction.DESC, "totalView"),
+            Aggregation.sort(Sort.Direction.DESC, "value"),
             Aggregation.limit(50));
     return mongoTemplate.aggregate(a, "video", Map.class).getMappedResults();
   }
