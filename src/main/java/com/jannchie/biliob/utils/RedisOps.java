@@ -54,6 +54,11 @@ public class RedisOps {
     sentRequest(RedisOps.VIDEO_KEY, url);
   }
 
+  public void postVideoCrawlTask(String aid) {
+    String url = String.format(RedisOps.VIDEO_URL, Long.valueOf(aid), null);
+    sentRequest(RedisOps.VIDEO_KEY, url);
+  }
+
   public void postVideoCrawlTask(Long aid, ObjectId objectId) {
     String url = String.format(RedisOps.VIDEO_URL, aid, objectId);
     sentRequest(RedisOps.VIDEO_KEY, url);
@@ -66,6 +71,11 @@ public class RedisOps {
 
   public void postAuthorCrawlTask(Long mid) {
     String url = String.format(RedisOps.AUTHOR_URL, mid, null);
+    sentRequest(RedisOps.AUTHOR_KEY, url);
+  }
+
+  public void postAuthorCrawlTask(String mid) {
+    String url = String.format(RedisOps.AUTHOR_URL, Long.valueOf(mid), null);
     sentRequest(RedisOps.AUTHOR_KEY, url);
   }
 
