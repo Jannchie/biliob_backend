@@ -7,6 +7,7 @@ public enum ResultEnum {
    * item is a short description.
    */
   SUCCEED(1, "成功"),
+  EXECUTE_FAILURE(-1, "执行失败"),
   LOGIN_SUCCEED(1, "登录成功"),
   LOGIN_FAILED(-1, "登录失败"),
   HAS_NOT_LOGGED_IN(-1, "未登录"),
@@ -26,7 +27,6 @@ public enum ResultEnum {
   CREDIT_NOT_ENOUGH(-1, "积分不足"),
   ALREADY_FORCE_FOCUS(-1, "已经强制观测了该作者"),
   USER_ALREADY_EXIST(-1, "用户名已被占用"),
-  EXECUTE_FAILURE(-1, "执行失败"),
   AUTHOR_ALREADY_SUPPORTED(-1, "用户的应援会已建立过"),
   ACTIVATION_CODE_UNMATCHED(-1, "验证激活码错误"),
   MAIL_HAD_BEEN_REGISTERED(-1, "邮箱已被注册"),
