@@ -332,6 +332,9 @@ public class AuthorServiceImpl implements AuthorService {
     for (Map item : tagMap) {
       cList.add(item.get("_id"));
     }
+    if (cList.size() == 0) {
+      return cList;
+    }
     List<Map> result = new ArrayList<>();
     Calendar c = Calendar.getInstance();
     c.add(Calendar.MONTH, -3);
@@ -357,6 +360,7 @@ public class AuthorServiceImpl implements AuthorService {
     Map host = mongoTemplate.aggregate(a, "video", Map.class).getUniqueMappedResult();
     while (result.size() <= 6) {
       List hostTag = (List) (host != null ? host.get("tag") : null);
+
       Aggregation b =
           Aggregation.newAggregation(
               Aggregation.match(

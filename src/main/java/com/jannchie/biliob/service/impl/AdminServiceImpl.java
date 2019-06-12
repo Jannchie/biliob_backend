@@ -49,11 +49,11 @@ public class AdminServiceImpl implements AdminService {
   /**
    * list User
    *
-   * @param page     page
+   * @param page page
    * @param pagesize pageszie
-   * @param sort     sort
-   * @param text     text
-   * @param day      @return user list
+   * @param sort sort
+   * @param text text
+   * @param day @return user list
    */
   @Override
   public List listUser(Integer page, Integer pagesize, Integer sort, String text, Integer day) {
@@ -106,7 +106,7 @@ public class AdminServiceImpl implements AdminService {
       String groupKeyword) {
     List<AggregationOperation> aggregationOperationsList = new ArrayList<>();
     aggregationOperationsList.add(
-        Aggregation.project("name", "exp", "credit", "mail")
+        Aggregation.project("name", "exp", "credit", "mail", "role")
             .andExclude()
             .andExpression("dayOfMonth(_id)")
             .as("day")
@@ -216,6 +216,19 @@ public class AdminServiceImpl implements AdminService {
     return new ResponseEntity<>(new Result(ResultEnum.SUCCEED), HttpStatus.OK);
   }
 
+  /**
+   * 取消管理员权限
+   *
+   * @param userName 用户名
+   * @return 处理反馈
+   */
+  @Override
+  public ResponseEntity cancelUserAdminRole(@Valid String userName) {
+    mongoTemplate.updateFirst(
+        Query.query(Criteria.where("name").is(userName)), Update.update("role", "普通用户"), "user");
+    return new ResponseEntity<>(new Result(ResultEnum.SUCCEED), HttpStatus.OK);
+  }
+
   @Override
   public ResponseEntity saveSearchMethod(SearchMethod searchMethod) {
     User user = LoginChecker.checkInfo();
@@ -271,8 +284,8 @@ public class AdminServiceImpl implements AdminService {
   /**
    * 删除自定义计划任务
    *
-   * @param type  自定义计划任务类型
-   * @param name  自定义计划任务拥有者
+   * @param type 自定义计划任务类型
+   * @param name 自定义计划任务拥有者
    * @param owner 自定义计划任务
    * @return 删除结果
    */
