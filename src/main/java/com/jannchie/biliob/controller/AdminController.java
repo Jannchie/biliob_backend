@@ -36,21 +36,20 @@ public class AdminController {
     return adminService.listUser(page, pagesize, sort, text, day);
   }
 
-  @RequestMapping(method = RequestMethod.POST, value = "/api/admin/admin-role")
-  public ResponseEntity grantUserAdminRole(@RequestBody @Valid String userName) {
+  @RequestMapping(method = RequestMethod.PUT, value = "/admin/user/grant")
+  public ResponseEntity grantUserAdminRole(@RequestParam @Valid String userName) {
     return adminService.grantUserAdminRole(userName);
+  }
+
+  @RequestMapping(method = RequestMethod.PUT, value = "/admin/user/cancel")
+  public ResponseEntity cancelUserAdminRole(@RequestParam @Valid String userName) {
+    return adminService.cancelUserAdminRole(userName);
   }
 
   @RequestMapping(method = RequestMethod.POST, value = "/api/admin/author-list")
   public ResponseEntity postAuthorCrawlList(@RequestBody Map authorListData) {
     return adminService.postAuthorCrawlList(authorListData);
   }
-
-  //  @RequestMapping(method = RequestMethod.POST, value = "/api/admin/user/search-method")
-  //  public ResponseEntity saveUserSearchMethod(@RequestBody AuthorSearchMethod authorSearchMethod)
-  // {
-  //    return adminService.saveUserSearchMethod(authorSearchMethod);
-  //  }
 
   @RequestMapping(method = RequestMethod.POST, value = "/api/admin/{type}/search-method")
   public ResponseEntity saveSearchMethod(

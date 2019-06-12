@@ -15,11 +15,11 @@ public interface AdminService {
   /**
    * list User
    *
-   * @param page     page
+   * @param page page
    * @param pagesize pageszie
-   * @param sort     sort
-   * @param text     text
-   * @param day      @return user list
+   * @param sort sort
+   * @param text text
+   * @param day @return user list
    */
   List listUser(Integer page, Integer pagesize, Integer sort, String text, Integer day);
 
@@ -92,10 +92,18 @@ public interface AdminService {
   /**
    * 删除自定义计划任务
    *
-   * @param type  自定义计划任务类型
-   * @param name  自定义计划任务拥有者
+   * @param type 自定义计划任务类型
+   * @param name 自定义计划任务拥有者
    * @param owner 自定义计划任务
    * @return 删除结果
    */
   ResponseEntity deleteCustomSchedule(String type, String name, String owner);
+
+  /**
+   * 取消管理员权限
+   *
+   * @param userName 用户名
+   * @return 处理反馈
+   */
+  ResponseEntity cancelUserAdminRole(@Valid String userName);
 }
