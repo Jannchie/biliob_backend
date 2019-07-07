@@ -252,7 +252,7 @@ public class VideoServiceImpl implements VideoService {
                     for (Integer i = 1; i < valueArray.size(); i++) {
                         Integer rangeBValue = (Integer) valueArray.get(i);
                         Integer rangeTValue = (Integer) valueArray.get(i - 1);
-                        if (cValue > rangeBValue) {
+                        if (cValue != null && cValue > rangeBValue) {
                             String pKey = eachKey.replace('c', 'p') + "Rank";
                             rank.put(
                                     pKey,
