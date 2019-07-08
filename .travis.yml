@@ -16,4 +16,4 @@ after_success:
   - pwd
   - script -q /dev/stdout -c 'scp -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no -r * $USER_NAME@$SERVER_IP:~/biliob_backend'
 after_script:
-  - ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no  $USER_NAME@$SERVER_IP 'bash ~/biliob_backend/deploy.sh'
+  - ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no  $USER_NAME@$SERVER_IP:~/biliob_backend/ 'bash ./deploy.sh'
