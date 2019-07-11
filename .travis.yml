@@ -14,6 +14,7 @@ before_install:
   - chmod 600 ~/.ssh/deploy_key
 after_success:
   - pwd
+  - ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no  $USER_NAME@$SERVER_IP 'rm -rf ~/biliob_backend/*'
   - script -q /dev/stdout -c 'scp -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no -r * $USER_NAME@$SERVER_IP:~/biliob_backend'
 after_script:
   - ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no  $USER_NAME@$SERVER_IP 'bash ~/biliob_backend/deploy.sh'
