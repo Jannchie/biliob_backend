@@ -52,7 +52,7 @@ public class ShiroConfig implements EnvironmentAware {
         // 允许发起登录请求
         filterChainDefinitionMap.put("/api/login", "anon");
         // Allow anyone get activation code
-        // filterChainDefinitionMap.put("/api/user/activation-code", "anon");
+        filterChainDefinitionMap.put("/api/user/activation-code", "anon");
         // Allow anyone view the site information.
         filterChainDefinitionMap.put("/api/site/**", "anon");
         // Allow anyone view the event information.
@@ -74,7 +74,7 @@ public class ShiroConfig implements EnvironmentAware {
         // 允许用户查看tracer
         filterChainDefinitionMap.put("/api/tracer/**", "anon");
         // 允许用户查看用户信息
-        // filterChainDefinitionMap.put("/api/user/**", "roles[普通用户,管理员]");
+        filterChainDefinitionMap.put("/api/user/**", "roles[普通用户,管理员]");
         // 管理员，需要角色权限 “admin”
         filterChainDefinitionMap.put("/api/admin/**", "roles[管理员]");
         // 管理员，需要角色权限 “admin”
