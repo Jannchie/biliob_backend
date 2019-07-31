@@ -51,6 +51,8 @@ public class ShiroConfig implements EnvironmentAware {
         Map<String, String> filterChainDefinitionMap = new LinkedHashMap<>();
         // 允许发起登录请求
         filterChainDefinitionMap.put("/api/login", "anon");
+        // 允许发起注册请求
+        filterChainDefinitionMap.put("/api/user", "anon");
         // Allow anyone get activation code
         filterChainDefinitionMap.put("/api/user/activation-code", "anon");
         // Allow anyone view the site information.
@@ -67,8 +69,6 @@ public class ShiroConfig implements EnvironmentAware {
         filterChainDefinitionMap.put("/api/author/**", "anon");
         // 允许随意查看video信息
         filterChainDefinitionMap.put("/api/video/**", "anon");
-        // 允许发起注册请求
-        filterChainDefinitionMap.put("/api/user", "anon");
         // Allow anyone view the handled questions.
         filterChainDefinitionMap.put("/api/question/handled", "anon");
         // 允许用户查看tracer
