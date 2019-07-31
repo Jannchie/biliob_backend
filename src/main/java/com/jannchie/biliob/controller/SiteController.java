@@ -18,35 +18,40 @@ import java.util.Map;
 @RestController
 public class SiteController {
 
-  private final SiteService siteService;
+    private final SiteService siteService;
 
-  @Autowired
-  public SiteController(SiteService siteService) {
-    this.siteService = siteService;
-  }
+    @Autowired
+    public SiteController(SiteService siteService) {
+        this.siteService = siteService;
+    }
 
-  @RequestMapping(method = RequestMethod.GET, value = "/api/site")
-  public ResponseEntity listOnline(@RequestParam(defaultValue = "1") Integer days) {
-    return siteService.listOnline(days);
-  }
+    @RequestMapping(method = RequestMethod.GET, value = "/api/site")
+    public ResponseEntity listOnline(@RequestParam(defaultValue = "1") Integer days) {
+        return siteService.listOnline(days);
+    }
 
-  @RequestMapping(method = RequestMethod.GET, value = "/api/site/count")
-  public Map getBiliOBCount() {
-    return siteService.getBiliOBCounter();
-  }
+    @RequestMapping(method = RequestMethod.GET, value = "/api/site/group")
+    public ResponseEntity getGroupedOnlineData() {
+        return siteService.getGroupedOnlineData();
+    }
 
-  @RequestMapping(method = RequestMethod.GET, value = "/api/site/video/count")
-  public Map getVideoCount() {
-    return siteService.getVideoCount();
-  }
+    @RequestMapping(method = RequestMethod.GET, value = "/api/site/count")
+    public Map getBiliOBCount() {
+        return siteService.getBiliOBCounter();
+    }
 
-  @RequestMapping(method = RequestMethod.GET, value = "/api/site/author/count")
-  public Map getAuthorCount() {
-    return siteService.getAuthorCount();
-  }
+    @RequestMapping(method = RequestMethod.GET, value = "/api/site/video/count")
+    public Map getVideoCount() {
+        return siteService.getVideoCount();
+    }
 
-  @RequestMapping(method = RequestMethod.GET, value = "/api/site/user/count")
-  public Map getUserCount() {
-    return siteService.getUserCount();
-  }
+    @RequestMapping(method = RequestMethod.GET, value = "/api/site/author/count")
+    public Map getAuthorCount() {
+        return siteService.getAuthorCount();
+    }
+
+    @RequestMapping(method = RequestMethod.GET, value = "/api/site/user/count")
+    public Map getUserCount() {
+        return siteService.getUserCount();
+    }
 }
