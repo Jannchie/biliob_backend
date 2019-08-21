@@ -240,6 +240,11 @@ public class VideoServiceImpl implements VideoService {
                         Query.query(Criteria.where("name").is("video_rank")), HashMap.class, "rank_table");
         String[] keys = {"cCoin", "cView", "cDanmaku", "cLike", "cShare", "cFavorite"};
         HashMap<String, Object> rank = new HashMap<>(6);
+
+
+        video.setRank(rank);
+        Long number = mongoTemplate.count(Query.query(Criteria.where("cCoin").gt(video.getValue("cCoin"))), "video");
+        System.out.println(number);
         if (rankTable != null) {
             for (String eachKey : keys) {
                 String cKey = eachKey + "Rank";
@@ -252,22 +257,26 @@ public class VideoServiceImpl implements VideoService {
                     for (Integer i = 1; i < valueArray.size(); i++) {
                         Integer rangeBValue = (Integer) valueArray.get(i);
                         Integer rangeTValue = (Integer) valueArray.get(i - 1);
-                        if (cValue != null && cValue > rangeBValue) {
-                            String pKey = eachKey.replace('c', 'p') + "Rank";
-                            rank.put(
-                                    pKey,
-                                    String.format(
-                                            "%.2f",
-                                            (float)
-                                                    (i - 1 + (cValue - rangeBValue) / (float) (rangeTValue - rangeBValue))));
+                        if ((cValue != null) && (Integer) valueArray.get(0) < cValue) {
+                            Long value = mongoTemplate.count(Query.query(Criteria.where(eachKey).gt(video.getValue(eachKey))), "video");
+                            rank.put(cKey, value);
                             break;
                         }
+                        if ((cValue > rangeBValue) && ((Integer) valueArray.get(0) > cValue)) {
+                            String pKey = eachKey.replace('c', 'p') + "Rank";
+                            String value = String.format(
+                                    "%.2f",
+                                    (float)
+                                            (i - 1 + (cValue - rangeBValue) / (float) (rangeTValue - rangeBValue)));
+                            rank.put(pKey, value);
+                            break;
+                        }
+
                     }
+
                 }
             }
-            if (rankTable.containsKey("updateTime")) {
-                rank.put("updateTime", rankTable.get("updateTime"));
-            }
+            rank.put("updateTime", video.getcDatetime());
             video.setRank(rank);
         }
         return video;

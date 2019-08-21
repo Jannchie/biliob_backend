@@ -8,270 +8,282 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-/** @author jannchie */
+/**
+ * @author jannchie
+ */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Video {
-  private Long aid;
-  private Long mid;
-  private String title;
-  private String author;
-  private String channel;
-  private String subChannel;
-  private Date datetime;
-  private String pic;
-  private Boolean focus;
-  private ArrayList<Data> data;
-  private ArrayList<String> keyword;
-  private Map rank;
-  private Integer cView;
-  private Integer cFavorite;
-  private Integer cDanmaku;
-  private Integer cCoin;
-  private Integer cShare;
-  private Integer cLike;
-  private ArrayList<String> tag;
-
-  @Field("danmaku_aggregate")
-  private HashMap<Object, Object> danmakuAggregate;
-
-  public Video(Long aid) {
-    this.aid = aid;
-    this.focus = true;
-  }
-
-  public Video() {
-    this.focus = true;
-  }
-
-  public ArrayList<String> getTag() {
-    return tag;
-  }
-
-  public void setTag(ArrayList<String> tag) {
-    this.tag = tag;
-  }
-
-  public Integer getValue(String key) {
-    switch (key) {
-      case "cView":
-        return getcView();
-      case "cFavorite":
-        return getcFavorite();
-      case "cDanmaku":
-        return getcDanmaku();
-      case "cCoin":
-        return getcCoin();
-      case "cShare":
-        return getcShare();
-      case "cLike":
-        return getcLike();
-      default:
-        return null;
-    }
-  }
-
-  public Integer getcView() {
-    return cView;
-  }
-
-  public void setcView(Integer cView) {
-    this.cView = cView;
-  }
-
-  public Integer getcFavorite() {
-    return cFavorite;
-  }
-
-  public void setcFavorite(Integer cFavorite) {
-    this.cFavorite = cFavorite;
-  }
-
-  public Integer getcDanmaku() {
-    return cDanmaku;
-  }
-
-  public void setcDanmaku(Integer cDanmaku) {
-    this.cDanmaku = cDanmaku;
-  }
-
-  public Integer getcCoin() {
-    return cCoin;
-  }
-
-  public void setcCoin(Integer cCoin) {
-    this.cCoin = cCoin;
-  }
-
-  public Integer getcShare() {
-    return cShare;
-  }
-
-  public void setcShare(Integer cShare) {
-    this.cShare = cShare;
-  }
-
-  public Integer getcLike() {
-    return cLike;
-  }
-
-  public void setcLike(Integer cLike) {
-    this.cLike = cLike;
-  }
-
-  public ArrayList<String> getKeyword() {
-    return keyword;
-  }
-
-  public void setKeyword(ArrayList<String> keyword) {
-    this.keyword = keyword;
-  }
-
-  public Map getRank() {
-    return rank;
-  }
-
-  public void setRank(Map rank) {
-    this.rank = rank;
-  }
-
-  public Long getAid() {
-    return aid;
-  }
-
-  public void setAid(Long aid) {
-    this.aid = aid;
-  }
-
-  public Long getMid() {
-    return mid;
-  }
-
-  public void setMid(Long mid) {
-    this.mid = mid;
-  }
-
-  public String getTitle() {
-    return title;
-  }
-
-  public void setTitle(String title) {
-    this.title = title;
-  }
-
-  public String getAuthor() {
-    return author;
-  }
-
-  public void setAuthor(String author) {
-    this.author = author;
-  }
-
-  public String getChannel() {
-    return channel;
-  }
-
-  public void setChannel(String channel) {
-    this.channel = channel;
-  }
-
-  public String getSubChannel() {
-    return subChannel;
-  }
-
-  public void setSubChannel(String subChannel) {
-    this.subChannel = subChannel;
-  }
-
-  public String getPic() {
-    return pic;
-  }
-
-  public void setPic(String pic) {
-    this.pic = pic;
-  }
-
-  public ArrayList<Data> getData() {
-    return data;
-  }
-
-  public void setData(ArrayList<Data> data) {
-    this.data = data;
-  }
-
-  public Boolean getFocus() {
-    return focus;
-  }
-
-  public void setFocus(Boolean focus) {
-    this.focus = focus;
-  }
-
-  public Date getDatetime() {
-    return datetime;
-  }
-
-  public void setDatetime(Date datetime) {
-    this.datetime = datetime;
-  }
-
-  public HashMap<Object, Object> getDanmakuAggregate() {
-    return danmakuAggregate;
-  }
-
-  public void setDanmakuAggregate(HashMap<Object, Object> danmakuAggregate) {
-    this.danmakuAggregate = danmakuAggregate;
-  }
-
-  public Integer getScore(Map<String, Integer> data) {
-    Integer score = 0;
-    for (String tagName : this.tag) {
-      score += data.get(tagName);
-    }
-    return score;
-  }
-
-  public static class Data {
-    private Integer view;
-    private Integer favorite;
-    private Integer danmaku;
-    private Integer coin;
-    private Integer share;
-    private Integer like;
-    private Integer dislike;
+    private Long aid;
+    private Long mid;
+    private String title;
+    private String author;
+    private String channel;
+    private String subChannel;
     private Date datetime;
+    private Date cDatetime;
+    private String pic;
+    private Boolean focus;
+    private ArrayList<Data> data;
+    private ArrayList<String> keyword;
+    private Map rank;
+    private Integer cView;
+    private Integer cFavorite;
+    private Integer cDanmaku;
+    private Integer cCoin;
+    private Integer cShare;
+    private Integer cLike;
+    private ArrayList<String> tag;
 
-    public Data() {}
+    @Field("danmaku_aggregate")
+    private HashMap<Object, Object> danmakuAggregate;
 
-    public Integer getView() {
-      return view;
+    public Video(Long aid) {
+        this.aid = aid;
+        this.focus = true;
     }
 
-    public Integer getFavorite() {
-      return favorite;
+    public Video() {
+        this.focus = true;
     }
 
-    public Integer getDanmaku() {
-      return danmaku;
+    public ArrayList<String> getTag() {
+        return tag;
     }
 
-    public Integer getCoin() {
-      return coin;
+    public void setTag(ArrayList<String> tag) {
+        this.tag = tag;
     }
 
-    public Integer getShare() {
-      return share;
+    public Integer getValue(String key) {
+        switch (key) {
+            case "cView":
+                return getcView();
+            case "cFavorite":
+                return getcFavorite();
+            case "cDanmaku":
+                return getcDanmaku();
+            case "cCoin":
+                return getcCoin();
+            case "cShare":
+                return getcShare();
+            case "cLike":
+                return getcLike();
+            default:
+                return null;
+        }
     }
 
-    public Integer getLike() {
-      return like;
+    public Integer getcView() {
+        return cView;
     }
 
-    public Integer getDislike() {
-      return dislike;
+    public void setcView(Integer cView) {
+        this.cView = cView;
+    }
+
+    public Integer getcFavorite() {
+        return cFavorite;
+    }
+
+    public void setcFavorite(Integer cFavorite) {
+        this.cFavorite = cFavorite;
+    }
+
+    public Integer getcDanmaku() {
+        return cDanmaku;
+    }
+
+    public void setcDanmaku(Integer cDanmaku) {
+        this.cDanmaku = cDanmaku;
+    }
+
+    public Integer getcCoin() {
+        return cCoin;
+    }
+
+    public void setcCoin(Integer cCoin) {
+        this.cCoin = cCoin;
+    }
+
+    public Integer getcShare() {
+        return cShare;
+    }
+
+    public void setcShare(Integer cShare) {
+        this.cShare = cShare;
+    }
+
+    public Integer getcLike() {
+        return cLike;
+    }
+
+    public void setcLike(Integer cLike) {
+        this.cLike = cLike;
+    }
+
+    public ArrayList<String> getKeyword() {
+        return keyword;
+    }
+
+    public void setKeyword(ArrayList<String> keyword) {
+        this.keyword = keyword;
+    }
+
+    public Map getRank() {
+        return rank;
+    }
+
+    public void setRank(Map rank) {
+        this.rank = rank;
+    }
+
+    public Long getAid() {
+        return aid;
+    }
+
+    public void setAid(Long aid) {
+        this.aid = aid;
+    }
+
+    public Long getMid() {
+        return mid;
+    }
+
+    public void setMid(Long mid) {
+        this.mid = mid;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getAuthor() {
+        return author;
+    }
+
+    public void setAuthor(String author) {
+        this.author = author;
+    }
+
+    public String getChannel() {
+        return channel;
+    }
+
+    public void setChannel(String channel) {
+        this.channel = channel;
+    }
+
+    public String getSubChannel() {
+        return subChannel;
+    }
+
+    public void setSubChannel(String subChannel) {
+        this.subChannel = subChannel;
+    }
+
+    public String getPic() {
+        return pic;
+    }
+
+    public void setPic(String pic) {
+        this.pic = pic;
+    }
+
+    public ArrayList<Data> getData() {
+        return data;
+    }
+
+    public void setData(ArrayList<Data> data) {
+        this.data = data;
+    }
+
+    public Boolean getFocus() {
+        return focus;
+    }
+
+    public void setFocus(Boolean focus) {
+        this.focus = focus;
     }
 
     public Date getDatetime() {
-      return datetime;
+        return datetime;
     }
-  }
+
+    public void setDatetime(Date datetime) {
+        this.datetime = datetime;
+    }
+
+    public HashMap<Object, Object> getDanmakuAggregate() {
+        return danmakuAggregate;
+    }
+
+    public void setDanmakuAggregate(HashMap<Object, Object> danmakuAggregate) {
+        this.danmakuAggregate = danmakuAggregate;
+    }
+
+    public Integer getScore(Map<String, Integer> data) {
+        Integer score = 0;
+        for (String tagName : this.tag) {
+            score += data.get(tagName);
+        }
+        return score;
+    }
+
+    public Date getcDatetime() {
+        return cDatetime;
+    }
+
+    public void setcDatetime(Date cDatetime) {
+        this.cDatetime = cDatetime;
+    }
+
+    public static class Data {
+        private Integer view;
+        private Integer favorite;
+        private Integer danmaku;
+        private Integer coin;
+        private Integer share;
+        private Integer like;
+        private Integer dislike;
+        private Date datetime;
+
+        public Data() {
+        }
+
+        public Integer getView() {
+            return view;
+        }
+
+        public Integer getFavorite() {
+            return favorite;
+        }
+
+        public Integer getDanmaku() {
+            return danmaku;
+        }
+
+        public Integer getCoin() {
+            return coin;
+        }
+
+        public Integer getShare() {
+            return share;
+        }
+
+        public Integer getLike() {
+            return like;
+        }
+
+        public Integer getDislike() {
+            return dislike;
+        }
+
+        public Date getDatetime() {
+            return datetime;
+        }
+    }
 }
