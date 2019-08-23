@@ -386,7 +386,7 @@ public class VideoServiceImpl implements VideoService {
     @Cacheable(value = "author_top_video", key = "#mid + #page + #pagesize + #sort")
     public MySlice<Video> getAuthorTopVideo(Long mid, Integer page, Integer pagesize, Integer sort) {
         if (pagesize >= VideoServiceImpl.MAX_PAGE_SIZE) {
-            return null;
+            pagesize = VideoServiceImpl.MAX_PAGE_SIZE;
         }
         Sort videoSort;
         if (Objects.equals(sort, VIEW_COUNT.getValue())) {
