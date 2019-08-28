@@ -221,16 +221,20 @@ public class VideoServiceImpl implements VideoService {
         return mongoTemplate.aggregate(a, "video", Video.class).getMappedResults().get(0);
     }
 
+    private void addVideoVisit(Long aid) {
+        String finalUserName = BiliOBUtils.getUserName();
+        Map data = BiliOBUtils.getVisitData(finalUserName, aid);
+        VideoServiceImpl.logger.info("用户[{}]查询aid[{}]的详细数据", finalUserName, aid);
+        mongoTemplate.insert(data, "video_visit");
+    }
+
     @Override
     public Video getVideoDetails(Long aid, Integer type) {
-        VideoServiceImpl.logger.info(aid);
-        Video video = new Video();
+        addVideoVisit(aid);
+        Video video;
         switch (type) {
             case 0:
                 video = respository.findByAid(aid);
-                break;
-            case 1:
-                video = getAggregatedData(aid);
                 break;
             default:
                 video = getAggregatedData(aid);
@@ -240,8 +244,6 @@ public class VideoServiceImpl implements VideoService {
                         Query.query(Criteria.where("name").is("video_rank")), HashMap.class, "rank_table");
         String[] keys = {"cCoin", "cView", "cDanmaku", "cLike", "cShare", "cFavorite"};
         HashMap<String, Object> rank = new HashMap<>(6);
-
-
         video.setRank(rank);
         Long number = mongoTemplate.count(Query.query(Criteria.where("cCoin").gt(video.getValue("cCoin"))), "video");
         System.out.println(number);
