@@ -11,6 +11,7 @@ import com.jannchie.biliob.repository.RealTimeFansRepository;
 import com.jannchie.biliob.service.AuthorService;
 import com.jannchie.biliob.service.SiteService;
 import com.jannchie.biliob.service.UserService;
+import com.jannchie.biliob.utils.BiliOBUtils;
 import com.jannchie.biliob.utils.InputInspection;
 import com.jannchie.biliob.utils.MySlice;
 import com.jannchie.biliob.utils.RedisOps;
@@ -138,15 +139,20 @@ public class AuthorServiceImpl implements AuthorService {
 
     @Override
     public Author getAuthorDetails(Long mid, Integer type) {
-        AuthorServiceImpl.logger.info("查询mid为{}的作者详情", mid);
-        switch (type) {
-            case 1:
-                return getAggregatedData(mid);
-            default:
-                Query query = new Query(where("mid").is(mid));
-                query.fields().exclude("fansRate");
-                return mongoTemplate.findOne(query, Author.class, "author");
+        addAuthorVisit(mid);
+        if (type == 1) {
+            return getAggregatedData(mid);
         }
+        Query query = new Query(where("mid").is(mid));
+        query.fields().exclude("fansRate");
+        return mongoTemplate.findOne(query, Author.class, "author");
+    }
+
+    private void addAuthorVisit(Long mid) {
+        String finalUserName = BiliOBUtils.getUserName();
+        Map data = BiliOBUtils.getVisitData(finalUserName, mid);
+        AuthorServiceImpl.logger.info("用户[{}]查询mid[{}]的详细数据", finalUserName, mid);
+        mongoTemplate.insert(data, "author_visit");
     }
 
     @Override
