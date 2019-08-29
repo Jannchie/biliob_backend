@@ -15,8 +15,12 @@ import com.jannchie.biliob.utils.BiliOBUtils;
 import com.jannchie.biliob.utils.InputInspection;
 import com.jannchie.biliob.utils.MySlice;
 import com.jannchie.biliob.utils.RedisOps;
+import com.mongodb.client.AggregateIterable;
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.model.Projections;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.Cacheable;
@@ -34,6 +38,8 @@ import org.springframework.stereotype.Service;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+import static com.mongodb.client.model.Aggregates.*;
+import static com.mongodb.client.model.Sorts.descending;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 /**
@@ -49,11 +55,13 @@ public class AuthorServiceImpl implements AuthorService {
     private final MongoTemplate mongoTemplate;
     private final UserService userService;
     private final SiteService siteService;
+    private MongoClient mongoClient;
 
     @Autowired
     public AuthorServiceImpl(
             AuthorRepository respository,
             UserService userService,
+            MongoClient mongoClient,
             MongoTemplate mongoTemplate,
             InputInspection inputInspection,
             RealTimeFansRepository realTimeFansRepository,
@@ -62,6 +70,7 @@ public class AuthorServiceImpl implements AuthorService {
         this.respository = respository;
         this.userService = userService;
         this.mongoTemplate = mongoTemplate;
+        this.mongoClient = mongoClient;
         this.realTimeFansRepository = realTimeFansRepository;
         this.redisOps = redisOps;
         this.siteService = siteService;
@@ -167,6 +176,7 @@ public class AuthorServiceImpl implements AuthorService {
         respository.save(new Author(mid));
     }
 
+
     @Override
     @Cacheable(value = "author_slice", key = "#mid + #text + #page + #pagesize + #sort")
     public MySlice<Author> getAuthor(
@@ -240,6 +250,51 @@ public class AuthorServiceImpl implements AuthorService {
         return new ResponseEntity<>(slice, HttpStatus.OK);
     }
 
+    @Override
+    public ResponseEntity getTopAuthor() {
+        Calendar c = Calendar.getInstance();
+        c.setTimeZone(TimeZone.getTimeZone("CTT"));
+        c.add(Calendar.HOUR, 7);
+        Date cDate = c.getTime();
+        AggregateIterable<Document> r = mongoClient.getDatabase("biliob").
+                getCollection("author").
+                aggregate(Arrays.asList(
+                        sort(descending("cFans")),
+                        limit(2),
+                        project(Projections.fields(Projections.excludeId(),
+                                Projections.include("name", "face", "official"),
+                                Projections.computed("data", new Document()
+                                        .append("$filter", new Document()
+                                                .append("input", "$data").append("as", "eachData").append("cond", new Document()
+                                                        .append("$gt", Arrays.asList("$$eachData.datetime", cDate))))))
+                        )));
+        ArrayList<Document> result = new ArrayList<>(2);
+        for (Document document : r) {
+            result.add(document);
+        }
+
+        return ResponseEntity.ok(result);
+    }
+
+    @Override
+    public ResponseEntity getLatestTopAuthorData() {
+        AggregateIterable<Document> r = mongoClient.getDatabase("biliob").
+                getCollection("author").
+                aggregate(Arrays.asList(
+                        sort(descending("cFans")),
+                        limit(2),
+                        project(Projections.fields(
+                                Projections.excludeId(),
+                                Projections.include("name", "face", "official"),
+                                Projections.computed("data", new Document("$slice", Arrays.asList("$data", 1))))
+                        )));
+        ArrayList<Document> result = new ArrayList<>(2);
+        for (Document document : r) {
+            result.add(document);
+        }
+        return ResponseEntity.ok(result);
+    }
+
     /**
      * get specific author's fans rate
      *
@@ -300,6 +355,7 @@ public class AuthorServiceImpl implements AuthorService {
 
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
+
 
     private List<RealTimeFans> listRealTimeFans(Long mid) {
         return realTimeFansRepository.findTop180ByMidOrderByDatetimeDesc(mid);
