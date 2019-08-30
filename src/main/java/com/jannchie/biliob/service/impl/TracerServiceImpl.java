@@ -18,10 +18,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 import static com.jannchie.biliob.constant.TaskTypeEnum.GET_ALL;
 import static com.jannchie.biliob.constant.TaskTypeEnum.GET_RUNNING;
@@ -165,6 +162,12 @@ public class TracerServiceImpl implements TracerService {
         Map<String, Object> resultMap = new HashMap<>(2);
         getLatestSpiderTask(resultMap);
         return new ResponseEntity<>(resultMap, HttpStatus.OK);
+    }
+
+    @Override
+    public ResponseEntity getHistoryQueueStatus() {
+        List data = mongoTemplate.findAll(Map.class, "spider_queue_status");
+        return ResponseEntity.ok(data);
     }
 
     private void getLatestSpiderTask(Map<String, Object> resultMap) {
