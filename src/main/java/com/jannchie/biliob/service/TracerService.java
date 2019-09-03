@@ -90,4 +90,12 @@ public interface TracerService {
      * @return
      */
     ResponseEntity getHistoryQueueStatus();
+
+    /**
+     * 根据日期聚合访问作者数据的次数。
+     *
+     * @param limit 天数限制
+     * @return 作者访问次数列表。
+     */
+    ResponseEntity listAuthorVisitRecord(Integer limit);
 }
