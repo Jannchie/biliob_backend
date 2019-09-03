@@ -80,4 +80,8 @@ public class TracerController {
         return tracerService.listAuthorVisitRecord(limit);
     }
 
+    @RequestMapping(method = RequestMethod.GET, value = "/api/tracer/visit/video")
+    public ResponseEntity listVideoVisitRecord(@RequestParam(defaultValue = "7") Integer limit) {
+        return tracerService.listVideoVisitRecord(limit);
+    }
 }

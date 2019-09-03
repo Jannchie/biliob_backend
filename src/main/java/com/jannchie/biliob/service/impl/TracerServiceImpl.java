@@ -297,5 +297,17 @@ public class TracerServiceImpl implements TracerService {
         ), "author_visit", Map.class).getMappedResults();
         return ResponseEntity.ok(data);
     }
+
+    @Override
+    public ResponseEntity listVideoVisitRecord(Integer limit) {
+        List data = mongoTemplate.aggregate(Aggregation.newAggregation(
+                Aggregation.project().and("date").dateAsFormattedString("%Y-%m-%d").as("date"),
+                Aggregation.group("date").count().as("count"),
+                Aggregation.sort(Sort.Direction.DESC, "_id"),
+                Aggregation.limit(limit),
+                Aggregation.sort(Sort.Direction.ASC, "_id")
+        ), "video_visit", Map.class).getMappedResults();
+        return ResponseEntity.ok(data);
+    }
 }
 

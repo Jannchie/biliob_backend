@@ -98,4 +98,12 @@ public interface TracerService {
      * @return 作者访问次数列表。
      */
     ResponseEntity listAuthorVisitRecord(Integer limit);
+
+    /**
+     * 根据日期聚合访问视频数据的次数。
+     *
+     * @param limit 天数限制
+     * @return 视频访问次数列表。
+     */
+    ResponseEntity listVideoVisitRecord(Integer limit);
 }
