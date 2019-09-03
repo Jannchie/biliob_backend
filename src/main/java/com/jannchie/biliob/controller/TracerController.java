@@ -74,4 +74,10 @@ public class TracerController {
     public ResponseEntity getLatestSpider() {
         return tracerService.getLatestSpiderTaskResponse();
     }
+
+    @RequestMapping(method = RequestMethod.GET, value = "/api/tracer/visit/author")
+    public ResponseEntity listAuthorVisitRecord(@RequestParam(defaultValue = "7") Integer limit) {
+        return tracerService.listAuthorVisitRecord(limit);
+    }
+
 }

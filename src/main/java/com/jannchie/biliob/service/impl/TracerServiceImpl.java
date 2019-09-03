@@ -285,4 +285,17 @@ public class TracerServiceImpl implements TracerService {
     private void getRecordCount(Map<String, Object> resultMap) {
         resultMap.put("recordCount", mongoTemplate.count(new Query(), "user_record"));
     }
+
+    @Override
+    public ResponseEntity listAuthorVisitRecord(Integer limit) {
+        List data = mongoTemplate.aggregate(Aggregation.newAggregation(
+                Aggregation.project().and("date").dateAsFormattedString("%Y-%m-%d").as("date"),
+                Aggregation.group("date").count().as("count"),
+                Aggregation.sort(Sort.Direction.DESC, "_id"),
+                Aggregation.limit(limit),
+                Aggregation.sort(Sort.Direction.ASC, "_id")
+        ), "author_visit", Map.class).getMappedResults();
+        return ResponseEntity.ok(data);
+    }
 }
+
