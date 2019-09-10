@@ -35,6 +35,7 @@ public class BangumiServiceImpl implements BangumiService {
     }
     logger.info("获得番剧列表");
     return new ResponseEntity<>(
+
         bangumiRepository.sliceBangumi(
             PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, "currentPts"))),
         HttpStatus.OK);
