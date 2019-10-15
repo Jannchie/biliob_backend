@@ -18,6 +18,7 @@ import com.jannchie.biliob.utils.RedisOps;
 import com.mongodb.client.AggregateIterable;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.model.Projections;
+import com.mongodb.client.result.UpdateResult;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.bson.Document;
@@ -31,6 +32,7 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -477,5 +479,15 @@ public class AuthorServiceImpl implements AuthorService {
         }
         result.add(host);
         return result;
+    }
+
+    @Override
+    public UpdateResult upsertAuthorFreq(Long mid, Integer interval) {
+        Calendar nextCal = Calendar.getInstance();
+        nextCal.add(Calendar.SECOND, interval);
+        return mongoTemplate.upsert(Query.query(Criteria.where("mid").is(mid)),
+                Update.update("date", Calendar.getInstance().getTime())
+                        .set("interval", interval)
+                        .setOnInsert("next", nextCal.getTime()), "author_interval");
     }
 }

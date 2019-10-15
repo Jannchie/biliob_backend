@@ -4,6 +4,7 @@ import com.jannchie.biliob.exception.AuthorAlreadyFocusedException;
 import com.jannchie.biliob.exception.UserAlreadyFavoriteAuthorException;
 import com.jannchie.biliob.model.Author;
 import com.jannchie.biliob.utils.MySlice;
+import com.mongodb.client.result.UpdateResult;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -124,4 +125,13 @@ public interface AuthorService {
      * @return latest top author data response entity
      */
     ResponseEntity getLatestTopAuthorData();
+
+    /**
+     * upsert author frequency
+     *
+     * @param mid      author id
+     * @param interval interval of every crawl
+     * @return update result
+     */
+    UpdateResult upsertAuthorFreq(Long mid, Integer interval);
 }
