@@ -13,6 +13,9 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 
 /**
+ * 此为爬虫调度器的切片。
+ * 功能为防止同一爬虫调度任务多次执行。
+ *
  * @author Pan Jianqi
  */
 @Aspect
@@ -31,7 +34,7 @@ public class CheckExecutingAspect {
         if (!executing.contains(methodName)) {
 
             executing.add(methodName);
-            logger.info("[START] {} {}", methodName, Thread.currentThread());
+            logger.debug("[START] {} {}", methodName, Thread.currentThread());
             return pjp.proceed();
         }
         return false;
@@ -41,7 +44,7 @@ public class CheckExecutingAspect {
     public void doAfter(JoinPoint jp) {
         String methodName = jp.getSignature().getName();
         if (executing.remove(methodName)) {
-            logger.info("[END] {} {}", methodName, Thread.currentThread());
+            logger.debug("[END] {} {}", methodName, Thread.currentThread());
         }
     }
 }
