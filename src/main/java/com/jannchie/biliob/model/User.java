@@ -24,6 +24,8 @@ public class User {
   private String password;
 
   private String role;
+  private String title;
+
   private ArrayList<Long> favoriteAid;
   private ArrayList<Long> favoriteMid;
   private Double credit;
@@ -49,6 +51,14 @@ public class User {
     this.role = "普通用户";
     this.credit = 0D;
     this.exp = 0;
+  }
+
+  public String getTitle() {
+    return title;
+  }
+
+  public void setTitle(String title) {
+    this.title = title;
   }
 
   public String getMail() {

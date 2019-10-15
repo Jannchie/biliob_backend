@@ -44,6 +44,13 @@ public class UserController {
         requestMap.get("activationCode"));
   }
 
+  @RequestMapping(method = RequestMethod.PUT, value = "/api/user/mail")
+  public ResponseEntity bindMail(@RequestBody @Valid Map<String, String> requestMap) {
+    return userService.bindMail(
+            requestMap.get("mail"),
+            requestMap.get("activationCode"));
+  }
+
   @RequestMapping(method = RequestMethod.POST, value = "/api/user/author")
   public ResponseEntity addFavoriteAuthor(@RequestBody @Valid Long mid)
       throws UserAlreadyFavoriteAuthorException {
@@ -187,4 +194,5 @@ public class UserController {
       @RequestParam(defaultValue = "20") Integer pagesize) {
     return userService.getUserPreferVideoByFavoriteVideo(page, pagesize);
   }
+
 }
