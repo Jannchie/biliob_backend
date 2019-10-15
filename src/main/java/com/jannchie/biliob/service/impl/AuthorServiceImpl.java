@@ -2,6 +2,7 @@ package com.jannchie.biliob.service.impl;
 
 import com.jannchie.biliob.constant.AuthorSortEnum;
 import com.jannchie.biliob.constant.PageSizeEnum;
+import com.jannchie.biliob.constant.TimeConstant;
 import com.jannchie.biliob.exception.AuthorAlreadyFocusedException;
 import com.jannchie.biliob.exception.UserAlreadyFavoriteAuthorException;
 import com.jannchie.biliob.model.Author;
@@ -18,7 +19,6 @@ import com.jannchie.biliob.utils.RedisOps;
 import com.mongodb.client.AggregateIterable;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.model.Projections;
-import com.mongodb.client.result.UpdateResult;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.bson.Document;
@@ -40,6 +40,7 @@ import org.springframework.stereotype.Service;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+import static com.jannchie.biliob.constant.TimeConstant.MICROSECOND_OF_DAY;
 import static com.mongodb.client.model.Aggregates.*;
 import static com.mongodb.client.model.Sorts.descending;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
@@ -145,6 +146,9 @@ public class AuthorServiceImpl implements AuthorService {
                                 "cArticleView")
                                 .push("data")
                                 .as("data"));
+        if (!mongoTemplate.exists(Query.query(Criteria.where("mid").is(mid)), "author_interval")) {
+            this.upsertAuthorFreq(mid, TimeConstant.MICROSECOND_OF_DAY);
+        }
         return mongoTemplate.aggregate(a, "author", Author.class).getMappedResults().get(0);
     }
 
@@ -482,12 +486,68 @@ public class AuthorServiceImpl implements AuthorService {
     }
 
     @Override
-    public UpdateResult upsertAuthorFreq(Long mid, Integer interval) {
+    public void upsertAuthorFreq(Long mid, Integer interval) {
         Calendar nextCal = Calendar.getInstance();
         nextCal.add(Calendar.SECOND, interval);
-        return mongoTemplate.upsert(Query.query(Criteria.where("mid").is(mid)),
-                Update.update("date", Calendar.getInstance().getTime())
+        Date cTime = Calendar.getInstance().getTime();
+        logger.debug("[UPSERT] 作者：{} 访问频率：{} 更新时间：{}", mid, interval, cTime);
+        mongoTemplate.upsert(Query.query(Criteria.where("mid").is(mid)),
+                Update.update("date", cTime)
                         .set("interval", interval)
                         .setOnInsert("next", nextCal.getTime()), "author_interval");
+    }
+
+    @Override
+    public List<Map> listMostVisitAuthorId(Integer days, Integer limit) {
+        Calendar c = Calendar.getInstance();
+        c.add(Calendar.DATE, days);
+        return mongoTemplate.aggregate(
+                Aggregation.newAggregation(
+                        Aggregation.match(Criteria.where("date").gt(c)),
+                        Aggregation.group("mid").count().as("count"),
+                        Aggregation.sort(Sort.Direction.DESC, "count"),
+                        Aggregation.limit(limit)), "author_visit", Map.class).getMappedResults();
+    }
+
+    @Override
+    public void updateObserveFreq() {
+        logger.info("[UPDATE] 调整观测频率");
+        // 十万粉丝以上：正常观测
+        List<Author> authorList = getAuthorFansGt(100000);
+        for (Author author : authorList
+        ) {
+            this.upsertAuthorFreq(author.getMid(), MICROSECOND_OF_DAY);
+        }
+
+        // 百万粉以上：高频观测
+        authorList = this.getAuthorFansGt(1000000);
+        for (Author author : authorList
+        ) {
+            this.upsertAuthorFreq(author.getMid(), MICROSECOND_OF_DAY / 4);
+        }
+
+        // 人为设置：强行观测
+        Query q = Query.query(Criteria.where("forceFocus").is(true));
+        q.fields().include("mid");
+        authorList = mongoTemplate.find(q, Author.class, "author");
+        for (Author author : authorList
+        ) {
+            this.upsertAuthorFreq(author.getMid(), MICROSECOND_OF_DAY / 8);
+        }
+
+        // 最多点击：高速观测
+        List<Map> mostVisitAuthorList = this.listMostVisitAuthorId(1, 100);
+        for (Map data : mostVisitAuthorList
+        ) {
+            this.upsertAuthorFreq((Long) data.get("mid"), MICROSECOND_OF_DAY / 96);
+        }
+        logger.info("[FINISH] 调整观测频率");
+    }
+
+    @Override
+    public List<Author> getAuthorFansGt(int gt) {
+        Query q = Query.query(Criteria.where("cFans").gt(gt));
+        q.fields().include("mid");
+        return mongoTemplate.find(q, Author.class, "author");
     }
 }

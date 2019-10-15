@@ -38,7 +38,9 @@ public class TracerScheduler {
     @Async
     public void recordTop5Author() {
         logger.info("每分钟爬取前3名作者的数据");
-        List<Author> authors = mongoTemplate.find(new Query().with(Sort.by(Sort.Direction.DESC, "cFans")).limit(3), Author.class, "author");
+        Query q = new Query().with(Sort.by(Sort.Direction.DESC, "cFans")).limit(3);
+        q.fields().include("mid");
+        List<Author> authors = mongoTemplate.find(q, Author.class, "author");
         for (Author author : authors) {
             Long mid = author.getMid();
             redisOps.postAuthorCrawlTask(mid);

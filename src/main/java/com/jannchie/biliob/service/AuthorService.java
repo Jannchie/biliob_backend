@@ -4,11 +4,11 @@ import com.jannchie.biliob.exception.AuthorAlreadyFocusedException;
 import com.jannchie.biliob.exception.UserAlreadyFavoriteAuthorException;
 import com.jannchie.biliob.model.Author;
 import com.jannchie.biliob.utils.MySlice;
-import com.mongodb.client.result.UpdateResult;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author jannchie
@@ -131,7 +131,28 @@ public interface AuthorService {
      *
      * @param mid      author id
      * @param interval interval of every crawl
-     * @return update result
      */
-    UpdateResult upsertAuthorFreq(Long mid, Integer interval);
+    void upsertAuthorFreq(Long mid, Integer interval);
+
+    /**
+     * 获取作者ID以及累计访问次数的对象列表
+     *
+     * @param days  天数限制
+     * @param limit 数量限制
+     * @return 作者ID以及累计访问次数的对象列表
+     */
+    List<Map> listMostVisitAuthorId(Integer days, Integer limit);
+
+    /**
+     * 更新观测频率
+     */
+    void updateObserveFreq();
+
+    /**
+     * 获取大于指定粉丝数的作者ID
+     *
+     * @param gt fans limit
+     * @return author list
+     */
+    List<Author> getAuthorFansGt(int gt);
 }
