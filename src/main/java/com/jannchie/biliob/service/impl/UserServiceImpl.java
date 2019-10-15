@@ -4,7 +4,6 @@ import com.jannchie.biliob.constant.CreditConstant;
 import com.jannchie.biliob.constant.FieldConstant;
 import com.jannchie.biliob.constant.ResultEnum;
 import com.jannchie.biliob.constant.RoleEnum;
-import com.jannchie.biliob.exception.UserAlreadyFavoriteVideoException;
 import com.jannchie.biliob.exception.UserNotExistException;
 import com.jannchie.biliob.model.Question;
 import com.jannchie.biliob.model.User;
@@ -26,6 +25,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -183,7 +183,7 @@ class UserServiceImpl implements UserService {
     }
 
     @Override
-    public ResponseEntity addFavoriteVideo(@Valid Long aid) throws UserAlreadyFavoriteVideoException {
+    public ResponseEntity addFavoriteVideo(@Valid Long aid) {
         User user = LoginChecker.check();
         if (user == null) {
             return new ResponseEntity<>(
@@ -576,5 +576,21 @@ class UserServiceImpl implements UserService {
     public ArrayList getUserPreferVideoByFavoriteVideo(Integer page, Integer pagesize) {
         return recommendVideo.getRecommendVideoByTagCountMap(
                 this.getUserPreferKeyword(), page, pagesize);
+    }
+
+
+    @Override
+    public ResponseEntity bindMail(String mail, String activationCode) {
+        User user = LoginChecker.checkInfo();
+        if (user == null) {
+            return new ResponseEntity<>(
+                    new Result(ResultEnum.HAS_NOT_LOGGED_IN), HttpStatus.UNAUTHORIZED);
+        }
+        if (!mailUtil.checkActivationCode(mail, activationCode)) {
+            return new ResponseEntity<>(
+                    new Result(ResultEnum.ACTIVATION_CODE_UNMATCHED), HttpStatus.BAD_REQUEST);
+        }
+        mongoTemplate.updateFirst(Query.query(Criteria.where("name").is(user.getName())), Update.update("mail", mail), "user");
+        return ResponseEntity.ok(new Result(ResultEnum.SUCCEED));
     }
 }
