@@ -1,8 +1,9 @@
-package com.jannchie.biliob.utils;
+package com.jannchie.biliob.utils.schedule;
 
 import com.jannchie.biliob.model.Author;
 import com.jannchie.biliob.model.ScheduleItem;
 import com.jannchie.biliob.model.TracerTask;
+import com.jannchie.biliob.utils.RedisOps;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +12,7 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -33,6 +35,7 @@ public class TracerScheduler {
     }
 
     @Scheduled(cron = "0 0/1 * * * ?")
+    @Async
     public void recordTop5Author() {
         logger.info("每分钟爬取前3名作者的数据");
         List<Author> authors = mongoTemplate.find(new Query().with(Sort.by(Sort.Direction.DESC, "cFans")).limit(3), Author.class, "author");
@@ -43,6 +46,7 @@ public class TracerScheduler {
     }
 
     @Scheduled(cron = "0 0/5 * * * ?")
+    @Async
     public void recordSpiderQueueStatus() {
         logger.info("记录爬虫队列状态");
         Long authorQueueLength = redisOps.getAuthorQueueLength();
@@ -57,6 +61,7 @@ public class TracerScheduler {
     }
 
     @Scheduled(cron = "0 0/5 * * * ?")
+    @Async
     public void checkDeadTask() {
         logger.info("检查死亡爬虫");
         Date deadDate = getDeadDate();
@@ -68,6 +73,7 @@ public class TracerScheduler {
     }
 
     @Scheduled(cron = "0 0/5 * * * ?")
+    @Async
     public void addCustomCrawlTaskEvery5Min() {
         logger.info("执行每5分钟的爬虫任务");
         postCustomVideoCrawlSchedule(3);
@@ -75,6 +81,7 @@ public class TracerScheduler {
     }
 
     @Scheduled(cron = "0 0 0/1 * * ?")
+    @Async
     public void addCustomCrawlTaskEvery1Hour() {
         logger.info("执行每小时的爬虫任务");
         postCustomVideoCrawlSchedule(2);
@@ -82,6 +89,7 @@ public class TracerScheduler {
     }
 
     @Scheduled(cron = "0 0 0/6 * * ?")
+    @Async
     public void addCustomCrawlTaskEvery6Hour() {
         logger.info("执行每6小时的爬虫任务");
         postCustomVideoCrawlSchedule(1);
@@ -117,7 +125,7 @@ public class TracerScheduler {
         }
     }
 
-    Date getDeadDate() {
+    private Date getDeadDate() {
         Calendar c = Calendar.getInstance();
         c.add(Calendar.MINUTE, TracerScheduler.DEAD_MINUTES);
         c.add(Calendar.HOUR, 8);
