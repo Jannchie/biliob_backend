@@ -243,4 +243,13 @@ public interface UserService {
    * @return video list
    */
   ArrayList getUserPreferVideoByFavoriteVideo(Integer page, Integer pagesize);
+
+  /**
+   * Bind new e-mail
+   *
+   * @param mail new e-mail
+   * @param activationCode activation code
+   * @return bind result
+   */
+  ResponseEntity bindMail( String mail, String activationCode);
 }

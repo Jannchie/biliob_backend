@@ -45,6 +45,6 @@ public interface UserRepository
    * @param pageable page information
    * @return the slice of user
    */
-  @Query(fields = "{name: 1, role: 1, exp: 1, id: 1}")
+  @Query(fields = "{name: 1, role: 1, exp: 1, id: 1, title: 1, mail:1}")
   Slice<User> findTopUserByOrderByExp(Pageable pageable);
 }
