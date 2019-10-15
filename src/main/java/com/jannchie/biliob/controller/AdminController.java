@@ -63,6 +63,7 @@ public class AdminController {
         return adminService.listSearchMethod(type);
     }
 
+
     @RequestMapping(method = RequestMethod.DELETE, value = "/api/admin/{type}/search-method")
     public ResponseEntity deleteSearchMethod(
             @PathVariable("type") String type, @RequestParam String name, @RequestParam String owner) {
