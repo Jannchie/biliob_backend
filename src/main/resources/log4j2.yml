@@ -1,26 +1,23 @@
 configuration:
- appenders:
-  console:
-   PatternLayout:
-    pattern: "[%d{HH:mm:ss:SSS}] [%p] - %l - %m%n"
-   name: Console
-   target: SYSTEM_OUT
-  NoSql:
-   MongoDb:
-    databaseName: biliob
-    collectionName: logs
-    server: ${env:BILIOB_MONGO_SERVER}
-    username: ${env:BILIOB_MONGO_USER}
-    password: ${env:BILIOB_MONGO_PASSWD}
-    port: 27017
-   name: mongoAppender
- loggers:
-  logger:
-   name: "org.springframework"
-   level: INFO
-  root:
-   appender-ref:
-    - ref: Console
-    - ref: mongoAppender
-   level: info
- status: warn
+  appenders:
+    console:
+      PatternLayout:
+        pattern: "[%d{HH:mm:ss:SSS}] [%p] - %l - %m%n"
+      name: Console
+      target: SYSTEM_OUT
+    NoSql:
+      MongoDb:
+        databaseName: biliob
+        collectionName: logs
+        server: ${env:BILIOB_MONGO_SERVER}
+        username: ${env:BILIOB_MONGO_USER}
+        password: ${env:BILIOB_MONGO_PASSWD}
+        port: 27017
+      name: mongoAppender
+  loggers:
+    root:
+      appender-ref:
+        - ref: Console
+        - ref: mongoAppender
+      level: info
+  status: warn
