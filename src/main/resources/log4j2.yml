@@ -12,7 +12,7 @@ configuration:
         server: ${env:BILIOB_MONGO_SERVER}
         username: ${env:BILIOB_MONGO_USER}
         password: ${env:BILIOB_MONGO_PASSWD}
-        port: 27017
+        port: 3717
       name: mongoAppender
   loggers:
     root:

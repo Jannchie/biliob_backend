@@ -14,7 +14,7 @@ spring:
         max-wait: -1
       shutdown-timeout: 30000
     host: ${BILIOB_REDIS_URL}
-    port: 6379
+    port: ${BILIOB_REDIS_PORT}
     password: ${BILIOB_REDIS_PASSWD}
     timeout: 30000
   mail:
@@ -24,7 +24,7 @@ spring:
     port: 465
     default-encoding: UTF-8
     properties:
-      mail.smtp.socketFactory.fallback : true
+      mail.smtp.socketFactory.fallback: true
       mail.smtp.socketFactory.class: javax.net.ssl.SSLSocketFactory
       mail.smtp.starttls.enable: true
       mail.smtp.auth: true
