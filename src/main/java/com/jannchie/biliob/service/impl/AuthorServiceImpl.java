@@ -40,7 +40,7 @@ import org.springframework.stereotype.Service;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-import static com.jannchie.biliob.constant.TimeConstant.MICROSECOND_OF_DAY;
+import static com.jannchie.biliob.constant.TimeConstant.SECOND_OF_DAY;
 import static com.mongodb.client.model.Aggregates.*;
 import static com.mongodb.client.model.Sorts.descending;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
@@ -147,7 +147,7 @@ public class AuthorServiceImpl implements AuthorService {
                                 .push("data")
                                 .as("data"));
         if (!mongoTemplate.exists(Query.query(Criteria.where("mid").is(mid)), "author_interval")) {
-            this.upsertAuthorFreq(mid, TimeConstant.MICROSECOND_OF_DAY);
+            this.upsertAuthorFreq(mid, TimeConstant.MICROSECOND_OF_DAY, false);
         }
         return mongoTemplate.aggregate(a, "author", Author.class).getMappedResults().get(0);
     }
@@ -414,17 +414,7 @@ public class AuthorServiceImpl implements AuthorService {
                         Aggregation.match(Criteria.where("mid").is(mid)),
                         Aggregation.lookup("author", "mid", "mid", "authorDoc"),
                         Aggregation.unwind("tag"),
-                        Aggregation.group("mid")
-                                .count()
-                                .as("count")
-                                .avg("cView")
-                                .as("value")
-                                .last("author")
-                                .as("name")
-                                .addToSet("tag")
-                                .as("tag")
-                                .last("authorDoc.face")
-                                .as("face"),
+                        Aggregation.group("mid").count().as("count").avg("cView").as("value").last("author").as("name").addToSet("tag").as("tag").last("authorDoc.face").as("face"),
                         Aggregation.unwind("face"),
                         Aggregation.sort(Sort.Direction.DESC, "value"));
         Map host = mongoTemplate.aggregate(a, "video", Map.class).getUniqueMappedResult();
@@ -486,15 +476,30 @@ public class AuthorServiceImpl implements AuthorService {
     }
 
     @Override
+    public void upsertAuthorFreq(Long mid, Integer interval, boolean refreshNext) {
+        Calendar nextCal = Calendar.getInstance();
+        nextCal.add(Calendar.SECOND, interval);
+        Date cTime = Calendar.getInstance().getTime();
+        logger.debug("[UPSERT] 作者：{} 访问频率：{} 更新时间：{}", mid, interval, cTime);
+        Update u = Update.update("date", cTime)
+                .set("interval", interval);
+        if (refreshNext) {
+            u.set("next", cTime);
+        } else {
+            u.setOnInsert("next", nextCal.getTime());
+        }
+        mongoTemplate.upsert(Query.query(Criteria.where("mid").is(mid)), u, "author_interval");
+    }
+
+    @Override
     public void upsertAuthorFreq(Long mid, Integer interval) {
         Calendar nextCal = Calendar.getInstance();
         nextCal.add(Calendar.SECOND, interval);
         Date cTime = Calendar.getInstance().getTime();
         logger.debug("[UPSERT] 作者：{} 访问频率：{} 更新时间：{}", mid, interval, cTime);
-        mongoTemplate.upsert(Query.query(Criteria.where("mid").is(mid)),
-                Update.update("date", cTime)
-                        .set("interval", interval)
-                        .setOnInsert("next", nextCal.getTime()), "author_interval");
+        Update u = Update.update("date", cTime)
+                .set("interval", interval).setOnInsert("next", nextCal.getTime());
+        mongoTemplate.upsert(Query.query(Criteria.where("mid").is(mid)), u, "author_interval");
     }
 
     @Override
@@ -516,14 +521,14 @@ public class AuthorServiceImpl implements AuthorService {
         List<Author> authorList = getAuthorFansGt(100000);
         for (Author author : authorList
         ) {
-            this.upsertAuthorFreq(author.getMid(), MICROSECOND_OF_DAY);
+            this.upsertAuthorFreq(author.getMid(), SECOND_OF_DAY, false);
         }
 
         // 百万粉以上：高频观测
         authorList = this.getAuthorFansGt(1000000);
         for (Author author : authorList
         ) {
-            this.upsertAuthorFreq(author.getMid(), MICROSECOND_OF_DAY / 4);
+            this.upsertAuthorFreq(author.getMid(), SECOND_OF_DAY / 4, false);
         }
 
         // 人为设置：强行观测
@@ -532,14 +537,14 @@ public class AuthorServiceImpl implements AuthorService {
         authorList = mongoTemplate.find(q, Author.class, "author");
         for (Author author : authorList
         ) {
-            this.upsertAuthorFreq(author.getMid(), MICROSECOND_OF_DAY / 8);
+            this.upsertAuthorFreq(author.getMid(), SECOND_OF_DAY / 8, false);
         }
 
         // 最多点击：高速观测
         List<Map> mostVisitAuthorList = this.listMostVisitAuthorId(1, 100);
         for (Map data : mostVisitAuthorList
         ) {
-            this.upsertAuthorFreq((Long) data.get("mid"), MICROSECOND_OF_DAY / 96);
+            this.upsertAuthorFreq((Long) data.get("mid"), SECOND_OF_DAY / 96, false);
         }
         logger.info("[FINISH] 调整观测频率");
     }
