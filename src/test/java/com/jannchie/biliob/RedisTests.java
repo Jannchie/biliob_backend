@@ -10,26 +10,28 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
-import org.springframework.transaction.annotation.Transactional;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @WebAppConfiguration
 public class RedisTests {
 
-  private String userKey = "userKey";
-  @Autowired private RedisOps redisOps;
-  @Autowired private RedisTemplate redisTemplate;
-  @Autowired private StringRedisTemplate stringRedisTemplate;
+    private String userKey = "userKey";
+    @Autowired
+    private RedisOps redisOps;
+    @Autowired
+    private RedisTemplate redisTemplate;
+    @Autowired
+    private StringRedisTemplate stringRedisTemplate;
 
-  @Test
-  public void contextLoads() {}
+    @Test
+    public void contextLoads() {
+    }
 
-  @Test
-  @Transactional
-  public void getAuthorQueueLength() {
-    Long authorCrawlTaskQueueLength = redisOps.getAuthorQueueLength();
-    Assert.assertEquals(
-        "返回值非Long类型", "class java.lang.Long", authorCrawlTaskQueueLength.getClass().toString());
-  }
+    @Test
+    public void getAuthorQueueLength() {
+        Long authorCrawlTaskQueueLength = redisOps.getAuthorQueueLength();
+        Assert.assertEquals(
+                "返回值非Long类型", "class java.lang.Long", authorCrawlTaskQueueLength.getClass().toString());
+    }
 }
