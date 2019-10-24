@@ -19,9 +19,7 @@ public class AuthorServiceImplTest {
     @Test
     @Transactional
     public void upsertAuthorFreq() {
-        authorService.upsertAuthorFreq(1L, 70);
-        authorService.upsertAuthorFreq(1L, 80);
-        authorService.upsertAuthorFreq(2L, 10);
+        authorService.upsertAuthorFreq(1850091L, 20, false);
     }
 
     @Test
