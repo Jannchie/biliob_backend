@@ -38,7 +38,7 @@ public class SpiderSchedulerTest {
 
     @Test
     public void updateObserveFreq() {
-        spiderScheduler.updateObserveFreq();
+        spiderScheduler.updateAuthorFreq();
     }
 
     @Test

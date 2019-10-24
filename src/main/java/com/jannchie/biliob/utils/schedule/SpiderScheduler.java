@@ -2,10 +2,12 @@ package com.jannchie.biliob.utils.schedule;
 
 import com.jannchie.biliob.model.Author;
 import com.jannchie.biliob.service.AuthorService;
+import com.jannchie.biliob.service.VideoService;
 import com.jannchie.biliob.utils.RedisOps;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -19,8 +21,7 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
 
-import static com.jannchie.biliob.constant.TimeConstant.MICROSECOND_OF_DAY;
-import static com.jannchie.biliob.constant.TimeConstant.MICROSECOND_OF_MINUTES;
+import static com.jannchie.biliob.constant.TimeConstant.*;
 
 /**
  * @author Pan Jianqi
@@ -33,16 +34,15 @@ public class SpiderScheduler {
     private final MongoTemplate mongoTemplate;
     private final RedisOps redisOps;
     private final AuthorService authorService;
-    private Long mid;
-    private Integer interval;
+    private final VideoService videoService;
 
 
     @Autowired
-    public SpiderScheduler(MongoTemplate mongoTemplate, RedisOps redisOps, AuthorService authorService) {
+    public SpiderScheduler(MongoTemplate mongoTemplate, RedisOps redisOps, AuthorService authorService, VideoService videoService) {
         this.mongoTemplate = mongoTemplate;
         this.redisOps = redisOps;
         this.authorService = authorService;
-
+        this.videoService = videoService;
     }
 
 
@@ -63,6 +63,20 @@ public class SpiderScheduler {
         }
     }
 
+    @Scheduled(cron = "0 0/1 * * * ?")
+    @Async
+    public void recordTop3Author() {
+        logger.info("每分钟爬取前3名作者的数据");
+        Query q = new Query().with(Sort.by(Sort.Direction.DESC, "cFans")).limit(3);
+        q.fields().include("mid");
+        List<Author> authors = mongoTemplate.find(q, Author.class, "author");
+        for (Author author : authors) {
+            Long mid = author.getMid();
+            authorService.upsertAuthorFreq(mid, SECOND_OF_MINUTES, true);
+        }
+    }
+
+
     public void updateVideoData() {
 
     }
@@ -81,18 +95,31 @@ public class SpiderScheduler {
 
     /**
      * 每日執行一次
+     * 更新访问频率
      */
-    @Scheduled(fixedDelay = MICROSECOND_OF_DAY)
+    @Scheduled(fixedDelay = MICROSECOND_OF_DAY, initialDelay = MICROSECOND_OF_DAY)
     @Async
-    public void updateObserveFreq() {
+    public void updateAuthorFreq() {
         authorService.updateObserveFreq();
     }
 
+    /**
+     * 每日執行一次
+     * 更新作者增长速率
+     */
+    @Scheduled(fixedDelay = MICROSECOND_OF_DAY, initialDelay = MICROSECOND_OF_DAY)
+    @Async
+    public void updateAuthorRate() {
+        authorService.updateObserveFreq();
+    }
 
-    private List<Author> getAuthorFansGt(Integer gt) {
-        Query q = Query.query(Criteria.where("cFans").gt(gt));
-        q.fields().include("mid");
-        return mongoTemplate.find(q, Author.class, "author");
+    /**
+     * 每周執行一次
+     */
+    @Scheduled(fixedDelay = MICROSECOND_OF_DAY * 7)
+    @Async
+    public void updateVideoFreq() {
+        videoService.updateObserveFreq();
     }
 
     @Scheduled(cron = "0 0/1 * * * ?")
