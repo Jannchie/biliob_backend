@@ -31,4 +31,4 @@ spring:
       mail.smtp.ssl:
         enable: true
 server:
-  port: ${BILIOB_MONGO_PORT}
+  port: ${BILIOB_BACKEND_PORT}
