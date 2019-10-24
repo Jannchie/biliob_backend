@@ -17,7 +17,6 @@ import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -63,7 +62,7 @@ public abstract class AbstractCreditCalculator<T> {
      * @param id             the id of author or video.
      * @return The response of user's request.
      */
-    @Transactional(rollbackFor = {Exception.class})
+
     public ResponseEntity executeAndGetResponse(CreditConstant creditConstant, Long id) {
         this.creditConstant = creditConstant;
         User user = LoginChecker.checkInfo();
@@ -124,7 +123,7 @@ public abstract class AbstractCreditCalculator<T> {
      * @param creditConstant the operation value.
      * @return The response of user's request.
      */
-    @Transactional(rollbackFor = {Exception.class})
+
     public ResponseEntity executeAndGetResponse(CreditConstant creditConstant) {
         this.creditConstant = creditConstant;
 
@@ -165,7 +164,7 @@ public abstract class AbstractCreditCalculator<T> {
      * @param data the operation value.
      * @return The response of user's request.
      */
-    @Transactional(rollbackFor = {Exception.class})
+
     public ResponseEntity executeAndGetResponse(T data) {
 
         User user = LoginChecker.checkInfo();
