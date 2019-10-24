@@ -55,4 +55,18 @@ public interface SiteService {
      * @return the number of user be observed.
      */
     Map getUserCount();
+
+    /**
+     * Get site alert
+     *
+     * @return Site alert
+     */
+    Map getAlert();
+
+    /**
+     * Set site alert
+     *
+     * @return result
+     */
+    ResponseEntity postAlert();
 }
