@@ -479,4 +479,9 @@ public class VideoServiceImpl implements VideoService {
                         Map.class)
                 .getMappedResults();
     }
+
+    @Override
+    public void updateObserveFreq() {
+
+    }
 }
