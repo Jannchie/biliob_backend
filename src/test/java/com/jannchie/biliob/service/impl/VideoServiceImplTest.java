@@ -12,58 +12,68 @@ import org.springframework.test.context.web.WebAppConfiguration;
 @SpringBootTest
 @WebAppConfiguration
 public class VideoServiceImplTest {
-  @Autowired VideoService videoService;
+    @Autowired
+    VideoService videoService;
 
-  @Test
-  public void getPopularKeyword() throws Exception {
-  }
+    @Test
+    public void getPopularKeyword() throws Exception {
+    }
 
-  @Test
-  public void getRecommendVideoByTag() throws Exception {
-  }
+    @Test
+    public void getRecommendVideoByTag() throws Exception {
+    }
 
-  @Test
-  public void getTopOnlineVideo() throws Exception {
-  }
+    @Test
+    public void getTopOnlineVideo() throws Exception {
+    }
 
-  @Test
-  public void getPreferKeyword() throws Exception {
-  }
+    @Test
+    public void getPreferKeyword() throws Exception {
+    }
 
-  @Test
-  public void listMostPopularTag() throws Exception {
+    @Test
+    public void listMostPopularTag() throws Exception {
 //    videoService.listMostPopularTag();
-  }
+    }
 
-  @Test
-  public void getAggregatedData() throws Exception {
-    videoService.getAggregatedData(18089528L);
-  }
+//  @Test
+//  public void getAggregatedData() throws Exception {
+//    videoService.getAggregatedData(18089528L);
+//  }
 
-  @Test
-  public void getVideoDetails() throws Exception {}
+    @Test
+    public void getVideoDetails() throws Exception {
+    }
 
-  @Test
-  public void postVideoByAid() throws Exception {}
+    @Test
+    public void postVideoByAid() throws Exception {
+    }
 
-  @Test
-  public void getVideo() throws Exception {}
+    @Test
+    public void getVideo() throws Exception {
+    }
 
-  @Test
-  public void getAuthorOtherVideo() throws Exception {}
+    @Test
+    public void getAuthorOtherVideo() throws Exception {
+    }
 
-  @Test
-  public void getAuthorTopVideo() throws Exception {}
+    @Test
+    public void getAuthorTopVideo() throws Exception {
+    }
 
-  @Test
-  public void getMyVideo() throws Exception {}
+    @Test
+    public void getMyVideo() throws Exception {
+    }
 
-  @Test
-  public void listOnlineVideo() throws Exception {}
+    @Test
+    public void listOnlineVideo() throws Exception {
+    }
 
-  @Test
-  public void getNumberOfVideo() throws Exception {}
+    @Test
+    public void getNumberOfVideo() throws Exception {
+    }
 
-  @Test
-  public void getRankTable() throws Exception {}
+    @Test
+    public void getRankTable() throws Exception {
+    }
 }
