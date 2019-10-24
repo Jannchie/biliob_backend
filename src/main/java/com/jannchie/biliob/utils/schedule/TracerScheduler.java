@@ -1,13 +1,11 @@
 package com.jannchie.biliob.utils.schedule;
 
-import com.jannchie.biliob.model.Author;
 import com.jannchie.biliob.model.ScheduleItem;
 import com.jannchie.biliob.model.TracerTask;
 import com.jannchie.biliob.utils.RedisOps;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -34,18 +32,6 @@ public class TracerScheduler {
         this.redisOps = redisOps;
     }
 
-    @Scheduled(cron = "0 0/1 * * * ?")
-    @Async
-    public void recordTop5Author() {
-        logger.info("每分钟爬取前3名作者的数据");
-        Query q = new Query().with(Sort.by(Sort.Direction.DESC, "cFans")).limit(3);
-        q.fields().include("mid");
-        List<Author> authors = mongoTemplate.find(q, Author.class, "author");
-        for (Author author : authors) {
-            Long mid = author.getMid();
-            redisOps.postAuthorCrawlTask(mid);
-        }
-    }
 
     @Scheduled(cron = "0 0/5 * * * ?")
     @Async
