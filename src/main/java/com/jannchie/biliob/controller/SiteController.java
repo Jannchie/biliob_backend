@@ -54,4 +54,14 @@ public class SiteController {
     public Map getUserCount() {
         return siteService.getUserCount();
     }
+
+    @RequestMapping(method = RequestMethod.GET, value = "/api/site/alert")
+    public Map getAlert() {
+        return siteService.getAlert();
+    }
+
+    @RequestMapping(method = RequestMethod.POST, value = "/api/site/alert")
+    public ResponseEntity postAlert() {
+        return siteService.postAlert();
+    }
 }

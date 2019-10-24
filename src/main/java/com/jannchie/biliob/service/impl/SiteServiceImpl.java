@@ -142,4 +142,15 @@ public class SiteServiceImpl implements SiteService {
         videoResult.put("count", videoFocusCount + videoNotFocusCount);
         return videoResult;
     }
+
+    @Override
+    public Map getAlert() {
+        return mongoTemplate.findOne(new Query(), Map.class);
+    }
+
+    @Override
+    public ResponseEntity postAlert() {
+        return ResponseEntity.ok("");
+//        return mongoTemplate.upsert();
+    }
 }
