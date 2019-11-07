@@ -10,7 +10,6 @@ import com.jannchie.biliob.model.RealTimeFans;
 import com.jannchie.biliob.repository.AuthorRepository;
 import com.jannchie.biliob.repository.RealTimeFansRepository;
 import com.jannchie.biliob.service.AuthorService;
-import com.jannchie.biliob.service.SiteService;
 import com.jannchie.biliob.service.UserService;
 import com.jannchie.biliob.utils.BiliOBUtils;
 import com.jannchie.biliob.utils.InputInspection;
@@ -57,7 +56,6 @@ public class AuthorServiceImpl implements AuthorService {
     private final RealTimeFansRepository realTimeFansRepository;
     private final MongoTemplate mongoTemplate;
     private final UserService userService;
-    private final SiteService siteService;
     private MongoClient mongoClient;
 
     @Autowired
@@ -68,82 +66,36 @@ public class AuthorServiceImpl implements AuthorService {
             MongoTemplate mongoTemplate,
             InputInspection inputInspection,
             RealTimeFansRepository realTimeFansRepository,
-            RedisOps redisOps,
-            SiteService siteService) {
+            RedisOps redisOps) {
         this.respository = respository;
         this.userService = userService;
         this.mongoTemplate = mongoTemplate;
         this.mongoClient = mongoClient;
         this.realTimeFansRepository = realTimeFansRepository;
         this.redisOps = redisOps;
-        this.siteService = siteService;
     }
 
     @Override
     public Author getAggregatedData(Long mid) {
+        String[] fields = {"mid", "name", "face", "sex", "official", "level", "channels", "rank", "focus", "forceFocus", "cRate", "cFans", "cArchiveView", "cArticleView"};
+        String[] timeFields = {"month", "year", "day", "mid", "name", "face", "sex", "official", "level", "channels", "rank", "focus", "forceFocus", "cRate", "cFans", "cArchiveView", "cArticleView"};
         Aggregation a =
                 Aggregation.newAggregation(
                         Aggregation.match(Criteria.where("mid").is(mid)),
                         Aggregation.unwind("$data"),
-                        Aggregation.project()
+                        Aggregation.project("data").andInclude(fields)
                                 .andExpression("year($data.datetime)")
                                 .as("year")
                                 .andExpression("month($data.datetime)")
                                 .as("month")
                                 .andExpression("dayOfMonth($data.datetime)")
                                 .as("day")
-                                .andInclude(
-                                        "data",
-                                        "mid",
-                                        "name",
-                                        "face",
-                                        "sex",
-                                        "official",
-                                        "level",
-                                        "channels",
-                                        "rank",
-                                        "focus",
-                                        "forceFocus",
-                                        "cRate",
-                                        "cFans",
-                                        "cArchiveView",
-                                        "cArticleView"),
-                        Aggregation.group(
-                                "year",
-                                "month",
-                                "day",
-                                "mid",
-                                "name",
-                                "face",
-                                "sex",
-                                "official",
-                                "level",
-                                "channels",
-                                "rank",
-                                "focus",
-                                "forceFocus",
-                                "cRate",
-                                "cFans",
-                                "cArchiveView",
-                                "cArticleView")
-                                .max("data")
+                        ,
+                        Aggregation.group(timeFields)
+                                .first("data")
                                 .as("data"),
                         Aggregation.sort(Sort.Direction.DESC, "year", "month", "day"),
-                        Aggregation.group(
-                                "mid",
-                                "name",
-                                "face",
-                                "sex",
-                                "official",
-                                "level",
-                                "channels",
-                                "rank",
-                                "focus",
-                                "forceFocus",
-                                "cRate",
-                                "cFans",
-                                "cArchiveView",
-                                "cArticleView")
+                        Aggregation.group(fields)
                                 .push("data")
                                 .as("data"));
         if (!mongoTemplate.exists(Query.query(Criteria.where("mid").is(mid)), "author_interval")) {
@@ -513,6 +465,17 @@ public class AuthorServiceImpl implements AuthorService {
                         Aggregation.sort(Sort.Direction.DESC, "count"),
                         Aggregation.limit(limit)), "author_visit", Map.class).getMappedResults();
     }
+
+    public List<Map> listMostVisitAuthorId(Integer days) {
+        Calendar c = Calendar.getInstance();
+        c.add(Calendar.DATE, days);
+        return mongoTemplate.aggregate(
+                Aggregation.newAggregation(
+                        Aggregation.match(Criteria.where("date").gt(c)),
+                        Aggregation.group("mid").count().as("count"),
+                        Aggregation.sort(Sort.Direction.DESC, "count")), "author_visit", Map.class).getMappedResults();
+    }
+
 
     @Override
     public void updateObserveFreq() {

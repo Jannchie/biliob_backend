@@ -24,6 +24,7 @@ import org.springframework.data.mongodb.core.aggregation.AggregationResults;
 import org.springframework.data.mongodb.core.aggregation.ComparisonOperators;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -32,6 +33,7 @@ import java.util.*;
 
 import static com.jannchie.biliob.constant.SortEnum.PUBLISH_TIME;
 import static com.jannchie.biliob.constant.SortEnum.VIEW_COUNT;
+import static com.jannchie.biliob.constant.TimeConstant.SECOND_OF_DAY;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 /**
@@ -194,7 +196,7 @@ public class VideoServiceImpl implements VideoService {
                                 "channel",
                                 "tag",
                                 "subChannel")
-                                .max("data")
+                                .first("data")
                                 .as("data"),
                         Aggregation.group(
                                 "aid",
@@ -482,6 +484,58 @@ public class VideoServiceImpl implements VideoService {
 
     @Override
     public void updateObserveFreq() {
+        logger.info("[UPDATE] 调整视频观测频率");
+        // 十万粉丝以上：正常观测
+        List<Video> videoList = getVideoViewGt(100000);
+        for (Video video : videoList
+        ) {
+            this.upsertVideoFreq(video.getAid(), SECOND_OF_DAY);
+        }
+        // 最多点击：高速观测
+        List<Map> mostVisitAuthorList = this.listMostVisitVideoId(1);
+        for (Map data : mostVisitAuthorList
+        ) {
+            this.upsertVideoFreq((Long) data.get("aid"), SECOND_OF_DAY);
+        }
+        logger.info("[FINISH] 调整观测频率");
+    }
 
+    private void upsertVideoFreq(Long aid, Integer interval) {
+        Calendar nextCal = Calendar.getInstance();
+        nextCal.add(Calendar.SECOND, interval);
+        Date cTime = Calendar.getInstance().getTime();
+        logger.debug("[UPSERT] 视频：{} 访问频率：{} 更新时间：{}", aid, interval, cTime);
+        Update u = Update.update("date", cTime)
+                .set("interval", interval);
+        u.setOnInsert("next", nextCal.getTime());
+        mongoTemplate.upsert(Query.query(Criteria.where("aid").is(aid)), u, "video_interval");
+    }
+
+
+    private List<Video> getVideoViewGt(int gt) {
+        Query q = Query.query(Criteria.where("cView").gt(gt));
+        q.fields().include("mid");
+        return mongoTemplate.find(q, Video.class, "video");
+    }
+
+    private List<Map> listMostVisitVideoId(Integer days, Integer limit) {
+        Calendar c = Calendar.getInstance();
+        c.add(Calendar.DATE, days);
+        return mongoTemplate.aggregate(
+                Aggregation.newAggregation(
+                        Aggregation.match(Criteria.where("date").gt(c)),
+                        Aggregation.group("mid").count().as("count"),
+                        Aggregation.sort(Sort.Direction.DESC, "count"),
+                        Aggregation.limit(limit)), "video_visit", Map.class).getMappedResults();
+    }
+
+    private List<Map> listMostVisitVideoId(Integer days) {
+        Calendar c = Calendar.getInstance();
+        c.add(Calendar.DATE, days);
+        return mongoTemplate.aggregate(
+                Aggregation.newAggregation(
+                        Aggregation.match(Criteria.where("date").gt(c)),
+                        Aggregation.group("mid").count().as("count"),
+                        Aggregation.sort(Sort.Direction.DESC, "count")), "video_visit", Map.class).getMappedResults();
     }
 }
