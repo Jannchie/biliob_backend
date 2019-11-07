@@ -33,7 +33,7 @@ public class Video {
     private Integer cShare;
     private Integer cLike;
     private ArrayList<String> tag;
-
+    private ArrayList<Comment> comments;
     @Field("danmaku_aggregate")
     private HashMap<Object, Object> danmakuAggregate;
 
@@ -44,6 +44,14 @@ public class Video {
 
     public Video() {
         this.focus = true;
+    }
+
+    public ArrayList<Comment> getComments() {
+        return comments;
+    }
+
+    public void setComments(ArrayList<Comment> comments) {
+        this.comments = comments;
     }
 
     public ArrayList<String> getTag() {
@@ -73,7 +81,7 @@ public class Video {
         }
     }
 
-    public Integer getcView() {
+    private Integer getcView() {
         return cView;
     }
 
@@ -81,7 +89,7 @@ public class Video {
         this.cView = cView;
     }
 
-    public Integer getcFavorite() {
+    private Integer getcFavorite() {
         return cFavorite;
     }
 
@@ -89,7 +97,7 @@ public class Video {
         this.cFavorite = cFavorite;
     }
 
-    public Integer getcDanmaku() {
+    private Integer getcDanmaku() {
         return cDanmaku;
     }
 
@@ -97,7 +105,7 @@ public class Video {
         this.cDanmaku = cDanmaku;
     }
 
-    public Integer getcCoin() {
+    private Integer getcCoin() {
         return cCoin;
     }
 
@@ -105,7 +113,7 @@ public class Video {
         this.cCoin = cCoin;
     }
 
-    public Integer getcShare() {
+    private Integer getcShare() {
         return cShare;
     }
 
@@ -113,7 +121,7 @@ public class Video {
         this.cShare = cShare;
     }
 
-    public Integer getcLike() {
+    private Integer getcLike() {
         return cLike;
     }
 
