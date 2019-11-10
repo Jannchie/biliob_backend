@@ -81,7 +81,7 @@ public class Video {
         }
     }
 
-    private Integer getcView() {
+    public Integer getcView() {
         return cView;
     }
 
@@ -89,7 +89,7 @@ public class Video {
         this.cView = cView;
     }
 
-    private Integer getcFavorite() {
+    public Integer getcFavorite() {
         return cFavorite;
     }
 
@@ -97,7 +97,7 @@ public class Video {
         this.cFavorite = cFavorite;
     }
 
-    private Integer getcDanmaku() {
+    public Integer getcDanmaku() {
         return cDanmaku;
     }
 
@@ -105,7 +105,7 @@ public class Video {
         this.cDanmaku = cDanmaku;
     }
 
-    private Integer getcCoin() {
+    public Integer getcCoin() {
         return cCoin;
     }
 
@@ -113,7 +113,7 @@ public class Video {
         this.cCoin = cCoin;
     }
 
-    private Integer getcShare() {
+    public Integer getcShare() {
         return cShare;
     }
 
@@ -121,7 +121,7 @@ public class Video {
         this.cShare = cShare;
     }
 
-    private Integer getcLike() {
+    public Integer getcLike() {
         return cLike;
     }
 
