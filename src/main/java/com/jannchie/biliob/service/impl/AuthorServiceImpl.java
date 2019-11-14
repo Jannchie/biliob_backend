@@ -510,6 +510,26 @@ public class AuthorServiceImpl implements AuthorService {
             this.upsertAuthorFreq((Long) data.get("mid"), SECOND_OF_DAY / 96, false);
         }
         logger.info("[FINISH] 调整观测频率");
+
+        q = new Query();
+        q.fields().include("mid");
+        q.with(Sort.by(Sort.Direction.DESC, "cRate")).limit(100);
+        List<Map> rateDesc = mongoTemplate.find(q, Map.class, "author");
+        for (Map data : rateDesc
+        ) {
+            this.upsertAuthorFreq((Long) data.get("mid"), SECOND_OF_DAY / 96, false);
+        }
+
+        q = new Query();
+        q.fields().include("mid");
+        q.with(Sort.by(Sort.Direction.ASC, "cRate")).limit(100);
+        List<Map> rateAsc = mongoTemplate.find(q, Map.class, "author");
+        for (Map data : rateAsc
+        ) {
+            this.upsertAuthorFreq((Long) data.get("mid"), SECOND_OF_DAY / 96, false);
+        }
+
+        logger.info("[FINISH] 调整观测频率");
     }
 
     @Override
