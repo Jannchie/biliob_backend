@@ -32,6 +32,7 @@ public class Author {
     private Long cArchiveView;
     @Field("cArticle_view")
     private Long cArticleView;
+    private Long cLike;
 
     public Author() {
         focus = true;
@@ -40,6 +41,14 @@ public class Author {
     public Author(Long mid) {
         this.mid = mid;
         focus = true;
+    }
+
+    public Long getcLike() {
+        return cLike;
+    }
+
+    public void setcLike(Long cLike) {
+        this.cLike = cLike;
     }
 
     public ArrayList<Comment> getComments() {
@@ -250,6 +259,7 @@ public class Author {
         private Integer article;
         private Long archiveView;
         private Long articleView;
+        private Long like;
         private Date datetime;
 
         public Long getArchiveView() {
@@ -258,6 +268,14 @@ public class Author {
 
         public void setArchiveView(Long archiveView) {
             this.archiveView = archiveView;
+        }
+
+        public Long getLike() {
+            return like;
+        }
+
+        public void setLike(Long like) {
+            this.like = like;
         }
 
         public Long getArticleView() {

@@ -248,7 +248,6 @@ public class VideoServiceImpl implements VideoService {
         HashMap<String, Object> rank = new HashMap<>(6);
         video.setRank(rank);
         Long number = mongoTemplate.count(Query.query(Criteria.where("cCoin").gt(video.getValue("cCoin"))), "video");
-        System.out.println(number);
         if (rankTable != null) {
             for (String eachKey : keys) {
                 String cKey = eachKey + "Rank";
