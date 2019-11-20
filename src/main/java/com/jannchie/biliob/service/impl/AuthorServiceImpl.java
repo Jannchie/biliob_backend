@@ -6,15 +6,13 @@ import com.jannchie.biliob.constant.TimeConstant;
 import com.jannchie.biliob.exception.AuthorAlreadyFocusedException;
 import com.jannchie.biliob.exception.UserAlreadyFavoriteAuthorException;
 import com.jannchie.biliob.model.Author;
+import com.jannchie.biliob.model.AuthorRankData;
 import com.jannchie.biliob.model.RealTimeFans;
 import com.jannchie.biliob.repository.AuthorRepository;
 import com.jannchie.biliob.repository.RealTimeFansRepository;
 import com.jannchie.biliob.service.AuthorService;
 import com.jannchie.biliob.service.UserService;
-import com.jannchie.biliob.utils.BiliOBUtils;
-import com.jannchie.biliob.utils.InputInspection;
-import com.jannchie.biliob.utils.MySlice;
-import com.jannchie.biliob.utils.RedisOps;
+import com.jannchie.biliob.utils.*;
 import com.mongodb.client.AggregateIterable;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.model.Projections;
@@ -57,6 +55,7 @@ public class AuthorServiceImpl implements AuthorService {
     private final MongoTemplate mongoTemplate;
     private final UserService userService;
     private MongoClient mongoClient;
+    private AuthorUtil authorUtil;
 
     @Autowired
     public AuthorServiceImpl(
@@ -65,20 +64,22 @@ public class AuthorServiceImpl implements AuthorService {
             MongoClient mongoClient,
             MongoTemplate mongoTemplate,
             InputInspection inputInspection,
+            AuthorUtil authorUtil,
             RealTimeFansRepository realTimeFansRepository,
             RedisOps redisOps) {
         this.respository = respository;
         this.userService = userService;
         this.mongoTemplate = mongoTemplate;
         this.mongoClient = mongoClient;
+        this.authorUtil = authorUtil;
         this.realTimeFansRepository = realTimeFansRepository;
         this.redisOps = redisOps;
     }
 
     @Override
     public Author getAggregatedData(Long mid) {
-        String[] fields = {"mid", "name", "face", "sex", "official", "level", "channels", "rank", "focus", "forceFocus", "cRate", "cFans", "cArchiveView", "cArticleView"};
-        String[] timeFields = {"month", "year", "day", "mid", "name", "face", "sex", "official", "level", "channels", "rank", "focus", "forceFocus", "cRate", "cFans", "cArchiveView", "cArticleView"};
+        String[] fields = {"mid", "name", "face", "sex", "official", "level", "channels", "rank", "focus", "forceFocus", "cRate", "cFans", "cLike", "cArchive_view", "cArticle_view"};
+        String[] timeFields = {"month", "year", "day", "mid", "name", "face", "sex", "official", "level", "channels", "rank", "focus", "forceFocus", "cLike", "cRate", "cFans", "cArchive_view", "cArticle_view"};
         Aggregation a =
                 Aggregation.newAggregation(
                         Aggregation.match(Criteria.where("mid").is(mid)),
@@ -101,8 +102,41 @@ public class AuthorServiceImpl implements AuthorService {
         if (!mongoTemplate.exists(Query.query(Criteria.where("mid").is(mid)), "author_interval")) {
             this.upsertAuthorFreq(mid, TimeConstant.MICROSECOND_OF_DAY, false);
         }
-        return mongoTemplate.aggregate(a, "author", Author.class).getMappedResults().get(0);
+        Author author = mongoTemplate.aggregate(a, "author", Author.class).getMappedResults().get(0);
+        setRankData(author);
+        return author;
     }
+
+    private void setRankData(Author author) {
+
+        AuthorRankData lastRankData = authorUtil.getLastRankData(author);
+        AuthorRankData currentRankData = getCurrentRankData(author);
+        Date date = author.getData().get(0).getDatetime();
+        Author.Rank rank = new Author.Rank(currentRankData.getFansRank(), currentRankData.getArchiveViewRank(),
+                currentRankData.getArticleViewRank(),
+                currentRankData.getLikeRank(),
+                getDelta(currentRankData.getFansRank(), lastRankData.getFansRank()),
+                getDelta(currentRankData.getArchiveViewRank(), lastRankData.getArchiveViewRank()),
+                getDelta(currentRankData.getArticleViewRank(), lastRankData.getArticleViewRank()),
+                getDelta(currentRankData.getLikeRank(), lastRankData.getLikeRank()),
+                date);
+        author.setRank(rank);
+
+    }
+
+    private Long getDelta(Long a, Long b) {
+        if (a == -1 || b == -1) {
+            return 0L;
+        } else {
+            return a - b;
+        }
+    }
+
+
+    public AuthorRankData getCurrentRankData(Author author) {
+        return authorUtil.getRankData(author);
+    }
+
 
     @Override
     public Author getAuthorDetails(Long mid, Integer type) {
@@ -143,7 +177,7 @@ public class AuthorServiceImpl implements AuthorService {
             pagesize = PageSizeEnum.BIG_SIZE.getValue();
         }
         String sortKey = AuthorSortEnum.getKeyByFlag(sort);
-        if (!(mid == -1)) {
+        if (mid != -1) {
             AuthorServiceImpl.logger.info(mid);
             return new MySlice<>(
                     respository.searchByMid(
