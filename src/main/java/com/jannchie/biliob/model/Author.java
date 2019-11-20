@@ -32,6 +32,7 @@ public class Author {
     private Long cArchiveView;
     @Field("cArticle_view")
     private Long cArticleView;
+    private Long cLike;
 
     public Author() {
         focus = true;
@@ -40,6 +41,14 @@ public class Author {
     public Author(Long mid) {
         this.mid = mid;
         focus = true;
+    }
+
+    public Long getcLike() {
+        return cLike;
+    }
+
+    public void setcLike(Long cLike) {
+        this.cLike = cLike;
     }
 
     public ArrayList<Comment> getComments() {
@@ -190,66 +199,110 @@ public class Author {
         this.focus = focus;
     }
 
-    private static class Rank {
-        private Integer fansRank;
-        private Integer archiveViewRank;
-        private Integer articleViewRank;
-        private Integer dFansRank;
-        private Integer dArchiveViewRank;
-        private Integer dArticleViewRank;
-        private Double pFansRank;
-        private Double pArchiveViewRank;
-        private Double pArticleViewRank;
+    public static class Rank {
+        private Long fansRank;
+        private Long archiveViewRank;
+        private Long articleViewRank;
+        private Long likeRank;
+        private Long dFansRank;
+        private Long dArchiveViewRank;
+        private Long dArticleViewRank;
+        private Long dLikeRank;
         private Date updateTime;
 
-        public Double getpFansRank() {
-            return pFansRank;
+        public Rank(Long fansRank, Long archiveViewRank, Long articleViewRank, Long likeRank, Long dFansRank, Long dArchiveViewRank, Long dArticleViewRank, Long dLikeRank, Date updateTime) {
+            this.fansRank = fansRank;
+            this.archiveViewRank = archiveViewRank;
+            this.articleViewRank = articleViewRank;
+            this.likeRank = likeRank;
+            this.dFansRank = dFansRank;
+            this.dArchiveViewRank = dArchiveViewRank;
+            this.dArticleViewRank = dArticleViewRank;
+            this.dLikeRank = dLikeRank;
+            this.updateTime = updateTime;
         }
 
-        public Double getpArchiveViewRank() {
-            return pArchiveViewRank;
+        public Long getFansRank() {
+            return fansRank;
         }
 
-        public Double getpArticleViewRank() {
-            return pArticleViewRank;
+        public void setFansRank(Long fansRank) {
+            this.fansRank = fansRank;
         }
 
-        public Integer getdFansRank() {
+        public Long getArchiveViewRank() {
+            return archiveViewRank;
+        }
+
+        public void setArchiveViewRank(Long archiveViewRank) {
+            this.archiveViewRank = archiveViewRank;
+        }
+
+        public Long getArticleViewRank() {
+            return articleViewRank;
+        }
+
+        public void setArticleViewRank(Long articleViewRank) {
+            this.articleViewRank = articleViewRank;
+        }
+
+        public Long getLikeRank() {
+            return likeRank;
+        }
+
+        public void setLikeRank(Long likeRank) {
+            this.likeRank = likeRank;
+        }
+
+        public Long getdFansRank() {
             return dFansRank;
         }
 
-        public Integer getdArchiveViewRank() {
+        public void setdFansRank(Long dFansRank) {
+            this.dFansRank = dFansRank;
+        }
+
+        public Long getdArchiveViewRank() {
             return dArchiveViewRank;
         }
 
-        public Integer getdArticleViewRank() {
+        public void setdArchiveViewRank(Long dArchiveViewRank) {
+            this.dArchiveViewRank = dArchiveViewRank;
+        }
+
+        public Long getdArticleViewRank() {
             return dArticleViewRank;
+        }
+
+        public void setdArticleViewRank(Long dArticleViewRank) {
+            this.dArticleViewRank = dArticleViewRank;
+        }
+
+        public Long getdLikeRank() {
+            return dLikeRank;
+        }
+
+        public void setdLikeRank(Long dLikeRank) {
+            this.dLikeRank = dLikeRank;
         }
 
         public Date getUpdateTime() {
             return updateTime;
         }
 
-        public Integer getFansRank() {
-            return fansRank;
-        }
-
-        public Integer getArchiveViewRank() {
-            return archiveViewRank;
-        }
-
-        public Integer getArticleViewRank() {
-            return articleViewRank;
+        public void setUpdateTime(Date updateTime) {
+            this.updateTime = updateTime;
         }
     }
 
-    private static class Data {
+    public static class Data {
         private Integer fans;
         private Integer attention;
         private Integer archive;
         private Integer article;
         private Long archiveView;
         private Long articleView;
+        private Long like;
         private Date datetime;
 
         public Long getArchiveView() {
@@ -258,6 +311,14 @@ public class Author {
 
         public void setArchiveView(Long archiveView) {
             this.archiveView = archiveView;
+        }
+
+        public Long getLike() {
+            return like;
+        }
+
+        public void setLike(Long like) {
+            this.like = like;
         }
 
         public Long getArticleView() {
