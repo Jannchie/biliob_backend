@@ -137,8 +137,6 @@ public class TracerServiceImpl implements TracerService {
         getCheckedInCount(resultMap);
         getUserCount(resultMap);
         getLatestProgressTask(resultMap);
-        getWeeklyCheckIn(resultMap);
-        getMonthlySignIn(resultMap);
         getRecordCount(resultMap);
         getLatestSpiderTask(resultMap);
 
