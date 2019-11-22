@@ -10,134 +10,139 @@ import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import java.util.ArrayList;
 
-/** @author jannchie */
+/**
+ * @author jannchie
+ */
 @JsonInclude(Include.NON_NULL)
 public class User {
-  @Id private ObjectId id;
+    @Id
+    private ObjectId id;
 
-  @NotBlank(message = "用户ID不能为空")
-  @Length(max = 16, message = "账号最长为16位")
-  private String name;
+    @NotBlank(message = "用户ID不能为空")
+    @Length(max = 16, message = "账号最长为16位")
+    private String name;
 
-  @Length(min = 6, message = "密码至少为6位")
-  @NotBlank(message = "用户密码不能为空!")
-  private String password;
+    @Length(min = 6, message = "密码至少为6位")
+    @NotBlank(message = "用户密码不能为空!")
+    private String password;
 
-  private String role;
-  private String title;
+    private String role;
+    private String title;
 
-  private ArrayList<Long> favoriteAid;
-  private ArrayList<Long> favoriteMid;
-  private Double credit;
-  private Integer exp;
+    private ArrayList<Long> favoriteAid;
+    private ArrayList<Long> favoriteMid;
+    private Double credit;
+    private Integer exp;
 
-  @NotBlank(message = "用户ID不能为空")
-  @Length(max = 16, message = "账号最长为16位")
-  private String nickName;
+    @NotBlank(message = "用户ID不能为空")
+    @Length(max = 16, message = "账号最长为16位")
+    private String nickName;
 
-  @Email(message = "邮箱格式错误")
-  @NotBlank(message = "邮箱不能为空")
-  private String mail;
+    @Email(message = "邮箱格式错误")
+    @NotBlank(message = "邮箱不能为空")
+    private String mail;
 
-  public User(String name, String password, String role) {
-    this.name = name;
-    this.password = password;
-    this.role = role;
-    this.credit = 0D;
-    this.exp = 0;
-  }
 
-  public User() {
-    this.role = "普通用户";
-    this.credit = 0D;
-    this.exp = 0;
-  }
+    public User(String name, String password, String role) {
+        this.name = name;
+        this.password = password;
+        this.role = role;
+        this.credit = 0D;
+        this.exp = 0;
+        this.title = "";
+    }
 
-  public String getTitle() {
-    return title;
-  }
+    public User() {
+        this.role = "普通用户";
+        this.credit = 0D;
+        this.exp = 0;
+    }
 
-  public void setTitle(String title) {
-    this.title = title;
-  }
+    public String getTitle() {
+        return title;
+    }
 
-  public String getMail() {
-    return mail;
-  }
+    public void setTitle(String title) {
+        this.title = title;
+    }
 
-  public void setMail(String mail) {
-    this.mail = mail;
-  }
+    public String getMail() {
+        return mail;
+    }
 
-  public String getNickName() {
-    return nickName;
-  }
+    public void setMail(String mail) {
+        this.mail = mail;
+    }
 
-  public void setNickName(String nickName) {
-    this.nickName = nickName;
-  }
+    public String getNickName() {
+        return nickName;
+    }
 
-  public Integer getExp() {
-    return exp;
-  }
+    public void setNickName(String nickName) {
+        this.nickName = nickName;
+    }
 
-  public void setExp(Integer exp) {
-    this.exp = exp;
-  }
+    public Integer getExp() {
+        return exp;
+    }
 
-  public Double getCredit() {
-    return credit;
-  }
+    public void setExp(Integer exp) {
+        this.exp = exp;
+    }
 
-  public void setCredit(Double credit) {
-    this.credit = credit;
-  }
+    public Double getCredit() {
+        return credit;
+    }
 
-  public String getName() {
-    return name;
-  }
+    public void setCredit(Double credit) {
+        this.credit = credit;
+    }
 
-  public void setName(String name) {
-    this.name = name;
-  }
+    public String getName() {
+        return name;
+    }
 
-  public String getPassword() {
-    return password;
-  }
+    public void setName(String name) {
+        this.name = name;
+    }
 
-  public void setPassword(String password) {
-    this.password = password;
-  }
+    public String getPassword() {
+        return password;
+    }
 
-  public ObjectId getId() {
-    return id;
-  }
+    public void setPassword(String password) {
+        this.password = password;
+    }
 
-  public void setId(ObjectId id) {
-    this.id = id;
-  }
+    public ObjectId getId() {
+        return id;
+    }
 
-  public ArrayList<Long> getFavoriteMid() {
-    return favoriteMid;
-  }
+    public void setId(ObjectId id) {
+        this.id = id;
+    }
 
-  public void setFavoriteMid(ArrayList<Long> favoriteMid) {
-    this.favoriteMid = favoriteMid;
-  }
+    public ArrayList<Long> getFavoriteMid() {
+        return favoriteMid;
+    }
 
-  public ArrayList<Long> getFavoriteAid() {
-    return favoriteAid;
-  }
+    public void setFavoriteMid(ArrayList<Long> favoriteMid) {
+        this.favoriteMid = favoriteMid;
+    }
 
-  public void setFavoriteAid(ArrayList<Long> favoriteAid) {
-    this.favoriteAid = favoriteAid;
-  }
+    public ArrayList<Long> getFavoriteAid() {
+        return favoriteAid;
+    }
 
-  public String getRole() {
-    return role;
-  }
+    public void setFavoriteAid(ArrayList<Long> favoriteAid) {
+        this.favoriteAid = favoriteAid;
+    }
 
-  public void setRole(String role) {
-    this.role = role;
-  }
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
+    }
 }
