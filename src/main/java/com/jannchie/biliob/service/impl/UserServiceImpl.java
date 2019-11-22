@@ -37,6 +37,7 @@ import java.util.Map;
 import java.util.Objects;
 
 import static com.jannchie.biliob.constant.PageSizeEnum.BIG_SIZE;
+import static com.jannchie.biliob.constant.PageSizeEnum.USER_RANK_SIZE;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 /**
@@ -446,9 +447,9 @@ class UserServiceImpl implements UserService {
      */
     @Override
     public MySlice<User> sliceUserRank(Integer page, Integer pagesize) {
-        // max size is 20
-        if (pagesize > BIG_SIZE.getValue()) {
-            pagesize = BIG_SIZE.getValue();
+        // max size is 51
+        if (!pagesize.equals(USER_RANK_SIZE.getValue())) {
+            pagesize = USER_RANK_SIZE.getValue();
         }
         // get user slice
         Slice<User> s =
