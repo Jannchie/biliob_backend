@@ -98,4 +98,9 @@ public class AuthorController {
             @PathVariable("mid") Long mid, @RequestParam(defaultValue = "10") Integer limit) {
         return authorService.listRelatedAuthorByMid(mid, limit);
     }
+
+    @RequestMapping(method = RequestMethod.GET, value = "/api/author/hot")
+    public List listHotAuthor() {
+        return authorService.listHotAuthor();
+    }
 }

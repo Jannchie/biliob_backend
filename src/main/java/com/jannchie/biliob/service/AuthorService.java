@@ -164,4 +164,11 @@ public interface AuthorService {
      * @return author list
      */
     List<Author> getAuthorFansGt(int gt);
+
+    /**
+     * 获取热搜作者
+     *
+     * @return 热搜作者列表
+     */
+    List listHotAuthor();
 }
