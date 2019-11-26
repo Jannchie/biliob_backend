@@ -4,41 +4,39 @@ import com.jannchie.biliob.model.User;
 import com.jannchie.biliob.repository.UserRepository;
 import org.apache.shiro.SecurityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Component;
 
-/** @author jannchie */
+/**
+ * @author jannchie
+ */
 @Component
 public class LoginChecker {
-  private static UserRepository userRepository;
+    private static UserRepository userRepository;
+    private static MongoTemplate mongoTemplate;
 
-  @Autowired
-  public LoginChecker(UserRepository userRepository) {
-    LoginChecker.userRepository = userRepository;
-  }
-
-  /**
-   * check and return user information
-   *
-   * @return null: user has not logged in || User: user information
-   */
-  public static User checkInfo() {
-    User user = userRepository.getUserInfo((String) SecurityUtils.getSubject().getPrincipal());
-    if (user == null) {
-      return null;
+    @Autowired
+    public LoginChecker(UserRepository userRepository, MongoTemplate mongoTemplate) {
+        LoginChecker.userRepository = userRepository;
+        LoginChecker.mongoTemplate = mongoTemplate;
     }
-    return user;
-  }
 
-  /**
-   * check and return user information and password
-   *
-   * @return null: user has not logged in || User: user information
-   */
-  public static User check() {
-    User user = userRepository.findByName((String) SecurityUtils.getSubject().getPrincipal());
-    if (user == null) {
-      return null;
+    /**
+     * check and return user information
+     *
+     * @return null: user has not logged in || User: user information
+     */
+    public static User checkInfo() {
+        return userRepository.getUserInfo((String) SecurityUtils.getSubject().getPrincipal());
     }
-    return user;
-  }
+
+
+    /**
+     * check and return user information and password
+     *
+     * @return null: user has not logged in || User: user information
+     */
+    public static User check() {
+        return userRepository.findByName((String) SecurityUtils.getSubject().getPrincipal());
+    }
 }

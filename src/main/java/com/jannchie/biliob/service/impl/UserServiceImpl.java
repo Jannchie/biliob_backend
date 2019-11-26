@@ -156,8 +156,31 @@ class UserServiceImpl implements UserService {
             return new ResponseEntity<>(
                     new Result(ResultEnum.HAS_NOT_LOGGED_IN), HttpStatus.UNAUTHORIZED);
         }
+
+        setUserTitleAndRank(user);
         UserServiceImpl.logger.info(user.getName());
         return new ResponseEntity<>(user, HttpStatus.OK);
+    }
+
+    private void setUserTitleAndRank(User user) {
+        long rank = mongoTemplate.count(Query.query(Criteria.where("exp").gte(user.getExp())), "user");
+        user.setRank(Math.toIntExact(rank));
+        if (rank <= 3) {
+            user.setTitle("管理者");
+        } else if (rank <= 15) {
+            user.setTitle("观测者");
+        } else if (rank <= 51) {
+            user.setTitle("观想者");
+        } else if (user.getExp() <= 100) {
+            user.setTitle("初心者");
+        } else {
+            long count = mongoTemplate.count(new Query(), "user");
+            if (rank < count / 2) {
+                user.setTitle("追寻者");
+            } else {
+                user.setTitle("彷徨者");
+            }
+        }
     }
 
     @Override

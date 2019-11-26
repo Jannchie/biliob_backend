@@ -34,14 +34,13 @@ public class User {
     private Double credit;
     private Integer exp;
 
+    private Integer rank;
     @NotBlank(message = "用户ID不能为空")
     @Length(max = 16, message = "账号最长为16位")
     private String nickName;
-
     @Email(message = "邮箱格式错误")
     @NotBlank(message = "邮箱不能为空")
     private String mail;
-
 
     public User(String name, String password, String role) {
         this.name = name;
@@ -56,6 +55,14 @@ public class User {
         this.role = "普通用户";
         this.credit = 0D;
         this.exp = 0;
+    }
+
+    public Integer getRank() {
+        return rank;
+    }
+
+    public void setRank(Integer rank) {
+        this.rank = rank;
     }
 
     public String getTitle() {

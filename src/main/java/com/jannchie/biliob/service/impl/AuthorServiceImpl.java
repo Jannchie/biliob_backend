@@ -491,13 +491,17 @@ public class AuthorServiceImpl implements AuthorService {
     @Override
     public List<Map> listMostVisitAuthorId(Integer days, Integer limit) {
         Calendar c = Calendar.getInstance();
-        c.add(Calendar.DATE, days);
+        c.add(Calendar.DATE, -days);
         return mongoTemplate.aggregate(
                 Aggregation.newAggregation(
-                        Aggregation.match(Criteria.where("date").gt(c)),
+                        Aggregation.match(Criteria.where("date").gt(c.getTime())),
                         Aggregation.group("mid").count().as("count"),
                         Aggregation.sort(Sort.Direction.DESC, "count"),
-                        Aggregation.limit(limit)), "author_visit", Map.class).getMappedResults();
+                        Aggregation.limit(limit),
+                        Aggregation.lookup("author", "_id", "mid", "author"),
+                        Aggregation.project("_id", "count").and("author.name").as("name"),
+                        Aggregation.unwind("name"))
+                , "author_visit", Map.class).getMappedResults();
     }
 
     public List<Map> listMostVisitAuthorId(Integer days) {
@@ -571,5 +575,10 @@ public class AuthorServiceImpl implements AuthorService {
         Query q = Query.query(Criteria.where("cFans").gt(gt));
         q.fields().include("mid");
         return mongoTemplate.find(q, Author.class, "author");
+    }
+
+    @Override
+    public List listHotAuthor() {
+        return this.listMostVisitAuthorId(1, 10);
     }
 }
