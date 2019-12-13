@@ -10,7 +10,7 @@ public enum PageSizeEnum {
      */
     SMALL_SIZE(5),
     BIG_SIZE(20),
-    USER_RANK_SIZE(51);
+    USER_RANK_SIZE(100);
 
     private Integer value;
 

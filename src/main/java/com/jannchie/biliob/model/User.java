@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import org.bson.types.ObjectId;
 import org.hibernate.validator.constraints.Length;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
@@ -13,13 +14,14 @@ import java.util.ArrayList;
 /**
  * @author jannchie
  */
+@Document(collection = "user")
 @JsonInclude(Include.NON_NULL)
 public class User {
     @Id
     private ObjectId id;
 
     @NotBlank(message = "用户ID不能为空")
-    @Length(max = 16, message = "账号最长为16位")
+    @Length(max = 20, message = "账号最长为16位")
     private String name;
 
     @Length(min = 6, message = "密码至少为6位")
@@ -36,7 +38,7 @@ public class User {
 
     private Integer rank;
     @NotBlank(message = "用户ID不能为空")
-    @Length(max = 16, message = "账号最长为16位")
+    @Length(max = 20, message = "账号最长为16位")
     private String nickName;
     @Email(message = "邮箱格式错误")
     @NotBlank(message = "邮箱不能为空")
