@@ -68,10 +68,9 @@ public class VideoServiceImpl implements VideoService {
     /**
      * get popular keyword
      *
-     * @return
+     * @return keyword list
      */
     @Override
-    @Cacheable(value = "popular_tag")
     public List getPopularKeyword() {
         VideoServiceImpl.logger.info("获取最流行的TAG列表");
         Calendar c = Calendar.getInstance();
