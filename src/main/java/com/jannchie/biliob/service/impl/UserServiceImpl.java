@@ -470,7 +470,7 @@ class UserServiceImpl implements UserService {
      */
     @Override
     public MySlice<User> sliceUserRank(Integer page, Integer pagesize) {
-        // max size is 51
+        // max size is 100
         if (!pagesize.equals(USER_RANK_SIZE.getValue())) {
             pagesize = USER_RANK_SIZE.getValue();
         }
@@ -616,5 +616,21 @@ class UserServiceImpl implements UserService {
         }
         mongoTemplate.updateFirst(Query.query(Criteria.where("name").is(user.getName())), Update.update("mail", mail), "user");
         return ResponseEntity.ok(new Result(ResultEnum.SUCCEED));
+    }
+
+    @Override
+    public ResponseEntity changeNickName(String newNickname) {
+        User user = LoginChecker.checkInfo();
+        if (user == null) {
+            return new ResponseEntity<>(
+                    new Result(ResultEnum.HAS_NOT_LOGGED_IN), HttpStatus.UNAUTHORIZED);
+        }
+        //TODO: 使用更加科学的数据验证
+        if (newNickname.length() > 20) {
+            return new ResponseEntity<>(new Result(ResultEnum.OUT_OF_RANGE), HttpStatus.BAD_REQUEST);
+        }
+        mongoTemplate.updateFirst(Query.query(Criteria.where("name").is(user.getName())), Update.update("nickName", newNickname), User.class);
+        user.setNickName(newNickname);
+        return ResponseEntity.ok(new Result(ResultEnum.SUCCEED, user));
     }
 }

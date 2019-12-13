@@ -43,6 +43,18 @@ public abstract class AbstractCreditCalculator<T> {
         this.creditConstant = creditConstant;
     }
 
+    public static ResponseEntity getSuccessResponse(Double credit, Double exp) {
+        ResponseEntity<Result> r;
+        HashMap<String, Double> data;
+
+        data = new HashMap<>(2);
+        data.put("exp", exp);
+        data.put("credit", credit);
+        r = new ResponseEntity<>(new Result(ResultEnum.SUCCEED, data), HttpStatus.OK);
+
+        return r;
+    }
+
     private ResponseEntity<Result> checkCredit(User user, Double value) {
         if (user == null) {
             return new ResponseEntity<>(
@@ -98,15 +110,7 @@ public abstract class AbstractCreditCalculator<T> {
     }
 
     private ResponseEntity getCreditResponse(Double credit, Double exp) {
-        ResponseEntity<Result> r;
-        HashMap<String, Double> data;
-
-        data = new HashMap<>(2);
-        data.put("exp", exp);
-        data.put("credit", credit);
-        r = new ResponseEntity<>(new Result(ResultEnum.SUCCEED, data), HttpStatus.OK);
-
-        return r;
+        return getSuccessResponse(credit, exp);
     }
 
     private void updateUserInfo(Double credit, Double exp, String userName) {
