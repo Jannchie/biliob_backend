@@ -13,9 +13,7 @@ spring:
         min-idle: 0
         max-wait: -1
       shutdown-timeout: 30000
-    host: ${BILIOB_REDIS_URL}
-    port: ${BILIOB_REDIS_PORT}
-    password: ${BILIOB_REDIS_PASSWD}
+    url: ${BILIOB_REDIS_CONNECTION_STRING}
     timeout: 30000
   mail:
     host: smtp.biliob.com
