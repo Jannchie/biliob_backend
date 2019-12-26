@@ -498,7 +498,7 @@ public class AuthorServiceImpl implements AuthorService {
                         Aggregation.group("mid").count().as("count"),
                         Aggregation.sort(Sort.Direction.DESC, "count"),
                         Aggregation.limit(limit),
-                        Aggregation.lookup("author", "_id", "mid", "author"),
+                        Aggregation.lookup("author", "mid", "mid", "author"),
                         Aggregation.project("_id", "count").and("author.name").as("name"),
                         Aggregation.unwind("name"))
                 , "author_visit", Map.class).getMappedResults();
@@ -514,6 +514,31 @@ public class AuthorServiceImpl implements AuthorService {
                         Aggregation.sort(Sort.Direction.DESC, "count")), "author_visit", Map.class).getMappedResults();
     }
 
+
+    @Override
+    public void updateObserveFreqPerMinute() {
+        logger.info("[UPDATE] 调整观测频率 - 高频");
+        // 点击频率最高，每十分钟一次
+        List<Map> authorList = this.listMostVisitAuthorId(1, 30);
+        for (Map author : authorList
+        ) {
+            this.upsertAuthorFreq((Long) author.get("mid"), SECOND_OF_DAY / (24 * 6), false);
+        }
+        // 各指标最高，前三名：每1分钟一次；前20名：每十分钟一次
+        for (int i = 0; i <= 3; i++) {
+            mongoTemplate.aggregate(
+                    Aggregation.newAggregation(
+                            Aggregation.sort(Sort.Direction.DESC, AuthorSortEnum.getKeyByFlag(i)),
+                            Aggregation.limit(20),
+                            Aggregation.project("mid")), "author", Map.class);
+            int idx = 0;
+            for (Map author : authorList
+            ) {
+                this.upsertAuthorFreq((Long) author.get("mid"), SECOND_OF_DAY / ((idx++ <= 3) ? (24 * 60) : (24 * 6)), false);
+            }
+        }
+
+    }
 
     @Override
     public void updateObserveFreq() {
@@ -576,6 +601,7 @@ public class AuthorServiceImpl implements AuthorService {
         q.fields().include("mid");
         return mongoTemplate.find(q, Author.class, "author");
     }
+
 
     @Override
     public List listHotAuthor() {
