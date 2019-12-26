@@ -397,7 +397,7 @@ class UserServiceImpl implements UserService {
         User user = LoginChecker.checkInfo();
         if (user == null) {
             return new ResponseEntity<>(
-                    new Result(ResultEnum.HAS_NOT_LOGGED_IN), HttpStatus.UNAUTHORIZED);
+                    new Result(ResultEnum.HAS_NOT_LOGGED_IN), HttpStatus.OK);
         }
         Boolean isCheckedIn =
                 mongoTemplate.exists(new Query(where("name").is(user.getName())), "check_in");
