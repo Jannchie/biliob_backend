@@ -131,8 +131,8 @@ public class ShiroConfig implements EnvironmentAware {
     public SimpleCookie rememberMeCookie() {
         SimpleCookie cookie = new SimpleCookie("rememberMe");
         cookie.setHttpOnly(true);
-        // remember me retain 7 days
-        cookie.setMaxAge(60 * 60 * 24 * 7);
+        // remember me retain 30 days
+        cookie.setMaxAge(60 * 60 * 24 * 30);
         return cookie;
     }
 
