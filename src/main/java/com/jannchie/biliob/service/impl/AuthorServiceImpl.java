@@ -8,6 +8,7 @@ import com.jannchie.biliob.exception.UserAlreadyFavoriteAuthorException;
 import com.jannchie.biliob.model.Author;
 import com.jannchie.biliob.model.AuthorRankData;
 import com.jannchie.biliob.model.RealTimeFans;
+import com.jannchie.biliob.object.AuthorVisitRecord;
 import com.jannchie.biliob.repository.AuthorRepository;
 import com.jannchie.biliob.repository.RealTimeFansRepository;
 import com.jannchie.biliob.service.AuthorService;
@@ -36,6 +37,7 @@ import org.springframework.stereotype.Service;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.jannchie.biliob.constant.TimeConstant.SECOND_OF_DAY;
 import static com.mongodb.client.model.Aggregates.*;
@@ -489,19 +491,33 @@ public class AuthorServiceImpl implements AuthorService {
     }
 
     @Override
-    public List<Map> listMostVisitAuthorId(Integer days, Integer limit) {
+    public List<AuthorVisitRecord> listMostVisitAuthorId(Integer days, Integer limit) {
         Calendar c = Calendar.getInstance();
         c.add(Calendar.DATE, -days);
-        return mongoTemplate.aggregate(
+        List<AuthorVisitRecord> results = mongoTemplate.aggregate(
                 Aggregation.newAggregation(
-                        Aggregation.match(Criteria.where("date").gt(c.getTime())),
-                        Aggregation.group("mid").count().as("count"),
+                        Aggregation.match(where("date").gt(c.getTime())),
+                        Aggregation.group("mid").count().as("count").first("mid").as("mid"),
                         Aggregation.sort(Sort.Direction.DESC, "count"),
-                        Aggregation.limit(limit),
-                        Aggregation.lookup("author", "mid", "mid", "author"),
-                        Aggregation.project("_id", "count").and("author.name").as("name"),
-                        Aggregation.unwind("name"))
-                , "author_visit", Map.class).getMappedResults();
+                        Aggregation.limit(limit)
+                )
+                , "author_visit", AuthorVisitRecord.class).getMappedResults();
+
+        Query q = Query.query(Criteria.where("mid").in(results.stream().map(AuthorVisitRecord::getMid).collect(Collectors.toList())));
+        q.fields().include("name").include("mid");
+        List<Author> authorList = mongoTemplate.find(q, Author.class);
+        for (AuthorVisitRecord result : results
+        ) {
+            for (Author author : authorList
+            ) {
+
+                if (result.getMid().equals(author.getMid())) {
+                    result.setName(author.getName());
+                }
+            }
+
+        }
+        return results;
     }
 
     public List<Map> listMostVisitAuthorId(Integer days) {
@@ -519,10 +535,10 @@ public class AuthorServiceImpl implements AuthorService {
     public void updateObserveFreqPerMinute() {
         logger.info("[UPDATE] 调整观测频率 - 高频");
         // 点击频率最高，每十分钟一次
-        List<Map> authorList = this.listMostVisitAuthorId(1, 30);
-        for (Map author : authorList
+        List<AuthorVisitRecord> authorList = this.listMostVisitAuthorId(1, 30);
+        for (AuthorVisitRecord author : authorList
         ) {
-            this.upsertAuthorFreq((Long) author.get("mid"), SECOND_OF_DAY / (24 * 6), false);
+            this.upsertAuthorFreq(author.getMid(), SECOND_OF_DAY / (24 * 6), false);
         }
         // 各指标最高，前三名：每1分钟一次；前20名：每十分钟一次
         for (int i = 0; i <= 3; i++) {
@@ -532,9 +548,9 @@ public class AuthorServiceImpl implements AuthorService {
                             Aggregation.limit(20),
                             Aggregation.project("mid")), "author", Map.class);
             int idx = 0;
-            for (Map author : authorList
+            for (AuthorVisitRecord author : authorList
             ) {
-                this.upsertAuthorFreq((Long) author.get("mid"), SECOND_OF_DAY / ((idx++ <= 3) ? (24 * 60) : (24 * 6)), false);
+                this.upsertAuthorFreq(author.getMid(), SECOND_OF_DAY / ((idx++ <= 3) ? (24 * 60) : (24 * 6)), false);
             }
         }
 
@@ -567,10 +583,10 @@ public class AuthorServiceImpl implements AuthorService {
         }
 
         // 最多点击：高速观测
-        List<Map> mostVisitAuthorList = this.listMostVisitAuthorId(1, 100);
-        for (Map data : mostVisitAuthorList
+        List<AuthorVisitRecord> mostVisitAuthorList = this.listMostVisitAuthorId(1, 100);
+        for (AuthorVisitRecord data : mostVisitAuthorList
         ) {
-            this.upsertAuthorFreq((Long) data.get("mid"), SECOND_OF_DAY / 96, false);
+            this.upsertAuthorFreq(data.getMid(), SECOND_OF_DAY / 96, false);
         }
         logger.info("[FINISH] 调整观测频率");
 

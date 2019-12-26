@@ -3,12 +3,12 @@ package com.jannchie.biliob.service;
 import com.jannchie.biliob.exception.AuthorAlreadyFocusedException;
 import com.jannchie.biliob.exception.UserAlreadyFavoriteAuthorException;
 import com.jannchie.biliob.model.Author;
+import com.jannchie.biliob.object.AuthorVisitRecord;
 import com.jannchie.biliob.utils.MySlice;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author jannchie
@@ -150,7 +150,7 @@ public interface AuthorService {
      * @param limit 数量限制
      * @return 作者ID以及累计访问次数的对象列表
      */
-    List<Map> listMostVisitAuthorId(Integer days, Integer limit);
+    List<AuthorVisitRecord> listMostVisitAuthorId(Integer days, Integer limit);
 
     /**
      * 更新观测频率
