@@ -171,4 +171,6 @@ public interface AuthorService {
      * @return 热搜作者列表
      */
     List listHotAuthor();
+
+    void updateObserveFreqPerMinute();
 }
