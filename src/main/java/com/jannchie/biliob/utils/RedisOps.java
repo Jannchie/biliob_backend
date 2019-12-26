@@ -18,6 +18,10 @@ public class RedisOps {
     private static final String DANMAKU_FROM_AID_URL =
             "https://api.bilibili.com/x/web-interface/view?aid=%d&%s";
     private static final String DANMAKU_KEY = "DanmakuAggregate:start_urls";
+
+    private static final String TAG_TASK = "tag_task";
+
+
     private final RedisTemplate<String, String> redisTemplate;
 
     @Autowired
@@ -84,5 +88,13 @@ public class RedisOps {
     public void postDanmakuAggregateTask(Long aid, ObjectId objectId) {
         String url = String.format(RedisOps.DANMAKU_FROM_AID_URL, aid, objectId);
         sentRequest(RedisOps.DANMAKU_KEY, url);
+    }
+
+    public void postTagSpiderTask(Integer aid) {
+        sentRequest(RedisOps.TAG_TASK, String.valueOf(aid));
+    }
+
+    public void deleteTagTask() {
+        redisTemplate.delete(RedisOps.TAG_TASK);
     }
 }
