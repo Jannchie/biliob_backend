@@ -2,12 +2,12 @@ package com.jannchie.biliob.service.impl;
 
 import com.jannchie.biliob.constant.AuthorSortEnum;
 import com.jannchie.biliob.constant.PageSizeEnum;
-import com.jannchie.biliob.constant.TimeConstant;
 import com.jannchie.biliob.exception.AuthorAlreadyFocusedException;
 import com.jannchie.biliob.exception.UserAlreadyFavoriteAuthorException;
 import com.jannchie.biliob.model.Author;
 import com.jannchie.biliob.model.AuthorRankData;
 import com.jannchie.biliob.model.RealTimeFans;
+import com.jannchie.biliob.object.AuthorIntervalRecord;
 import com.jannchie.biliob.object.AuthorVisitRecord;
 import com.jannchie.biliob.repository.AuthorRepository;
 import com.jannchie.biliob.repository.RealTimeFansRepository;
@@ -102,7 +102,7 @@ public class AuthorServiceImpl implements AuthorService {
                                 .push("data")
                                 .as("data"));
         if (!mongoTemplate.exists(Query.query(Criteria.where("mid").is(mid)), "author_interval")) {
-            this.upsertAuthorFreq(mid, TimeConstant.MICROSECOND_OF_DAY, false);
+            this.upsertAuthorFreq(mid, SECOND_OF_DAY);
         }
         Author author = mongoTemplate.aggregate(a, "author", Author.class).getMappedResults().get(0);
         setRankData(author);
@@ -464,30 +464,17 @@ public class AuthorServiceImpl implements AuthorService {
     }
 
     @Override
-    public void upsertAuthorFreq(Long mid, Integer interval, boolean refreshNext) {
-        Calendar nextCal = Calendar.getInstance();
-        nextCal.add(Calendar.SECOND, interval);
-        Date cTime = Calendar.getInstance().getTime();
-        logger.debug("[UPSERT] 作者：{} 访问频率：{} 更新时间：{}", mid, interval, cTime);
-        Update u = Update.update("date", cTime)
-                .set("interval", interval);
-        if (refreshNext) {
-            u.set("next", cTime);
-        } else {
-            u.setOnInsert("next", nextCal.getTime());
-        }
-        mongoTemplate.upsert(Query.query(Criteria.where("mid").is(mid)), u, "author_interval");
-    }
-
-    @Override
     public void upsertAuthorFreq(Long mid, Integer interval) {
+        AuthorIntervalRecord preInterval = mongoTemplate.findOne(Query.query(Criteria.where("mid").is(mid)), AuthorIntervalRecord.class, "author_interval");
         Calendar nextCal = Calendar.getInstance();
-        nextCal.add(Calendar.SECOND, interval);
         Date cTime = Calendar.getInstance().getTime();
-        logger.debug("[UPSERT] 作者：{} 访问频率：{} 更新时间：{}", mid, interval, cTime);
-        Update u = Update.update("date", cTime)
-                .set("interval", interval).setOnInsert("next", nextCal.getTime());
-        mongoTemplate.upsert(Query.query(Criteria.where("mid").is(mid)), u, "author_interval");
+        nextCal.add(Calendar.SECOND, interval);
+        if (null == preInterval || !interval.equals(preInterval.getInterval())) {
+            Update u = Update.update("date", cTime)
+                    .set("interval", interval).set("next", nextCal.getTime());
+            logger.info("[UPSERT] 作者：{} 访问频率：{} 下次爬取：{}", mid, interval, nextCal.getTime());
+            mongoTemplate.upsert(Query.query(Criteria.where("mid").is(mid)), u, "author_interval");
+        }
     }
 
     @Override
@@ -538,9 +525,9 @@ public class AuthorServiceImpl implements AuthorService {
         List<AuthorVisitRecord> authorList = this.listMostVisitAuthorId(1, 30);
         for (AuthorVisitRecord author : authorList
         ) {
-            this.upsertAuthorFreq(author.getMid(), SECOND_OF_DAY / (24 * 6), false);
+            this.upsertAuthorFreq(author.getMid(), SECOND_OF_DAY / (24 * 6));
         }
-        // 各指标最高，前三名：每1分钟一次；前20名：每十分钟一次
+        // 各指标最高，前三名：每1分钟一次；前20名：每十分钟一次。
         for (int i = 0; i <= 3; i++) {
             mongoTemplate.aggregate(
                     Aggregation.newAggregation(
@@ -550,11 +537,29 @@ public class AuthorServiceImpl implements AuthorService {
             int idx = 0;
             for (AuthorVisitRecord author : authorList
             ) {
-                this.upsertAuthorFreq(author.getMid(), SECOND_OF_DAY / ((idx++ <= 3) ? (24 * 60) : (24 * 6)), false);
+                this.upsertAuthorFreq(author.getMid(), SECOND_OF_DAY / ((idx++ <= 3) ? (24 * 60) : (24 * 6)));
+            }
+        }
+        // 涨掉粉榜，前三名：每1分钟一次；前20名：每十分钟一次。
+        Sort.Direction[] d = {Sort.Direction.DESC, Sort.Direction.ASC};
+        for (Sort.Direction direction : d) {
+            Query q = new Query().with(Sort.by(direction, "cRate"));
+            q.fields().include("mid");
+            List<Author> authors = mongoTemplate.find(q.limit(20), Author.class);
+            int idx = 0;
+            for (Author author : authors) {
+                this.upsertAuthorFreq(author.getMid(), SECOND_OF_DAY / ((idx++ <= 3) ? (24 * 60) : (24 * 6)));
             }
         }
 
+        // 最多点击：高速观测
+        List<AuthorVisitRecord> mostVisitAuthorList = this.listMostVisitAuthorId(1, 100);
+        for (AuthorVisitRecord data : mostVisitAuthorList
+        ) {
+            this.upsertAuthorFreq(data.getMid(), SECOND_OF_DAY / 96);
+        }
     }
+
 
     @Override
     public void updateObserveFreq() {
@@ -563,14 +568,14 @@ public class AuthorServiceImpl implements AuthorService {
         List<Author> authorList = getAuthorFansGt(100000);
         for (Author author : authorList
         ) {
-            this.upsertAuthorFreq(author.getMid(), SECOND_OF_DAY, false);
+            this.upsertAuthorFreq(author.getMid(), SECOND_OF_DAY);
         }
 
         // 百万粉以上：高频观测
         authorList = this.getAuthorFansGt(1000000);
         for (Author author : authorList
         ) {
-            this.upsertAuthorFreq(author.getMid(), SECOND_OF_DAY / 4, false);
+            this.upsertAuthorFreq(author.getMid(), SECOND_OF_DAY / 4);
         }
 
         // 人为设置：强行观测
@@ -579,33 +584,7 @@ public class AuthorServiceImpl implements AuthorService {
         authorList = mongoTemplate.find(q, Author.class, "author");
         for (Author author : authorList
         ) {
-            this.upsertAuthorFreq(author.getMid(), SECOND_OF_DAY / 8, false);
-        }
-
-        // 最多点击：高速观测
-        List<AuthorVisitRecord> mostVisitAuthorList = this.listMostVisitAuthorId(1, 100);
-        for (AuthorVisitRecord data : mostVisitAuthorList
-        ) {
-            this.upsertAuthorFreq(data.getMid(), SECOND_OF_DAY / 96, false);
-        }
-        logger.info("[FINISH] 调整观测频率");
-
-        q = new Query();
-        q.fields().include("mid");
-        q.with(Sort.by(Sort.Direction.DESC, "cRate")).limit(100);
-        List<Map> rateDesc = mongoTemplate.find(q, Map.class, "author");
-        for (Map data : rateDesc
-        ) {
-            this.upsertAuthorFreq((Long) data.get("mid"), SECOND_OF_DAY / 96, false);
-        }
-
-        q = new Query();
-        q.fields().include("mid");
-        q.with(Sort.by(Sort.Direction.ASC, "cRate")).limit(100);
-        List<Map> rateAsc = mongoTemplate.find(q, Map.class, "author");
-        for (Map data : rateAsc
-        ) {
-            this.upsertAuthorFreq((Long) data.get("mid"), SECOND_OF_DAY / 96, false);
+            this.upsertAuthorFreq(author.getMid(), SECOND_OF_DAY / 8);
         }
 
         logger.info("[FINISH] 调整观测频率");
