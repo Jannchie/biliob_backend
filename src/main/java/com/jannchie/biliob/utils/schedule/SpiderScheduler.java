@@ -49,15 +49,16 @@ public class SpiderScheduler {
     /**
      * 每分鐘更新作者數據
      */
-    @Scheduled(fixedDelay = MICROSECOND_OF_MINUTES, initialDelay = MICROSECOND_OF_MINUTES)
+    @Scheduled(fixedDelay = MICROSECOND_OF_MINUTES)
     @Async
     public void updateAuthorData() {
+        logger.info("[SPIDER] 每分钟更新作者数据");
         Calendar c = Calendar.getInstance();
         List<Map> authorList = mongoTemplate.find(Query.query(Criteria.where("next").lt(c.getTime())), Map.class, "author_interval");
         for (Map freqData : authorList) {
             Long mid = (Long) freqData.get("mid");
-            logger.info("[UPDATE] 更新作者数据：{}", mid);
             c.add(Calendar.SECOND, (Integer) freqData.get("interval"));
+            logger.info("[UPDATE] 更新作者数据：{} 下次更新时间 {}", mid, c.getTime());
             mongoTemplate.updateFirst(Query.query(Criteria.where("mid").is(mid)), Update.update("next", c.getTime()), "author_interval");
             redisOps.postAuthorCrawlTask(mid);
         }
