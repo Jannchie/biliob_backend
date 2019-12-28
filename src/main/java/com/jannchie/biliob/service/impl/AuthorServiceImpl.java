@@ -471,7 +471,10 @@ public class AuthorServiceImpl implements AuthorService {
         nextCal.add(Calendar.SECOND, interval);
         if (null == preInterval || !interval.equals(preInterval.getInterval())) {
             Update u = Update.update("date", cTime)
-                    .set("interval", interval).set("next", nextCal.getTime());
+                    .set("interval", interval);
+            if (preInterval == null || nextCal.getTimeInMillis() < preInterval.getNext().getTime()) {
+                u.set("next", nextCal.getTime());
+            }
             logger.info("[UPSERT] 作者：{} 访问频率：{} 下次爬取：{}", mid, interval, nextCal.getTime());
             mongoTemplate.upsert(Query.query(Criteria.where("mid").is(mid)), u, "author_interval");
         }
