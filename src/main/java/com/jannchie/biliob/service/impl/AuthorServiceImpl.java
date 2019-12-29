@@ -469,13 +469,15 @@ public class AuthorServiceImpl implements AuthorService {
         Calendar nextCal = Calendar.getInstance();
         Date cTime = Calendar.getInstance().getTime();
         nextCal.add(Calendar.SECOND, interval);
+        // 如果此前没有访问频率数据，或者访问频率发生了变化，则更新访问频率数据。
         if (null == preInterval || !interval.equals(preInterval.getInterval())) {
             Update u = Update.update("date", cTime)
                     .set("interval", interval);
+            // 如果此前没有访问频率数据，或者更新后的访问时间比原来的访问时间还短，则刷新下次访问的时间。
             if (preInterval == null || nextCal.getTimeInMillis() < preInterval.getNext().getTime()) {
                 u.set("next", nextCal.getTime());
+                logger.info("[UPSERT] 作者：{} 访问频率：{} 下次爬取：{}", mid, interval, nextCal.getTime());
             }
-            logger.info("[UPSERT] 作者：{} 访问频率：{} 下次爬取：{}", mid, interval, nextCal.getTime());
             mongoTemplate.upsert(Query.query(Criteria.where("mid").is(mid)), u, "author_interval");
         }
     }
