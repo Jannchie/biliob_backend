@@ -1,5 +1,6 @@
 package com.jannchie.biliob.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.springframework.data.mongodb.core.mapping.Field;
 
@@ -11,7 +12,6 @@ import java.util.Date;
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Author {
-
     private Long mid;
     private String name;
     private String face;
@@ -208,6 +208,7 @@ public class Author {
         private Long dArchiveViewRank;
         private Long dArticleViewRank;
         private Long dLikeRank;
+        @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
         private Date updateTime;
 
         public Rank(Long fansRank, Long archiveViewRank, Long articleViewRank, Long likeRank, Long dFansRank, Long dArchiveViewRank, Long dArticleViewRank, Long dLikeRank, Date updateTime) {
@@ -303,6 +304,7 @@ public class Author {
         private Long archiveView;
         private Long articleView;
         private Long like;
+        @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
         private Date datetime;
 
         public Long getArchiveView() {
