@@ -113,7 +113,7 @@ public interface VideoService {
     /**
      * get popular keyword
      *
-     * @return
+     * @return popular keyword list
      */
     List getPopularKeyword();
 
