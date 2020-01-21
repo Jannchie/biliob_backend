@@ -1,5 +1,6 @@
 package com.jannchie.biliob.utils.schedule;
 
+import com.jannchie.biliob.model.Video;
 import com.jannchie.biliob.service.AuthorService;
 import com.jannchie.biliob.service.VideoService;
 import com.jannchie.biliob.utils.RedisOps;
@@ -8,6 +9,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
+import org.springframework.data.mongodb.core.aggregation.TypedAggregation;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
@@ -70,16 +72,16 @@ public class SpiderScheduler {
     @Scheduled(fixedDelay = MICROSECOND_OF_MINUTES)
     @Async
     public void addTagData() {
-        List<Map> videoList = mongoTemplate.aggregate(
-                Aggregation.newAggregation(
+        List<Video> videoList = mongoTemplate.aggregate(
+                TypedAggregation.newAggregation(Video.class,
                         Aggregation.match(Criteria.where("tag").exists(false)),
                         Aggregation.project("aid"),
-                        Aggregation.limit(1000)), "video", Map.class).getMappedResults();
+                        Aggregation.limit(100)),  Video.class).getMappedResults();
         redisOps.deleteTagTask();
-        for (Map eachVideo : videoList) {
-            Number aid = (Number) eachVideo.get("aid");
+        for (Video eachVideo : videoList) {
+            Long aid =  eachVideo.getAid();
             logger.info("[UPDATE] 添加Tag：{}", aid);
-            redisOps.postTagSpiderTask(aid.intValue());
+            redisOps.postTagSpiderTask(aid);
         }
     }
 
