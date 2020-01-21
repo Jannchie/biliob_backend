@@ -3,6 +3,7 @@ package com.jannchie.biliob.utils;
 import com.jannchie.biliob.model.Blacklist;
 import com.jannchie.biliob.model.IpVisitRecord;
 import com.jannchie.biliob.model.UserAgentBlackList;
+import com.jannchie.biliob.model.WhiteList;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +18,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static org.springframework.data.mongodb.core.query.Criteria.where;
@@ -28,12 +31,10 @@ import static org.springframework.data.mongodb.core.query.Query.query;
  */
 @Component
 public class IpHandlerInterceptor implements HandlerInterceptor {
-
     private static final Logger logger = LogManager.getLogger(IpHandlerInterceptor.class);
     private static final Integer MAX_CUD_IN_MINUTE = 180;
     private static final Integer MAX_R_IN_MINUTE = 360;
     private static final String IP = "ip";
-    private static final ArrayList<String> LOCALHOST = new ArrayList<>(Arrays.asList("0:0:0:0:0:0:0:1", "127.0.0.1"));
     private static HashMap<String, Integer> blackIP = new HashMap<>(256);
     private final MongoTemplate mongoTemplate;
 
@@ -53,13 +54,18 @@ public class IpHandlerInterceptor implements HandlerInterceptor {
         String userAgent = request.getHeader("user-agent");
         String uri = request.getRequestURI();
 
-        if (isBot(userAgent)) {
-            mongoTemplate.save(new Blacklist(ip));
+        // 在白名单中直接放过
+        if (mongoTemplate.exists(query(where(IP).is(ip)), WhiteList.class)) {
+            return true;
         }
-        // 在黑名单中直接处决，除非这次请求是本地发起的
-        if (mongoTemplate.exists(query(where(IP).is(ip)), Blacklist.class) && !LOCALHOST.contains(ip)) {
+        // 在黑名单中直接处决
+        if (mongoTemplate.exists(query(where(IP).is(ip)), Blacklist.class)) {
             returnJson(response);
             return false;
+        }
+
+        if (isBot(userAgent)) {
+            mongoTemplate.save(new Blacklist(ip));
         }
         // 保存一条IP访问记录
         mongoTemplate.save(new IpVisitRecord(ip, userAgent, uri));

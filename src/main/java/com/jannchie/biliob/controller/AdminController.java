@@ -106,14 +106,25 @@ public class AdminController {
     public List listIpRecord(
             @RequestParam(defaultValue = "0") Integer page,
             @RequestParam(defaultValue = "20") Integer pagesize,
-            @RequestParam(defaultValue = "ip") String groupBy,
+            @RequestParam(defaultValue = "") String groupBy,
+            @RequestParam(defaultValue = "") String regex,
             @RequestParam(defaultValue = "") String text,
             @RequestParam(defaultValue = "30") Integer day) {
-        return adminService.listIpRecord(page, pagesize, groupBy, text, day);
+        return adminService.listIpRecord(page, pagesize, groupBy, text, day, regex);
     }
 
     @RequestMapping(method = RequestMethod.POST, value = "/ua")
     public ResponseEntity<Result> postBanedUserAgent(@RequestBody String userAgent) {
         return adminService.banUserAgent(userAgent);
+    }
+
+    @RequestMapping(method = RequestMethod.GET, value = "/ip/dist")
+    public Map<Integer, Integer> getIpIntDist(@RequestParam(defaultValue = "") String ip) {
+        return adminService.getDistribute(ip);
+    }
+
+    @RequestMapping(method = RequestMethod.GET, value = "/ip/variance")
+    public Double getIpIntVariance(@RequestParam(defaultValue = "") String ip) {
+        return adminService.getVariance(ip);
     }
 }

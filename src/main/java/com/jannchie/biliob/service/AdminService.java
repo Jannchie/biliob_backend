@@ -1,11 +1,13 @@
 package com.jannchie.biliob.service;
 
+import com.jannchie.biliob.model.IpVisitRecord;
 import com.jannchie.biliob.model.ScheduleItem;
 import com.jannchie.biliob.model.SearchMethod;
 import com.jannchie.biliob.utils.Result;
 import org.springframework.http.ResponseEntity;
 
 import javax.validation.Valid;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -32,8 +34,9 @@ public interface AdminService {
      * @param groupBy  group by
      * @param text     text
      * @param day      @return user list
+     * @param regex    regex
      */
-    List listIpRecord(Integer page, Integer pagesize, String groupBy, String text, Integer day);
+    List listIpRecord(Integer page, Integer pagesize, String groupBy, String text, Integer day, String regex);
 
     /**
      * aggregate user
@@ -144,4 +147,10 @@ public interface AdminService {
      * @return 禁用結果
      */
     ResponseEntity<Result> banUserAgent(String userAgent);
+
+    ArrayList<IpVisitRecord> getVisitVariance();
+
+    Double getVariance(String ip);
+
+    Map<Integer, Integer> getDistribute(String ip);
 }

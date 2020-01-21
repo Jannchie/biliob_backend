@@ -80,7 +80,7 @@ public class SpiderScheduler {
         redisOps.deleteTagTask();
         for (Video eachVideo : videoList) {
             Long aid = eachVideo.getAid();
-            logger.info("[UPDATE] 添加Tag：{}", aid);
+//            logger.info("[UPDATE] 添加Tag：{}", aid);
             redisOps.postTagSpiderTask(aid);
         }
     }

@@ -1,23 +1,19 @@
 package com.jannchie.biliob.service.impl;
 
 import com.jannchie.biliob.constant.ResultEnum;
-import com.jannchie.biliob.model.ScheduleItem;
-import com.jannchie.biliob.model.SearchMethod;
-import com.jannchie.biliob.model.User;
-import com.jannchie.biliob.model.UserAgentBlackList;
+import com.jannchie.biliob.model.*;
 import com.jannchie.biliob.repository.UserRepository;
 import com.jannchie.biliob.service.AdminService;
 import com.jannchie.biliob.utils.LoginChecker;
 import com.jannchie.biliob.utils.Result;
 import com.mongodb.BasicDBObject;
 import com.mongodb.client.MongoClient;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.aggregation.Aggregation;
-import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
-import org.springframework.data.mongodb.core.aggregation.BucketAutoOperation;
-import org.springframework.data.mongodb.core.aggregation.GroupOperation;
+import org.springframework.data.mongodb.core.aggregation.*;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
@@ -28,12 +24,14 @@ import org.springframework.stereotype.Service;
 import javax.validation.Valid;
 import java.util.*;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * @author jannchie
  */
 @Service
 public class AdminServiceImpl implements AdminService {
+    private static final Logger logger = LogManager.getLogger(UserServiceImpl.class);
     final UserRepository userRepository;
     final MongoTemplate mongoTemplate;
     @Autowired
@@ -73,23 +71,6 @@ public class AdminServiceImpl implements AdminService {
         return mongoTemplate.aggregate(a, "user", Map.class).getMappedResults();
     }
 
-    @Override
-    public List listIpRecord(Integer page, Integer pagesize, String groupBy, String text, Integer day) {
-        Calendar c = Calendar.getInstance();
-        c.add(Calendar.DATE, -day);
-        ArrayList<AggregationOperation> aggregationList = new ArrayList<>();
-        if (!text.equals("")) {
-            aggregationList.add(Aggregation.match(Criteria.where("ip").is(text)));
-        } else {
-            aggregationList.add(Aggregation.group(groupBy).count().as("count").first("datetime").as("firstTime").last("datetime").as("lastTime"));
-        }
-        aggregationList.add(Aggregation.sort(Sort.Direction.DESC, "count"));
-        aggregationList.add(Aggregation.limit(pagesize));
-        aggregationList.add(Aggregation.skip((long) page));
-        Aggregation a = Aggregation.newAggregation(aggregationList);
-
-        return mongoTemplate.aggregate(a, "ip_visit_record", Map.class).getMappedResults();
-    }
 
     /**
      * aggregate user
@@ -341,7 +322,106 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     public ResponseEntity<Result> banUserAgent(String userAgent) {
+        banSuspiciousIp();
         mongoTemplate.save(new UserAgentBlackList(userAgent));
         return ResponseEntity.ok(new Result(ResultEnum.SUCCEED));
+    }
+
+    @Override
+    public ArrayList<IpVisitRecord> getVisitVariance() {
+        return null;
+    }
+
+    @Override
+    public List<IpVisitRecord> listIpRecord(Integer page, Integer pagesize, String groupBy, String text, Integer day, String regex) {
+        Calendar c = Calendar.getInstance();
+        c.add(Calendar.DATE, -day);
+        ArrayList<AggregationOperation> aggregationList = new ArrayList<>();
+        if (!text.equals("")) {
+            aggregationList.add(Aggregation.match(Criteria.where("ip").is(text)));
+        }
+//        String regex = "^[-+]?[\\d]*$";
+        Pattern pattern = Pattern.compile(regex);
+        if (!regex.equals("")) {
+            aggregationList.add(Aggregation.match(Criteria.where("uri").regex(regex)));
+        }
+        if (!groupBy.equals("")) {
+            aggregationList.add(Aggregation.group(groupBy)
+                    .count().as("count")
+                    .last("uri").as("lastUri")
+                    .last("userAgent").as("lastUserAgent")
+                    .first("datetime").as("firstTime")
+                    .last("datetime").as("lastTime"));
+            aggregationList.add(Aggregation.sort(Sort.Direction.DESC, "count"));
+            aggregationList.add(Aggregation.project("count", "lastUri", "firstTime", "lastTime").and("_id").as("groupBy"));
+        } else {
+            aggregationList.add(Aggregation.sort(Sort.Direction.DESC, "datetime"));
+        }
+        aggregationList.add(Aggregation.limit(pagesize));
+        aggregationList.add(Aggregation.skip((long) page));
+        Aggregation a = Aggregation.newAggregation(aggregationList);
+
+        return mongoTemplate.aggregate(a, "ip_visit_record", IpVisitRecord.class).getMappedResults();
+    }
+
+    @Override
+    public Double getVariance(String ip) {
+        List<IpVisitRecord> visitRecords = mongoTemplate.aggregate(Aggregation.newAggregation(Aggregation.match(Criteria.where("ip").is(ip)), Aggregation.sort(Sort.Direction.DESC, "datetime"), Aggregation.limit(100)), IpVisitRecord.class, IpVisitRecord.class).getMappedResults();
+        ArrayList<Integer> arrayList = new ArrayList();
+        java.util.IntSummaryStatistics iss = new java.util.IntSummaryStatistics();
+        int n = visitRecords.size();
+        int number = 0;
+        for (int i = 1; i < n; i++) {
+            int delta = Math.toIntExact((visitRecords.get(i - 1).getDatetime().getTime() - visitRecords.get(i).getDatetime().getTime()) / 1000);
+            if (delta != 0 && delta < 300) {
+                number += 1;
+                iss.accept(delta);
+                arrayList.add(delta);
+            }
+        }
+        double average = iss.getAverage();
+        double temp = 0d;
+        for (Integer delta : arrayList
+        ) {
+            temp += (average - delta) * (average - delta);
+        }
+        return temp / number;
+    }
+
+    @Override
+    public Map<Integer, Integer> getDistribute(String ip) {
+        List<IpVisitRecord> visitRecords = mongoTemplate.aggregate(Aggregation.newAggregation(Aggregation.match(Criteria.where("ip").is(ip)), Aggregation.sort(Sort.Direction.DESC, "datetime"), Aggregation.limit(500)), IpVisitRecord.class, IpVisitRecord.class).getMappedResults();
+        Map<Integer, Integer> result = new HashMap<>();
+        int n = visitRecords.size();
+        for (int i = 1; i < n; i++) {
+            Integer delta = Math.toIntExact((visitRecords.get(i - 1).getDatetime().getTime() - visitRecords.get(i).getDatetime().getTime()) / 1000);
+            if (delta < 300) {
+
+                if (result.containsKey(delta)) {
+                    result.put(delta, result.get(delta) + 1);
+                } else {
+                    result.put(delta, 1);
+                }
+            }
+
+        }
+        return result;
+    }
+
+    public void banSuspiciousIp() {
+        List<String> suspiciousIp = this.mongoTemplate.aggregate(
+                TypedAggregation.newAggregation(IpVisitRecord.class,
+                        Aggregation.group("ip").count().as("count"),
+                        Aggregation.project("count").and("_id").as("groupBy"),
+                        Aggregation.lookup("blacklist", "groupBy", "ip", "blacklist"),
+                        Aggregation.match(Criteria.where("blacklist.0").exists(false))
+                ), IpVisitRecord.class).getMappedResults().stream().map(IpVisitRecord::getGroupBy).collect(Collectors.toList());
+        for (String ip : suspiciousIp) {
+            Double variance = getVariance(ip);
+            if (getVariance(ip) < 0.02) {
+                mongoTemplate.save(mongoTemplate.save(new Blacklist(ip)));
+                logger.info("[BAN] IP: {},Variance {}", ip, variance);
+            }
+        }
     }
 }
