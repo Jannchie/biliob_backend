@@ -280,16 +280,17 @@ public class VideoServiceImpl implements VideoService {
                     for (Integer i = 1; i < valueArray.size(); i++) {
                         Integer rangeBValue = (Integer) valueArray.get(i);
                         Integer rangeTValue = (Integer) valueArray.get(i - 1);
-                        if ((cValue != null) && valueArray.get(0) < cValue) {
+                        if ((cValue != null) && (Integer) valueArray.get(0) < cValue) {
                             Long value = mongoTemplate.count(Query.query(Criteria.where(eachKey).gt(video.getValue(eachKey))), "video");
                             rank.put(cKey, value);
                             break;
                         }
-                        if ((cValue > rangeBValue) && (valueArray.get(0) > cValue)) {
+                        if ((cValue > rangeBValue) && ((Integer) valueArray.get(0) > cValue)) {
                             String pKey = eachKey.replace('c', 'p') + "Rank";
                             String value = String.format(
                                     "%.2f",
-                                    i - 1 + (cValue - rangeBValue) / (float) (rangeTValue - rangeBValue));
+                                    (float)
+                                            (i - 1 + (cValue - rangeBValue) / (float) (rangeTValue - rangeBValue)));
                             rank.put(pKey, value);
                             break;
                         }

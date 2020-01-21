@@ -2,6 +2,7 @@ package com.jannchie.biliob.service;
 
 import com.jannchie.biliob.model.ScheduleItem;
 import com.jannchie.biliob.model.SearchMethod;
+import com.jannchie.biliob.utils.Result;
 import org.springframework.http.ResponseEntity;
 
 import javax.validation.Valid;
@@ -136,5 +137,11 @@ public interface AdminService {
      */
     ResponseEntity cancelUserAdminRole(@Valid String userName);
 
-
+    /**
+     * 提交新的禁用UA
+     *
+     * @param userAgent UA
+     * @return 禁用結果
+     */
+    ResponseEntity<Result> banUserAgent(String userAgent);
 }

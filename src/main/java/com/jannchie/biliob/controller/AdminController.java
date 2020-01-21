@@ -3,6 +3,7 @@ package com.jannchie.biliob.controller;
 import com.jannchie.biliob.model.ScheduleItem;
 import com.jannchie.biliob.model.SearchMethod;
 import com.jannchie.biliob.service.AdminService;
+import com.jannchie.biliob.utils.Result;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -111,4 +112,8 @@ public class AdminController {
         return adminService.listIpRecord(page, pagesize, groupBy, text, day);
     }
 
+    @RequestMapping(method = RequestMethod.POST, value = "/ua")
+    public ResponseEntity<Result> postBanedUserAgent(@RequestBody String userAgent) {
+        return adminService.banUserAgent(userAgent);
+    }
 }
