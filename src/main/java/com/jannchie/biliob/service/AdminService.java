@@ -22,16 +22,18 @@ public interface AdminService {
      * @param day      @return user list
      */
     List listUser(Integer page, Integer pagesize, Integer sort, String text, Integer day);
+
     /**
      * list Ip record
      *
      * @param page     page
      * @param pagesize page size
-     * @param sort     sort
+     * @param groupBy  group by
      * @param text     text
      * @param day      @return user list
      */
-    List listIpRecord(Integer page, Integer pagesize, Integer sort, String text, Integer day);
+    List listIpRecord(Integer page, Integer pagesize, String groupBy, String text, Integer day);
+
     /**
      * aggregate user
      *
@@ -43,20 +45,20 @@ public interface AdminService {
     /**
      * 一个聚合统计用户的方法
      *
-     * @param page 页数
-     * @param pagesize 页大小
-     * @param day   天数
-     * @param matchField    字段
-     * @param matchMethod   方法
-     * @param matchValue    值
-     * @param sort  排序
-     * @param orderBy   按照什么排序
-     * @param bucketType    分桶类型
-     * @param bucket    分桶
-     * @param groupByField  分组
-     * @param groupReference    分组依赖
-     * @param groupKeyword  分组关键词
-     * @return  返回列表
+     * @param page           页数
+     * @param pagesize       页大小
+     * @param day            天数
+     * @param matchField     字段
+     * @param matchMethod    方法
+     * @param matchValue     值
+     * @param sort           排序
+     * @param orderBy        按照什么排序
+     * @param bucketType     分桶类型
+     * @param bucket         分桶
+     * @param groupByField   分组
+     * @param groupReference 分组依赖
+     * @param groupKeyword   分组关键词
+     * @return 返回列表
      */
     List aggregateUser(
             Integer page,

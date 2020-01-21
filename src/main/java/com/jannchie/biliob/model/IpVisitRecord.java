@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -25,6 +24,12 @@ public class IpVisitRecord {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+0")
     private Date datetime;
 
+    public IpVisitRecord(String ip, String userAgent) {
+        this.ip = ip;
+        this.userAgent = userAgent;
+        this.datetime = Calendar.getInstance().getTime();
+    }
+
     public String getIp() {
         return ip;
     }
@@ -33,19 +38,12 @@ public class IpVisitRecord {
         this.ip = ip;
     }
 
-
     public Date getDatetime() {
         return datetime;
     }
 
     public void setDatetime(Date datetime) {
         this.datetime = datetime;
-    }
-
-    public IpVisitRecord(String ip, String userAgent) {
-        this.ip = ip;
-        this.userAgent = userAgent;
-        this.datetime = Calendar.getInstance().getTime();
     }
 
     public String getUserAgent() {

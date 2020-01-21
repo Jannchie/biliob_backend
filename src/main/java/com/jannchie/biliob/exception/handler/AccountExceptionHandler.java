@@ -11,33 +11,35 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-/** @author jannchie */
+/**
+ * @author jannchie
+ */
 @RestControllerAdvice
 public class AccountExceptionHandler {
 
-  private static final Logger logger = LogManager.getLogger(AccountExceptionHandler.class);
+    private static final Logger logger = LogManager.getLogger(AccountExceptionHandler.class);
 
-  @ResponseBody
-  @ExceptionHandler(IncorrectCredentialsException.class)
-  @ResponseStatus(value = HttpStatus.FORBIDDEN)
-  public ExceptionResult handleAccountException() {
-    // 生成返回结果
-    ExceptionResult errorResult = new ExceptionResult();
-    errorResult.setCode(403);
-    errorResult.setMsg("密码错误");
-    logger.info("密码错误");
-    return errorResult;
-  }
+    @ResponseBody
+    @ExceptionHandler(IncorrectCredentialsException.class)
+    @ResponseStatus(value = HttpStatus.FORBIDDEN)
+    public ExceptionResult handleAccountException() {
+        // 生成返回结果
+        ExceptionResult errorResult = new ExceptionResult();
+        errorResult.setCode(403);
+        errorResult.setMsg("密码错误");
+        logger.info("密码错误");
+        return errorResult;
+    }
 
-  @ResponseBody
-  @ExceptionHandler(ShiroException.class)
-  @ResponseStatus(value = HttpStatus.FORBIDDEN)
-  public ExceptionResult handleShiroException() {
-    // 生成返回结果
-    ExceptionResult errorResult = new ExceptionResult();
-    errorResult.setCode(403);
-    errorResult.setMsg("登录失败");
-    logger.info("登录失败");
-    return errorResult;
-  }
+    @ResponseBody
+    @ExceptionHandler(ShiroException.class)
+    @ResponseStatus(value = HttpStatus.FORBIDDEN)
+    public ExceptionResult handleShiroException() {
+        // 生成返回结果
+        ExceptionResult errorResult = new ExceptionResult();
+        errorResult.setCode(403);
+        errorResult.setMsg("登录失败");
+        logger.info("登录失败");
+        return errorResult;
+    }
 }

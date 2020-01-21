@@ -1,3 +1,4 @@
 package com.jannchie.biliob.utils;
 
-public interface Interruption {}
+public interface Interruption {
+}

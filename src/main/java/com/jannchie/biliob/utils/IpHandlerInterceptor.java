@@ -16,7 +16,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Objects;
 
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 import static org.springframework.data.mongodb.core.query.Query.query;
@@ -35,6 +38,7 @@ public class IpHandlerInterceptor implements HandlerInterceptor {
 
     private static HashMap<String, Integer> blackIP = new HashMap<>(256);
     private final MongoTemplate mongoTemplate;
+
     @Autowired
     public IpHandlerInterceptor(MongoTemplate mongoTemplate) {
         this.mongoTemplate = mongoTemplate;
@@ -56,7 +60,7 @@ public class IpHandlerInterceptor implements HandlerInterceptor {
         }
 
         // 保存一条IP访问记录
-        mongoTemplate.save(new IpVisitRecord(ip,userAgent));
+        mongoTemplate.save(new IpVisitRecord(ip, userAgent));
 
         int limitCount = Integer.MAX_VALUE;
         if (Objects.equals(request.getMethod(), HttpMethod.DELETE.name())

@@ -17,54 +17,56 @@ import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-/** @author jannchie */
+/**
+ * @author jannchie
+ */
 @Service
 @CacheConfig(cacheNames = "event")
 public class EventServiceImpl implements EventService {
 
-  private static final Logger logger = LogManager.getLogger();
-  private final EventRepository eventRepository;
-  private final FansVariationRepository fansVariationRepository;
+    private static final Logger logger = LogManager.getLogger();
+    private final EventRepository eventRepository;
+    private final FansVariationRepository fansVariationRepository;
 
-  @Autowired
-  public EventServiceImpl(EventRepository eventRepository, FansVariationRepository fansVariationRepository) {
-    this.eventRepository = eventRepository;
-    this.fansVariationRepository = fansVariationRepository;
-  }
-
-  /**
-   * Get the data of important events.
-   *
-   * @param page page number
-   * @param pagesize page size
-   * @return a slice of events
-   */
-  @Override
-  public MySlice<Event> pageEvent(Integer page, Integer pagesize) {
-    if (pagesize > PageSizeEnum.BIG_SIZE.getValue()) {
-      return null;
+    @Autowired
+    public EventServiceImpl(EventRepository eventRepository, FansVariationRepository fansVariationRepository) {
+        this.eventRepository = eventRepository;
+        this.fansVariationRepository = fansVariationRepository;
     }
-    Slice<Event> e =
-        eventRepository.findAll(
-            PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, "datetime")));
-    logger.info("获取事件");
-    return new MySlice<>(e);
-  }
 
-  /**
-   * Get the data of important fans variation.
-   *
-   * @param page     page number
-   * @param pagesize page size
-   * @return a slice of fans variation events
-   */
-  @Override
-  public Page<FansVariation> listFansVariation(Integer page, Integer pagesize) {
-    if (pagesize > PageSizeEnum.BIG_SIZE.getValue()) {
-      return null;
+    /**
+     * Get the data of important events.
+     *
+     * @param page     page number
+     * @param pagesize page size
+     * @return a slice of events
+     */
+    @Override
+    public MySlice<Event> pageEvent(Integer page, Integer pagesize) {
+        if (pagesize > PageSizeEnum.BIG_SIZE.getValue()) {
+            return null;
+        }
+        Slice<Event> e =
+                eventRepository.findAll(
+                        PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, "datetime")));
+        logger.info("获取事件");
+        return new MySlice<>(e);
     }
-    logger.info("获取事件");
-    return fansVariationRepository.findAll(
-        PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, "datetime")));
-  }
+
+    /**
+     * Get the data of important fans variation.
+     *
+     * @param page     page number
+     * @param pagesize page size
+     * @return a slice of fans variation events
+     */
+    @Override
+    public Page<FansVariation> listFansVariation(Integer page, Integer pagesize) {
+        if (pagesize > PageSizeEnum.BIG_SIZE.getValue()) {
+            return null;
+        }
+        logger.info("获取事件");
+        return fansVariationRepository.findAll(
+                PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, "datetime")));
+    }
 }

@@ -76,10 +76,10 @@ public class SpiderScheduler {
                 TypedAggregation.newAggregation(Video.class,
                         Aggregation.match(Criteria.where("tag").exists(false)),
                         Aggregation.project("aid"),
-                        Aggregation.limit(100)),  Video.class).getMappedResults();
+                        Aggregation.limit(100)), Video.class).getMappedResults();
         redisOps.deleteTagTask();
         for (Video eachVideo : videoList) {
-            Long aid =  eachVideo.getAid();
+            Long aid = eachVideo.getAid();
             logger.info("[UPDATE] 添加Tag：{}", aid);
             redisOps.postTagSpiderTask(aid);
         }

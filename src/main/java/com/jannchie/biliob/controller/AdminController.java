@@ -17,6 +17,7 @@ import java.util.Map;
  * @author jannchie
  */
 @RestController
+@RequestMapping("/api/admin")
 public class AdminController {
 
     private final AdminService adminService;
@@ -34,16 +35,6 @@ public class AdminController {
             @RequestParam(defaultValue = "") String text,
             @RequestParam(defaultValue = "30") Integer day) {
         return adminService.listUser(page, pagesize, sort, text, day);
-    }
-
-    @RequestMapping(method = RequestMethod.GET, value = "/api/admin/ip")
-    public List listIpRecord(
-            @RequestParam(defaultValue = "0") Integer page,
-            @RequestParam(defaultValue = "20") Integer pagesize,
-            @RequestParam(defaultValue = "0") Integer sort,
-            @RequestParam(defaultValue = "") String text,
-            @RequestParam(defaultValue = "30") Integer day) {
-        return adminService.listIpRecord(page, pagesize, sort, text, day);
     }
 
 
@@ -110,5 +101,14 @@ public class AdminController {
         return adminService.postUploadSchedule(item);
     }
 
+    @RequestMapping(method = RequestMethod.GET, value = "/ip")
+    public List listIpRecord(
+            @RequestParam(defaultValue = "0") Integer page,
+            @RequestParam(defaultValue = "20") Integer pagesize,
+            @RequestParam(defaultValue = "ip") String groupBy,
+            @RequestParam(defaultValue = "") String text,
+            @RequestParam(defaultValue = "30") Integer day) {
+        return adminService.listIpRecord(page, pagesize, groupBy, text, day);
+    }
 
 }

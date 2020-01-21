@@ -12,29 +12,29 @@ import org.springframework.data.mongodb.MongoTransactionManager;
 @Configuration
 class MongoConfig implements EnvironmentAware {
 
-  private static String BILIOB_MONGO_URL;
+    private static String BILIOB_MONGO_URL;
 
-  @Bean
-  MongoTransactionManager transactionManager(MongoDbFactory dbFactory) {
-    return new MongoTransactionManager(dbFactory);
-  }
+    @Bean
+    MongoTransactionManager transactionManager(MongoDbFactory dbFactory) {
+        return new MongoTransactionManager(dbFactory);
+    }
 
-  /**
-   * Use the Reactive Streams Mongo Client API to create a
-   * com.mongodb.reactivestreams.client.MongoClient instance.
-   */
-  public @Bean
-  MongoClient reactiveMongoClient() {
-    return MongoClients.create(MongoConfig.BILIOB_MONGO_URL);
-  }
+    /**
+     * Use the Reactive Streams Mongo Client API to create a
+     * com.mongodb.reactivestreams.client.MongoClient instance.
+     */
+    public @Bean
+    MongoClient reactiveMongoClient() {
+        return MongoClients.create(MongoConfig.BILIOB_MONGO_URL);
+    }
 
-  /**
-   * Set the {@code Environment} that this component runs in.
-   *
-   * @param environment 环境变量
-   */
-  @Override
-  public void setEnvironment(Environment environment) {
-    MongoConfig.BILIOB_MONGO_URL = environment.getProperty("BILIOB_MONGO_URL");
-  }
+    /**
+     * Set the {@code Environment} that this component runs in.
+     *
+     * @param environment 环境变量
+     */
+    @Override
+    public void setEnvironment(Environment environment) {
+        MongoConfig.BILIOB_MONGO_URL = environment.getProperty("BILIOB_MONGO_URL");
+    }
 }

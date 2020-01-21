@@ -15,31 +15,31 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
  */
 @Configuration
 public class ConfigService {
-  private final IpHandlerInterceptor ipHandlerInterceptor;
+    private final IpHandlerInterceptor ipHandlerInterceptor;
 
-  @Autowired
-  public ConfigService(IpHandlerInterceptor ipHandlerInterceptor) {
-    this.ipHandlerInterceptor = ipHandlerInterceptor;
-  }
+    @Autowired
+    public ConfigService(IpHandlerInterceptor ipHandlerInterceptor) {
+        this.ipHandlerInterceptor = ipHandlerInterceptor;
+    }
 
-  @Bean
-  public WebMvcConfigurer myConfigurer() {
-    return new WebMvcConfigurer() {
-      @Override
-      public void addCorsMappings(CorsRegistry registry) {
-        registry
-            .addMapping("/**")
-            .allowedOrigins("*")
-            .allowedMethods("*")
-            .allowedHeaders("*")
-            .allowCredentials(true)
-            .maxAge(3600);
-      }
+    @Bean
+    public WebMvcConfigurer myConfigurer() {
+        return new WebMvcConfigurer() {
+            @Override
+            public void addCorsMappings(CorsRegistry registry) {
+                registry
+                        .addMapping("/**")
+                        .allowedOrigins("*")
+                        .allowedMethods("*")
+                        .allowedHeaders("*")
+                        .allowCredentials(true)
+                        .maxAge(3600);
+            }
 
-      @Override
-      public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(ipHandlerInterceptor);
-      }
-    };
-  }
+            @Override
+            public void addInterceptors(InterceptorRegistry registry) {
+                registry.addInterceptor(ipHandlerInterceptor);
+            }
+        };
+    }
 }

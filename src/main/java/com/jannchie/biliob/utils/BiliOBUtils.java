@@ -13,10 +13,17 @@ import java.util.Map;
 @Component
 public class BiliOBUtils {
     @Autowired
-    private  HttpServletRequest request;
+    private HttpServletRequest request;
 
     public BiliOBUtils(HttpServletRequest request) {
         this.request = request;
+    }
+
+    public static String[] concat(String[] a, String[] b) {
+        String[] c = new String[a.length + b.length];
+        System.arraycopy(a, 0, c, 0, a.length);
+        System.arraycopy(b, 0, c, a.length, b.length);
+        return c;
     }
 
     public String getUserName() {
@@ -24,13 +31,13 @@ public class BiliOBUtils {
         String userName = "";
         if (user != null) {
             userName = user.getName();
-        }else{
+        } else {
             userName = IpUtil.getIpAddress(this.request);
         }
         return userName;
     }
 
-    public  Map getVisitData(String userName, Long mid) {
+    public Map getVisitData(String userName, Long mid) {
 
         Date date = Calendar.getInstance().getTime();
         Map data = new HashMap<String, Object>() {
@@ -41,12 +48,5 @@ public class BiliOBUtils {
             }
         };
         return data;
-    }
-
-    public static String[] concat(String[] a, String[] b) {
-        String[] c = new String[a.length + b.length];
-        System.arraycopy(a, 0, c, 0, a.length);
-        System.arraycopy(b, 0, c, a.length, b.length);
-        return c;
     }
 }
