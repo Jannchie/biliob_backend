@@ -70,14 +70,6 @@ public interface AuthorService {
     ResponseEntity listFansDecreaseRate();
 
     /**
-     * get specific author's fans rate
-     *
-     * @param mid author id
-     * @return list of fans
-     */
-    ResponseEntity listFansRate(Long mid);
-
-    /**
      * get author information exclude history data.
      *
      * @param mid author id

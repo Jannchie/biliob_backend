@@ -1,8 +1,10 @@
 package com.jannchie.biliob.service.impl;
 
+import com.jannchie.biliob.constant.BiliOBConstant;
 import com.jannchie.biliob.constant.PageSizeEnum;
 import com.jannchie.biliob.constant.VideoSortEnum;
 import com.jannchie.biliob.exception.UserAlreadyFavoriteVideoException;
+import com.jannchie.biliob.model.User;
 import com.jannchie.biliob.model.Video;
 import com.jannchie.biliob.model.VideoOnline;
 import com.jannchie.biliob.repository.UserRepository;
@@ -30,6 +32,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.function.Predicate;
 
 import static com.jannchie.biliob.constant.SortEnum.PUBLISH_TIME;
 import static com.jannchie.biliob.constant.SortEnum.VIEW_COUNT;
@@ -45,7 +48,7 @@ public class VideoServiceImpl implements VideoService {
     private static final Logger logger = LogManager.getLogger(VideoServiceImpl.class);
     private static final Integer MAX_PAGE_SIZE = 10;
     private final RedisOps redisOps;
-    private final VideoRepository respository;
+    private final VideoRepository repository;
     private final UserService userService;
     private final MongoTemplate mongoTemplate;
     private final RecommendVideo recommendVideo;
@@ -53,13 +56,13 @@ public class VideoServiceImpl implements VideoService {
 
     @Autowired
     public VideoServiceImpl(
-            VideoRepository respository,
+            VideoRepository repository,
             UserRepository userRepository,
             UserService userService,
             MongoTemplate mongoTemplate,
             RedisOps redisOps,
             RecommendVideo recommendVideo, BiliOBUtils biliOBUtils) {
-        this.respository = respository;
+        this.repository = repository;
         this.userService = userService;
         this.mongoTemplate = mongoTemplate;
         this.redisOps = redisOps;
@@ -235,20 +238,37 @@ public class VideoServiceImpl implements VideoService {
     public Video getVideoDetails(Long aid, Integer type) {
         addVideoVisit(aid);
         Video video;
-        switch (type) {
-            case 0:
-                video = respository.findByAid(aid);
-                break;
-            default:
-                video = getAggregatedData(aid);
+        if (this.mongoTemplate.exists(Query.query(where("aid").is(aid).and("data.100").exists(true)), Video.class)) {
+            video = getAggregatedData(aid);
+        } else {
+            video = repository.findByAid(aid);
         }
+        HashMap rank = getVideoRank(video);
+        video.setRank(rank);
+        filterVideoData(video);
+        return video;
+    }
+
+    private void filterVideoData(Video video) {
+        User user = LoginChecker.checkInfo();
+        if (user == null || user.getExp() < 100) {
+            ArrayList<Video.Data> tempData = video.getData();
+            tempData.removeIf(data -> {
+                        Calendar c = Calendar.getInstance();
+                        c.add(Calendar.DATE, -BiliOBConstant.GUEST_VIEW_MAX_DAYS);
+                        return data.getDatetime().before(c.getTime());
+                    }
+            );
+            video.setData(tempData);
+        }
+    }
+
+    public HashMap<String, Object> getVideoRank(Video video) {
         HashMap rankTable =
                 mongoTemplate.findOne(
                         Query.query(Criteria.where("name").is("video_rank")), HashMap.class, "rank_table");
         String[] keys = {"cCoin", "cView", "cDanmaku", "cLike", "cShare", "cFavorite"};
         HashMap<String, Object> rank = new HashMap<>(6);
-        video.setRank(rank);
-        Long number = mongoTemplate.count(Query.query(Criteria.where("cCoin").gt(video.getValue("cCoin"))), "video");
         if (rankTable != null) {
             for (String eachKey : keys) {
                 String cKey = eachKey + "Rank";
@@ -281,19 +301,18 @@ public class VideoServiceImpl implements VideoService {
                 }
             }
             rank.put("updateTime", video.getcDatetime());
-            video.setRank(rank);
         }
-        return video;
+        return rank;
     }
 
     @Override
     public ResponseEntity<Message> postVideoByAid(Long aid) throws UserAlreadyFavoriteVideoException {
         userService.addFavoriteVideo(aid);
-        if (respository.findByAid(aid) != null) {
+        if (repository.findByAid(aid) != null) {
             return new ResponseEntity<>(new Message(400, "系统已经观测了该视频"), HttpStatus.BAD_REQUEST);
         }
         VideoServiceImpl.logger.info(aid);
-        respository.save(new Video(aid));
+        repository.save(new Video(aid));
         redisOps.postVideoCrawlTask(aid);
         return new ResponseEntity<>(new Message(200, "观测视频成功"), HttpStatus.OK);
     }
@@ -313,12 +332,12 @@ public class VideoServiceImpl implements VideoService {
         if (!(aid == -1)) {
             VideoServiceImpl.logger.info(aid);
             return new MySlice<>(
-                    respository.searchByAid(
+                    repository.searchByAid(
                             aid, PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, sortKey))));
         } else if (!Objects.equals(text, "")) {
             if (InputInspection.isId(text)) {
                 return new MySlice<>(
-                        respository.searchByAid(
+                        repository.searchByAid(
                                 Long.valueOf(text),
                                 PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, sortKey))));
             }
@@ -329,13 +348,13 @@ public class VideoServiceImpl implements VideoService {
             if (textArray.length != 1) {
                 mySlice =
                         new MySlice<>(
-                                respository.findByKeywordContaining(
+                                repository.findByKeywordContaining(
                                         textArray,
                                         PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, sortKey))));
             } else {
                 mySlice =
                         new MySlice<>(
-                                respository.findByOneKeyword(
+                                repository.findByOneKeyword(
                                         textArray[0],
                                         PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, sortKey))));
             }
@@ -354,12 +373,12 @@ public class VideoServiceImpl implements VideoService {
                 c.add(Calendar.DATE, -days);
                 Date date = c.getTime();
                 return new MySlice<>(
-                        respository.findAllByDatetimeGreaterThan(
+                        repository.findAllByDatetimeGreaterThan(
                                 date, PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, sortKey))));
             } else {
                 VideoServiceImpl.logger.info("获取全部视频数据");
                 return new MySlice<>(
-                        respository.findVideoBy(
+                        repository.findVideoBy(
                                 PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, sortKey))));
             }
         }
@@ -373,7 +392,7 @@ public class VideoServiceImpl implements VideoService {
         }
         VideoServiceImpl.logger.info("获取作者其他数据");
         return new MySlice<>(
-                respository.findAuthorOtherVideo(
+                repository.findAuthorOtherVideo(
                         aid, mid, PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, "cView"))));
     }
 
@@ -402,7 +421,7 @@ public class VideoServiceImpl implements VideoService {
         }
 
         Slice<Video> video =
-                respository.findAuthorTopVideo(mid, PageRequest.of(page, pagesize, videoSort));
+                repository.findAuthorTopVideo(mid, PageRequest.of(page, pagesize, videoSort));
         VideoServiceImpl.logger.info("获取mid:{} 播放最多的视频", mid);
         return new MySlice<>(video);
     }

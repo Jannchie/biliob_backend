@@ -24,7 +24,6 @@ public class Author {
     private Boolean focus;
     private Boolean forceFocus;
     private Integer cRate;
-    private ArrayList<FansRate> fansRate;
     private ArrayList<String> keyword;
     private Integer cFans;
     private ArrayList<Comment> comments;
@@ -97,14 +96,6 @@ public class Author {
 
     public void setRank(Rank rank) {
         this.rank = rank;
-    }
-
-    public ArrayList<FansRate> getFansRate() {
-        return fansRate;
-    }
-
-    public void setFansRate(ArrayList<FansRate> fansRate) {
-        this.fansRate = fansRate;
     }
 
     public Integer getcRate() {
@@ -399,27 +390,6 @@ public class Author {
 
         public void setName(String name) {
             this.name = name;
-        }
-    }
-
-    private class FansRate {
-        private Integer rate;
-        private Date datetime;
-
-        public Integer getRate() {
-            return rate;
-        }
-
-        public void setRate(Integer rate) {
-            this.rate = rate;
-        }
-
-        public Date getDatetime() {
-            return datetime;
-        }
-
-        public void setDatetime(Date datetime) {
-            this.datetime = datetime;
         }
     }
 }
