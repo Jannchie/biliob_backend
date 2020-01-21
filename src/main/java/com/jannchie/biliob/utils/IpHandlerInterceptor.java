@@ -48,7 +48,7 @@ public class IpHandlerInterceptor implements HandlerInterceptor {
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
 
         String ip = IpUtil.getIpAddress(request);
-
+        String userAgent = request.getHeader("user-agent");
         // 在黑名单中直接处决，除非这次请求是本地发起的
         if (mongoTemplate.exists(query(where(IP).is(ip)), Blacklist.class) && !LOCALHOST.contains(ip)) {
             returnJson(response);
@@ -56,7 +56,7 @@ public class IpHandlerInterceptor implements HandlerInterceptor {
         }
 
         // 保存一条IP访问记录
-        mongoTemplate.save(new IpVisitRecord(ip));
+        mongoTemplate.save(new IpVisitRecord(ip,userAgent));
 
         int limitCount = Integer.MAX_VALUE;
         if (Objects.equals(request.getMethod(), HttpMethod.DELETE.name())
