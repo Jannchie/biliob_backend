@@ -16,13 +16,22 @@ public interface AdminService {
      * list User
      *
      * @param page     page
-     * @param pagesize pageszie
+     * @param pagesize page size
      * @param sort     sort
      * @param text     text
      * @param day      @return user list
      */
     List listUser(Integer page, Integer pagesize, Integer sort, String text, Integer day);
-
+    /**
+     * list Ip record
+     *
+     * @param page     page
+     * @param pagesize page size
+     * @param sort     sort
+     * @param text     text
+     * @param day      @return user list
+     */
+    List listIpRecord(Integer page, Integer pagesize, Integer sort, String text, Integer day);
     /**
      * aggregate user
      *
