@@ -11,28 +11,30 @@ import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
 
-/** @author jannchie */
+/**
+ * @author jannchie
+ */
 @Repository
 public interface UserRecordRepository
-    extends MongoRepository<UserRecord, ObjectId>,
+        extends MongoRepository<UserRecord, ObjectId>,
         PagingAndSortingRepository<UserRecord, ObjectId> {
 
-  /**
-   * Get user record slice order by datetime desc.
-   *
-   * @param userName user's name
-   * @param pageable page information
-   * @return the slice of user
-   */
-  @Query(fields = "{ 'userName': 0, 'id': 0}")
-  Slice<UserRecord> findByUserNameOrderByDatetimeDesc(String userName, Pageable pageable);
+    /**
+     * Get user record slice order by datetime desc.
+     *
+     * @param userName user's name
+     * @param pageable page information
+     * @return the slice of user
+     */
+    @Query(fields = "{ 'userName': 0, 'id': 0}")
+    Slice<UserRecord> findByUserNameOrderByDatetimeDesc(String userName, Pageable pageable);
 
-  /**
-   * Get user record array list order by datetime desc.
-   *
-   * @param userName user's name
-   * @return the slice of user
-   */
-  @Query(fields = "{ 'userName': 0, 'id': 0}")
-  ArrayList<UserRecord> findAllByUserNameOrderByDatetimeDesc(String userName);
+    /**
+     * Get user record array list order by datetime desc.
+     *
+     * @param userName user's name
+     * @return the slice of user
+     */
+    @Query(fields = "{ 'userName': 0, 'id': 0}")
+    ArrayList<UserRecord> findAllByUserNameOrderByDatetimeDesc(String userName);
 }

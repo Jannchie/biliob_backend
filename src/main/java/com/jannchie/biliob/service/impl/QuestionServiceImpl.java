@@ -16,51 +16,53 @@ import org.springframework.stereotype.Service;
 
 import static com.jannchie.biliob.constant.ResultEnum.PARAM_ERROR;
 
-/** @author jannchie */
+/**
+ * @author jannchie
+ */
 @Service
 public class QuestionServiceImpl implements QuestionService {
 
-  private static final Logger logger = LogManager.getLogger();
-  private final QuestionRepository questionRepository;
+    private static final Logger logger = LogManager.getLogger();
+    private final QuestionRepository questionRepository;
 
-  @Autowired
-  public QuestionServiceImpl(QuestionRepository questionRepository) {
-    this.questionRepository = questionRepository;
-  }
-
-  /**
-   * get a slice of handled question
-   *
-   * @param page page number
-   * @param pagesize page size
-   * @return a slice of questions
-   */
-  @Override
-  public ResponseEntity getHandledQuestion(Integer page, Integer pagesize) {
-    if (pagesize > PageSizeEnum.BIG_SIZE.getValue()) {
-      return new ResponseEntity<>(new Result(PARAM_ERROR), HttpStatus.FORBIDDEN);
+    @Autowired
+    public QuestionServiceImpl(QuestionRepository questionRepository) {
+        this.questionRepository = questionRepository;
     }
-    Slice<Question> questions =
-        questionRepository.getHandledQuestions(PageRequest.of(page, pagesize));
-    logger.info("获取已处理问题");
-    return new ResponseEntity<>(questions, HttpStatus.OK);
-  }
 
-  /**
-   * get a slice of pending question
-   *
-   * @param page page number
-   * @param pagesize page size
-   * @return a slice of questions
-   */
-  @Override
-  public ResponseEntity getPendingQuestion(Integer page, Integer pagesize) {
-    if (pagesize > PageSizeEnum.BIG_SIZE.getValue()) {
-      return new ResponseEntity<>(new Result(PARAM_ERROR), HttpStatus.FORBIDDEN);
+    /**
+     * get a slice of handled question
+     *
+     * @param page     page number
+     * @param pagesize page size
+     * @return a slice of questions
+     */
+    @Override
+    public ResponseEntity getHandledQuestion(Integer page, Integer pagesize) {
+        if (pagesize > PageSizeEnum.BIG_SIZE.getValue()) {
+            return new ResponseEntity<>(new Result(PARAM_ERROR), HttpStatus.FORBIDDEN);
+        }
+        Slice<Question> questions =
+                questionRepository.getHandledQuestions(PageRequest.of(page, pagesize));
+        logger.info("获取已处理问题");
+        return new ResponseEntity<>(questions, HttpStatus.OK);
     }
-    Slice<Question> questions =
-        questionRepository.getPendingQuestions(PageRequest.of(page, pagesize));
-    logger.info("获取未处理问题");
-    return new ResponseEntity<>(questions, HttpStatus.OK);
-  }
+
+    /**
+     * get a slice of pending question
+     *
+     * @param page     page number
+     * @param pagesize page size
+     * @return a slice of questions
+     */
+    @Override
+    public ResponseEntity getPendingQuestion(Integer page, Integer pagesize) {
+        if (pagesize > PageSizeEnum.BIG_SIZE.getValue()) {
+            return new ResponseEntity<>(new Result(PARAM_ERROR), HttpStatus.FORBIDDEN);
+        }
+        Slice<Question> questions =
+                questionRepository.getPendingQuestions(PageRequest.of(page, pagesize));
+        logger.info("获取未处理问题");
+        return new ResponseEntity<>(questions, HttpStatus.OK);
+    }
 }

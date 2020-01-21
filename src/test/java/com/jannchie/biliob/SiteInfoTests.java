@@ -13,11 +13,14 @@ import org.springframework.test.context.web.WebAppConfiguration;
 @WebAppConfiguration
 public class SiteInfoTests {
 
-  @Autowired SiteService siteService;
+    @Autowired
+    SiteService siteService;
 
-  @Test
-  public void contextLoads() {}
+    @Test
+    public void contextLoads() {
+    }
 
-  @Test
-  public void testListOnline() {}
+    @Test
+    public void testListOnline() {
+    }
 }

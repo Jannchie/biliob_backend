@@ -13,11 +13,12 @@ import org.springframework.test.context.web.WebAppConfiguration;
 @SpringBootTest
 @WebAppConfiguration
 @Suite.SuiteClasses({
-    RedisTests.class,
-    UtilTests.class,
-    DataReducerTest.class,
-    AuthorServiceImplTest.class,
-    VideoServiceImplTest.class,
-    UserServiceImplTest.class
+        RedisTests.class,
+        UtilTests.class,
+        DataReducerTest.class,
+        AuthorServiceImplTest.class,
+        VideoServiceImplTest.class,
+        UserServiceImplTest.class
 })
-public class BiliobApplicationTests {}
+public class BiliobApplicationTests {
+}

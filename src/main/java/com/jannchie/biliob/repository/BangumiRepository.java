@@ -9,17 +9,19 @@ import org.springframework.data.mongodb.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.stereotype.Repository;
 
-/** @author jannchie */
+/**
+ * @author jannchie
+ */
 @Repository
 public interface BangumiRepository
-    extends MongoRepository<Bangumi, ObjectId>, PagingAndSortingRepository<Bangumi, ObjectId> {
+        extends MongoRepository<Bangumi, ObjectId>, PagingAndSortingRepository<Bangumi, ObjectId> {
 
-  /**
-   * Find All Bangumi
-   *
-   * @param of page param
-   * @return a slice
-   */
-  @Query(value = "{}", fields = "{'data':0}")
-  Slice sliceBangumi(PageRequest of);
+    /**
+     * Find All Bangumi
+     *
+     * @param of page param
+     * @return a slice
+     */
+    @Query(value = "{}", fields = "{'data':0}")
+    Slice sliceBangumi(PageRequest of);
 }

@@ -7,21 +7,23 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
-/** @author jannchie */
+/**
+ * @author jannchie
+ */
 @Component
 public class RefreshVideoCreditCalculator extends AbstractCreditCalculator {
 
-  private final RedisOps redisOps;
+    private final RedisOps redisOps;
 
-  @Autowired
-  public RefreshVideoCreditCalculator(MongoTemplate mongoTemplate, RedisOps redisOps) {
-    super(mongoTemplate);
-    this.redisOps = redisOps;
-  }
+    @Autowired
+    public RefreshVideoCreditCalculator(MongoTemplate mongoTemplate, RedisOps redisOps) {
+        super(mongoTemplate);
+        this.redisOps = redisOps;
+    }
 
-  @Override
-  ResponseEntity execute(Long id, ObjectId objectId) {
-    redisOps.postVideoCrawlTask(id, objectId);
-    return null;
-  }
+    @Override
+    ResponseEntity execute(Long id, ObjectId objectId) {
+        redisOps.postVideoCrawlTask(id, objectId);
+        return null;
+    }
 }

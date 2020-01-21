@@ -9,7 +9,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-/** @author jannchie */
+/**
+ * @author jannchie
+ */
 @RestController
 public class EventController {
 
@@ -22,13 +24,13 @@ public class EventController {
 
     @RequestMapping(method = RequestMethod.GET, value = "/api/event")
     public ResponseEntity pageEvent(@RequestParam(defaultValue = "0") Integer page,
-            @RequestParam(defaultValue = "20") Integer pagesize) {
+                                    @RequestParam(defaultValue = "20") Integer pagesize) {
         return new ResponseEntity<>(eventService.pageEvent(page, pagesize), HttpStatus.OK);
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/api/event/fans-variation")
     public ResponseEntity listFansVariation(@RequestParam(defaultValue = "0") Integer page,
-            @RequestParam(defaultValue = "20") Integer pagesize) {
+                                            @RequestParam(defaultValue = "20") Integer pagesize) {
         return new ResponseEntity<>(eventService.listFansVariation(page, pagesize), HttpStatus.OK);
     }
 }

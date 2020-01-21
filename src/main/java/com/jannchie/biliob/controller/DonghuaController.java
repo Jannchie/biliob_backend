@@ -16,17 +16,17 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class DonghuaController {
 
-  private final DonghuaService donghuaService;
+    private final DonghuaService donghuaService;
 
-  @Autowired
-  public DonghuaController(DonghuaService donghuaService) {
-    this.donghuaService = donghuaService;
-  }
+    @Autowired
+    public DonghuaController(DonghuaService donghuaService) {
+        this.donghuaService = donghuaService;
+    }
 
-  @RequestMapping(method = RequestMethod.GET, value = "/api/donghua")
-  public ResponseEntity listOnline(
-      @RequestParam(defaultValue = "0") Integer page,
-      @RequestParam(defaultValue = "20") Integer pagesize) {
-    return donghuaService.listDonghua(page, pagesize);
-  }
+    @RequestMapping(method = RequestMethod.GET, value = "/api/donghua")
+    public ResponseEntity listOnline(
+            @RequestParam(defaultValue = "0") Integer page,
+            @RequestParam(defaultValue = "20") Integer pagesize) {
+        return donghuaService.listDonghua(page, pagesize);
+    }
 }

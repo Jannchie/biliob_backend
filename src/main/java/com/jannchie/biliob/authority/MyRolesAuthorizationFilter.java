@@ -10,32 +10,36 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-/** @author jannchie */
+/**
+ * @author jannchie
+ */
 @Component
 public class MyRolesAuthorizationFilter extends RolesAuthorizationFilter {
-  /** 在访问过来的时候检测是否为OPTIONS请求，如果是就直接返回true */
-  @Override
-  protected boolean preHandle(ServletRequest request, ServletResponse response) throws Exception {
-    HttpServletResponse httpResponse = (HttpServletResponse) response;
-    HttpServletRequest httpRequest = (HttpServletRequest) request;
-    return httpRequest.getMethod().equals(RequestMethod.OPTIONS.name())
-        || super.preHandle(request, response);
-  }
-
-  @Override
-  public boolean isAccessAllowed(
-      ServletRequest request, ServletResponse response, Object mappedValue) {
-    Subject subject = getSubject(request, response);
-    String[] rolesArray = (String[]) mappedValue;
-
-    if (rolesArray == null || rolesArray.length == 0) {
-      return true;
+    /**
+     * 在访问过来的时候检测是否为OPTIONS请求，如果是就直接返回true
+     */
+    @Override
+    protected boolean preHandle(ServletRequest request, ServletResponse response) throws Exception {
+        HttpServletResponse httpResponse = (HttpServletResponse) response;
+        HttpServletRequest httpRequest = (HttpServletRequest) request;
+        return httpRequest.getMethod().equals(RequestMethod.OPTIONS.name())
+                || super.preHandle(request, response);
     }
-    for (String aRolesArray : rolesArray) {
-      if (subject.hasRole(aRolesArray)) {
-        return true;
-      }
+
+    @Override
+    public boolean isAccessAllowed(
+            ServletRequest request, ServletResponse response, Object mappedValue) {
+        Subject subject = getSubject(request, response);
+        String[] rolesArray = (String[]) mappedValue;
+
+        if (rolesArray == null || rolesArray.length == 0) {
+            return true;
+        }
+        for (String aRolesArray : rolesArray) {
+            if (subject.hasRole(aRolesArray)) {
+                return true;
+            }
+        }
+        return false;
     }
-    return false;
-  }
 }

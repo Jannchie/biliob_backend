@@ -16,21 +16,21 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class ModifyNickNameCreditCalculator extends AbstractCreditCalculator<String> {
-  private final MongoTemplate mongoTemplate;
+    private final MongoTemplate mongoTemplate;
 
-  @Autowired
-  public ModifyNickNameCreditCalculator(MongoTemplate mongoTemplate) {
-    super(mongoTemplate, CreditConstant.MODIFY_NAME);
-    this.mongoTemplate = mongoTemplate;
-  }
+    @Autowired
+    public ModifyNickNameCreditCalculator(MongoTemplate mongoTemplate) {
+        super(mongoTemplate, CreditConstant.MODIFY_NAME);
+        this.mongoTemplate = mongoTemplate;
+    }
 
-  @Override
-  ResponseEntity execute(User user, String newName, ObjectId objectId) {
-    mongoTemplate.updateFirst(
-        Query.query(Criteria.where("_id").is(user.getId())),
-        Update.update("nickName", newName),
-        "user");
-    super.setExecuted(objectId);
-    return null;
-  }
+    @Override
+    ResponseEntity execute(User user, String newName, ObjectId objectId) {
+        mongoTemplate.updateFirst(
+                Query.query(Criteria.where("_id").is(user.getId())),
+                Update.update("nickName", newName),
+                "user");
+        super.setExecuted(objectId);
+        return null;
+    }
 }

@@ -19,41 +19,43 @@ import java.util.HashMap;
 
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
-/** @author jannchie */
+/**
+ * @author jannchie
+ */
 @Component
 public class CheckInCreditCalculator extends AbstractCreditCalculator {
 
-  private final MongoTemplate mongoTemplate;
+    private final MongoTemplate mongoTemplate;
 
-  @Autowired
-  public CheckInCreditCalculator(MongoTemplate mongoTemplate) {
-    super(mongoTemplate);
-    this.mongoTemplate = mongoTemplate;
-  }
-
-  @Override
-  public ResponseEntity execute(User user, ObjectId objectId) {
-    Boolean isCheckedIn =
-        mongoTemplate.exists(new Query(where("name").is(user.getName())), "check_in");
-    String userName = user.getName();
-    Double credit = user.getCredit();
-    if (isCheckedIn) {
-      throw new BusinessException(ExceptionEnum.ALREADY_SIGNED);
-    } else {
-      // 插入已签到集合
-      mongoTemplate.insert(new CheckIn(userName), "check_in");
-
-      // update execute status
-      Query query = new Query(where("_id").is(objectId));
-      Update update = new Update();
-      update.set("isExecuted", true);
-      mongoTemplate.updateFirst(query, update, "user_record");
+    @Autowired
+    public CheckInCreditCalculator(MongoTemplate mongoTemplate) {
+        super(mongoTemplate);
+        this.mongoTemplate = mongoTemplate;
     }
-    return null;
-  }
 
-  @Override
-  ResponseEntity getResponseEntity(HashMap data) {
-    return new ResponseEntity<>(new Result(ResultEnum.SIGN_SUCCEED, data), HttpStatus.OK);
-  }
+    @Override
+    public ResponseEntity execute(User user, ObjectId objectId) {
+        Boolean isCheckedIn =
+                mongoTemplate.exists(new Query(where("name").is(user.getName())), "check_in");
+        String userName = user.getName();
+        Double credit = user.getCredit();
+        if (isCheckedIn) {
+            throw new BusinessException(ExceptionEnum.ALREADY_SIGNED);
+        } else {
+            // 插入已签到集合
+            mongoTemplate.insert(new CheckIn(userName), "check_in");
+
+            // update execute status
+            Query query = new Query(where("_id").is(objectId));
+            Update update = new Update();
+            update.set("isExecuted", true);
+            mongoTemplate.updateFirst(query, update, "user_record");
+        }
+        return null;
+    }
+
+    @Override
+    ResponseEntity getResponseEntity(HashMap data) {
+        return new ResponseEntity<>(new Result(ResultEnum.SIGN_SUCCEED, data), HttpStatus.OK);
+    }
 }

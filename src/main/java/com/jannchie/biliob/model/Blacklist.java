@@ -5,31 +5,33 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.Date;
 
-/** @author jannchie */
+/**
+ * @author jannchie
+ */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Document(collection = "blacklist")
 public class Blacklist {
-  private String ip;
-  private Date date;
+    private String ip;
+    private Date date;
 
-  public Blacklist(String ip) {
-    this.ip = ip;
-    this.date = new Date();
-  }
+    public Blacklist(String ip) {
+        this.ip = ip;
+        this.date = new Date();
+    }
 
-  public Date getDate() {
-    return date;
-  }
+    public Date getDate() {
+        return date;
+    }
 
-  public void setDate(Date date) {
-    this.date = date;
-  }
+    public void setDate(Date date) {
+        this.date = date;
+    }
 
-  public String getIp() {
-    return ip;
-  }
+    public String getIp() {
+        return ip;
+    }
 
-  public void setIp(String ip) {
-    this.ip = ip;
-  }
+    public void setIp(String ip) {
+        this.ip = ip;
+    }
 }

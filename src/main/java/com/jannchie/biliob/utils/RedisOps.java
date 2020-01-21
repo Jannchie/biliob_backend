@@ -98,7 +98,7 @@ public class RedisOps {
         redisTemplate.delete(RedisOps.TAG_TASK);
     }
 
-    public void postTagSpiderTask(Long aid)  {
+    public void postTagSpiderTask(Long aid) {
         sentRequest(RedisOps.TAG_TASK, String.valueOf(aid));
     }
 }

@@ -10,34 +10,36 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-/** @author jannchie */
+/**
+ * @author jannchie
+ */
 @Service
 public class BangumiServiceImpl implements BangumiService {
 
-  private static final Integer MAX_PAGE_SIZE = 20;
+    private static final Integer MAX_PAGE_SIZE = 20;
 
-  private static final Logger logger = LogManager.getLogger(VideoServiceImpl.class);
-  private final BangumiRepository bangumiRepository;
+    private static final Logger logger = LogManager.getLogger(VideoServiceImpl.class);
+    private final BangumiRepository bangumiRepository;
 
-  public BangumiServiceImpl(BangumiRepository bangumiRepository) {
-    this.bangumiRepository = bangumiRepository;
-  }
-
-  /**
-   * Get the data of bangumi list, including bangumi name, pts and tags.
-   *
-   * @return Online number.
-   */
-  @Override
-  public ResponseEntity listBangumi(Integer page, Integer pagesize) {
-    if (pagesize > MAX_PAGE_SIZE) {
-      pagesize = MAX_PAGE_SIZE;
+    public BangumiServiceImpl(BangumiRepository bangumiRepository) {
+        this.bangumiRepository = bangumiRepository;
     }
-    logger.info("获得番剧列表");
-    return new ResponseEntity<>(
 
-        bangumiRepository.sliceBangumi(
-            PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, "currentPts"))),
-        HttpStatus.OK);
-  }
+    /**
+     * Get the data of bangumi list, including bangumi name, pts and tags.
+     *
+     * @return Online number.
+     */
+    @Override
+    public ResponseEntity listBangumi(Integer page, Integer pagesize) {
+        if (pagesize > MAX_PAGE_SIZE) {
+            pagesize = MAX_PAGE_SIZE;
+        }
+        logger.info("获得番剧列表");
+        return new ResponseEntity<>(
+
+                bangumiRepository.sliceBangumi(
+                        PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, "currentPts"))),
+                HttpStatus.OK);
+    }
 }

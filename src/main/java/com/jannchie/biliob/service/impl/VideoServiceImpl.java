@@ -32,7 +32,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
-import java.util.function.Predicate;
 
 import static com.jannchie.biliob.constant.SortEnum.PUBLISH_TIME;
 import static com.jannchie.biliob.constant.SortEnum.VIEW_COUNT;
@@ -281,17 +280,16 @@ public class VideoServiceImpl implements VideoService {
                     for (Integer i = 1; i < valueArray.size(); i++) {
                         Integer rangeBValue = (Integer) valueArray.get(i);
                         Integer rangeTValue = (Integer) valueArray.get(i - 1);
-                        if ((cValue != null) && (Integer) valueArray.get(0) < cValue) {
+                        if ((cValue != null) && valueArray.get(0) < cValue) {
                             Long value = mongoTemplate.count(Query.query(Criteria.where(eachKey).gt(video.getValue(eachKey))), "video");
                             rank.put(cKey, value);
                             break;
                         }
-                        if ((cValue > rangeBValue) && ((Integer) valueArray.get(0) > cValue)) {
+                        if ((cValue > rangeBValue) && (valueArray.get(0) > cValue)) {
                             String pKey = eachKey.replace('c', 'p') + "Rank";
                             String value = String.format(
                                     "%.2f",
-                                    (float)
-                                            (i - 1 + (cValue - rangeBValue) / (float) (rangeTValue - rangeBValue)));
+                                    i - 1 + (cValue - rangeBValue) / (float) (rangeTValue - rangeBValue));
                             rank.put(pKey, value);
                             break;
                         }
