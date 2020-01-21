@@ -13,24 +13,22 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class EventController {
 
-  private final EventService eventService;
+    private final EventService eventService;
 
-  @Autowired
-  public EventController(EventService eventService) {
-    this.eventService = eventService;
-  }
+    @Autowired
+    public EventController(EventService eventService) {
+        this.eventService = eventService;
+    }
 
-  @RequestMapping(method = RequestMethod.GET, value = "/api/event")
-  public ResponseEntity pageEvent(
-      @RequestParam(defaultValue = "0") Integer page,
-      @RequestParam(defaultValue = "20") Integer pagesize) {
-    return new ResponseEntity<>(eventService.pageEvent(page, pagesize), HttpStatus.OK);
-  }
+    @RequestMapping(method = RequestMethod.GET, value = "/api/event")
+    public ResponseEntity pageEvent(@RequestParam(defaultValue = "0") Integer page,
+            @RequestParam(defaultValue = "20") Integer pagesize) {
+        return new ResponseEntity<>(eventService.pageEvent(page, pagesize), HttpStatus.OK);
+    }
 
-  @RequestMapping(method = RequestMethod.GET, value = "/api/event/fans-variation")
-  public ResponseEntity listFansVariation(
-      @RequestParam(defaultValue = "0") Integer page,
-      @RequestParam(defaultValue = "20") Integer pagesize) {
-    return new ResponseEntity<>(eventService.listFansVariation(page, pagesize), HttpStatus.OK);
-  }
+    @RequestMapping(method = RequestMethod.GET, value = "/api/event/fans-variation")
+    public ResponseEntity listFansVariation(@RequestParam(defaultValue = "0") Integer page,
+            @RequestParam(defaultValue = "20") Integer pagesize) {
+        return new ResponseEntity<>(eventService.listFansVariation(page, pagesize), HttpStatus.OK);
+    }
 }
