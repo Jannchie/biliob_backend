@@ -20,6 +20,7 @@ public class IpVisitRecord {
     private ObjectId id;
 
     private String ip;
+    private String userAgent;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+0")
     private Date datetime;
@@ -41,8 +42,17 @@ public class IpVisitRecord {
         this.datetime = datetime;
     }
 
-    public IpVisitRecord(String ip) {
+    public IpVisitRecord(String ip, String userAgent) {
         this.ip = ip;
+        this.userAgent = userAgent;
         this.datetime = Calendar.getInstance().getTime();
+    }
+
+    public String getUserAgent() {
+        return userAgent;
+    }
+
+    public void setUserAgent(String userAgent) {
+        this.userAgent = userAgent;
     }
 }
