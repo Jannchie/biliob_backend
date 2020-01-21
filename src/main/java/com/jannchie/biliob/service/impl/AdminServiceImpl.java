@@ -4,6 +4,7 @@ import com.jannchie.biliob.constant.ResultEnum;
 import com.jannchie.biliob.model.ScheduleItem;
 import com.jannchie.biliob.model.SearchMethod;
 import com.jannchie.biliob.model.User;
+import com.jannchie.biliob.model.UserAgentBlackList;
 import com.jannchie.biliob.repository.UserRepository;
 import com.jannchie.biliob.service.AdminService;
 import com.jannchie.biliob.utils.LoginChecker;
@@ -80,7 +81,7 @@ public class AdminServiceImpl implements AdminService {
         if (!text.equals("")) {
             aggregationList.add(Aggregation.match(Criteria.where("name").is(text)));
         }
-        aggregationList.add(Aggregation.group("ip").count().as("count").first("datetime").as("firstTime").last("datetime").as("lastTime"));
+        aggregationList.add(Aggregation.group(groupBy).count().as("count").first("datetime").as("firstTime").last("datetime").as("lastTime"));
         aggregationList.add(Aggregation.sort(Sort.Direction.DESC, "count"));
         aggregationList.add(Aggregation.limit(pagesize));
         aggregationList.add(Aggregation.skip((long) page));
@@ -337,5 +338,9 @@ public class AdminServiceImpl implements AdminService {
         return new ResponseEntity<>(new Result(ResultEnum.SUCCEED), HttpStatus.OK);
     }
 
-
+    @Override
+    public ResponseEntity<Result> banUserAgent(String userAgent) {
+        mongoTemplate.save(new UserAgentBlackList(userAgent));
+        return ResponseEntity.ok(new Result(ResultEnum.SUCCEED));
+    }
 }
