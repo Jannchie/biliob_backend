@@ -72,6 +72,23 @@ public class AdminServiceImpl implements AdminService {
         return mongoTemplate.aggregate(a, "user", Map.class).getMappedResults();
     }
 
+    @Override
+    public List listIpRecord(Integer page, Integer pagesize, Integer sort, String text, Integer day) {
+        Calendar c = Calendar.getInstance();
+        c.add(Calendar.DATE, -day);
+        ArrayList<AggregationOperation> aggregationList = new ArrayList<>();
+        if (!text.equals("")) {
+            aggregationList.add(Aggregation.match(Criteria.where("name").is(text)));
+        }
+        aggregationList.add(Aggregation.group("ip").count().as("count").first("datetime").as("firstTime").last("datetime").as("lastTime"));
+        aggregationList.add(Aggregation.sort(Sort.Direction.DESC,"count"));
+        aggregationList.add(Aggregation.limit(pagesize));
+        aggregationList.add(Aggregation.skip((long) page));
+        Aggregation a = Aggregation.newAggregation(aggregationList);
+
+        return mongoTemplate.aggregate(a, "ip_visit_record", Map.class).getMappedResults();
+    }
+
     /**
      * aggregate user
      *

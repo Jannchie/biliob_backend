@@ -1,6 +1,8 @@
 package com.jannchie.biliob.service;
 
 import com.jannchie.biliob.model.AuthorList;
+import com.jannchie.biliob.utils.Result;
+
 import org.bson.types.ObjectId;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -19,7 +21,7 @@ public interface AuthorListService {
      * @param name 作者列表名称
      * @return 添加反馈
      */
-    ResponseEntity postAuthorList(String name);
+    ResponseEntity<String> postAuthorList(String name);
 
     /**
      * 根据点赞数，列出分页作者列表数据
@@ -81,7 +83,7 @@ public interface AuthorListService {
      * @param mid 作者ID
      * @return 添加反馈
      */
-    ResponseEntity addAuthorToAuthorList(ObjectId id, Long mid);
+    ResponseEntity<Result> addAuthorToAuthorList(ObjectId id, Long mid);
 
     /**
      * 从现有作者列表中移除作者
@@ -90,7 +92,7 @@ public interface AuthorListService {
      * @param mid 作者ID
      * @return 移除反馈
      */
-    ResponseEntity removeAuthorToAuthorList(ObjectId id, Long mid);
+    ResponseEntity<Result> removeAuthorToAuthorList(ObjectId id, Long mid);
 
     /**
      * 从现有作者列表中移除作者
@@ -99,16 +101,15 @@ public interface AuthorListService {
      * @param name 新的作者列表名称
      * @return 移除反馈
      */
-    ResponseEntity updateAuthorListName(ObjectId id, String name);
+    ResponseEntity<Result> updateAuthorListName(ObjectId id, String name);
 
     /**
-     * 创建者功能
-     * 删除整个作者列表
+     * 创建者功能 删除整个作者列表
      *
      * @param id 作者列表ID
      * @return 删除反馈
      */
-    ResponseEntity deleteAuthorList(ObjectId id);
+    ResponseEntity<Result> deleteAuthorList(ObjectId id);
 
-    ResponseEntity getFail();
+    ResponseEntity<Result> getFail();
 }

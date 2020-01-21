@@ -1,23 +1,36 @@
 package com.jannchie.biliob.utils;
 
 import com.jannchie.biliob.model.User;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+@Component
 public class BiliOBUtils {
-    public static String getUserName() {
+    @Autowired
+    private  HttpServletRequest request;
+
+    public BiliOBUtils(HttpServletRequest request) {
+        this.request = request;
+    }
+
+    public String getUserName() {
         User user = LoginChecker.checkInfo();
         String userName = "";
         if (user != null) {
             userName = user.getName();
+        }else{
+            userName = IpUtil.getIpAddress(this.request);
         }
         return userName;
     }
 
-    public static Map getVisitData(String userName, Long mid) {
+    public  Map getVisitData(String userName, Long mid) {
 
         Date date = Calendar.getInstance().getTime();
         Map data = new HashMap<String, Object>() {

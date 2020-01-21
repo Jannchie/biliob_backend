@@ -58,17 +58,12 @@ public class AuthorServiceImpl implements AuthorService {
     private final UserService userService;
     private MongoClient mongoClient;
     private AuthorUtil authorUtil;
-
+    private BiliOBUtils biliOBUtils;
     @Autowired
-    public AuthorServiceImpl(
-            AuthorRepository respository,
-            UserService userService,
-            MongoClient mongoClient,
-            MongoTemplate mongoTemplate,
-            InputInspection inputInspection,
-            AuthorUtil authorUtil,
-            RealTimeFansRepository realTimeFansRepository,
-            RedisOps redisOps) {
+    public AuthorServiceImpl(AuthorRepository respository, UserService userService,
+                             MongoClient mongoClient, MongoTemplate mongoTemplate, InputInspection inputInspection,
+                             AuthorUtil authorUtil, RealTimeFansRepository realTimeFansRepository,
+                             RedisOps redisOps, BiliOBUtils biliOBUtils) {
         this.respository = respository;
         this.userService = userService;
         this.mongoTemplate = mongoTemplate;
@@ -76,35 +71,29 @@ public class AuthorServiceImpl implements AuthorService {
         this.authorUtil = authorUtil;
         this.realTimeFansRepository = realTimeFansRepository;
         this.redisOps = redisOps;
+        this.biliOBUtils = biliOBUtils;
     }
 
     @Override
     public Author getAggregatedData(Long mid) {
-        String[] fields = {"mid", "name", "face", "sex", "official", "level", "channels", "rank", "focus", "forceFocus", "cRate", "cFans", "cLike", "cArchive_view", "cArticle_view"};
-        String[] timeFields = {"month", "year", "day", "mid", "name", "face", "sex", "official", "level", "channels", "rank", "focus", "forceFocus", "cLike", "cRate", "cFans", "cArchive_view", "cArticle_view"};
-        Aggregation a =
-                Aggregation.newAggregation(
-                        Aggregation.match(Criteria.where("mid").is(mid)),
-                        Aggregation.unwind("$data"),
-                        Aggregation.project("data").andInclude(fields)
-                                .andExpression("year($data.datetime)")
-                                .as("year")
-                                .andExpression("month($data.datetime)")
-                                .as("month")
-                                .andExpression("dayOfMonth($data.datetime)")
-                                .as("day")
-                        ,
-                        Aggregation.group(timeFields)
-                                .first("data")
-                                .as("data"),
-                        Aggregation.sort(Sort.Direction.DESC, "year", "month", "day"),
-                        Aggregation.group(fields)
-                                .push("data")
-                                .as("data"));
+        String[] fields = {"mid", "name", "face", "sex", "official", "level", "channels", "rank",
+                "focus", "forceFocus", "cRate", "cFans", "cLike", "cArchive_view", "cArticle_view"};
+        String[] timeFields = {"month", "year", "day", "mid", "name", "face", "sex", "official",
+                "level", "channels", "rank", "focus", "forceFocus", "cLike", "cRate", "cFans",
+                "cArchive_view", "cArticle_view"};
+        Aggregation a = Aggregation.newAggregation(Aggregation.match(Criteria.where("mid").is(mid)),
+                Aggregation.unwind("$data"),
+                Aggregation.project("data").andInclude(fields).andExpression("year($data.datetime)")
+                        .as("year").andExpression("month($data.datetime)").as("month")
+                        .andExpression("dayOfMonth($data.datetime)").as("day"),
+                Aggregation.group(timeFields).first("data").as("data"),
+                Aggregation.sort(Sort.Direction.DESC, "year", "month", "day"),
+                Aggregation.group(fields).push("data").as("data"));
         if (!mongoTemplate.exists(Query.query(Criteria.where("mid").is(mid)), "author_interval")) {
             this.upsertAuthorFreq(mid, SECOND_OF_DAY);
         }
-        Author author = mongoTemplate.aggregate(a, "author", Author.class).getMappedResults().get(0);
+        Author author =
+                mongoTemplate.aggregate(a, "author", Author.class).getMappedResults().get(0);
         setRankData(author);
         return author;
     }
@@ -114,14 +103,13 @@ public class AuthorServiceImpl implements AuthorService {
         AuthorRankData lastRankData = authorUtil.getLastRankData(author);
         AuthorRankData currentRankData = getCurrentRankData(author);
         Date date = author.getData().get(0).getDatetime();
-        Author.Rank rank = new Author.Rank(currentRankData.getFansRank(), currentRankData.getArchiveViewRank(),
-                currentRankData.getArticleViewRank(),
+        Author.Rank rank = new Author.Rank(currentRankData.getFansRank(),
+                currentRankData.getArchiveViewRank(), currentRankData.getArticleViewRank(),
                 currentRankData.getLikeRank(),
                 getDelta(currentRankData.getFansRank(), lastRankData.getFansRank()),
                 getDelta(currentRankData.getArchiveViewRank(), lastRankData.getArchiveViewRank()),
                 getDelta(currentRankData.getArticleViewRank(), lastRankData.getArticleViewRank()),
-                getDelta(currentRankData.getLikeRank(), lastRankData.getLikeRank()),
-                date);
+                getDelta(currentRankData.getLikeRank(), lastRankData.getLikeRank()), date);
         author.setRank(rank);
 
     }
@@ -152,8 +140,8 @@ public class AuthorServiceImpl implements AuthorService {
     }
 
     private void addAuthorVisit(Long mid) {
-        String finalUserName = BiliOBUtils.getUserName();
-        Map data = BiliOBUtils.getVisitData(finalUserName, mid);
+        String finalUserName = biliOBUtils.getUserName();
+        Map data = biliOBUtils.getVisitData(finalUserName, mid);
         AuthorServiceImpl.logger.info("用户[{}]查询mid[{}]的详细数据", finalUserName, mid);
         mongoTemplate.insert(data, "author_visit");
     }
@@ -173,33 +161,27 @@ public class AuthorServiceImpl implements AuthorService {
 
     @Override
     @Cacheable(value = "author_slice", key = "#mid + #text + #page + #pagesize + #sort")
-    public MySlice<Author> getAuthor(
-            Long mid, String text, Integer page, Integer pagesize, Integer sort) {
+    public MySlice<Author> getAuthor(Long mid, String text, Integer page, Integer pagesize,
+            Integer sort) {
         if (pagesize > PageSizeEnum.BIG_SIZE.getValue()) {
             pagesize = PageSizeEnum.BIG_SIZE.getValue();
         }
         String sortKey = AuthorSortEnum.getKeyByFlag(sort);
         if (mid != -1) {
             AuthorServiceImpl.logger.info(mid);
-            return new MySlice<>(
-                    respository.searchByMid(
-                            mid, PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, sortKey))));
+            return new MySlice<>(respository.searchByMid(mid,
+                    PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, sortKey))));
         } else if (!Objects.equals(text, "")) {
             AuthorServiceImpl.logger.info(text);
             if (InputInspection.isId(text)) {
                 // get a mid
-                return new MySlice<>(
-                        respository.searchByMid(
-                                Long.valueOf(text),
-                                PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, sortKey))));
+                return new MySlice<>(respository.searchByMid(Long.valueOf(text),
+                        PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, sortKey))));
             }
             // get text
             String[] textArray = text.split(" ");
-            MySlice<Author> mySlice =
-                    new MySlice<>(
-                            respository.findByKeywordContaining(
-                                    textArray,
-                                    PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, sortKey))));
+            MySlice<Author> mySlice = new MySlice<>(respository.findByKeywordContaining(textArray,
+                    PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, sortKey))));
             if (mySlice.getContent().isEmpty()) {
                 for (String eachText : textArray) {
                     HashMap<String, String> map = new HashMap<>(1);
@@ -210,9 +192,8 @@ public class AuthorServiceImpl implements AuthorService {
             return mySlice;
         } else {
             AuthorServiceImpl.logger.info("查看所有UP主列表");
-            return new MySlice<>(
-                    respository.findAllByDataIsNotNull(
-                            PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, sortKey))));
+            return new MySlice<>(respository.findAllByDataIsNotNull(
+                    PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, sortKey))));
         }
     }
 
@@ -223,9 +204,8 @@ public class AuthorServiceImpl implements AuthorService {
      */
     @Override
     public ResponseEntity listFansIncreaseRate() {
-        Slice<Author> slice =
-                respository.listTopIncreaseRate(
-                        PageRequest.of(0, 20, new Sort(Sort.Direction.DESC, "cRate")));
+        Slice<Author> slice = respository
+                .listTopIncreaseRate(PageRequest.of(0, 20, new Sort(Sort.Direction.DESC, "cRate")));
         AuthorServiceImpl.logger.info("获得涨粉榜");
         return new ResponseEntity<>(slice, HttpStatus.OK);
     }
@@ -237,9 +217,8 @@ public class AuthorServiceImpl implements AuthorService {
      */
     @Override
     public ResponseEntity listFansDecreaseRate() {
-        Slice<Author> slice =
-                respository.listTopIncreaseRate(
-                        PageRequest.of(0, 20, new Sort(Sort.Direction.ASC, "cRate")));
+        Slice<Author> slice = respository
+                .listTopIncreaseRate(PageRequest.of(0, 20, new Sort(Sort.Direction.ASC, "cRate")));
         AuthorServiceImpl.logger.info("获得掉粉榜");
         return new ResponseEntity<>(slice, HttpStatus.OK);
     }
@@ -250,18 +229,17 @@ public class AuthorServiceImpl implements AuthorService {
         c.setTimeZone(TimeZone.getTimeZone("CTT"));
         c.add(Calendar.HOUR, 7);
         Date cDate = c.getTime();
-        AggregateIterable<Document> r = mongoClient.getDatabase("biliob").
-                getCollection("author").
-                aggregate(Arrays.asList(
-                        sort(descending("cFans")),
-                        limit(2),
+        AggregateIterable<Document> r = mongoClient.getDatabase("biliob").getCollection("author")
+                .aggregate(Arrays.asList(sort(descending("cFans")), limit(2),
                         project(Projections.fields(Projections.excludeId(),
                                 Projections.include("name", "face", "official"),
-                                Projections.computed("data", new Document()
-                                        .append("$filter", new Document()
-                                                .append("input", "$data").append("as", "eachData").append("cond", new Document()
-                                                        .append("$gt", Arrays.asList("$$eachData.datetime", cDate))))))
-                        )));
+                                Projections.computed("data",
+                                        new Document().append("$filter",
+                                                new Document().append("input", "$data")
+                                                        .append("as", "eachData")
+                                                        .append("cond", new Document().append("$gt",
+                                                                Arrays.asList("$$eachData.datetime",
+                                                                        cDate)))))))));
         ArrayList<Document> result = new ArrayList<>(2);
         for (Document document : r) {
             result.add(document);
@@ -272,16 +250,12 @@ public class AuthorServiceImpl implements AuthorService {
 
     @Override
     public ResponseEntity getLatestTopAuthorData() {
-        AggregateIterable<Document> r = mongoClient.getDatabase("biliob").
-                getCollection("author").
-                aggregate(Arrays.asList(
-                        sort(descending("cFans")),
-                        limit(2),
-                        project(Projections.fields(
-                                Projections.excludeId(),
+        AggregateIterable<Document> r = mongoClient.getDatabase("biliob").getCollection("author")
+                .aggregate(Arrays.asList(sort(descending("cFans")), limit(2),
+                        project(Projections.fields(Projections.excludeId(),
                                 Projections.include("name", "face", "official"),
-                                Projections.computed("data", new Document("$slice", Arrays.asList("$data", 1))))
-                        )));
+                                Projections.computed("data",
+                                        new Document("$slice", Arrays.asList("$data", 1)))))));
         ArrayList<Document> result = new ArrayList<>(2);
         for (Document document : r) {
             result.add(document);
@@ -363,14 +337,10 @@ public class AuthorServiceImpl implements AuthorService {
      */
     @Override
     public List<Map> listAuthorTag(Long mid, Integer limit) {
-        Aggregation a =
-                Aggregation.newAggregation(
-                        Aggregation.match(Criteria.where("mid").is(mid)),
-                        Aggregation.unwind("tag"),
-                        Aggregation.project("tag", "cView"),
-                        Aggregation.group("tag").sum("cView").as("totalView").count().as("count"),
-                        Aggregation.sort(Sort.Direction.DESC, "count"),
-                        Aggregation.limit(limit));
+        Aggregation a = Aggregation.newAggregation(Aggregation.match(Criteria.where("mid").is(mid)),
+                Aggregation.unwind("tag"), Aggregation.project("tag", "cView"),
+                Aggregation.group("tag").sum("cView").as("totalView").count().as("count"),
+                Aggregation.sort(Sort.Direction.DESC, "count"), Aggregation.limit(limit));
         return mongoTemplate.aggregate(a, "video", Map.class).getMappedResults();
     }
 
@@ -397,44 +367,26 @@ public class AuthorServiceImpl implements AuthorService {
         Calendar c = Calendar.getInstance();
         c.add(Calendar.MONTH, -3);
 
-        Aggregation a =
-                Aggregation.newAggregation(
-                        Aggregation.match(Criteria.where("mid").is(mid)),
-                        Aggregation.lookup("author", "mid", "mid", "authorDoc"),
-                        Aggregation.unwind("tag"),
-                        Aggregation.group("mid").count().as("count").avg("cView").as("value").last("author").as("name").addToSet("tag").as("tag").last("authorDoc.face").as("face"),
-                        Aggregation.unwind("face"),
-                        Aggregation.sort(Sort.Direction.DESC, "value"));
+        Aggregation a = Aggregation.newAggregation(Aggregation.match(Criteria.where("mid").is(mid)),
+                Aggregation.lookup("author", "mid", "mid", "authorDoc"), Aggregation.unwind("tag"),
+                Aggregation.group("mid").count().as("count").avg("cView").as("value").last("author")
+                        .as("name").addToSet("tag").as("tag").last("authorDoc.face").as("face"),
+                Aggregation.unwind("face"), Aggregation.sort(Sort.Direction.DESC, "value"));
         Map host = mongoTemplate.aggregate(a, "video", Map.class).getUniqueMappedResult();
         while (result.size() <= 6) {
             List hostTag = (List) (host != null ? host.get("tag") : null);
 
-            Aggregation b =
-                    Aggregation.newAggregation(
-                            Aggregation.match(
-                                    Criteria.where("datetime")
-                                            .gt(c.getTime())
-                                            .and("tag")
-                                            .all(cList)
-                                            .and("mid")
-                                            .ne(mid)),
-                            Aggregation.limit(5000),
-                            Aggregation.lookup("author", "mid", "mid", "authorDoc"),
-                            Aggregation.unwind("tag"),
-                            Aggregation.group("mid")
-                                    .count()
-                                    .as("count")
-                                    .avg("cView")
-                                    .as("value")
-                                    .last("author")
-                                    .as("name")
-                                    .addToSet("tag")
-                                    .as("tag")
-                                    .last("authorDoc.face")
-                                    .as("face"),
-                            Aggregation.unwind("face"),
-                            Aggregation.sort(Sort.Direction.DESC, "value"),
-                            Aggregation.limit(20));
+            Aggregation b = Aggregation.newAggregation(
+                    Aggregation.match(Criteria.where("datetime").gt(c.getTime()).and("tag")
+                            .all(cList).and("mid").ne(mid)),
+                    Aggregation.limit(5000),
+                    Aggregation.lookup("author", "mid", "mid", "authorDoc"),
+                    Aggregation.unwind("tag"),
+                    Aggregation.group("mid").count().as("count").avg("cView").as("value")
+                            .last("author").as("name").addToSet("tag").as("tag")
+                            .last("authorDoc.face").as("face"),
+                    Aggregation.unwind("face"), Aggregation.sort(Sort.Direction.DESC, "value"),
+                    Aggregation.limit(20));
 
             for (Map item : mongoTemplate.aggregate(b, "video", Map.class).getMappedResults()) {
                 Boolean flag = false;
@@ -465,16 +417,18 @@ public class AuthorServiceImpl implements AuthorService {
 
     @Override
     public void upsertAuthorFreq(Long mid, Integer interval) {
-        AuthorIntervalRecord preInterval = mongoTemplate.findOne(Query.query(Criteria.where("mid").is(mid)), AuthorIntervalRecord.class, "author_interval");
+        AuthorIntervalRecord preInterval =
+                mongoTemplate.findOne(Query.query(Criteria.where("mid").is(mid)),
+                        AuthorIntervalRecord.class, "author_interval");
         Calendar nextCal = Calendar.getInstance();
         Date cTime = Calendar.getInstance().getTime();
         nextCal.add(Calendar.SECOND, interval);
         // 如果此前没有访问频率数据，或者访问频率发生了变化，则更新访问频率数据。
         if (null == preInterval || !interval.equals(preInterval.getInterval())) {
-            Update u = Update.update("date", cTime)
-                    .set("interval", interval);
+            Update u = Update.update("date", cTime).set("interval", interval);
             // 如果此前没有访问频率数据，或者更新后的访问时间比原来的访问时间还短，则刷新下次访问的时间。
-            if (preInterval == null || nextCal.getTimeInMillis() < preInterval.getNext().getTime()) {
+            if (preInterval == null
+                    || nextCal.getTimeInMillis() < preInterval.getNext().getTime()) {
                 u.set("next", nextCal.getTime());
                 logger.info("[UPSERT] 作者：{} 访问频率：{} 下次爬取：{}", mid, interval, nextCal.getTime());
             }
@@ -487,21 +441,17 @@ public class AuthorServiceImpl implements AuthorService {
         Calendar c = Calendar.getInstance();
         c.add(Calendar.DATE, -days);
         List<AuthorVisitRecord> results = mongoTemplate.aggregate(
-                Aggregation.newAggregation(
-                        Aggregation.match(where("date").gt(c.getTime())),
+                Aggregation.newAggregation(Aggregation.match(where("date").gt(c.getTime())),
                         Aggregation.group("mid").count().as("count").first("mid").as("mid"),
-                        Aggregation.sort(Sort.Direction.DESC, "count"),
-                        Aggregation.limit(limit)
-                )
-                , "author_visit", AuthorVisitRecord.class).getMappedResults();
+                        Aggregation.sort(Sort.Direction.DESC, "count"), Aggregation.limit(limit)),
+                "author_visit", AuthorVisitRecord.class).getMappedResults();
 
-        Query q = Query.query(Criteria.where("mid").in(results.stream().map(AuthorVisitRecord::getMid).collect(Collectors.toList())));
+        Query q = Query.query(Criteria.where("mid")
+                .in(results.stream().map(AuthorVisitRecord::getMid).collect(Collectors.toList())));
         q.fields().include("name").include("mid");
         List<Author> authorList = mongoTemplate.find(q, Author.class);
-        for (AuthorVisitRecord result : results
-        ) {
-            for (Author author : authorList
-            ) {
+        for (AuthorVisitRecord result : results) {
+            for (Author author : authorList) {
 
                 if (result.getMid().equals(author.getMid())) {
                     result.setName(author.getName());
@@ -515,11 +465,13 @@ public class AuthorServiceImpl implements AuthorService {
     public List<Map> listMostVisitAuthorId(Integer days) {
         Calendar c = Calendar.getInstance();
         c.add(Calendar.DATE, days);
-        return mongoTemplate.aggregate(
-                Aggregation.newAggregation(
-                        Aggregation.match(Criteria.where("date").gt(c)),
-                        Aggregation.group("mid").count().as("count"),
-                        Aggregation.sort(Sort.Direction.DESC, "count")), "author_visit", Map.class).getMappedResults();
+        return mongoTemplate
+                .aggregate(
+                        Aggregation.newAggregation(Aggregation.match(Criteria.where("date").gt(c)),
+                                Aggregation.group("mid").count().as("count"),
+                                Aggregation.sort(Sort.Direction.DESC, "count")),
+                        "author_visit", Map.class)
+                .getMappedResults();
     }
 
 
@@ -528,8 +480,7 @@ public class AuthorServiceImpl implements AuthorService {
         logger.info("[UPDATE] 调整观测频率 - 高频");
         // 点击频率最高，每十分钟一次
         List<AuthorVisitRecord> authorList = this.listMostVisitAuthorId(1, 30);
-        for (AuthorVisitRecord author : authorList
-        ) {
+        for (AuthorVisitRecord author : authorList) {
             this.upsertAuthorFreq(author.getMid(), SECOND_OF_DAY / (24 * 6));
         }
         // 各指标最高，前三名：每1分钟一次；前20名：每十分钟一次。
@@ -537,12 +488,12 @@ public class AuthorServiceImpl implements AuthorService {
             mongoTemplate.aggregate(
                     Aggregation.newAggregation(
                             Aggregation.sort(Sort.Direction.DESC, AuthorSortEnum.getKeyByFlag(i)),
-                            Aggregation.limit(20),
-                            Aggregation.project("mid")), "author", Map.class);
+                            Aggregation.limit(20), Aggregation.project("mid")),
+                    "author", Map.class);
             int idx = 0;
-            for (AuthorVisitRecord author : authorList
-            ) {
-                this.upsertAuthorFreq(author.getMid(), SECOND_OF_DAY / ((idx++ <= 3) ? (24 * 60) : (24 * 6)));
+            for (AuthorVisitRecord author : authorList) {
+                this.upsertAuthorFreq(author.getMid(),
+                        SECOND_OF_DAY / ((idx++ <= 3) ? (24 * 60) : (24 * 6)));
             }
         }
         // 涨掉粉榜，前三名：每1分钟一次；前20名：每十分钟一次。
@@ -553,14 +504,14 @@ public class AuthorServiceImpl implements AuthorService {
             List<Author> authors = mongoTemplate.find(q.limit(20), Author.class);
             int idx = 0;
             for (Author author : authors) {
-                this.upsertAuthorFreq(author.getMid(), SECOND_OF_DAY / ((idx++ <= 3) ? (24 * 60) : (24 * 6)));
+                this.upsertAuthorFreq(author.getMid(),
+                        SECOND_OF_DAY / ((idx++ <= 3) ? (24 * 60) : (24 * 6)));
             }
         }
 
         // 最多点击：高速观测
         List<AuthorVisitRecord> mostVisitAuthorList = this.listMostVisitAuthorId(1, 100);
-        for (AuthorVisitRecord data : mostVisitAuthorList
-        ) {
+        for (AuthorVisitRecord data : mostVisitAuthorList) {
             this.upsertAuthorFreq(data.getMid(), SECOND_OF_DAY / 96);
         }
     }
@@ -571,15 +522,13 @@ public class AuthorServiceImpl implements AuthorService {
         logger.info("[UPDATE] 调整观测频率");
         // 十万粉丝以上：正常观测
         List<Author> authorList = getAuthorFansGt(100000);
-        for (Author author : authorList
-        ) {
+        for (Author author : authorList) {
             this.upsertAuthorFreq(author.getMid(), SECOND_OF_DAY);
         }
 
         // 百万粉以上：高频观测
         authorList = this.getAuthorFansGt(1000000);
-        for (Author author : authorList
-        ) {
+        for (Author author : authorList) {
             this.upsertAuthorFreq(author.getMid(), SECOND_OF_DAY / 4);
         }
 
@@ -587,8 +536,7 @@ public class AuthorServiceImpl implements AuthorService {
         Query q = Query.query(Criteria.where("forceFocus").is(true));
         q.fields().include("mid");
         authorList = mongoTemplate.find(q, Author.class, "author");
-        for (Author author : authorList
-        ) {
+        for (Author author : authorList) {
             this.upsertAuthorFreq(author.getMid(), SECOND_OF_DAY / 8);
         }
 

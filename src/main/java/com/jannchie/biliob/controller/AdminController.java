@@ -36,6 +36,17 @@ public class AdminController {
         return adminService.listUser(page, pagesize, sort, text, day);
     }
 
+    @RequestMapping(method = RequestMethod.GET, value = "/api/admin/ip")
+    public List listIpRecord(
+            @RequestParam(defaultValue = "0") Integer page,
+            @RequestParam(defaultValue = "20") Integer pagesize,
+            @RequestParam(defaultValue = "0") Integer sort,
+            @RequestParam(defaultValue = "") String text,
+            @RequestParam(defaultValue = "30") Integer day) {
+        return adminService.listIpRecord(page, pagesize, sort, text, day);
+    }
+
+
     @RequestMapping(method = RequestMethod.PUT, value = "/admin/user/grant")
     public ResponseEntity grantUserAdminRole(@RequestParam @Valid String userName) {
         return adminService.grantUserAdminRole(userName);

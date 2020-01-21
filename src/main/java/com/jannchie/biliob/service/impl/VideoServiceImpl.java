@@ -49,6 +49,7 @@ public class VideoServiceImpl implements VideoService {
     private final UserService userService;
     private final MongoTemplate mongoTemplate;
     private final RecommendVideo recommendVideo;
+    private BiliOBUtils biliOBUtils;
 
     @Autowired
     public VideoServiceImpl(
@@ -57,12 +58,13 @@ public class VideoServiceImpl implements VideoService {
             UserService userService,
             MongoTemplate mongoTemplate,
             RedisOps redisOps,
-            RecommendVideo recommendVideo) {
+            RecommendVideo recommendVideo, BiliOBUtils biliOBUtils) {
         this.respository = respository;
         this.userService = userService;
         this.mongoTemplate = mongoTemplate;
         this.redisOps = redisOps;
         this.recommendVideo = recommendVideo;
+        this.biliOBUtils = biliOBUtils;
     }
 
     /**
@@ -223,8 +225,8 @@ public class VideoServiceImpl implements VideoService {
     }
 
     private void addVideoVisit(Long aid) {
-        String finalUserName = BiliOBUtils.getUserName();
-        Map data = BiliOBUtils.getVisitData(finalUserName, aid);
+        String finalUserName = biliOBUtils.getUserName();
+        Map data = biliOBUtils.getVisitData(finalUserName, aid);
         VideoServiceImpl.logger.info("用户[{}]查询aid[{}]的详细数据", finalUserName, aid);
         mongoTemplate.insert(data, "video_visit");
     }
