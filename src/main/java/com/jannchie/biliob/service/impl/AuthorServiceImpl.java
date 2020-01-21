@@ -1,12 +1,11 @@
 package com.jannchie.biliob.service.impl;
 
 import com.jannchie.biliob.constant.AuthorSortEnum;
+import com.jannchie.biliob.constant.BiliOBConstant;
 import com.jannchie.biliob.constant.PageSizeEnum;
 import com.jannchie.biliob.exception.AuthorAlreadyFocusedException;
 import com.jannchie.biliob.exception.UserAlreadyFavoriteAuthorException;
-import com.jannchie.biliob.model.Author;
-import com.jannchie.biliob.model.AuthorRankData;
-import com.jannchie.biliob.model.RealTimeFans;
+import com.jannchie.biliob.model.*;
 import com.jannchie.biliob.object.AuthorIntervalRecord;
 import com.jannchie.biliob.object.AuthorVisitRecord;
 import com.jannchie.biliob.repository.AuthorRepository;
@@ -59,6 +58,7 @@ public class AuthorServiceImpl implements AuthorService {
     private MongoClient mongoClient;
     private AuthorUtil authorUtil;
     private BiliOBUtils biliOBUtils;
+
     @Autowired
     public AuthorServiceImpl(AuthorRepository respository, UserService userService,
                              MongoClient mongoClient, MongoTemplate mongoTemplate, InputInspection inputInspection,
@@ -131,12 +131,29 @@ public class AuthorServiceImpl implements AuthorService {
     @Override
     public Author getAuthorDetails(Long mid, Integer type) {
         addAuthorVisit(mid);
-        if (type == 1) {
-            return getAggregatedData(mid);
+        Author author;
+        if (mongoTemplate.exists(Query.query(where("mid").is(mid).and("data.100").exists(true)), Author.class)) {
+            author = getAggregatedData(mid);
+        } else {
+            Query query = Query.query(where("mid").is(mid));
+            author = mongoTemplate.findOne(query, Author.class, "author");
         }
-        Query query = new Query(where("mid").is(mid));
-        query.fields().exclude("fansRate");
-        return mongoTemplate.findOne(query, Author.class, "author");
+        filterAuthorData(author);
+        return author;
+    }
+
+    private void filterAuthorData(Author author) {
+        User user = LoginChecker.checkInfo();
+        if (user == null || user.getExp() < 100) {
+            ArrayList<Author.Data> tempData = author.getData();
+            tempData.removeIf(data -> {
+                        Calendar c = Calendar.getInstance();
+                        c.add(Calendar.DATE, -BiliOBConstant.GUEST_VIEW_MAX_DAYS);
+                        return data.getDatetime().before(c.getTime());
+                    }
+            );
+            author.setData(tempData);
+        }
     }
 
     private void addAuthorVisit(Long mid) {
@@ -158,11 +175,10 @@ public class AuthorServiceImpl implements AuthorService {
         respository.save(new Author(mid));
     }
 
-
     @Override
     @Cacheable(value = "author_slice", key = "#mid + #text + #page + #pagesize + #sort")
     public MySlice<Author> getAuthor(Long mid, String text, Integer page, Integer pagesize,
-            Integer sort) {
+                                     Integer sort) {
         if (pagesize > PageSizeEnum.BIG_SIZE.getValue()) {
             pagesize = PageSizeEnum.BIG_SIZE.getValue();
         }
@@ -261,20 +277,6 @@ public class AuthorServiceImpl implements AuthorService {
             result.add(document);
         }
         return ResponseEntity.ok(result);
-    }
-
-    /**
-     * get specific author's fans rate
-     *
-     * @param mid author id
-     * @return list of fans
-     */
-    @Override
-    public ResponseEntity listFansRate(Long mid) {
-        Author author = respository.getFansRate(mid);
-        List data = author.getFansRate();
-        AuthorServiceImpl.logger.info("获得粉丝变动率");
-        return new ResponseEntity<>(data, HttpStatus.OK);
     }
 
     /**
