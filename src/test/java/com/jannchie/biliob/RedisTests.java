@@ -16,13 +16,8 @@ import org.springframework.test.context.web.WebAppConfiguration;
 @WebAppConfiguration
 public class RedisTests {
 
-    private String userKey = "userKey";
     @Autowired
     private RedisOps redisOps;
-    @Autowired
-    private RedisTemplate redisTemplate;
-    @Autowired
-    private StringRedisTemplate stringRedisTemplate;
 
     @Test
     public void contextLoads() {
@@ -31,7 +26,6 @@ public class RedisTests {
     @Test
     public void getAuthorQueueLength() {
         Long authorCrawlTaskQueueLength = redisOps.getAuthorQueueLength();
-        Assert.assertEquals(
-                "返回值非Long类型", "class java.lang.Long", authorCrawlTaskQueueLength.getClass().toString());
+        Assert.assertEquals("返回值非Long类型", "class java.lang.Long", authorCrawlTaskQueueLength.getClass().toString());
     }
 }
