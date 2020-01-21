@@ -40,8 +40,6 @@ public class IpHandlerInterceptor implements HandlerInterceptor {
     @Autowired
     public IpHandlerInterceptor(MongoTemplate mongoTemplate) {
         this.mongoTemplate = mongoTemplate;
-
-
     }
 
     /**
@@ -53,6 +51,7 @@ public class IpHandlerInterceptor implements HandlerInterceptor {
 
         String ip = IpUtil.getIpAddress(request);
         String userAgent = request.getHeader("user-agent");
+        String uri = request.getRequestURI();
 
         if (isBot(userAgent)) {
             mongoTemplate.save(new Blacklist(ip));
@@ -63,7 +62,7 @@ public class IpHandlerInterceptor implements HandlerInterceptor {
             return false;
         }
         // 保存一条IP访问记录
-        mongoTemplate.save(new IpVisitRecord(ip, userAgent));
+        mongoTemplate.save(new IpVisitRecord(ip, userAgent, uri));
 
         int limitCount = Integer.MAX_VALUE;
         if (Objects.equals(request.getMethod(), HttpMethod.DELETE.name())

@@ -60,7 +60,7 @@ public class SpiderScheduler {
         for (Map freqData : authorList) {
             Long mid = (Long) freqData.get("mid");
             c.add(Calendar.SECOND, (Integer) freqData.get("interval"));
-            logger.info("[UPDATE] 更新作者数据：{} 下次更新时间 {}", mid, c.getTime());
+//            logger.info("[UPDATE] 更新作者数据：{} 下次更新时间 {}", mid, c.getTime());
             mongoTemplate.updateFirst(Query.query(Criteria.where("mid").is(mid)), Update.update("next", c.getTime()), "author_interval");
             redisOps.postAuthorCrawlTask(mid);
         }
@@ -90,7 +90,7 @@ public class SpiderScheduler {
         List<Map> authorList = mongoTemplate.find(Query.query(Criteria.where("next").lt(c.getTime())), Map.class, "video_interval");
         for (Map freqData : authorList) {
             Long aid = (Long) freqData.get("aid");
-            logger.info("[UPDATE] 更新视频数据：{}", aid);
+//            logger.info("[UPDATE] 更新视频数据：{}", aid);
             c.add(Calendar.SECOND, (Integer) freqData.get("interval"));
             mongoTemplate.updateFirst(Query.query(Criteria.where("mid").is(aid)), Update.update("next", c.getTime()), "video_interval");
             redisOps.postAuthorCrawlTask(aid);

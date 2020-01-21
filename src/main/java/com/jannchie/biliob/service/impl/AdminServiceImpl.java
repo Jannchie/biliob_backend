@@ -79,9 +79,10 @@ public class AdminServiceImpl implements AdminService {
         c.add(Calendar.DATE, -day);
         ArrayList<AggregationOperation> aggregationList = new ArrayList<>();
         if (!text.equals("")) {
-            aggregationList.add(Aggregation.match(Criteria.where("name").is(text)));
+            aggregationList.add(Aggregation.match(Criteria.where("ip").is(text)));
+        } else {
+            aggregationList.add(Aggregation.group(groupBy).count().as("count").first("datetime").as("firstTime").last("datetime").as("lastTime"));
         }
-        aggregationList.add(Aggregation.group(groupBy).count().as("count").first("datetime").as("firstTime").last("datetime").as("lastTime"));
         aggregationList.add(Aggregation.sort(Sort.Direction.DESC, "count"));
         aggregationList.add(Aggregation.limit(pagesize));
         aggregationList.add(Aggregation.skip((long) page));
