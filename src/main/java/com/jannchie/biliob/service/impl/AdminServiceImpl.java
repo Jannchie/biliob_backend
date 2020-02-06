@@ -333,10 +333,11 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    public List<IpVisitRecord> listIpRecord(Integer page, Integer pagesize, String groupBy, String text, Integer day, String regex) {
+    public List<IpVisitRecord> listIpRecord(Integer page, Integer pagesize, String groupBy, String text, Integer day, String regex, String ip) {
         Calendar c = Calendar.getInstance();
         c.add(Calendar.DATE, -day);
         ArrayList<AggregationOperation> aggregationList = new ArrayList<>();
+        aggregationList.add(Aggregation.match(Criteria.where("datetime").gt(c.getTime())));
         if (!text.equals("")) {
             aggregationList.add(Aggregation.match(Criteria.where("ip").is(text)));
         }

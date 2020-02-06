@@ -35,8 +35,9 @@ public interface AdminService {
      * @param text     text
      * @param day      @return user list
      * @param regex    regex
+     * @param ip       ip
      */
-    List listIpRecord(Integer page, Integer pagesize, String groupBy, String text, Integer day, String regex);
+    List listIpRecord(Integer page, Integer pagesize, String groupBy, String text, Integer day, String regex, String ip);
 
     /**
      * aggregate user
