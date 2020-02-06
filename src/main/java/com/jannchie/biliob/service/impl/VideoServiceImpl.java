@@ -75,10 +75,15 @@ public class VideoServiceImpl implements VideoService {
      * @return keyword list
      */
     @Override
+    @Cacheable
     public List getPopularKeyword() {
+        int delta = 7;
+        int compare = 90;
         VideoServiceImpl.logger.info("获取最流行的TAG列表");
         Calendar c = Calendar.getInstance();
-        c.add(Calendar.DATE, -7);
+
+        c.add(Calendar.DATE, -delta);
+
         Aggregation a =
                 Aggregation.newAggregation(
                         Aggregation.match(Criteria.where("datetime").gt(c.getTime())),
@@ -87,8 +92,32 @@ public class VideoServiceImpl implements VideoService {
                         Aggregation.group("tag").sum("cView").as("value").count().as("count"),
                         Aggregation.match(Criteria.where("count").gt(10)),
                         Aggregation.sort(Sort.Direction.DESC, "value"),
-                        Aggregation.limit(50));
-        return mongoTemplate.aggregate(a, "video", Map.class).getMappedResults();
+                        Aggregation.limit(100));
+        c.add(Calendar.DATE, -compare);
+        Date fe = c.getTime();
+        c.add(Calendar.DATE, -delta);
+        Date fs = c.getTime();
+
+        Aggregation b =
+                Aggregation.newAggregation(
+                        Aggregation.match(Criteria.where("datetime").lt(fe).gt(fs)),
+                        Aggregation.project("tag", "cView", "datetime"),
+                        Aggregation.unwind("tag"),
+                        Aggregation.group("tag").sum("cView").as("value").count().as("count"),
+                        Aggregation.match(Criteria.where("count").gt(10)),
+                        Aggregation.sort(Sort.Direction.DESC, "value"),
+                        Aggregation.limit(100));
+        Map temp = mongoTemplate.aggregate(b, "video", Map.class).getMappedResults().stream().reduce((res, item) -> {
+            res.put(item.get("_id"), item.get("value"));
+            return res;
+        }).get();
+        List<Map> result = mongoTemplate.aggregate(a, "video", Map.class).getMappedResults();
+        result.forEach(e -> {
+            if (temp.get(e.get("_id")) != null) {
+                e.put("value", (Integer) e.get("value") - (Integer) temp.get(e.get("_id")));
+            }
+        });
+        return result;
     }
 
     /**
