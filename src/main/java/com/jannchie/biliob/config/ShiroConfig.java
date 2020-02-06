@@ -2,6 +2,7 @@ package com.jannchie.biliob.config;
 
 import com.jannchie.biliob.authority.MyRolesAuthorizationFilter;
 import com.jannchie.biliob.authority.UserRealm;
+import com.jannchie.biliob.repository.ShiroSessionRepository;
 import org.apache.shiro.cache.MemoryConstrainedCacheManager;
 import org.apache.shiro.codec.Base64;
 import org.apache.shiro.mgt.SecurityManager;
@@ -18,6 +19,12 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.core.env.Environment;
+import org.springframework.data.mongodb.MongoDbFactory;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.convert.DbRefResolver;
+import org.springframework.data.mongodb.core.convert.DefaultDbRefResolver;
+import org.springframework.data.mongodb.core.convert.MappingMongoConverter;
+import org.springframework.data.mongodb.core.mapping.MongoMappingContext;
 
 import javax.servlet.Filter;
 import java.util.LinkedHashMap;
@@ -28,7 +35,6 @@ import java.util.Map;
  */
 @Configuration
 public class ShiroConfig implements EnvironmentAware {
-
     private String cipherKey;
 
     @Bean
@@ -91,11 +97,11 @@ public class ShiroConfig implements EnvironmentAware {
      */
     @Bean
     @Lazy
-    public DefaultWebSecurityManager securityManager() {
+    public DefaultWebSecurityManager securityManager(MongoTemplate mongoTemplate) {
         DefaultWebSecurityManager securityManager = new DefaultWebSecurityManager();
         // 设置realm.
         securityManager.setRealm(userRealm());
-        securityManager.setSessionManager(sessionManager());
+        securityManager.setSessionManager(sessionManager(mongoTemplate));
         securityManager.setRememberMeManager(rememberMeManager());
         return securityManager;
     }
@@ -118,13 +124,24 @@ public class ShiroConfig implements EnvironmentAware {
     }
 
     @Bean
-    public DefaultWebSessionManager sessionManager() {
+    public DefaultWebSessionManager sessionManager(MongoTemplate mongoTemplate) {
         Cookie cookie = new SimpleCookie(ShiroHttpSession.DEFAULT_SESSION_ID_NAME);
         cookie.setMaxAge(60 * 60 * 24 * 3000);
         cookie.setHttpOnly(true);
         DefaultWebSessionManager sessionManager = new DefaultWebSessionManager();
         sessionManager.setSessionIdCookie(cookie);
+
+        sessionManager.setSessionDAO(sessionDAO(mongoTemplate));
         return sessionManager;
+    }
+
+    @Bean
+    public MappingMongoConverter mappingMongoConverter(MongoDbFactory dbFactory, MongoMappingContext mongoMappingContext) {
+        DbRefResolver dbRefResolver = new DefaultDbRefResolver(dbFactory);
+        MappingMongoConverter converter = new MappingMongoConverter(dbRefResolver, mongoMappingContext);
+        converter.setMapKeyDotReplacement("_");
+        converter.afterPropertiesSet();
+        return converter;
     }
 
     @Bean
@@ -137,11 +154,21 @@ public class ShiroConfig implements EnvironmentAware {
     }
 
     @Bean
+    MongoTemplate mongoTemplate(MongoDbFactory mongoDbFactory, MappingMongoConverter mappingMongoConverter) {
+        return new MongoTemplate(mongoDbFactory, mappingMongoConverter);
+    }
+
+    @Bean
     public CookieRememberMeManager rememberMeManager() {
         CookieRememberMeManager rememberMeManager = new CookieRememberMeManager();
         rememberMeManager.setCipherKey(Base64.decode(this.cipherKey));
         rememberMeManager.setCookie(rememberMeCookie());
         return rememberMeManager;
+    }
+
+    @Bean
+    public ShiroSessionRepository sessionDAO(MongoTemplate mongoTemplate) {
+        return new ShiroSessionRepository(mongoTemplate);
     }
 
     private MyRolesAuthorizationFilter myRolesAuthorizationFilter() {

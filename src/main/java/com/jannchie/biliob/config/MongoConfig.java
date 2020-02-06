@@ -19,6 +19,7 @@ class MongoConfig implements EnvironmentAware {
         return new MongoTransactionManager(dbFactory);
     }
 
+
     /**
      * Use the Reactive Streams Mongo Client API to create a
      * com.mongodb.reactivestreams.client.MongoClient instance.
