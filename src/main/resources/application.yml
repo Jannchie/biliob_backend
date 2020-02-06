@@ -7,9 +7,6 @@ spring:
     redis:
       repositories:
         enabled: false
-  session:
-    store-type: mongodb
-    timeout: 2592000
   redis:
     lettuce:
       pool:
