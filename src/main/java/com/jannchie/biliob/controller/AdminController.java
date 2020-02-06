@@ -108,9 +108,10 @@ public class AdminController {
             @RequestParam(defaultValue = "20") Integer pagesize,
             @RequestParam(defaultValue = "") String groupBy,
             @RequestParam(defaultValue = "") String regex,
+            @RequestParam(defaultValue = "") String ip,
             @RequestParam(defaultValue = "") String text,
             @RequestParam(defaultValue = "30") Integer day) {
-        return adminService.listIpRecord(page, pagesize, groupBy, text, day, regex);
+        return adminService.listIpRecord(page, pagesize, groupBy, text, day, regex, ip);
     }
 
     @RequestMapping(method = RequestMethod.POST, value = "/ip")
