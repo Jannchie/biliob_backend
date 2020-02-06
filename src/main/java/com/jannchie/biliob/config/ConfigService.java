@@ -23,7 +23,7 @@ public class ConfigService {
     }
 
     @Bean
-    public WebMvcConfigurer myConfigurer() {
+    public WebMvcConfigurer myConfigure() {
         return new WebMvcConfigurer() {
             @Override
             public void addCorsMappings(CorsRegistry registry) {

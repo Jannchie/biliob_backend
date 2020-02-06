@@ -80,7 +80,6 @@ public class SpiderScheduler {
         redisOps.deleteTagTask();
         for (Video eachVideo : videoList) {
             Long aid = eachVideo.getAid();
-//            logger.info("[UPDATE] 添加Tag：{}", aid);
             redisOps.postTagSpiderTask(aid);
         }
     }
@@ -90,7 +89,6 @@ public class SpiderScheduler {
         List<Map> authorList = mongoTemplate.find(Query.query(Criteria.where("next").lt(c.getTime())), Map.class, "video_interval");
         for (Map freqData : authorList) {
             Long aid = (Long) freqData.get("aid");
-//            logger.info("[UPDATE] 更新视频数据：{}", aid);
             c.add(Calendar.SECOND, (Integer) freqData.get("interval"));
             mongoTemplate.updateFirst(Query.query(Criteria.where("mid").is(aid)), Update.update("next", c.getTime()), "video_interval");
             redisOps.postAuthorCrawlTask(aid);

@@ -113,6 +113,12 @@ public class AdminController {
         return adminService.listIpRecord(page, pagesize, groupBy, text, day, regex);
     }
 
+    @RequestMapping(method = RequestMethod.POST, value = "/ip")
+    public Result banIp(
+            @RequestBody String ip) {
+        return adminService.banIp(ip);
+    }
+
     @RequestMapping(method = RequestMethod.POST, value = "/ua")
     public ResponseEntity<Result> postBanedUserAgent(@RequestBody String userAgent) {
         return adminService.banUserAgent(userAgent);

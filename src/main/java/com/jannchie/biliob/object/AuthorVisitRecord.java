@@ -1,5 +1,8 @@
 package com.jannchie.biliob.object;
 
+/**
+ * @author Jannchie
+ */
 public class AuthorVisitRecord {
     private String name;
     private Long mid;
