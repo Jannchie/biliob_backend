@@ -353,7 +353,7 @@ public class AdminServiceImpl implements AdminService {
                     .first("datetime").as("firstTime")
                     .last("datetime").as("lastTime"));
             aggregationList.add(Aggregation.sort(Sort.Direction.DESC, "count"));
-            aggregationList.add(Aggregation.project("count", "lastUri", "firstTime", "lastTime").and("_id").as("groupBy"));
+            aggregationList.add(Aggregation.project("count", "lastUri", "firstTime", "lastTime", "lastUserAgent").and("_id").as("groupBy"));
         } else {
             aggregationList.add(Aggregation.sort(Sort.Direction.DESC, "datetime"));
         }
@@ -389,6 +389,15 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
+    public Result banIp(String ip) {
+        if (mongoTemplate.exists(Query.query(Criteria.where("ip").is(ip)), Blacklist.class)) {
+            return new Result(ResultEnum.ALREADY_BANED);
+        }
+        mongoTemplate.save(new Blacklist(ip));
+        return new Result(ResultEnum.SUCCEED);
+    }
+
+    @Override
     public Map<Integer, Integer> getDistribute(String ip) {
         List<IpVisitRecord> visitRecords = mongoTemplate.aggregate(Aggregation.newAggregation(Aggregation.match(Criteria.where("ip").is(ip)), Aggregation.sort(Sort.Direction.DESC, "datetime"), Aggregation.limit(500)), IpVisitRecord.class, IpVisitRecord.class).getMappedResults();
         Map<Integer, Integer> result = new HashMap<>();
@@ -414,7 +423,8 @@ public class AdminServiceImpl implements AdminService {
                         Aggregation.group("ip").count().as("count"),
                         Aggregation.project("count").and("_id").as("groupBy"),
                         Aggregation.lookup("blacklist", "groupBy", "ip", "blacklist"),
-                        Aggregation.match(Criteria.where("blacklist.0").exists(false))
+                        Aggregation.match(Criteria.where("blacklist.0").exists(false)),
+                        Aggregation.limit(100)
                 ), IpVisitRecord.class).getMappedResults().stream().map(IpVisitRecord::getGroupBy).collect(Collectors.toList());
         for (String ip : suspiciousIp) {
             Double variance = getVariance(ip);

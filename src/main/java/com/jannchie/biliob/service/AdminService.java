@@ -153,4 +153,6 @@ public interface AdminService {
     Double getVariance(String ip);
 
     Map<Integer, Integer> getDistribute(String ip);
+
+    Result banIp(String ip);
 }
