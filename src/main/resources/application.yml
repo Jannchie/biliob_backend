@@ -1,10 +1,15 @@
 spring:
+  mvc:
+    dispatch-options-request: true
   data:
     mongodb:
       uri: ${BILIOB_MONGO_URL}
     redis:
       repositories:
         enabled: false
+  session:
+    store-type: mongodb
+    timeout: 2592000
   redis:
     lettuce:
       pool:
