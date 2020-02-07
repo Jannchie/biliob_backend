@@ -6,4 +6,5 @@ then
 fi
 source /etc/profile
 cd ~/biliob_backend
+mvn install
 nohup java -jar ./target/biliob*.jar 1>log.out 2>&1 &
