@@ -2,6 +2,7 @@ package com.jannchie.biliob.repository;
 
 import org.apache.shiro.session.Session;
 import org.apache.shiro.session.UnknownSessionException;
+import org.apache.shiro.session.mgt.SimpleSession;
 import org.apache.shiro.session.mgt.eis.AbstractSessionDAO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -33,8 +34,8 @@ public class ShiroSessionRepository extends AbstractSessionDAO {
         return sessionId;
     }
 
-    private void saveSession(Session session) {
-        mongoTemplate.save(session, "sessions");
+    private Session saveSession(Session session) {
+        return mongoTemplate.save(session, "sessions");
     }
 
     @Override
@@ -43,7 +44,13 @@ public class ShiroSessionRepository extends AbstractSessionDAO {
     }
 
     private Session getSession(Serializable sessionId) {
-        return mongoTemplate.findOne(Query.query(Criteria.where("id").is(sessionId)), Session.class, "sessions");
+        if (mongoTemplate.exists(Query.query(Criteria.where("id").is(sessionId)), Object.class, "sessions")) {
+            return mongoTemplate.findOne(Query.query(Criteria.where("id").is(sessionId)), Session.class, "sessions");
+        } else {
+            SimpleSession s = new SimpleSession();
+            s.setId(sessionId);
+            return this.saveSession(s);
+        }
     }
 
     @Override
@@ -59,6 +66,6 @@ public class ShiroSessionRepository extends AbstractSessionDAO {
 
     @Override
     public Collection<Session> getActiveSessions() {
-        return null;
+        return mongoTemplate.findAll(Session.class, "sessions");
     }
 }
