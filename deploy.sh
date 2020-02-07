@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 source /etc/profile
 cd ~/biliob_backend
-mvn install
+mvn package
 pid=$(ps -ef | grep biliob | grep .jar | grep -v grep | awk '{print $2}')
 if [[ -n ${pid} ]]
 then
