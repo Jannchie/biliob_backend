@@ -97,11 +97,11 @@ public class ShiroConfig implements EnvironmentAware {
      */
     @Bean
     @Lazy
-    public DefaultWebSecurityManager securityManager(MongoTemplate mongoTemplate) {
+    public DefaultWebSecurityManager securityManager() {
         DefaultWebSecurityManager securityManager = new DefaultWebSecurityManager();
         // 设置realm.
         securityManager.setRealm(userRealm());
-        securityManager.setSessionManager(sessionManager(mongoTemplate));
+        securityManager.setSessionManager(sessionManager());
         securityManager.setRememberMeManager(rememberMeManager());
         return securityManager;
     }
@@ -124,14 +124,14 @@ public class ShiroConfig implements EnvironmentAware {
     }
 
     @Bean
-    public DefaultWebSessionManager sessionManager(MongoTemplate mongoTemplate) {
+    public DefaultWebSessionManager sessionManager() {
         Cookie cookie = new SimpleCookie(ShiroHttpSession.DEFAULT_SESSION_ID_NAME);
         cookie.setMaxAge(60 * 60 * 24 * 3000);
         cookie.setHttpOnly(true);
         DefaultWebSessionManager sessionManager = new DefaultWebSessionManager();
         sessionManager.setSessionIdCookie(cookie);
 
-        sessionManager.setSessionDAO(sessionDAO(mongoTemplate));
+        // sessionManager.setSessionDAO(sessionDAO());
         return sessionManager;
     }
 
