@@ -46,7 +46,7 @@ public interface VideoService {
      * @param page     页数
      * @param pagesize 页大小
      * @param sort     排序
-     * @param days
+     * @param days     天数
      * @return 视频页
      */
     MySlice<Video> getVideo(
