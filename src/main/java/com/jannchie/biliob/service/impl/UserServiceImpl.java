@@ -4,6 +4,7 @@ import com.jannchie.biliob.constant.CreditConstant;
 import com.jannchie.biliob.constant.FieldConstant;
 import com.jannchie.biliob.constant.ResultEnum;
 import com.jannchie.biliob.constant.RoleEnum;
+import com.jannchie.biliob.credit.handle.CreditHandle;
 import com.jannchie.biliob.exception.UserNotExistException;
 import com.jannchie.biliob.model.Question;
 import com.jannchie.biliob.model.User;
@@ -72,9 +73,9 @@ class UserServiceImpl implements UserService {
     private final ForceFocusCreditCalculator forceFocusCreditCalculator;
 
     private final ModifyNickNameCreditCalculator modifyNickNameCreditCalculator;
-
     private final MailUtil mailUtil;
     private final RecommendVideo recommendVideo;
+    private CreditHandle creditHandle;
 
     @Autowired
     public UserServiceImpl(
@@ -91,6 +92,7 @@ class UserServiceImpl implements UserService {
             DanmakuAggregateCreditCalculator danmakuAggregateCreditCalculator,
             CheckInCreditCalculator checkInCreditCalculator,
             ModifyNickNameCreditCalculator modifyNickNameCreditCalculator,
+            CreditHandle creditHandle,
             MailUtil mailUtil,
             RecommendVideo recommendVideo) {
         this.creditUtil = creditUtil;
@@ -100,6 +102,7 @@ class UserServiceImpl implements UserService {
         this.questionRepository = questionRepository;
         this.userRecordRepository = userRecordRepository;
         this.mongoTemplate = mongoTemplate;
+        this.creditHandle = creditHandle;
         this.refreshAuthorCreditCalculator = refreshAuthorCreditCalculator;
         this.forceFocusCreditCalculator = forceFocusCreditCalculator;
         this.refreshVideoCreditCalculator = refreshVideoCreditCalculator;
@@ -562,8 +565,8 @@ class UserServiceImpl implements UserService {
      * @return operation result
      */
     @Override
-    public ResponseEntity modifyUserName(@Valid String newUserName) {
-        return modifyNickNameCreditCalculator.executeAndGetResponse(newUserName);
+    public ResponseEntity<Result> modifyUserName(@Valid String newUserName) {
+        return creditHandle.modifyUserName(LoginChecker.checkInfo(), CreditConstant.MODIFY_NAME, newUserName);
     }
 
     /**
@@ -619,7 +622,7 @@ class UserServiceImpl implements UserService {
     }
 
     @Override
-    public ResponseEntity changeNickName(String newNickname) {
+    public ResponseEntity<Result> changeNickName(String newNickname) {
         User user = LoginChecker.checkInfo();
         if (user == null) {
             return new ResponseEntity<>(
@@ -629,8 +632,6 @@ class UserServiceImpl implements UserService {
         if (newNickname.length() > 20) {
             return new ResponseEntity<>(new Result(ResultEnum.OUT_OF_RANGE), HttpStatus.BAD_REQUEST);
         }
-        mongoTemplate.updateFirst(Query.query(Criteria.where("name").is(user.getName())), Update.update("nickName", newNickname), User.class);
-        user.setNickName(newNickname);
-        return ResponseEntity.ok(new Result(ResultEnum.SUCCEED, user));
+        return creditHandle.modifyUserName(LoginChecker.checkInfo(), CreditConstant.MODIFY_NAME, newNickname);
     }
 }

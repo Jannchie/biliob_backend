@@ -7,17 +7,17 @@ import com.jannchie.biliob.constant.ResultEnum;
  * @author jannchie
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class Result {
+public class Result<T> {
     private Integer code;
     private String msg;
-    private Object data;
+    private T data;
 
     public Result(ResultEnum resultEnum) {
         this.code = resultEnum.getCode();
         this.msg = resultEnum.getMsg();
     }
 
-    public Result(ResultEnum resultEnum, Object data) {
+    public Result(ResultEnum resultEnum, T data) {
         this.code = resultEnum.getCode();
         this.msg = resultEnum.getMsg();
         this.data = data;
@@ -31,7 +31,11 @@ public class Result {
         return msg;
     }
 
-    public Object getData() {
+    public void setMsg(String msg) {
+        this.msg = msg;
+    }
+
+    public T getData() {
         return data;
     }
 }

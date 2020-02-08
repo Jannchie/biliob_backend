@@ -5,8 +5,13 @@ import com.jannchie.biliob.constant.ResultEnum;
 import com.jannchie.biliob.model.AuthorList;
 import com.jannchie.biliob.model.User;
 import com.jannchie.biliob.utils.Result;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
@@ -18,18 +23,18 @@ import java.util.HashMap;
  */
 @Component
 public class CreditHandle {
+    private static final Logger logger = LogManager.getLogger();
     final MongoTemplate mongoTemplate;
 
     public CreditHandle(MongoTemplate mongoTemplate) {
         this.mongoTemplate = mongoTemplate;
     }
 
-
-    public ResponseEntity createAuthorList(User user, CreditConstant creditConstant, String title) {
+    public ResponseEntity<Result<String>> createAuthorList(User user, CreditConstant creditConstant, String title) {
         AuthorList authorList = new AuthorList(title, user.getName());
         mongoTemplate.save(authorList);
-        String msg = String.format("%s (%s)", title, authorList.get("_id"));
-        return getSuccessResponse(user, creditConstant, msg);
+        String param = String.format("%s (%s)", title, authorList.get("_id"));
+        return getSuccessResponse(user, creditConstant, param);
     }
 
 
@@ -41,17 +46,14 @@ public class CreditHandle {
         return null;
     }
 
-    private ResponseEntity getSuccessResponse(User user, CreditConstant creditConstant) {
-        ResponseEntity<Result> r;
-        HashMap<String, Object> data = getResponseData(user, creditConstant);
-        r = new ResponseEntity<>(new Result(ResultEnum.SUCCEED, data), HttpStatus.OK);
-        return r;
-    }
 
-    private ResponseEntity getSuccessResponse(User user, CreditConstant creditConstant, String message) {
-        ResponseEntity<Result> r;
+    private ResponseEntity<Result<String>> getSuccessResponse(User user, CreditConstant creditConstant, String message) {
+        ResponseEntity<Result<String>> r;
         HashMap<String, Object> data = getResponseData(user, creditConstant, message);
-        r = new ResponseEntity<>(new Result(ResultEnum.SUCCEED, data), HttpStatus.OK);
+        String msg = creditConstant.getMsg(message);
+        logger.info(msg);
+        Result<String> result = new Result<>(ResultEnum.SUCCEED, message);
+        r = new ResponseEntity<>(result, HttpStatus.OK);
         return r;
     }
 
@@ -70,5 +72,14 @@ public class CreditHandle {
         data.put("exp", user.getExp() + creditConstant.getValue());
         data.put("credit", user.getCredit() + Math.abs(creditConstant.getValue()));
         return data;
+    }
+
+    public ResponseEntity modifyUserName(User user, CreditConstant creditConstant, String newUserName) {
+        mongoTemplate.updateFirst(
+                Query.query(Criteria.where("_id").is(user.getId())),
+                Update.update("nickName", newUserName),
+                "user");
+        return getSuccessResponse(user, creditConstant, newUserName);
+
     }
 }

@@ -6,6 +6,7 @@ import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /**
  * @author jannchie
@@ -32,6 +33,8 @@ public class Author {
     @Field("cArticle_view")
     private Long cArticleView;
     private Long cLike;
+
+    private List<AuthorTimelineItem> timeline;
 
     public Author() {
         focus = true;
@@ -188,6 +191,14 @@ public class Author {
 
     public void setFocus(Boolean focus) {
         this.focus = focus;
+    }
+
+    public List<AuthorTimelineItem> getTimeline() {
+        return timeline;
+    }
+
+    public void setTimeline(List<AuthorTimelineItem> timeline) {
+        this.timeline = timeline;
     }
 
     public static class Rank {
@@ -390,6 +401,66 @@ public class Author {
 
         public void setName(String name) {
             this.name = name;
+        }
+    }
+
+    public static class AuthorTimelineItem {
+        private Date datetime;
+        private Integer fansVariation;
+        private String title;
+        private String info;
+        private Video relateVideo;
+
+        public AuthorTimelineItem(Date datetime, Integer fansVariation, String title, String info, Video relateVideo) {
+            this.datetime = datetime;
+            this.fansVariation = fansVariation;
+            this.title = title;
+            this.info = info;
+            this.relateVideo = relateVideo;
+        }
+
+        AuthorTimelineItem() {
+
+        }
+
+        public Date getDatetime() {
+            return datetime;
+        }
+
+        public void setDatetime(Date datetime) {
+            this.datetime = datetime;
+        }
+
+        public Integer getFansVariation() {
+            return fansVariation;
+        }
+
+        public void setFansVariation(Integer fansVariation) {
+            this.fansVariation = fansVariation;
+        }
+
+        public String getTitle() {
+            return title;
+        }
+
+        public void setTitle(String title) {
+            this.title = title;
+        }
+
+        public String getInfo() {
+            return info;
+        }
+
+        public void setInfo(String info) {
+            this.info = info;
+        }
+
+        public Video getRelateVideo() {
+            return relateVideo;
+        }
+
+        public void setRelateVideo(Video relateVideo) {
+            this.relateVideo = relateVideo;
         }
     }
 }

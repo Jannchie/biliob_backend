@@ -20,11 +20,12 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Objects;
 
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 /**
- * 此为爬虫调度器的切片。
+ * 此为爬虫调度器的切片。SW
  * 功能为防止同一爬虫调度任务多次执行。
  *
  * @author Pan Jianqi
@@ -57,21 +58,21 @@ public class CheckCreditAspect {
     }
 
     @Around(value = "checkCredit() && args(user, creditConstant, ..)", argNames = "pjp,user,creditConstant")
-    public Object doAround(ProceedingJoinPoint pjp, User user, CreditConstant creditConstant) throws Throwable {
+    public ResponseEntity<?> doAround(ProceedingJoinPoint pjp, User user, CreditConstant creditConstant) throws Throwable {
         Double value = creditConstant.getValue();
         if (user == null) {
-            return new ResponseEntity<>(
-                    new Result(ResultEnum.HAS_NOT_LOGGED_IN), HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity<Result<?>>(
+                    new Result<>(ResultEnum.HAS_NOT_LOGGED_IN), HttpStatus.UNAUTHORIZED);
         } else if (value < 0 && user.getCredit() < (-value)) {
             logger.info("用户：{},积分不足,当前积分：{}", user.getName(), user.getCredit());
-            return new ResponseEntity<>(new Result(ResultEnum.CREDIT_NOT_ENOUGH), HttpStatus.ACCEPTED);
+            return new ResponseEntity<Result<?>>(new Result<>(ResultEnum.CREDIT_NOT_ENOUGH), HttpStatus.ACCEPTED);
         }
 
         Double credit = user.getCredit() + value;
         Double exp = user.getExp() + Math.abs(value);
         String userName = user.getName();
-        ResponseEntity res = (ResponseEntity) pjp.proceed();
-        updateRecord(user, creditConstant, String.valueOf(res.getBody()));
+        ResponseEntity<Result<String>> res = (ResponseEntity<Result<String>>) pjp.proceed();
+        updateRecord(user, creditConstant, Objects.requireNonNull(res.getBody()).getData());
         updateUserInfo(credit, exp, userName);
         return res;
     }
