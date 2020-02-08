@@ -12,9 +12,5 @@ before_install:
   - openssl aes-256-cbc -K $encrypted_630309bee41e_key -iv $encrypted_630309bee41e_iv
     -in deploy_key.enc -out ~/.ssh/deploy_key -d
   - chmod 600 ~/.ssh/deploy_key
-after_success:
-  - pwd
-  - ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no  $USER_NAME@$SERVER_IP 'rm -rf ~/biliob_backend/*'
-  - script -q /dev/stdout -c 'scp -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no ./deploy.sh $USER_NAME@$SERVER_IP:~/biliob_backend'
 after_script:
   - ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no  $USER_NAME@$SERVER_IP 'bash ~/biliob_backend/deploy.sh'

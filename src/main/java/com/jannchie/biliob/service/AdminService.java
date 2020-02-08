@@ -3,6 +3,7 @@ package com.jannchie.biliob.service;
 import com.jannchie.biliob.model.IpVisitRecord;
 import com.jannchie.biliob.model.ScheduleItem;
 import com.jannchie.biliob.model.SearchMethod;
+import com.jannchie.biliob.object.AuthorIntervalCount;
 import com.jannchie.biliob.utils.Result;
 import org.springframework.http.ResponseEntity;
 
@@ -156,4 +157,6 @@ public interface AdminService {
     Map<Integer, Integer> getDistribute(String ip);
 
     Result banIp(String ip);
+
+    List<AuthorIntervalCount> getSpiderStat();
 }

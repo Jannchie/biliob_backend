@@ -2,6 +2,7 @@ package com.jannchie.biliob.controller;
 
 import com.jannchie.biliob.model.ScheduleItem;
 import com.jannchie.biliob.model.SearchMethod;
+import com.jannchie.biliob.object.AuthorIntervalCount;
 import com.jannchie.biliob.service.AdminService;
 import com.jannchie.biliob.utils.Result;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +29,7 @@ public class AdminController {
         this.adminService = adminService;
     }
 
-    @RequestMapping(method = RequestMethod.GET, value = "/api/admin/user")
+    @RequestMapping(method = RequestMethod.GET, value = "/user")
     public List listUser(
             @RequestParam(defaultValue = "0") Integer page,
             @RequestParam(defaultValue = "20") Integer pagesize,
@@ -49,37 +50,37 @@ public class AdminController {
         return adminService.cancelUserAdminRole(userName);
     }
 
-    @RequestMapping(method = RequestMethod.POST, value = "/api/admin/author-list")
+    @RequestMapping(method = RequestMethod.POST, value = "/author-list")
     public ResponseEntity postAuthorCrawlList(@RequestBody Map authorListData) {
         return adminService.postAuthorCrawlList(authorListData);
     }
 
-    @RequestMapping(method = RequestMethod.POST, value = "/api/admin/{type}/search-method")
+    @RequestMapping(method = RequestMethod.POST, value = "/{type}/search-method")
     public ResponseEntity saveSearchMethod(
             @RequestBody SearchMethod searchMethod, @PathVariable("type") String type) {
         searchMethod.setType(type);
         return adminService.saveSearchMethod(searchMethod);
     }
 
-    @RequestMapping(method = RequestMethod.GET, value = "/api/admin/{type}/search-method")
+    @RequestMapping(method = RequestMethod.GET, value = "/{type}/search-method")
     public List listSearchMethod(@PathVariable("type") String type) {
         return adminService.listSearchMethod(type);
     }
 
 
-    @RequestMapping(method = RequestMethod.DELETE, value = "/api/admin/{type}/search-method")
+    @RequestMapping(method = RequestMethod.DELETE, value = "/{type}/search-method")
     public ResponseEntity deleteSearchMethod(
             @PathVariable("type") String type, @RequestParam String name, @RequestParam String owner) {
         return adminService.delSearchMethod(type, name, owner);
     }
 
-    @RequestMapping(method = RequestMethod.DELETE, value = "/api/admin/schedule/{type}")
+    @RequestMapping(method = RequestMethod.DELETE, value = "/schedule/{type}")
     public ResponseEntity deleteCustomSchedule(
             @PathVariable("type") String type, @RequestParam String name, @RequestParam String owner) {
         return adminService.deleteCustomSchedule(type, name, owner);
     }
 
-    @RequestMapping(method = RequestMethod.POST, value = "/api/admin/user/aggregation")
+    @RequestMapping(method = RequestMethod.POST, value = "/user/aggregation")
     public List aggregationUser(@RequestBody Map<String, Object> data) {
         return adminService.aggregateUser(
                 (int) data.get("page"),
@@ -97,7 +98,7 @@ public class AdminController {
                 (String) data.get("groupKeyword"));
     }
 
-    @RequestMapping(method = RequestMethod.POST, value = "/api/admin/upload/schedule")
+    @RequestMapping(method = RequestMethod.POST, value = "/upload/schedule")
     public ResponseEntity postUploadSchedule(@RequestBody ScheduleItem item) {
         return adminService.postUploadSchedule(item);
     }
@@ -128,6 +129,11 @@ public class AdminController {
     @RequestMapping(method = RequestMethod.GET, value = "/ip/dist")
     public Map<Integer, Integer> getIpIntDist(@RequestParam(defaultValue = "") String ip) {
         return adminService.getDistribute(ip);
+    }
+
+    @RequestMapping(method = RequestMethod.GET, value = "/spider/author/interval-data")
+    public List<AuthorIntervalCount> getSpiderStat() {
+        return adminService.getSpiderStat();
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/ip/variance")
