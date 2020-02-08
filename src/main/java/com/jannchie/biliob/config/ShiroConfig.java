@@ -82,7 +82,7 @@ public class ShiroConfig implements EnvironmentAware {
         // 允许用户查看用户信息
         filterChainDefinitionMap.put("/api/user/**", "roles[普通用户,管理员]");
         // 管理员，需要角色权限 “admin”
-        filterChainDefinitionMap.put("/api/admin/**", "roles[管理员]");
+        filterChainDefinitionMap.put("/**", "roles[管理员]");
         // 管理员，需要角色权限 “admin”
         filterChainDefinitionMap.put("/api/question/pending", "roles[管理员]");
         // 其余接口一律拦截
