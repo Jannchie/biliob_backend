@@ -75,7 +75,7 @@ public class VideoServiceImpl implements VideoService {
      * @return keyword list
      */
     @Override
-    @Cacheable
+    @Cacheable(value = "popular_keyword")
     public List getPopularKeyword() {
         int delta = 7;
         int compare = 90;
