@@ -486,9 +486,9 @@ public class AuthorServiceImpl implements AuthorService {
         // 点击频率最高，每十分钟一次
         List<AuthorVisitRecord> authorList = this.listMostVisitAuthorId(1, 30);
         for (AuthorVisitRecord author : authorList) {
-            this.upsertAuthorFreq(author.getMid(), SECOND_OF_DAY / (24 * 6));
+            this.upsertAuthorFreq(author.getMid(), SECOND_OF_DAY / (24 * 12));
         }
-        // 各指标最高，前三名：每1分钟一次；前20名：每十分钟一次。
+        // 各指标最高，前三名：每1分钟一次；前20名：每20分钟一次。
         for (int i = 0; i <= 3; i++) {
             mongoTemplate.aggregate(
                     Aggregation.newAggregation(
@@ -498,10 +498,10 @@ public class AuthorServiceImpl implements AuthorService {
             int idx = 0;
             for (AuthorVisitRecord author : authorList) {
                 this.upsertAuthorFreq(author.getMid(),
-                        SECOND_OF_DAY / ((idx++ <= 3) ? (24 * 60) : (24 * 6)));
+                        SECOND_OF_DAY / ((idx++ <= 3) ? (24 * 60) : (24 * 12)));
             }
         }
-        // 涨掉粉榜，前三名：每1分钟一次；前20名：每十分钟一次。
+        // 涨掉粉榜，前三名：每1分钟一次；前20名：每20分钟一次。
         Sort.Direction[] d = {Sort.Direction.DESC, Sort.Direction.ASC};
         for (Sort.Direction direction : d) {
             Query q = new Query().with(Sort.by(direction, "cRate"));
@@ -510,12 +510,12 @@ public class AuthorServiceImpl implements AuthorService {
             int idx = 0;
             for (Author author : authors) {
                 this.upsertAuthorFreq(author.getMid(),
-                        SECOND_OF_DAY / ((idx++ <= 3) ? (24 * 60) : (24 * 6)));
+                        SECOND_OF_DAY / ((idx++ <= 3) ? (24 * 60) : (24 * 12)));
             }
         }
 
         // 最多点击：高速观测
-        List<AuthorVisitRecord> mostVisitAuthorList = this.listMostVisitAuthorId(1, 100);
+        List<AuthorVisitRecord> mostVisitAuthorList = this.listMostVisitAuthorId(1, 20);
         for (AuthorVisitRecord data : mostVisitAuthorList) {
             this.upsertAuthorFreq(data.getMid(), SECOND_OF_DAY / 96);
         }
