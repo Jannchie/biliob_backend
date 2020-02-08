@@ -155,5 +155,8 @@ public interface AuthorService {
      */
     List listHotAuthor();
 
+    /**
+     * 每分钟更新作者观测数据
+     */
     void updateObserveFreqPerMinute();
 }

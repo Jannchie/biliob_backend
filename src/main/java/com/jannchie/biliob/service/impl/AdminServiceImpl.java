@@ -2,6 +2,7 @@ package com.jannchie.biliob.service.impl;
 
 import com.jannchie.biliob.constant.ResultEnum;
 import com.jannchie.biliob.model.*;
+import com.jannchie.biliob.object.AuthorIntervalCount;
 import com.jannchie.biliob.repository.UserRepository;
 import com.jannchie.biliob.service.AdminService;
 import com.jannchie.biliob.utils.LoginChecker;
@@ -396,6 +397,15 @@ public class AdminServiceImpl implements AdminService {
         }
         mongoTemplate.save(new Blacklist(ip));
         return new Result(ResultEnum.SUCCEED);
+    }
+
+    @Override
+    public List<AuthorIntervalCount> getSpiderStat() {
+        AggregationResults<AuthorIntervalCount> ar = mongoTemplate.aggregate(Aggregation.newAggregation(
+                Aggregation.group("interval").count().as("count"),
+                Aggregation.project().and("_id").as("interval").andInclude("count")
+        ), "author_interval", AuthorIntervalCount.class);
+        return ar.getMappedResults();
     }
 
     @Override
