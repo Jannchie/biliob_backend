@@ -1,6 +1,7 @@
 package com.jannchie.biliob.utils.schedule;
 
 import com.jannchie.biliob.model.Video;
+import com.jannchie.biliob.object.AuthorIntervalRecord;
 import com.jannchie.biliob.service.AuthorService;
 import com.jannchie.biliob.service.VideoService;
 import com.jannchie.biliob.utils.RedisOps;
@@ -55,15 +56,17 @@ public class SpiderScheduler {
     @Async
     public void updateAuthorData() {
         logger.info("[SPIDER] 每分钟更新作者数据");
+        int count = 0;
         Calendar c = Calendar.getInstance();
-        List<Map> authorList = mongoTemplate.find(Query.query(Criteria.where("next").lt(c.getTime())), Map.class, "author_interval");
-        for (Map freqData : authorList) {
-            Long mid = (Long) freqData.get("mid");
-            c.add(Calendar.SECOND, (Integer) freqData.get("interval"));
-//            logger.info("[UPDATE] 更新作者数据：{} 下次更新时间 {}", mid, c.getTime());
+        List<AuthorIntervalRecord> authorList = mongoTemplate.find(Query.query(Criteria.where("next").lt(c.getTime())), AuthorIntervalRecord.class, "author_interval");
+        for (AuthorIntervalRecord freqData : authorList) {
+            Long mid = freqData.getMid();
+            c.add(Calendar.SECOND, freqData.getInterval());
             mongoTemplate.updateFirst(Query.query(Criteria.where("mid").is(mid)), Update.update("next", c.getTime()), "author_interval");
             redisOps.postAuthorCrawlTask(mid);
+            count++;
         }
+        logger.info("[SPIDER] 新增{}个爬虫任务", count);
     }
 
     /**

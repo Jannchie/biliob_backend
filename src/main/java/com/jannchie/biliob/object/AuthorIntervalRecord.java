@@ -1,15 +1,27 @@
 package com.jannchie.biliob.object;
 
+import org.springframework.data.mongodb.core.mapping.Document;
+
 import java.util.Date;
 
 /**
  * @author Jannchie
  */
+@Document(collection = "author_interval")
 public class AuthorIntervalRecord {
     private Long mid;
     private Date date;
     private Date next;
     private Integer interval;
+
+    AuthorIntervalRecord() {
+    }
+
+    public AuthorIntervalRecord(Long mid, Integer interval, Date time) {
+        this.mid = mid;
+        this.interval = interval;
+        this.date = time;
+    }
 
     public Long getMid() {
         return mid;

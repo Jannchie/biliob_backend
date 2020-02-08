@@ -2,7 +2,6 @@ package com.jannchie.biliob.config;
 
 import com.jannchie.biliob.authority.MyRolesAuthorizationFilter;
 import com.jannchie.biliob.authority.UserRealm;
-import com.jannchie.biliob.repository.ShiroSessionRepository;
 import org.apache.shiro.cache.MemoryConstrainedCacheManager;
 import org.apache.shiro.codec.Base64;
 import org.apache.shiro.mgt.SecurityManager;
@@ -19,12 +18,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.core.env.Environment;
-import org.springframework.data.mongodb.MongoDbFactory;
-import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.convert.DbRefResolver;
-import org.springframework.data.mongodb.core.convert.DefaultDbRefResolver;
-import org.springframework.data.mongodb.core.convert.MappingMongoConverter;
-import org.springframework.data.mongodb.core.mapping.MongoMappingContext;
 
 import javax.servlet.Filter;
 import java.util.LinkedHashMap;
@@ -131,17 +124,7 @@ public class ShiroConfig implements EnvironmentAware {
         DefaultWebSessionManager sessionManager = new DefaultWebSessionManager();
         sessionManager.setSessionIdCookie(cookie);
 
-        // sessionManager.setSessionDAO(sessionDAO());
         return sessionManager;
-    }
-
-    @Bean
-    public MappingMongoConverter mappingMongoConverter(MongoDbFactory dbFactory, MongoMappingContext mongoMappingContext) {
-        DbRefResolver dbRefResolver = new DefaultDbRefResolver(dbFactory);
-        MappingMongoConverter converter = new MappingMongoConverter(dbRefResolver, mongoMappingContext);
-        converter.setMapKeyDotReplacement("_");
-        converter.afterPropertiesSet();
-        return converter;
     }
 
     @Bean
@@ -153,10 +136,6 @@ public class ShiroConfig implements EnvironmentAware {
         return cookie;
     }
 
-    @Bean
-    MongoTemplate mongoTemplate(MongoDbFactory mongoDbFactory, MappingMongoConverter mappingMongoConverter) {
-        return new MongoTemplate(mongoDbFactory, mappingMongoConverter);
-    }
 
     @Bean
     public CookieRememberMeManager rememberMeManager() {
@@ -164,11 +143,6 @@ public class ShiroConfig implements EnvironmentAware {
         rememberMeManager.setCipherKey(Base64.decode(this.cipherKey));
         rememberMeManager.setCookie(rememberMeCookie());
         return rememberMeManager;
-    }
-
-    @Bean
-    public ShiroSessionRepository sessionDAO(MongoTemplate mongoTemplate) {
-        return new ShiroSessionRepository(mongoTemplate);
     }
 
     private MyRolesAuthorizationFilter myRolesAuthorizationFilter() {
