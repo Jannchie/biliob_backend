@@ -20,7 +20,7 @@ spring:
   mail:
     host: smtp.biliob.com
     password: ${BILIOB_MAIL_PASSWORD}
-    username: jannchie@biliob.com
+    username: jannchie@admin.biliob.com
     port: 465
     default-encoding: UTF-8
     properties:
