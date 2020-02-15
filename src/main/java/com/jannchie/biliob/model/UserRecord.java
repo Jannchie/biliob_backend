@@ -1,5 +1,6 @@
 package com.jannchie.biliob.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
@@ -15,6 +16,7 @@ public class UserRecord {
     @Id
     private ObjectId id;
     private String userName;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private String datetime;
     private String message;
     private Double credit;

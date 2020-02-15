@@ -553,7 +553,7 @@ public class AuthorServiceImpl implements AuthorService {
 
 
     @Override
-    public List listHotAuthor() {
+    public List<AuthorVisitRecord> listHotAuthor() {
         return this.listMostVisitAuthorId(1, 10);
     }
 }

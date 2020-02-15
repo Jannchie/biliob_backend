@@ -210,7 +210,7 @@ public class Author {
         private Long dArchiveViewRank;
         private Long dArticleViewRank;
         private Long dLikeRank;
-        @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+        @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
         private Date updateTime;
 
         public Rank(Long fansRank, Long archiveViewRank, Long articleViewRank, Long likeRank, Long dFansRank, Long dArchiveViewRank, Long dArticleViewRank, Long dLikeRank, Date updateTime) {

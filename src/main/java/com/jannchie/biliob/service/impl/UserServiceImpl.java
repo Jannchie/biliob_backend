@@ -565,7 +565,7 @@ class UserServiceImpl implements UserService {
      * @return operation result
      */
     @Override
-    public ResponseEntity<Result> modifyUserName(@Valid String newUserName) {
+    public ResponseEntity<Result<String>> modifyUserName(@Valid String newUserName) {
         return creditHandle.modifyUserName(LoginChecker.checkInfo(), CreditConstant.MODIFY_NAME, newUserName);
     }
 
@@ -622,15 +622,15 @@ class UserServiceImpl implements UserService {
     }
 
     @Override
-    public ResponseEntity<Result> changeNickName(String newNickname) {
+    public ResponseEntity<Result<String>> changeNickName(String newNickname) {
         User user = LoginChecker.checkInfo();
         if (user == null) {
             return new ResponseEntity<>(
-                    new Result(ResultEnum.HAS_NOT_LOGGED_IN), HttpStatus.UNAUTHORIZED);
+                    new Result<>(ResultEnum.HAS_NOT_LOGGED_IN), HttpStatus.UNAUTHORIZED);
         }
         //TODO: 使用更加科学的数据验证
         if (newNickname.length() > 20) {
-            return new ResponseEntity<>(new Result(ResultEnum.OUT_OF_RANGE), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(new Result<>(ResultEnum.OUT_OF_RANGE), HttpStatus.BAD_REQUEST);
         }
         return creditHandle.modifyUserName(LoginChecker.checkInfo(), CreditConstant.MODIFY_NAME, newNickname);
     }

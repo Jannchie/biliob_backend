@@ -74,12 +74,11 @@ public class CreditHandle {
         return data;
     }
 
-    public ResponseEntity modifyUserName(User user, CreditConstant creditConstant, String newUserName) {
+    public ResponseEntity<Result<String>> modifyUserName(User user, CreditConstant creditConstant, String newUserName) {
         mongoTemplate.updateFirst(
                 Query.query(Criteria.where("_id").is(user.getId())),
                 Update.update("nickName", newUserName),
                 "user");
         return getSuccessResponse(user, creditConstant, newUserName);
-
     }
 }
