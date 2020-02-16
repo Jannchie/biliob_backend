@@ -20,7 +20,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Objects;
 
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
@@ -71,10 +70,21 @@ public class CheckCreditAspect {
         Double credit = user.getCredit() + value;
         Double exp = user.getExp() + Math.abs(value);
         String userName = user.getName();
-        ResponseEntity<Result<String>> res = (ResponseEntity<Result<String>>) pjp.proceed();
-        updateRecord(user, creditConstant, Objects.requireNonNull(res.getBody()).getData());
-        updateUserInfo(credit, exp, userName);
-        return res;
+        Object o = pjp.proceed();
+        if (o instanceof ResponseEntity) {
+            ResponseEntity<?> res = ((ResponseEntity<?>) o);
+            if (res.getBody() instanceof Result<?>) {
+                Result<?> result = (Result<?>) res.getBody();
+                if (result.getData() instanceof String) {
+                    String data = (String) result.getData();
+                    updateRecord(user, creditConstant, data);
+
+                }
+            }
+            updateUserInfo(credit, exp, userName);
+            return res;
+        }
+        return null;
     }
 
 

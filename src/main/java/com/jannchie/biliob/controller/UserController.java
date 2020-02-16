@@ -2,9 +2,11 @@ package com.jannchie.biliob.controller;
 
 import com.jannchie.biliob.exception.UserAlreadyFavoriteAuthorException;
 import com.jannchie.biliob.exception.UserAlreadyFavoriteVideoException;
+import com.jannchie.biliob.form.ChangeMailForm;
 import com.jannchie.biliob.model.Question;
 import com.jannchie.biliob.service.UserService;
 import com.jannchie.biliob.utils.Message;
+import com.jannchie.biliob.utils.Result;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -198,7 +200,13 @@ public class UserController {
     }
 
     @RequestMapping(method = RequestMethod.POST, value = "/api/user/nickname")
-    public ResponseEntity changeNickName(@RequestBody @Valid String newNickname) {
+    public ResponseEntity<Result<String>> changeNickName(@RequestBody @Valid String newNickname) {
         return userService.changeNickName(newNickname);
     }
+
+    @RequestMapping(method = RequestMethod.POST, value = "/api/user/mail")
+    public ResponseEntity<Result<String>> changeMail(@RequestBody @Valid ChangeMailForm changeMailForm) {
+        return userService.changeMail(changeMailForm.getMail());
+    }
+
 }

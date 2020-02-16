@@ -1,11 +1,12 @@
 package com.jannchie.biliob.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import org.bson.types.ObjectId;
 import org.hibernate.validator.constraints.Length;
+import org.springframework.data.annotation.Id;
 
 import javax.validation.constraints.NotBlank;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 
 /**
@@ -13,58 +14,51 @@ import java.util.Date;
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Comment {
-    @NotBlank(message = "发布者名称不能为空")
-    private String name;
+    @Id
+    private ObjectId id;
+    private String commentId;
+    private String userId;
     private Date date;
-
+    @NotBlank(message = "评论内容不能为空")
+    private String path;
     @NotBlank(message = "评论内容不能为空")
     @Length(max = 100, message = "评论最长为100个字符")
     private String content;
-
     private Integer like;
     private Integer dislike;
-    private Integer funny;
+    private ArrayList<String> likeList;
+    private ArrayList<String> disLikeList;
 
-    private ArrayList<Comment> comments;
+    public ObjectId getId() {
+        return id;
+    }
 
-    public Comment(String name) {
-        this.name = name;
-        this.date = Calendar.getInstance().getTime();
-        this.like = 0;
-        this.dislike = 0;
-        this.funny = 0;
+    public void setId(ObjectId id) {
+        this.id = id;
+    }
+
+    public ArrayList<String> getLikeList() {
+        return likeList;
+    }
+
+    public void setLikeList(ArrayList<String> likeList) {
+        this.likeList = likeList;
+    }
+
+    public ArrayList<String> getDisLikeList() {
+        return disLikeList;
+    }
+
+    public void setDisLikeList(ArrayList<String> disLikeList) {
+        this.disLikeList = disLikeList;
     }
 
     public Integer getLike() {
-        return like;
-    }
-
-    public void setLike(Integer like) {
-        this.like = like;
+        return likeList.size();
     }
 
     public Integer getDislike() {
-        return dislike;
-    }
-
-    public void setDislike(Integer dislike) {
-        this.dislike = dislike;
-    }
-
-    public Integer getFunny() {
-        return funny;
-    }
-
-    public void setFunny(Integer funny) {
-        this.funny = funny;
-    }
-
-    public ArrayList<Comment> getComments() {
-        return comments;
-    }
-
-    public void setComments(ArrayList<Comment> comments) {
-        this.comments = comments;
+        return disLikeList.size();
     }
 
     public String getContent() {
@@ -83,11 +77,31 @@ public class Comment {
         this.date = date;
     }
 
-    public String getName() {
-        return name;
+    public String getUserId() {
+        return userId;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
+
+    public void setUserId(User user) {
+        this.userId = userId;
+    }
+
+    public String getPath() {
+        return path;
+    }
+
+    public void setPath(String path) {
+        this.path = path;
+    }
+
+    public String getCommentId() {
+        return id.toHexString();
+    }
+
+    public void setCommentId(String commentId) {
+        this.commentId = commentId;
     }
 }

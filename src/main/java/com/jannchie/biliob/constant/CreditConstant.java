@@ -38,7 +38,11 @@ public enum CreditConstant {
     REFRESH_VIDEO_DATA(-1D, "立即刷新 av%s 的视频数据"),
     DANMAKU_AGGREGATE(-10D, "对 av%s 进行弹幕分析"),
     ALWAYS_FAIL(-999999999D, "不可能完成的任务"),
-    ADD_AUTHOR_LIST(-10D, "创建一个名为 %s 的作者列表 ");
+    ADD_AUTHOR_LIST(-10D, "创建一个名为 %s 的作者列表 "),
+    LIKE_COMMENT(-0.1D, "喜欢编号为 %s 的评论"),
+    BE_LIKE_COMMENT(0.1D, "编号为 %s 的评论被喜欢"),
+    MODIFY_MAIL(-50D, "改邮箱为 %s"),
+    POST_COMMENT(-1D, "在 %s 下发布评论");
 
     private Double value;
     private String msg;

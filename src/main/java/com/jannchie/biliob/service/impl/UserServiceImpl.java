@@ -348,6 +348,8 @@ class UserServiceImpl implements UserService {
 
     @Override
     public ResponseEntity login(String name, String passwd) {
+        logger.info(name);
+        logger.info(passwd);
         User user =
                 mongoTemplate.findOne(
                         Query.query(
@@ -356,7 +358,7 @@ class UserServiceImpl implements UserService {
                         User.class,
                         "user");
         if (user == null) {
-            return new ResponseEntity<>(new Result(ResultEnum.LOGIN_FAILED), HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity<>(new Result<String>(ResultEnum.LOGIN_FAILED), HttpStatus.UNAUTHORIZED);
         }
         String inputName = user.getName();
         String encodedPassword = new Md5Hash(passwd, inputName).toHex();
@@ -628,10 +630,24 @@ class UserServiceImpl implements UserService {
             return new ResponseEntity<>(
                     new Result<>(ResultEnum.HAS_NOT_LOGGED_IN), HttpStatus.UNAUTHORIZED);
         }
-        //TODO: 使用更加科学的数据验证
         if (newNickname.length() > 20) {
             return new ResponseEntity<>(new Result<>(ResultEnum.OUT_OF_RANGE), HttpStatus.BAD_REQUEST);
         }
         return creditHandle.modifyUserName(LoginChecker.checkInfo(), CreditConstant.MODIFY_NAME, newNickname);
+    }
+
+    @Override
+    public ResponseEntity<Result<String>> changeMail(String newMail) {
+        User user = LoginChecker.checkInfo();
+        if (user == null) {
+            return new ResponseEntity<>(
+                    new Result<>(ResultEnum.HAS_NOT_LOGGED_IN), HttpStatus.UNAUTHORIZED);
+        }
+        if (mongoTemplate.exists(Query.query(Criteria.where("mail").is(newMail)), User.class)) {
+            return new ResponseEntity<>(
+                    new Result<>(ResultEnum.MAIL_HAD_BEEN_REGISTERED), HttpStatus.UNAUTHORIZED);
+        }
+        user.setMail(newMail);
+        return creditHandle.modifyMail(LoginChecker.checkInfo(), CreditConstant.MODIFY_MAIL, newMail);
     }
 }

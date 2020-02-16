@@ -51,11 +51,12 @@ public class CreditHandle {
         ResponseEntity<Result<String>> r;
         HashMap<String, Object> data = getResponseData(user, creditConstant, message);
         String msg = creditConstant.getMsg(message);
-        logger.info(msg);
+        logger.info("用户[{}] {}", user.getName(), msg);
         Result<String> result = new Result<>(ResultEnum.SUCCEED, message);
         r = new ResponseEntity<>(result, HttpStatus.OK);
         return r;
     }
+
 
     private HashMap<String, Object> getResponseData(User user, CreditConstant creditConstant, String message) {
         HashMap<String, Object> data;
@@ -80,5 +81,28 @@ public class CreditHandle {
                 Update.update("nickName", newUserName),
                 "user");
         return getSuccessResponse(user, creditConstant, newUserName);
+    }
+
+    public ResponseEntity<Result<String>> modifyMail(User user, CreditConstant creditConstant, String newMail) {
+        mongoTemplate.updateFirst(
+                Query.query(Criteria.where("_id").is(user.getId())),
+                Update.update("mail", newMail),
+                "user");
+        return getSuccessResponse(user, creditConstant, newMail);
+    }
+
+    public ResponseEntity<Result<String>> doCreditOperation(User user, CreditConstant creditConstant, Execution execution) {
+        return getSuccessResponse(user, creditConstant, execution.execute());
+    }
+
+
+    @FunctionalInterface
+    public interface Execution {
+        /**
+         * 执行
+         *
+         * @return 并返回填充回执的文字
+         */
+        String execute();
     }
 }

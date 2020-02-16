@@ -27,7 +27,6 @@ public class Author {
     private Integer cRate;
     private ArrayList<String> keyword;
     private Integer cFans;
-    private ArrayList<Comment> comments;
     @Field("cArchive_view")
     private Long cArchiveView;
     @Field("cArticle_view")
@@ -51,14 +50,6 @@ public class Author {
 
     public void setcLike(Long cLike) {
         this.cLike = cLike;
-    }
-
-    public ArrayList<Comment> getComments() {
-        return comments;
-    }
-
-    public void setComments(ArrayList<Comment> comments) {
-        this.comments = comments;
     }
 
     public Long getcArchiveView() {

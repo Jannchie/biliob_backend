@@ -6,6 +6,7 @@ import com.jannchie.biliob.exception.UserNotExistException;
 import com.jannchie.biliob.model.User;
 import com.jannchie.biliob.model.UserRecord;
 import com.jannchie.biliob.utils.MySlice;
+import com.jannchie.biliob.utils.Result;
 import org.springframework.data.domain.Slice;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -262,5 +263,13 @@ public interface UserService {
      * @param newNickname New nickname
      * @return user current data
      */
-    ResponseEntity changeNickName(String newNickname);
+    ResponseEntity<Result<String>> changeNickName(String newNickname);
+
+    /**
+     * change mail
+     *
+     * @param newMail new mail
+     * @return result
+     */
+    ResponseEntity<Result<String>> changeMail(String newMail);
 }

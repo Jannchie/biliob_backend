@@ -34,7 +34,7 @@ public class User {
     private ArrayList<Long> favoriteAid;
     private ArrayList<Long> favoriteMid;
     private Double credit;
-    private Integer exp;
+    private Double exp;
 
     private Integer rank;
     @NotBlank(message = "用户ID不能为空")
@@ -49,14 +49,14 @@ public class User {
         this.password = password;
         this.role = role;
         this.credit = 0D;
-        this.exp = 0;
+        this.exp = 0D;
         this.title = "";
     }
 
     public User() {
         this.role = "普通用户";
         this.credit = 0D;
-        this.exp = 0;
+        this.exp = 0D;
     }
 
     public Integer getRank() {
@@ -91,11 +91,11 @@ public class User {
         this.nickName = nickName;
     }
 
-    public Integer getExp() {
+    public Double getExp() {
         return exp;
     }
 
-    public void setExp(Integer exp) {
+    public void setExp(Double exp) {
         this.exp = exp;
     }
 

@@ -60,6 +60,8 @@ public class ShiroConfig implements EnvironmentAware {
         filterChainDefinitionMap.put("/api/event/**", "anon");
         // Allow anyone view the rank information.
         filterChainDefinitionMap.put("/api/rank/**", "anon");
+        // Allow anyone view the comment information.
+        filterChainDefinitionMap.put("/api/comment/**", "anon");
         // Allow anyone view the bangumi information.
         filterChainDefinitionMap.put("/api/bangumi/**", "anon");
         // Allow anyone view the donghua information.

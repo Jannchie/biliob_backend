@@ -33,7 +33,6 @@ public class Video {
     private Integer cShare;
     private Integer cLike;
     private ArrayList<String> tag;
-    private ArrayList<Comment> comments;
     @Field("danmaku_aggregate")
     private HashMap<Object, Object> danmakuAggregate;
 
@@ -44,14 +43,6 @@ public class Video {
 
     public Video() {
         this.focus = true;
-    }
-
-    public ArrayList<Comment> getComments() {
-        return comments;
-    }
-
-    public void setComments(ArrayList<Comment> comments) {
-        this.comments = comments;
     }
 
     public ArrayList<String> getTag() {
