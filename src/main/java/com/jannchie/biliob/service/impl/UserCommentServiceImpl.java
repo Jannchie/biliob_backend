@@ -72,16 +72,21 @@ public class UserCommentServiceImpl implements UserCommentService {
     @Override
     public ResponseEntity<Result<String>> likeComment(String commentId) {
         User user = LoginChecker.checkInfo();
-        if (mongoTemplate.exists(Query.query(Criteria.where("likeList").is(user.getId().toHexString()).and("id").is(commentId)), Comment.class)) {
+        if (mongoTemplate.exists(Query.query(Criteria.where("likeList").is(user.getId()).and("id").is(commentId)), Comment.class)) {
             return ResponseEntity.badRequest().body(new Result<>(ResultEnum.ALREADY_LIKE));
         }
+        Comment comment = mongoTemplate.findOne(Query.query(Criteria.where("_id").is(commentId)), Comment.class);
+        if (comment == null) {
+            return ResponseEntity.badRequest().body(new Result<>(ResultEnum.EXECUTE_FAILURE));
+        }
+        ObjectId commentPublisherId = comment.getUserId();
+        User publisher = mongoTemplate.findOne(Query.query(Criteria.where("_id").is(commentPublisherId)), User.class);
         return creditHandle.doCreditOperation(user, CreditConstant.LIKE_COMMENT, () -> {
-            mongoTemplate.updateFirst(Query.query(Criteria.where("_id").is(commentId)), new Update().addToSet("likeList", user.getId().toHexString()), Comment.class);
-            ObjectId commentPublisherId = Objects.requireNonNull(mongoTemplate.findOne(Query.query(Criteria.where("_id").is(commentId)), Comment.class)).getUserId();
-            User publisher = mongoTemplate.findOne(Query.query(Criteria.where("_id").is(commentPublisherId)), User.class);
+            mongoTemplate.updateFirst(Query.query(Criteria.where("_id").is(commentId)), new Update().addToSet("likeList", user.getId()), Comment.class);
             creditHandle.doCreditOperation(publisher, CreditConstant.BE_LIKE_COMMENT, () -> commentId);
             return commentId;
         });
+
     }
 
     @Override

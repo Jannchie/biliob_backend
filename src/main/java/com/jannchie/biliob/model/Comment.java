@@ -17,7 +17,7 @@ import java.util.Date;
 @Document
 public class Comment {
     @Id
-    private ObjectId id;
+    private String commentId;
     private ObjectId userId;
     private Date date;
     @NotBlank(message = "路径不能为空")
@@ -25,8 +25,8 @@ public class Comment {
     @NotBlank(message = "评论内容不能为空")
     @Length(max = 100, message = "评论最长为100个字符")
     private String content;
-    private ArrayList<String> likeList;
-    private ArrayList<String> disLikeList;
+    private ArrayList<ObjectId> likeList;
+    private ArrayList<ObjectId> disLikeList;
     private User user;
 
     public String getPath() {
@@ -53,27 +53,27 @@ public class Comment {
         this.user = user;
     }
 
-    public ObjectId getId() {
-        return id;
+    public String getCommentId() {
+        return commentId;
     }
 
-    public void setId(ObjectId id) {
-        this.id = id;
+    public void setCommentId(String commentId) {
+        this.commentId = commentId;
     }
 
-    public ArrayList<String> getLikeList() {
+    public ArrayList<ObjectId> getLikeList() {
         return likeList;
     }
 
-    public void setLikeList(ArrayList<String> likeList) {
+    public void setLikeList(ArrayList<ObjectId> likeList) {
         this.likeList = likeList;
     }
 
-    public ArrayList<String> getDisLikeList() {
+    public ArrayList<ObjectId> getDisLikeList() {
         return disLikeList;
     }
 
-    public void setDisLikeList(ArrayList<String> disLikeList) {
+    public void setDisLikeList(ArrayList<ObjectId> disLikeList) {
         this.disLikeList = disLikeList;
     }
 
@@ -102,10 +102,4 @@ public class Comment {
         this.userId = userId;
     }
 
-    public String getCommentId() {
-        return id.toHexString();
-    }
-
-    public void setCommentId(String commentId) {
-    }
 }
