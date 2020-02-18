@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import org.bson.types.ObjectId;
 import org.hibernate.validator.constraints.Length;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 import javax.validation.constraints.NotBlank;
 import java.util.ArrayList;
@@ -13,21 +14,44 @@ import java.util.Date;
  * @author jannchie
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@Document
 public class Comment {
     @Id
     private ObjectId id;
-    private String commentId;
-    private String userId;
+    private ObjectId userId;
     private Date date;
-    @NotBlank(message = "评论内容不能为空")
+    @NotBlank(message = "路径不能为空")
     private String path;
     @NotBlank(message = "评论内容不能为空")
     @Length(max = 100, message = "评论最长为100个字符")
     private String content;
-    private Integer like;
-    private Integer dislike;
     private ArrayList<String> likeList;
     private ArrayList<String> disLikeList;
+    private User user;
+
+    public String getPath() {
+        return path;
+    }
+
+    public void setPath(String path) {
+        this.path = path;
+    }
+
+    public String getContent() {
+        return content;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
 
     public ObjectId getId() {
         return id;
@@ -61,13 +85,6 @@ public class Comment {
         return disLikeList.size();
     }
 
-    public String getContent() {
-        return content;
-    }
-
-    public void setContent(String content) {
-        this.content = content;
-    }
 
     public Date getDate() {
         return date;
@@ -77,24 +94,12 @@ public class Comment {
         this.date = date;
     }
 
-    public String getUserId() {
+    public ObjectId getUserId() {
         return userId;
     }
 
-    public void setUserId(String userId) {
+    public void setUserId(ObjectId userId) {
         this.userId = userId;
-    }
-
-    public void setUserId(User user) {
-        this.userId = userId;
-    }
-
-    public String getPath() {
-        return path;
-    }
-
-    public void setPath(String path) {
-        this.path = path;
     }
 
     public String getCommentId() {
@@ -102,6 +107,5 @@ public class Comment {
     }
 
     public void setCommentId(String commentId) {
-        this.commentId = commentId;
     }
 }

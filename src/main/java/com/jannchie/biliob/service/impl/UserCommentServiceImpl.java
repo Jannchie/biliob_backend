@@ -10,10 +10,11 @@ import com.jannchie.biliob.utils.LoginChecker;
 import com.jannchie.biliob.utils.Result;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.Aggregation;
+import org.springframework.data.mongodb.core.aggregation.AggregationResults;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
@@ -43,9 +44,16 @@ public class UserCommentServiceImpl implements UserCommentService {
 
     @Override
     public List<Comment> listComments(String path, Integer page, Integer pageSize) {
-        return mongoTemplate.find(
-                Query.query(Criteria.where("path").is(path))
-                        .with(PageRequest.of(page, pageSize, Sort.by(Sort.Direction.DESC, "date"))), Comment.class);
+        AggregationResults<Comment> ar = mongoTemplate.aggregate(
+                Aggregation.newAggregation(
+                        Aggregation.match(Criteria.where("path").is(path)),
+                        Aggregation.lookup("user", "userId", "_id", "user"),
+                        Aggregation.unwind("user"),
+                        Aggregation.project().andExpression("{ password: 0, favoriteMid: 0, favoriteAid: 0 }").as("user"),
+                        Aggregation.skip(page * pageSize),
+                        Aggregation.limit(pageSize)
+                ), Comment.class, Comment.class);
+        return ar.getMappedResults();
     }
 
     @Override
@@ -55,7 +63,7 @@ public class UserCommentServiceImpl implements UserCommentService {
             comment.setDate(Calendar.getInstance().getTime());
             comment.setLikeList(new ArrayList<>());
             comment.setDisLikeList(new ArrayList<>());
-            comment.setUserId(user.getId().toHexString());
+            comment.setUserId(user.getId());
             mongoTemplate.save(comment);
             return comment.getPath();
         });
@@ -69,7 +77,7 @@ public class UserCommentServiceImpl implements UserCommentService {
         }
         return creditHandle.doCreditOperation(user, CreditConstant.LIKE_COMMENT, () -> {
             mongoTemplate.updateFirst(Query.query(Criteria.where("_id").is(commentId)), new Update().addToSet("likeList", user.getId().toHexString()), Comment.class);
-            String commentPublisherId = Objects.requireNonNull(mongoTemplate.findOne(Query.query(Criteria.where("_id").is(commentId)), Comment.class)).getUserId();
+            ObjectId commentPublisherId = Objects.requireNonNull(mongoTemplate.findOne(Query.query(Criteria.where("_id").is(commentId)), Comment.class)).getUserId();
             User publisher = mongoTemplate.findOne(Query.query(Criteria.where("_id").is(commentPublisherId)), User.class);
             creditHandle.doCreditOperation(publisher, CreditConstant.BE_LIKE_COMMENT, () -> commentId);
             return commentId;
@@ -84,8 +92,8 @@ public class UserCommentServiceImpl implements UserCommentService {
     @Override
     public ResponseEntity<Result<?>> deleteComment(String commentId) {
         User user = LoginChecker.checkInfo();
-        String commentPublisherId = Objects.requireNonNull(mongoTemplate.findOne(Query.query(Criteria.where("_id").is(commentId)), Comment.class)).getUserId();
-        if (commentPublisherId.equals(user.getId().toHexString())) {
+        ObjectId commentPublisherId = Objects.requireNonNull(mongoTemplate.findOne(Query.query(Criteria.where("_id").is(commentId)), Comment.class)).getUserId();
+        if (commentPublisherId.equals(user.getId())) {
             mongoTemplate.remove(Query.query(Criteria.where("_id").is(commentId)), Comment.class);
             return ResponseEntity.ok(new Result<>(ResultEnum.SUCCEED));
         } else {
