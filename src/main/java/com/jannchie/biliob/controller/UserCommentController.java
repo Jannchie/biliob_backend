@@ -28,8 +28,9 @@ public class UserCommentController {
     @RequestMapping(method = RequestMethod.GET, value = "/api/comment")
     public List<Comment> getComments(@RequestParam(name = "path") String path,
                                      @RequestParam(name = "ps", defaultValue = "20") Integer pageSize,
-                                     @RequestParam(name = "p", defaultValue = "0") Integer page) {
-        return userCommentService.listComments(path, page, pageSize);
+                                     @RequestParam(name = "p", defaultValue = "0") Integer page,
+                                     @RequestParam(name = "s", defaultValue = "0") Integer sort) {
+        return userCommentService.listComments(path, page, pageSize, sort);
     }
 
     @RequestMapping(method = RequestMethod.POST, value = "/api/user/comment")

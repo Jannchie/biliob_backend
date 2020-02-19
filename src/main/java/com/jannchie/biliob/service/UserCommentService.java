@@ -19,9 +19,10 @@ public interface UserCommentService {
      * @param path     path
      * @param page     page
      * @param pageSize pagesize
+     * @param sort     sort
      * @return comment list
      */
-    List<Comment> listComments(String path, Integer page, Integer pageSize);
+    List<Comment> listComments(String path, Integer page, Integer pageSize, Integer sort);
 
     /**
      * post comment

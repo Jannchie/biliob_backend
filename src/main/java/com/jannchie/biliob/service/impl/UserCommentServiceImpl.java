@@ -12,8 +12,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
+import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -43,15 +45,22 @@ public class UserCommentServiceImpl implements UserCommentService {
 
 
     @Override
-    public List<Comment> listComments(String path, Integer page, Integer pageSize) {
+    public List<Comment> listComments(String path, Integer page, Integer pageSize, Integer sort) {
+        AggregationOperation sortAggregationOperation;
+        if (sort == 0) {
+            sortAggregationOperation = Aggregation.sort(Sort.Direction.DESC, "like");
+        } else {
+            sortAggregationOperation = Aggregation.sort(Sort.Direction.DESC, "date");
+        }
         AggregationResults<Comment> ar = mongoTemplate.aggregate(
                 Aggregation.newAggregation(
                         Aggregation.match(Criteria.where("path").is(path)),
+                        sortAggregationOperation,
+                        Aggregation.skip(page * pageSize),
+                        Aggregation.limit(pageSize),
                         Aggregation.lookup("user", "userId", "_id", "user"),
                         Aggregation.unwind("user"),
-                        Aggregation.project().andExpression("{ password: 0, favoriteMid: 0, favoriteAid: 0 }").as("user"),
-                        Aggregation.skip(page * pageSize),
-                        Aggregation.limit(pageSize)
+                        Aggregation.project().andExpression("{ password: 0, favoriteMid: 0, favoriteAid: 0 }").as("user")
                 ), Comment.class, Comment.class);
         List<Comment> result = ar.getMappedResults();
         User user = LoginChecker.checkInfo();
@@ -98,7 +107,7 @@ public class UserCommentServiceImpl implements UserCommentService {
         ObjectId commentPublisherId = comment.getUserId();
         User publisher = mongoTemplate.findOne(Query.query(Criteria.where("_id").is(commentPublisherId)), User.class);
         return creditHandle.doCreditOperation(user, CreditConstant.LIKE_COMMENT, () -> {
-            mongoTemplate.updateFirst(Query.query(Criteria.where("_id").is(commentId)), new Update().addToSet("likeList", user.getId()), Comment.class);
+            mongoTemplate.updateFirst(Query.query(Criteria.where("_id").is(commentId)), new Update().addToSet("likeList", user.getId()).inc("like", 1), Comment.class);
             creditHandle.doCreditOperation(publisher, CreditConstant.BE_LIKE_COMMENT, () -> commentId);
             return commentId;
         });

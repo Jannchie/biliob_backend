@@ -74,6 +74,8 @@ public class ShiroConfig implements EnvironmentAware {
         filterChainDefinitionMap.put("/api/question/handled", "anon");
         // 允许用户查看tracer
         filterChainDefinitionMap.put("/api/tracer/**", "anon");
+        // 允许查看评论
+        filterChainDefinitionMap.put("/api/comment", "anon");
         // 允许用户查看用户信息
         filterChainDefinitionMap.put("/api/user/**", "roles[普通用户,管理员]");
         // 管理员，需要角色权限 “admin”
