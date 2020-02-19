@@ -64,14 +64,16 @@ public class UserCommentServiceImpl implements UserCommentService {
                 ), Comment.class, Comment.class);
         List<Comment> result = ar.getMappedResults();
         User user = LoginChecker.checkInfo();
+        if (user == null) {
+            return result;
+        }
         result.forEach((comment) -> {
             if (comment.getLikeList().contains(user.getId())) {
                 comment.setLiked(true);
-                comment.setLike(comment.getLikeList().size());
             } else {
                 comment.setLiked(false);
-                comment.setLike(comment.getLikeList().size());
             }
+            comment.setLike(comment.getLikeList().size());
             comment.setLikeList(null);
         });
         return result;
