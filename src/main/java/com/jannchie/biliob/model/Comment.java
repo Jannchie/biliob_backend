@@ -16,6 +16,7 @@ import java.util.Date;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Document
 public class Comment {
+    private boolean liked;
     @Id
     private String commentId;
     private ObjectId userId;
@@ -28,6 +29,15 @@ public class Comment {
     private ArrayList<ObjectId> likeList;
     private ArrayList<ObjectId> disLikeList;
     private User user;
+    private Integer like;
+
+    public Integer getLike() {
+        return like;
+    }
+
+    public void setLike(Integer like) {
+        this.like = like;
+    }
 
     public String getPath() {
         return path;
@@ -77,9 +87,6 @@ public class Comment {
         this.disLikeList = disLikeList;
     }
 
-    public Integer getLike() {
-        return likeList.size();
-    }
 
     public Integer getDislike() {
         return disLikeList.size();
@@ -102,4 +109,11 @@ public class Comment {
         this.userId = userId;
     }
 
+    public boolean isLiked() {
+        return liked;
+    }
+
+    public void setLiked(boolean liked) {
+        this.liked = liked;
+    }
 }

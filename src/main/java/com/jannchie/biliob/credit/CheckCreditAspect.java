@@ -18,13 +18,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 /**
- * 此为爬虫调度器的切片。SW
+ * 此为爬虫调度器的切片。
  * 功能为防止同一爬虫调度任务多次执行。
  *
  * @author Pan Jianqi
@@ -51,8 +52,8 @@ public class CheckCreditAspect {
     private void updateUserInfo(Double credit, Double exp, String userName) {
         Query query = new Query(where("name").is(userName));
         Update update = new Update();
-        update.set("credit", credit);
-        update.set("exp", exp);
+        update.set("credit", new BigDecimal(credit).setScale(2, BigDecimal.ROUND_HALF_DOWN).doubleValue());
+        update.set("exp", new BigDecimal(exp).setScale(2, BigDecimal.ROUND_HALF_DOWN).doubleValue());
         mongoTemplate.updateFirst(query, update, User.class);
     }
 

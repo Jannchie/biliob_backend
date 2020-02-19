@@ -78,11 +78,6 @@ public class ShiroConfig implements EnvironmentAware {
         filterChainDefinitionMap.put("/api/user/**", "roles[普通用户,管理员]");
         // 管理员，需要角色权限 “admin”
         filterChainDefinitionMap.put("/**", "roles[管理员]");
-        // 管理员，需要角色权限 “admin”
-        filterChainDefinitionMap.put("/api/question/pending", "roles[管理员]");
-        // 其余接口一律拦截
-        // 主要这行代码必须放在所有权限设置的最后，不然会导致所有 url 都被拦截
-        filterChainDefinitionMap.put("/**", "authc");
         shiroFilterFactoryBean.setFilterChainDefinitionMap(filterChainDefinitionMap);
         return shiroFilterFactoryBean;
     }
@@ -123,6 +118,7 @@ public class ShiroConfig implements EnvironmentAware {
         Cookie cookie = new SimpleCookie(ShiroHttpSession.DEFAULT_SESSION_ID_NAME);
         cookie.setMaxAge(60 * 60 * 24 * 3000);
         cookie.setHttpOnly(true);
+        cookie.setSameSite(Cookie.SameSiteOptions.NONE);
         DefaultWebSessionManager sessionManager = new DefaultWebSessionManager();
         sessionManager.setSessionIdCookie(cookie);
 
@@ -135,6 +131,7 @@ public class ShiroConfig implements EnvironmentAware {
         cookie.setHttpOnly(true);
         // remember me retain 3000 days
         cookie.setMaxAge(60 * 60 * 24 * 3000);
+        cookie.setSameSite(Cookie.SameSiteOptions.NONE);
         return cookie;
     }
 

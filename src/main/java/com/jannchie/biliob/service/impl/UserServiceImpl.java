@@ -348,8 +348,6 @@ class UserServiceImpl implements UserService {
 
     @Override
     public ResponseEntity login(String name, String passwd) {
-        logger.info(name);
-        logger.info(passwd);
         User user =
                 mongoTemplate.findOne(
                         Query.query(

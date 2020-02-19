@@ -53,12 +53,28 @@ public class UserCommentServiceImpl implements UserCommentService {
                         Aggregation.skip(page * pageSize),
                         Aggregation.limit(pageSize)
                 ), Comment.class, Comment.class);
-        return ar.getMappedResults();
+        List<Comment> result = ar.getMappedResults();
+        User user = LoginChecker.checkInfo();
+        result.forEach((comment) -> {
+            if (comment.getLikeList().contains(user.getId())) {
+                comment.setLiked(true);
+                comment.setLike(comment.getLikeList().size());
+            } else {
+                comment.setLiked(false);
+                comment.setLike(comment.getLikeList().size());
+            }
+            comment.setLikeList(null);
+        });
+        return result;
     }
 
     @Override
     public ResponseEntity<Result<String>> postComment(Comment comment) {
         User user = LoginChecker.checkInfo();
+        Integer mapExp = 100;
+        if (user.getExp() < mapExp) {
+            return ResponseEntity.badRequest().body(new Result<>(ResultEnum.EXP_NOT_ENOUGH));
+        }
         return creditHandle.doCreditOperation(user, CreditConstant.POST_COMMENT, () -> {
             comment.setDate(Calendar.getInstance().getTime());
             comment.setLikeList(new ArrayList<>());
@@ -72,7 +88,7 @@ public class UserCommentServiceImpl implements UserCommentService {
     @Override
     public ResponseEntity<Result<String>> likeComment(String commentId) {
         User user = LoginChecker.checkInfo();
-        if (mongoTemplate.exists(Query.query(Criteria.where("likeList").is(user.getId()).and("id").is(commentId)), Comment.class)) {
+        if (mongoTemplate.exists(Query.query(Criteria.where("likeList").is(user.getId()).and("_id").is(commentId)), Comment.class)) {
             return ResponseEntity.badRequest().body(new Result<>(ResultEnum.ALREADY_LIKE));
         }
         Comment comment = mongoTemplate.findOne(Query.query(Criteria.where("_id").is(commentId)), Comment.class);
