@@ -28,15 +28,35 @@ public class Site {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+0")
     private Date datetime;
 
+    public ObjectId getId() {
+        return id;
+    }
+
+    public void setId(ObjectId id) {
+        this.id = id;
+    }
+
     public int getPlayOnline() {
         return playOnline;
+    }
+
+    public void setPlayOnline(int playOnline) {
+        this.playOnline = playOnline;
     }
 
     public int getWebOnline() {
         return webOnline;
     }
 
+    public void setWebOnline(int webOnline) {
+        this.webOnline = webOnline;
+    }
+
     public Date getDatetime() {
         return datetime;
+    }
+
+    public void setDatetime(Date datetime) {
+        this.datetime = datetime;
     }
 }

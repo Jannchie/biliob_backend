@@ -51,7 +51,6 @@ public class CreditHandle {
         ResponseEntity<Result<String>> r;
         HashMap<String, Object> data = getResponseData(user, creditConstant, message);
         String msg = creditConstant.getMsg(message);
-        logger.info("用户[{}] {}", user.getName(), msg);
         Result<String> result = new Result<>(ResultEnum.SUCCEED, message);
         r = new ResponseEntity<>(result, HttpStatus.OK);
         return r;

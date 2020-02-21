@@ -32,10 +32,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import javax.validation.Valid;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 import static com.jannchie.biliob.constant.PageSizeEnum.BIG_SIZE;
 import static com.jannchie.biliob.constant.PageSizeEnum.USER_RANK_SIZE;
@@ -477,10 +474,14 @@ class UserServiceImpl implements UserService {
         if (!pagesize.equals(USER_RANK_SIZE.getValue())) {
             pagesize = USER_RANK_SIZE.getValue();
         }
+
+        Query q = new Query().with(PageRequest.of(0, 100, Sort.by(Sort.Direction.DESC, "exp")));
         // get user slice
-        Slice<User> s =
-                userRepository.findTopUserByOrderByExp(
-                        PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, "exp")));
+        q.fields().include("exp").include("nickName").include("_id");
+
+        List<User> s =
+                mongoTemplate.find(q, User.class);
+        s.sort(Comparator.comparing(User::getExp).reversed());
         return new MySlice<>(s);
     }
 

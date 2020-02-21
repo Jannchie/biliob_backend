@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.http.HttpStatus;
@@ -152,5 +153,25 @@ public class SiteServiceImpl implements SiteService {
     public ResponseEntity postAlert() {
         return ResponseEntity.ok("");
 //        return mongoTemplate.upsert();
+    }
+
+
+    public Map<Integer, List<Site>> listHistoryOnline(Integer days) {
+        Integer[] groups = {0, 7, 28, 84, 252};
+        Map<Integer, List<Site>> result = new HashMap<>();
+        for (Integer delta : groups
+        ) {
+            Calendar c = Calendar.getInstance();
+            c.add(Calendar.DATE, -delta);
+            Date endDate = c.getTime();
+            c.add(Calendar.DATE, -1);
+            Date startDate = c.getTime();
+            Aggregation ao = Aggregation.newAggregation(
+                    Aggregation.match(Criteria.where("datetime").gt(startDate).lte(endDate))
+            );
+            List<Site> data = mongoTemplate.aggregate(ao, Site.class, Site.class).getMappedResults();
+            result.put(delta, data);
+        }
+        return result;
     }
 }
