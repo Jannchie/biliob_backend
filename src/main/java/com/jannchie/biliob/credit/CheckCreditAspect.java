@@ -45,15 +45,15 @@ public class CheckCreditAspect {
     public void checkCredit() {
     }
 
-    private void log(Double value, String name, String msg) {
+    private void log(String name, Double value, String msg) {
         logger.info("用户：{} 积分变动:{} 原因:{}", name, value, msg);
     }
 
     private void updateUserInfo(Double credit, Double exp, String userName) {
         Query query = new Query(where("name").is(userName));
         Update update = new Update();
-        update.set("credit", new BigDecimal(credit).setScale(2, BigDecimal.ROUND_HALF_DOWN).doubleValue());
-        update.set("exp", new BigDecimal(exp).setScale(2, BigDecimal.ROUND_HALF_DOWN).doubleValue());
+        update.set("credit", new BigDecimal(credit).setScale(2, BigDecimal.ROUND_HALF_DOWN));
+        update.set("exp", new BigDecimal(exp).setScale(2, BigDecimal.ROUND_HALF_DOWN));
         mongoTemplate.updateFirst(query, update, User.class);
     }
 
@@ -83,6 +83,7 @@ public class CheckCreditAspect {
                 }
             }
             updateUserInfo(credit, exp, userName);
+
             return res;
         }
         return null;
@@ -93,6 +94,7 @@ public class CheckCreditAspect {
         // update record
         String date = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
         UserRecord userRecord = new UserRecord(date, creditConstant.getMsg(msg), creditConstant.getValue(), user.getName(), true);
+        log(user.getName(), creditConstant.getValue(), creditConstant.getMsg(msg));
         mongoTemplate.insert(userRecord, "user_record");
     }
 }

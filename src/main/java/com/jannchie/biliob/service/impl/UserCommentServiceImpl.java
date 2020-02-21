@@ -26,7 +26,6 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * @author Jannchie
@@ -98,6 +97,7 @@ public class UserCommentServiceImpl implements UserCommentService {
 
     @Override
     public ResponseEntity<Result<String>> likeComment(String commentId) {
+
         User user = LoginChecker.checkInfo();
         if (mongoTemplate.exists(Query.query(Criteria.where("likeList").is(user.getId()).and("_id").is(commentId)), Comment.class)) {
             return ResponseEntity.badRequest().body(new Result<>(ResultEnum.ALREADY_LIKE));
@@ -107,10 +107,13 @@ public class UserCommentServiceImpl implements UserCommentService {
             return ResponseEntity.badRequest().body(new Result<>(ResultEnum.EXECUTE_FAILURE));
         }
         ObjectId commentPublisherId = comment.getUserId();
+
         User publisher = mongoTemplate.findOne(Query.query(Criteria.where("_id").is(commentPublisherId)), User.class);
         return creditHandle.doCreditOperation(user, CreditConstant.LIKE_COMMENT, () -> {
             mongoTemplate.updateFirst(Query.query(Criteria.where("_id").is(commentId)), new Update().addToSet("likeList", user.getId()).inc("like", 1), Comment.class);
-            creditHandle.doCreditOperation(publisher, CreditConstant.BE_LIKE_COMMENT, () -> commentId);
+            creditHandle.doCreditOperation(publisher, CreditConstant.BE_LIKE_COMMENT, () -> {
+                return commentId;
+            });
             return commentId;
         });
 
@@ -124,7 +127,14 @@ public class UserCommentServiceImpl implements UserCommentService {
     @Override
     public ResponseEntity<Result<?>> deleteComment(String commentId) {
         User user = LoginChecker.checkInfo();
-        ObjectId commentPublisherId = Objects.requireNonNull(mongoTemplate.findOne(Query.query(Criteria.where("_id").is(commentId)), Comment.class)).getUserId();
+        if (user == null) {
+            return ResponseEntity.badRequest().body(new Result<>(ResultEnum.HAS_NOT_LOGGED_IN));
+        }
+        Comment comment = mongoTemplate.findOne(Query.query(Criteria.where("_id").is(commentId)), Comment.class);
+        if (comment == null) {
+            return ResponseEntity.badRequest().body(new Result<>(ResultEnum.COMMENT_NOT_FOUND));
+        }
+        ObjectId commentPublisherId = comment.getUserId();
         if (commentPublisherId.equals(user.getId())) {
             mongoTemplate.remove(Query.query(Criteria.where("_id").is(commentId)), Comment.class);
             return ResponseEntity.ok(new Result<>(ResultEnum.SUCCEED));

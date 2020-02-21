@@ -44,6 +44,12 @@ public class MySlice<T> {
         this.numberOfElements = slice.getNumberOfElements();
     }
 
+    public MySlice(List<T> list) {
+        this.content = list;
+        this.size = list.size();
+    }
+
+
     public List<T> getContent() {
         return content;
     }

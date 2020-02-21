@@ -18,6 +18,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.HashMap;
 
@@ -116,8 +117,8 @@ public abstract class AbstractCreditCalculator<T> {
     private void updateUserInfo(Double credit, Double exp, String userName) {
         Query query = new Query(where("name").is(userName));
         Update update = new Update();
-        update.set("credit", credit);
-        update.set("exp", exp);
+        update.set("credit", new BigDecimal(credit).setScale(2, BigDecimal.ROUND_HALF_DOWN));
+        update.set("exp", new BigDecimal(exp).setScale(2, BigDecimal.ROUND_HALF_DOWN));
         mongoTemplate.updateFirst(query, update, User.class);
     }
 

@@ -10,6 +10,7 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
 import java.util.HashMap;
 
 import static org.springframework.data.mongodb.core.query.Criteria.where;
@@ -51,8 +52,8 @@ public class CreditUtil {
 
         Query query = new Query(where("name").is(userName));
         Update update = new Update();
-        update.set("credit", credit);
-        update.set("exp", exp);
+        update.set("credit", new BigDecimal(credit).setScale(2, BigDecimal.ROUND_HALF_DOWN));
+        update.set("exp", new BigDecimal(exp).setScale(2, BigDecimal.ROUND_HALF_DOWN));
         mongoTemplate.updateFirst(query, update, User.class);
         HashMap<String, Double> data = new HashMap<>(2);
         data.put("exp", exp);
