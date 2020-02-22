@@ -117,8 +117,8 @@ public abstract class AbstractCreditCalculator<T> {
     private void updateUserInfo(Double credit, Double exp, String userName) {
         Query query = new Query(where("name").is(userName));
         Update update = new Update();
-        update.set("credit", new BigDecimal(credit).setScale(2, BigDecimal.ROUND_HALF_DOWN));
-        update.set("exp", new BigDecimal(exp).setScale(2, BigDecimal.ROUND_HALF_DOWN));
+        update.set("credit", new BigDecimal(credit).setScale(2, BigDecimal.ROUND_HALF_DOWN).doubleValue());
+        update.set("exp", new BigDecimal(exp).setScale(2, BigDecimal.ROUND_HALF_DOWN).doubleValue());
         mongoTemplate.updateFirst(query, update, User.class);
     }
 
