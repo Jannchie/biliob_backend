@@ -60,6 +60,7 @@ public class SpiderScheduler {
         Calendar c = Calendar.getInstance();
         List<AuthorIntervalRecord> authorList = mongoTemplate.find(Query.query(Criteria.where("next").lt(c.getTime())), AuthorIntervalRecord.class, "author_interval");
         for (AuthorIntervalRecord freqData : authorList) {
+            c.setTime(freqData.getNext());
             Long mid = freqData.getMid();
             c.add(Calendar.SECOND, freqData.getInterval());
             mongoTemplate.updateFirst(Query.query(Criteria.where("mid").is(mid)), Update.update("next", c.getTime()), "author_interval");
