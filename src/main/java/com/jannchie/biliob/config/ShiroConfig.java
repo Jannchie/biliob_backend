@@ -121,6 +121,7 @@ public class ShiroConfig implements EnvironmentAware {
         cookie.setMaxAge(60 * 60 * 24 * 3000);
         cookie.setHttpOnly(true);
         cookie.setSameSite(Cookie.SameSiteOptions.NONE);
+        cookie.setSecure(true);
         DefaultWebSessionManager sessionManager = new DefaultWebSessionManager();
         sessionManager.setSessionIdCookie(cookie);
 
@@ -134,6 +135,7 @@ public class ShiroConfig implements EnvironmentAware {
         // remember me retain 3000 days
         cookie.setMaxAge(60 * 60 * 24 * 3000);
         cookie.setSameSite(Cookie.SameSiteOptions.NONE);
+        cookie.setSecure(true);
         return cookie;
     }
 
