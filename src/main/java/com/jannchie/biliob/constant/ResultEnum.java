@@ -9,6 +9,7 @@ public enum ResultEnum {
      * item is a short description.
      */
     SUCCEED(1, "成功"),
+    ACCEPTED(1, "已经受理"),
     EXECUTE_FAILURE(-1, "执行失败"),
     LOGIN_SUCCEED(1, "登录成功"),
     LOGIN_FAILED(-1, "登录失败"),
