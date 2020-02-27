@@ -9,11 +9,11 @@ import javax.validation.constraints.NotNull;
  */
 public class LoginForm {
     @NotNull
-    @Length(max = 40, min = 2)
+    @Length(max = 50, min = 2)
     private String name;
 
     @NotNull
-    @Length(max = 30, min = 6)
+    @Length(max = 50, min = 6)
     private String password;
 
     public String getName() {
