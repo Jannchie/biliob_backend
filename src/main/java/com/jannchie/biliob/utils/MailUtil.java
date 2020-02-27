@@ -68,10 +68,10 @@ public class MailUtil {
                             + "    <div>\n"
                             + "        <img src=\"https://www.biliob.com/img/icons/android-chrome-192x192.png\">\n"
                             + "    </div>\n"
-                            + "    观测者您好！您刚刚通过邮箱在BiliOB观测站申请了验证码\n"
-                            + "    <h2 style=\"color: dimgray\">您获得的验证码为</h2>\n"
+                            + "    感谢加入我们，观测者！\n"
+                            + "    <h2 style=\"color: dimgray\">您获得的识别码为</h2>\n"
                             + "    <h1 style=\"color:dodgerblue\"> %s </h1>\n"
-                            + "    若非本人操作，你懂得QwQ，请忽略本邮件~\n"
+                            + "    若非本人操作，请忽略该邮件吧\n"
                             + "    <p style=\"text-align: end\">From Jannchie见齐</p>\n"
                             + "</div>";
             String text = String.format(temp, code);
