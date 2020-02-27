@@ -20,12 +20,16 @@ public class Comment {
     @Id
     private String commentId;
     private ObjectId userId;
+    private ObjectId replyComment;
     private Date date;
     @NotBlank(message = "路径不能为空")
     private String path;
     @NotBlank(message = "评论内容不能为空")
     @Length(max = 100, message = "评论最长为100个字符")
     private String content;
+
+    private ArrayList<Comment> replyList;
+
     private ArrayList<ObjectId> likeList;
     private ArrayList<ObjectId> disLikeList;
     private User user;
@@ -115,5 +119,21 @@ public class Comment {
 
     public void setLiked(boolean liked) {
         this.liked = liked;
+    }
+
+    public ArrayList<Comment> getReplyList() {
+        return replyList;
+    }
+
+    public void setReplyList(ArrayList<Comment> replyList) {
+        this.replyList = replyList;
+    }
+
+    public ObjectId getReplyComment() {
+        return replyComment;
+    }
+
+    public void setReplyComment(ObjectId replyComment) {
+        this.replyComment = replyComment;
     }
 }
