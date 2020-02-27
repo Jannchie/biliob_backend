@@ -43,7 +43,7 @@ public class UserAuthenticationProvider implements AuthenticationProvider {
         String password = authentication.getCredentials().toString();
 
         User user = UserUtils.getPasswdAndRole(name);
-        String encodedPassword = new Md5Hash(password, name).toHex();
+        String encodedPassword = new Md5Hash(password, user.getName()).toHex();
         if (encodedPassword.equals(user.getPassword())) {
             mongoTemplate.updateFirst(Query.query(
                     new Criteria()

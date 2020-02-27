@@ -43,7 +43,7 @@ public class UserUtils {
 
     public static User getPasswdAndRole(String name) {
         Query query = getUserQuery(name);
-        query.fields().include("password").include("role");
+        query.fields().include("password").include("role").include("name");
         return mongoTemplate.findOne(query, User.class);
     }
 
