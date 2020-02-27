@@ -29,6 +29,7 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.validation.Valid;
@@ -69,10 +70,10 @@ class UserServiceImpl implements UserService {
 
     private final ForceFocusCreditCalculator forceFocusCreditCalculator;
 
-    private final ModifyNickNameCreditCalculator modifyNickNameCreditCalculator;
     private final MailUtil mailUtil;
     private final RecommendVideo recommendVideo;
     private CreditHandle creditHandle;
+    private BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
 
     @Autowired
     public UserServiceImpl(
@@ -105,34 +106,33 @@ class UserServiceImpl implements UserService {
         this.refreshVideoCreditCalculator = refreshVideoCreditCalculator;
         this.danmakuAggregateCreditCalculator = danmakuAggregateCreditCalculator;
         this.checkInCreditCalculator = checkInCreditCalculator;
-        this.modifyNickNameCreditCalculator = modifyNickNameCreditCalculator;
         this.mailUtil = mailUtil;
         this.recommendVideo = recommendVideo;
     }
 
     @Override
-    public ResponseEntity createUser(
+    public ResponseEntity<Result<?>> createUser(
             String username, String password, String mail, String activationCode) {
         User user = new User(username, password, RoleEnum.NORMAL_USER.getName());
         // activation code unmatched
         if (1 == userRepository.countByName(user.getName())) {
             // 已存在同名
             return new ResponseEntity<>(
-                    new Result(ResultEnum.USER_ALREADY_EXIST), HttpStatus.BAD_REQUEST);
+                    new Result<>(ResultEnum.USER_ALREADY_EXIST), HttpStatus.BAD_REQUEST);
         }
         if (!mailUtil.checkActivationCode(mail, activationCode)) {
             return new ResponseEntity<>(
-                    new Result(ResultEnum.ACTIVATION_CODE_UNMATCHED), HttpStatus.BAD_REQUEST);
+                    new Result<>(ResultEnum.ACTIVATION_CODE_UNMATCHED), HttpStatus.BAD_REQUEST);
         }
         user.setName(user.getName());
-        user.setPassword(new Md5Hash(user.getPassword(), user.getName()).toHex());
+        user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
         user.setNickName(user.getName());
         user.setMail(mail);
         userRepository.save(user);
         UserServiceImpl.logger.info(user.getName());
         // 不要返回密码
         user.setPassword(null);
-        return new ResponseEntity<>(user, HttpStatus.OK);
+        return new ResponseEntity<>(new Result<>(ResultEnum.SUCCEED, user), HttpStatus.OK);
     }
 
     @Override
@@ -151,7 +151,7 @@ class UserServiceImpl implements UserService {
 
     @Override
     public ResponseEntity getUserInfo() {
-        User user = LoginChecker.checkInfo();
+        User user = UserUtils.getUser();
         if (user == null) {
             return new ResponseEntity<>(
                     new Result(ResultEnum.HAS_NOT_LOGGED_IN), HttpStatus.UNAUTHORIZED);
@@ -185,7 +185,7 @@ class UserServiceImpl implements UserService {
 
     @Override
     public ResponseEntity addFavoriteAuthor(@Valid Long mid) {
-        User user = LoginChecker.check();
+        User user = UserUtils.getFullInfo();
         if (user == null) {
             return new ResponseEntity<>(
                     new Result(ResultEnum.HAS_NOT_LOGGED_IN), HttpStatus.UNAUTHORIZED);
@@ -208,7 +208,7 @@ class UserServiceImpl implements UserService {
 
     @Override
     public ResponseEntity addFavoriteVideo(@Valid Long aid) {
-        User user = LoginChecker.check();
+        User user = UserUtils.getFullInfo();
         if (user == null) {
             return new ResponseEntity<>(
                     new Result(ResultEnum.HAS_NOT_LOGGED_IN), HttpStatus.UNAUTHORIZED);
@@ -241,7 +241,7 @@ class UserServiceImpl implements UserService {
         if (pageSize > BIG_SIZE.getValue()) {
             pageSize = BIG_SIZE.getValue();
         }
-        User user = LoginChecker.checkInfo();
+        User user = UserUtils.getUser();
         if (user == null) {
             return null;
         }
@@ -271,7 +271,7 @@ class UserServiceImpl implements UserService {
         if (pageSize > BIG_SIZE.getValue()) {
             pageSize = BIG_SIZE.getValue();
         }
-        User user = LoginChecker.checkInfo();
+        User user = UserUtils.getUser();
         if (user == null) {
             return null;
         }
@@ -297,7 +297,7 @@ class UserServiceImpl implements UserService {
      */
     @Override
     public ResponseEntity deleteFavoriteAuthorByMid(Long mid) {
-        User user = LoginChecker.check();
+        User user = UserUtils.getFullInfo();
         if (user == null) {
             return new ResponseEntity<>(
                     new Result(ResultEnum.HAS_NOT_LOGGED_IN), HttpStatus.UNAUTHORIZED);
@@ -324,7 +324,7 @@ class UserServiceImpl implements UserService {
      */
     @Override
     public ResponseEntity deleteFavoriteVideoByAid(Long aid) {
-        User user = LoginChecker.check();
+        User user = UserUtils.getFullInfo();
         if (user == null) {
             return new ResponseEntity<>(
                     new Result(ResultEnum.HAS_NOT_LOGGED_IN), HttpStatus.UNAUTHORIZED);
@@ -394,7 +394,7 @@ class UserServiceImpl implements UserService {
      */
     @Override
     public ResponseEntity getCheckIn() {
-        User user = LoginChecker.checkInfo();
+        User user = UserUtils.getUser();
         if (user == null) {
             return new ResponseEntity<>(
                     new Result(ResultEnum.HAS_NOT_LOGGED_IN), HttpStatus.OK);
@@ -427,7 +427,7 @@ class UserServiceImpl implements UserService {
      */
     @Override
     public ResponseEntity postQuestion(String question) {
-        User user = LoginChecker.checkInfo();
+        User user = UserUtils.getUser();
         if (user == null) {
             return new ResponseEntity<>(
                     new Result(ResultEnum.HAS_NOT_LOGGED_IN), HttpStatus.UNAUTHORIZED);
@@ -507,7 +507,7 @@ class UserServiceImpl implements UserService {
     @Override
     public MySlice<UserRecord> sliceUserRecord(Integer page, Integer pagesize) {
         pagesize = DataReducer.limitPagesize(pagesize);
-        User user = LoginChecker.checkInfo();
+        User user = UserUtils.getUser();
         if (user != null) {
             String userName = user.getName();
             Slice<UserRecord> slice =
@@ -526,7 +526,7 @@ class UserServiceImpl implements UserService {
      */
     @Override
     public ArrayList<UserRecord> getUserAllRecord() {
-        User user = LoginChecker.checkInfo();
+        User user = UserUtils.getUser();
         if (user != null) {
             String userName = user.getName();
             return userRecordRepository.findAllByUserNameOrderByDatetimeDesc(userName);
@@ -567,7 +567,7 @@ class UserServiceImpl implements UserService {
      */
     @Override
     public ResponseEntity<Result<String>> modifyUserName(@Valid String newUserName) {
-        return creditHandle.modifyUserName(LoginChecker.checkInfo(), CreditConstant.MODIFY_NAME, newUserName);
+        return creditHandle.modifyUserName(UserUtils.getUser(), CreditConstant.MODIFY_NAME, newUserName);
     }
 
     /**
@@ -583,7 +583,7 @@ class UserServiceImpl implements UserService {
 
     @Override
     public Map<String, Integer> getUserPreferKeyword() {
-        User user = LoginChecker.checkInfo();
+        User user = UserUtils.getUser();
         if (user == null) {
             return null;
         }
@@ -609,7 +609,7 @@ class UserServiceImpl implements UserService {
 
     @Override
     public ResponseEntity bindMail(String mail, String activationCode) {
-        User user = LoginChecker.checkInfo();
+        User user = UserUtils.getUser();
         if (user == null) {
             return new ResponseEntity<>(
                     new Result(ResultEnum.HAS_NOT_LOGGED_IN), HttpStatus.UNAUTHORIZED);
@@ -624,7 +624,7 @@ class UserServiceImpl implements UserService {
 
     @Override
     public ResponseEntity<Result<String>> changeNickName(String newNickname) {
-        User user = LoginChecker.checkInfo();
+        User user = UserUtils.getUser();
         if (user == null) {
             return new ResponseEntity<>(
                     new Result<>(ResultEnum.HAS_NOT_LOGGED_IN), HttpStatus.UNAUTHORIZED);
@@ -632,12 +632,12 @@ class UserServiceImpl implements UserService {
         if (newNickname.length() > 20) {
             return new ResponseEntity<>(new Result<>(ResultEnum.OUT_OF_RANGE), HttpStatus.BAD_REQUEST);
         }
-        return creditHandle.modifyUserName(LoginChecker.checkInfo(), CreditConstant.MODIFY_NAME, newNickname);
+        return creditHandle.modifyUserName(UserUtils.getUser(), CreditConstant.MODIFY_NAME, newNickname);
     }
 
     @Override
     public ResponseEntity<Result<String>> changeMail(String newMail) {
-        User user = LoginChecker.checkInfo();
+        User user = UserUtils.getUser();
         if (user == null) {
             return new ResponseEntity<>(
                     new Result<>(ResultEnum.HAS_NOT_LOGGED_IN), HttpStatus.UNAUTHORIZED);
@@ -647,6 +647,6 @@ class UserServiceImpl implements UserService {
                     new Result<>(ResultEnum.MAIL_HAD_BEEN_REGISTERED), HttpStatus.UNAUTHORIZED);
         }
         user.setMail(newMail);
-        return creditHandle.modifyMail(LoginChecker.checkInfo(), CreditConstant.MODIFY_MAIL, newMail);
+        return creditHandle.modifyMail(UserUtils.getUser(), CreditConstant.MODIFY_MAIL, newMail);
     }
 }

@@ -27,7 +27,7 @@ public class BiliOBUtils {
     }
 
     public String getUserName() {
-        User user = LoginChecker.checkInfo();
+        User user = UserUtils.getUser();
         String userName = "";
         if (user != null) {
             userName = user.getName();

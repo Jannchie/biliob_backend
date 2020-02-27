@@ -1,18 +1,27 @@
 package com.jannchie.biliob.controller;
 
+import com.jannchie.biliob.constant.ResultEnum;
 import com.jannchie.biliob.exception.UserAlreadyFavoriteAuthorException;
 import com.jannchie.biliob.exception.UserAlreadyFavoriteVideoException;
 import com.jannchie.biliob.form.ChangeMailForm;
 import com.jannchie.biliob.model.Question;
+import com.jannchie.biliob.model.User;
+import com.jannchie.biliob.object.LoginForm;
+import com.jannchie.biliob.security.UserAuthenticationProvider;
 import com.jannchie.biliob.service.UserService;
 import com.jannchie.biliob.utils.Message;
 import com.jannchie.biliob.utils.Result;
+import com.jannchie.biliob.utils.UserUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Slice;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
@@ -28,10 +37,12 @@ import java.util.Map;
 public class UserController {
     private static final Logger logger = LogManager.getLogger(UserController.class);
     private final UserService userService;
+    private UserAuthenticationProvider userAuthenticationProvider;
 
     @Autowired
-    public UserController(UserService userService) {
+    public UserController(UserService userService, UserAuthenticationProvider userAuthenticationProvider) {
         this.userService = userService;
+        this.userAuthenticationProvider = userAuthenticationProvider;
     }
 
     @RequestMapping(method = RequestMethod.POST, value = "/api/user/activation-code")
@@ -105,8 +116,22 @@ public class UserController {
     }
 
     @RequestMapping(method = RequestMethod.POST, value = "/api/login")
-    public ResponseEntity login(@RequestBody Map<String, String> map) {
-        return userService.login(map.get("name"), map.get("password"));
+    public ResponseEntity<Result<User>> login(@Valid @RequestBody LoginForm data) {
+        try {
+            User user = getSignedUser(data);
+            logger.info("用户[{}]登录成功", user.getName());
+            return ResponseEntity.ok(new Result<>(ResultEnum.LOGIN_SUCCEED, user));
+        } catch (AuthenticationException e) {
+            return ResponseEntity.badRequest().body(new Result<>(ResultEnum.LOGIN_FAILED));
+        }
+    }
+
+    private User getSignedUser(@RequestBody @Valid LoginForm data) {
+        Authentication request = new UsernamePasswordAuthenticationToken(data.getName(),
+                data.getPassword());
+        Authentication result = userAuthenticationProvider.authenticate(request);
+        SecurityContextHolder.getContext().setAuthentication(result);
+        return UserUtils.getUser();
     }
 
     @RequestMapping(method = RequestMethod.DELETE, value = "/api/user/video/{aid}")

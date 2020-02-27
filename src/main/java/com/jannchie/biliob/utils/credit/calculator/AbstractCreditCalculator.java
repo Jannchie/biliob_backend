@@ -6,8 +6,8 @@ import com.jannchie.biliob.constant.ResultEnum;
 import com.jannchie.biliob.exception.BusinessException;
 import com.jannchie.biliob.model.User;
 import com.jannchie.biliob.model.UserRecord;
-import com.jannchie.biliob.utils.LoginChecker;
 import com.jannchie.biliob.utils.Result;
+import com.jannchie.biliob.utils.UserUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.bson.types.ObjectId;
@@ -78,7 +78,7 @@ public abstract class AbstractCreditCalculator<T> {
 
     public ResponseEntity executeAndGetResponse(CreditConstant creditConstant, Long id) {
         this.creditConstant = creditConstant;
-        User user = LoginChecker.checkInfo();
+        User user = UserUtils.getUser();
         Double value = creditConstant.getValue();
         ResponseEntity<Result> r = checkCredit(user, value);
 
@@ -132,7 +132,7 @@ public abstract class AbstractCreditCalculator<T> {
     public ResponseEntity executeAndGetResponse(CreditConstant creditConstant) {
         this.creditConstant = creditConstant;
 
-        User user = LoginChecker.checkInfo();
+        User user = UserUtils.getUser();
         Double value = creditConstant.getValue();
 
         ResponseEntity<Result> r = checkCredit(user, value);
@@ -172,7 +172,7 @@ public abstract class AbstractCreditCalculator<T> {
 
     public ResponseEntity executeAndGetResponse(T data) {
 
-        User user = LoginChecker.checkInfo();
+        User user = UserUtils.getUser();
         Double value = this.creditConstant.getValue();
 
         ResponseEntity<Result> r = checkCredit(user, value);

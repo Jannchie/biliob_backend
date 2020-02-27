@@ -6,8 +6,8 @@ import com.jannchie.biliob.credit.handle.CreditHandle;
 import com.jannchie.biliob.model.Comment;
 import com.jannchie.biliob.model.User;
 import com.jannchie.biliob.service.UserCommentService;
-import com.jannchie.biliob.utils.LoginChecker;
 import com.jannchie.biliob.utils.Result;
+import com.jannchie.biliob.utils.UserUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.bson.types.ObjectId;
@@ -62,7 +62,7 @@ public class UserCommentServiceImpl implements UserCommentService {
                         Aggregation.project().andExpression("{ password: 0, favoriteMid: 0, favoriteAid: 0 }").as("user")
                 ), Comment.class, Comment.class);
         List<Comment> result = ar.getMappedResults();
-        User user = LoginChecker.checkInfo();
+        User user = UserUtils.getUser();
         if (user == null) {
             return result;
         }
@@ -80,7 +80,7 @@ public class UserCommentServiceImpl implements UserCommentService {
 
     @Override
     public ResponseEntity<Result<String>> postComment(Comment comment) {
-        User user = LoginChecker.checkInfo();
+        User user = UserUtils.getUser();
         Integer mapExp = 100;
         if (user.getExp() < mapExp) {
             return ResponseEntity.badRequest().body(new Result<>(ResultEnum.EXP_NOT_ENOUGH));
@@ -98,7 +98,7 @@ public class UserCommentServiceImpl implements UserCommentService {
     @Override
     public ResponseEntity<Result<String>> likeComment(String commentId) {
 
-        User user = LoginChecker.checkInfo();
+        User user = UserUtils.getUser();
         if (mongoTemplate.exists(Query.query(Criteria.where("likeList").is(user.getId()).and("_id").is(commentId)), Comment.class)) {
             return ResponseEntity.badRequest().body(new Result<>(ResultEnum.ALREADY_LIKE));
         }
@@ -126,7 +126,7 @@ public class UserCommentServiceImpl implements UserCommentService {
 
     @Override
     public ResponseEntity<Result<?>> deleteComment(String commentId) {
-        User user = LoginChecker.checkInfo();
+        User user = UserUtils.getUser();
         if (user == null) {
             return ResponseEntity.badRequest().body(new Result<>(ResultEnum.HAS_NOT_LOGGED_IN));
         }

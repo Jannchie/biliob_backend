@@ -34,34 +34,42 @@ public class DamnYouServiceImpl implements DamnYouService {
             if (zipEntry.toString().endsWith("txt")) {
                 BufferedReader br = new BufferedReader(
                         new InputStreamReader(zipFile.getInputStream(zipEntry)));
-                String line;
-                Calendar c = Calendar.getInstance();
-                while ((line = br.readLine()) != null) {
-                    String[] params = line.split("\t");
-                    c.setTimeInMillis(Long.parseLong(params[10]));
-                    Long sid = Long.valueOf(params[0]);
-                    BangumiData bangumiData = new BangumiData(
-                            sid,
-                            Long.valueOf(params[1]),
-                            Long.valueOf(params[2]),
-                            Long.valueOf(params[3]),
-                            Integer.valueOf(params[4]),
-                            Integer.valueOf(params[5]),
-                            Integer.valueOf(params[6]),
-                            Integer.valueOf(params[7]),
-                            Float.valueOf(params[8]),
-                            Integer.valueOf(params[9]),
-                            c.getTime()
-                    );
-                    if (!mongoTemplate.exists(Query.query(Criteria.where("sid").is(sid).and("datetime").is(c.getTime())), BangumiData.class)) {
-                        mongoTemplate.save(bangumiData);
-                    }
-
-                }
+                saveDataFromTxt(br);
                 br.close();
+
             }
         }
 
+    }
+
+    private void saveDataFromTxt(BufferedReader br) throws IOException {
+        String line;
+        Calendar c = Calendar.getInstance();
+        while ((line = br.readLine()) != null) {
+            try {
+                String[] params = line.split("\t");
+                c.setTimeInMillis(Long.parseLong(params[10]));
+                Long sid = Long.valueOf(params[0]);
+                BangumiData bangumiData = new BangumiData(
+                        sid,
+                        Long.valueOf(params[1]),
+                        Long.valueOf(params[2]),
+                        Long.valueOf(params[3]),
+                        Integer.valueOf(params[4]),
+                        Integer.valueOf(params[5]),
+                        Integer.valueOf(params[6]),
+                        Integer.valueOf(params[7]),
+                        Float.valueOf(params[8]),
+                        Integer.valueOf(params[9]),
+                        c.getTime()
+                );
+                if (!mongoTemplate.exists(Query.query(Criteria.where("sid").is(sid).and("datetime").is(c.getTime())), BangumiData.class)) {
+                    mongoTemplate.save(bangumiData);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     @Async

@@ -2,9 +2,10 @@ package com.jannchie.biliob.utils;
 
 import com.jannchie.biliob.model.User;
 import com.jannchie.biliob.repository.UserRepository;
-import org.apache.shiro.SecurityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
 
 /**
@@ -21,22 +22,14 @@ public class LoginChecker {
         LoginChecker.mongoTemplate = mongoTemplate;
     }
 
-    /**
-     * check and return user information
-     *
-     * @return null: user has not logged in || User: user information
-     */
-    public static User checkInfo() {
-        return userRepository.getUserInfo((String) SecurityUtils.getSubject().getPrincipal());
+    public static User getPasswdAndRole(String name) {
+        Query query = Query.query(Criteria.where("name").is(name));
+        query.fields().include("password").include("role");
+        return mongoTemplate.findOne(query, User.class);
     }
 
 
-    /**
-     * check and return user information and password
-     *
-     * @return null: user has not logged in || User: user information
-     */
-    public static User check() {
-        return userRepository.findByName((String) SecurityUtils.getSubject().getPrincipal());
+    public static User getUserByUsername(String name) {
+        return userRepository.getUserInfo(name);
     }
 }

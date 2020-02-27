@@ -147,7 +147,7 @@ public class AuthorServiceImpl implements AuthorService {
     }
 
     private void filterAuthorData(Author author) {
-        User user = LoginChecker.checkInfo();
+        User user = UserUtils.getUser();
         if (user == null || user.getExp() < 100) {
             ArrayList<Author.Data> tempData = author.getData();
             tempData.removeIf(data -> {

@@ -278,7 +278,7 @@ public class VideoServiceImpl implements VideoService {
     }
 
     private void filterVideoData(Video video) {
-        User user = LoginChecker.checkInfo();
+        User user = UserUtils.getUser();
         if (user == null || user.getExp() < 100) {
             ArrayList<Video.Data> tempData = video.getData();
             tempData.removeIf(data -> {

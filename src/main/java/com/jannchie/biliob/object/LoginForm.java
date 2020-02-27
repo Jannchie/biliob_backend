@@ -1,4 +1,4 @@
-package com.jannchie.word.object;
+package com.jannchie.biliob.object;
 
 import org.hibernate.validator.constraints.Length;
 
@@ -9,19 +9,19 @@ import javax.validation.constraints.NotNull;
  */
 public class LoginForm {
     @NotNull
-    @Length(max = 12, min = 2)
-    private String username;
+    @Length(max = 20, min = 2)
+    private String name;
 
     @NotNull
     @Length(max = 20, min = 6)
     private String password;
 
-    public String getUsername() {
-        return username;
+    public String getName() {
+        return name;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getPassword() {

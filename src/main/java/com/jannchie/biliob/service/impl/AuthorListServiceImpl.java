@@ -6,8 +6,8 @@ import com.jannchie.biliob.credit.handle.CreditHandle;
 import com.jannchie.biliob.model.AuthorList;
 import com.jannchie.biliob.model.User;
 import com.jannchie.biliob.service.AuthorListService;
-import com.jannchie.biliob.utils.LoginChecker;
 import com.jannchie.biliob.utils.Result;
+import com.jannchie.biliob.utils.UserUtils;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -35,7 +35,7 @@ public class AuthorListServiceImpl implements AuthorListService {
 
     @Override
     public ResponseEntity postAuthorList(String name) {
-        User user = LoginChecker.checkInfo();
+        User user = UserUtils.getUser();
         return creditHandle.createAuthorList(user, CreditConstant.ADD_AUTHOR_LIST, name);
     }
 
@@ -93,6 +93,6 @@ public class AuthorListServiceImpl implements AuthorListService {
 
     @Override
     public ResponseEntity getFail() {
-        return creditHandle.alwaysFail(LoginChecker.checkInfo(), CreditConstant.ALWAYS_FAIL);
+        return creditHandle.alwaysFail(UserUtils.getUser(), CreditConstant.ALWAYS_FAIL);
     }
 }

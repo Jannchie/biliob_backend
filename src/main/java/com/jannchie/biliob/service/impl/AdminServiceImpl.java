@@ -5,8 +5,8 @@ import com.jannchie.biliob.model.*;
 import com.jannchie.biliob.object.AuthorIntervalCount;
 import com.jannchie.biliob.repository.UserRepository;
 import com.jannchie.biliob.service.AdminService;
-import com.jannchie.biliob.utils.LoginChecker;
 import com.jannchie.biliob.utils.Result;
+import com.jannchie.biliob.utils.UserUtils;
 import com.mongodb.BasicDBObject;
 import com.mongodb.client.MongoClient;
 import org.apache.logging.log4j.LogManager;
@@ -232,7 +232,7 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     public ResponseEntity saveSearchMethod(SearchMethod searchMethod) {
-        User user = LoginChecker.checkInfo();
+        User user = UserUtils.getUser();
         if (user != null) {
             searchMethod.setOwner(user.getName());
             mongoTemplate.insert(searchMethod, "search_method");
@@ -263,7 +263,7 @@ public class AdminServiceImpl implements AdminService {
      */
     @Override
     public ResponseEntity postUploadSchedule(ScheduleItem item) {
-        User user = LoginChecker.checkInfo();
+        User user = UserUtils.getUser();
         if (user == null) {
             return new ResponseEntity<>(new Result(ResultEnum.HAS_NOT_LOGGED_IN), HttpStatus.FORBIDDEN);
         }

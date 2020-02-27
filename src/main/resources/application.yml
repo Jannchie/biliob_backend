@@ -1,9 +1,15 @@
 spring:
+  session:
+    store-type: mongodb
+    timeout: 2592000
   servlet:
     multipart:
       enabled: true
       max-file-size: 50MB
       max-request-size: 50MB
+    session:
+      cookie:
+        max-age: 86400000000
   mvc:
     dispatch-options-request: true
   data:
