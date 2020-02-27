@@ -43,6 +43,7 @@ spring:
             enable: true
 server:
   port: ${BILIOB_BACKEND_PORT}
-  session:
-    cookie:
-      max-age: 86400000000
+  servlet:
+    session:
+      cookie:
+        max-age: 86400000000
