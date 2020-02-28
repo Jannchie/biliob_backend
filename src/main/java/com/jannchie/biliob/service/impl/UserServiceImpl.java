@@ -6,6 +6,7 @@ import com.jannchie.biliob.constant.ResultEnum;
 import com.jannchie.biliob.constant.RoleEnum;
 import com.jannchie.biliob.credit.handle.CreditHandle;
 import com.jannchie.biliob.exception.UserNotExistException;
+import com.jannchie.biliob.model.Author;
 import com.jannchie.biliob.model.Question;
 import com.jannchie.biliob.model.User;
 import com.jannchie.biliob.model.UserRecord;
@@ -74,6 +75,7 @@ class UserServiceImpl implements UserService {
     private final RecommendVideo recommendVideo;
     private CreditHandle creditHandle;
     private BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
+    private AuthorUtil authorUtil;
 
     @Autowired
     public UserServiceImpl(
@@ -92,7 +94,7 @@ class UserServiceImpl implements UserService {
             ModifyNickNameCreditCalculator modifyNickNameCreditCalculator,
             CreditHandle creditHandle,
             MailUtil mailUtil,
-            RecommendVideo recommendVideo) {
+            RecommendVideo recommendVideo, AuthorUtil authorUtil) {
         this.creditUtil = creditUtil;
         this.userRepository = userRepository;
         this.videoRepository = videoRepository;
@@ -108,6 +110,7 @@ class UserServiceImpl implements UserService {
         this.checkInCreditCalculator = checkInCreditCalculator;
         this.mailUtil = mailUtil;
         this.recommendVideo = recommendVideo;
+        this.authorUtil = authorUtil;
     }
 
     @Override
@@ -267,7 +270,7 @@ class UserServiceImpl implements UserService {
      * @return favorite author page
      */
     @Override
-    public Slice getFavoriteAuthor(Integer page, Integer pageSize) {
+    public Slice<?> getFavoriteAuthor(Integer page, Integer pageSize) {
         if (pageSize > BIG_SIZE.getValue()) {
             pageSize = BIG_SIZE.getValue();
         }
@@ -286,7 +289,9 @@ class UserServiceImpl implements UserService {
             mapsList.add(temp);
         }
         UserServiceImpl.logger.info(user.getName());
-        return authorRepository.getFavoriteAuthor(mapsList, PageRequest.of(page, pageSize));
+        Slice<Author> authors = authorRepository.getFavoriteAuthor(mapsList, PageRequest.of(page, pageSize));
+        authorUtil.getInterval(authors.getContent());
+        return authors;
     }
 
     /**

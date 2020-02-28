@@ -93,22 +93,18 @@ public class AuthorServiceImpl implements AuthorService {
                 Aggregation.group(timeFields).first("data").as("data"),
                 Aggregation.sort(Sort.Direction.DESC, "year", "month", "day"),
                 Aggregation.group(fields).push("data").as("data"));
-        if (!mongoTemplate.exists(Query.query(Criteria.where("mid").is(mid)), "author_interval")) {
-            this.upsertAuthorFreq(mid, SECOND_OF_DAY);
+
+        return mongoTemplate.aggregate(a, "author", Author.class).getMappedResults().get(0);
+    }
+
+    private void setFreq(Author author) {
+        if (!mongoTemplate.exists(Query.query(Criteria.where("mid").is(author.getMid())), "author_interval")) {
+            this.upsertAuthorFreq(author.getMid(), SECOND_OF_DAY);
         }
-        Author author =
-                mongoTemplate.aggregate(a, "author", Author.class).getMappedResults().get(0);
-        setRankData(author);
-        getInterval(author);
-        return author;
     }
 
-    private void getInterval(Author author) {
-        AuthorIntervalRecord authorIntervalRecord = mongoTemplate.findOne(Query.query(Criteria.where("mid").is(author.getMid())), AuthorIntervalRecord.class);
-        author.setObInterval(authorIntervalRecord != null ? authorIntervalRecord.getInterval() : -1);
-    }
 
-    private void setRankData(Author author) {
+    private void gerRankData(Author author) {
 
         AuthorRankData lastRankData = authorUtil.getLastRankData(author);
         AuthorRankData currentRankData = getCurrentRankData(author);
@@ -149,6 +145,9 @@ public class AuthorServiceImpl implements AuthorService {
             author = mongoTemplate.findOne(query, Author.class, "author");
         }
         filterAuthorData(author);
+        setFreq(author);
+        gerRankData(author);
+        authorUtil.getInterval(author);
         return author;
     }
 
@@ -186,7 +185,7 @@ public class AuthorServiceImpl implements AuthorService {
     }
 
     @Override
-//    @Cacheable(value = "author_slice", key = "#mid + #text + #page + #pagesize + #sort")
+    @Cacheable(value = "author_slice", key = "#mid + #text + #page + #pagesize + #sort")
     public MySlice<Author> getAuthor(Long mid, String text, Integer page, Integer pagesize,
                                      Integer sort) {
         if (pagesize > PageSizeEnum.BIG_SIZE.getValue()) {
@@ -225,19 +224,8 @@ public class AuthorServiceImpl implements AuthorService {
                     PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, sortKey))));
         }
 
-        getInterval(result.getContent());
+        authorUtil.getInterval(result.getContent());
         return result;
-    }
-
-    private void getInterval(List<Author> authors) {
-        List<Long> midList = authors.stream().map(Author::getMid).collect(Collectors.toList());
-        Query q = Query.query(Criteria.where("mid").in(midList));
-        Map<Long, Integer> intervalMap = mongoTemplate.find(q, AuthorIntervalRecord.class)
-                .stream().collect(Collectors.toMap(AuthorIntervalRecord::getMid, AuthorIntervalRecord::getInterval));
-        for (Author author : authors
-        ) {
-            author.setObInterval(intervalMap.get(author.getMid()));
-        }
     }
 
     /**
@@ -462,7 +450,6 @@ public class AuthorServiceImpl implements AuthorService {
             logger.info("[UPSERT] 作者：{} 访问频率：{} 下次爬取：{}", mid, interval, nextCal.getTime());
         }
         mongoTemplate.upsert(Query.query(Criteria.where("mid").is(mid)), u, "author_interval");
-
     }
 
     @Override
@@ -506,10 +493,13 @@ public class AuthorServiceImpl implements AuthorService {
 
     @Override
     public void updateObserveFreqPerMinute() {
-        logger.info("[UPDATE] 调整观测频率 - 高频");
+        HashMap<Long, Integer> intervalMap = new HashMap<>();
+
+
         // 点击频率最高，每十分钟一次
         List<AuthorVisitRecord> authorList = this.listMostVisitAuthorId(1, 30);
         for (AuthorVisitRecord author : authorList) {
+            setIntervalMap(intervalMap, author.getMid(), SECOND_OF_MINUTES * 10);
             this.upsertAuthorFreq(author.getMid(), SECOND_OF_MINUTES * 10);
         }
         // 各指标最高，前三名：每1分钟一次；前20名：每10分钟一次。
@@ -521,8 +511,7 @@ public class AuthorServiceImpl implements AuthorService {
                     "author", Map.class);
             int idx = 0;
             for (AuthorVisitRecord author : authorList) {
-                this.upsertAuthorFreq(author.getMid(),
-                        (idx++ <= 3) ? SECOND_OF_MINUTES : SECOND_OF_MINUTES * 10);
+                setIntervalMap(intervalMap, author.getMid(), (idx++ <= 3) ? SECOND_OF_MINUTES : SECOND_OF_MINUTES * 10);
             }
         }
         // 涨掉粉榜，前三名：每1分钟一次；前20名：每5分钟一次。
@@ -533,38 +522,51 @@ public class AuthorServiceImpl implements AuthorService {
             List<Author> authors = mongoTemplate.find(q.limit(20), Author.class);
             int idx = 0;
             for (Author author : authors) {
-                this.upsertAuthorFreq(author.getMid(),
-                        (idx++ <= 3) ? SECOND_OF_MINUTES : SECOND_OF_MINUTES * 5);
+                setIntervalMap(intervalMap, author.getMid(), (idx++ <= 3) ? SECOND_OF_MINUTES : SECOND_OF_MINUTES * 5);
             }
         }
+        logger.fatal("[START] 调整观测频率: 本次计划调整 {} 个UP主的频率", intervalMap.size());
+        intervalMap.forEach(this::upsertAuthorFreq);
+        logger.fatal("[FINISH] 调整观测频率 完成");
+    }
 
+    private void setIntervalMap(HashMap<Long, Integer> intervalMap, Long mid, Integer interval) {
+        if (intervalMap.get(mid) == null || intervalMap.get(mid) > interval) {
+            intervalMap.put(mid, interval);
+        }
     }
 
 
     @Override
     public void updateObserveFreq() {
-        logger.info("[UPDATE] 调整观测频率");
+
+
+        HashMap<Long, Integer> intervalMap = new HashMap<>();
         // 1万粉丝以上：正常观测
         List<Author> authorList = getAuthorFansGt(10000);
         for (Author author : authorList) {
-            this.upsertAuthorFreq(author.getMid(), SECOND_OF_DAY);
+            setIntervalMap(intervalMap, author.getMid(), SECOND_OF_DAY);
+
+        }
+
+        // 人为设置：强行观测
+        Query query = Query.query(Criteria.where("forceFocus").is(true));
+        query.fields().include("mid");
+        List<Author> forceFocusAuthors = mongoTemplate.find(query, Author.class);
+        for (Author author : forceFocusAuthors) {
+            setIntervalMap(intervalMap, author.getMid(), SECOND_OF_MINUTES * 60);
         }
 
         // 百万粉以上：高频观测
         authorList = this.getAuthorFansGt(1000000);
         for (Author author : authorList) {
-            this.upsertAuthorFreq(author.getMid(), SECOND_OF_MINUTES * 10);
+            setIntervalMap(intervalMap, author.getMid(), SECOND_OF_MINUTES * 10);
         }
 
-        // 人为设置：强行观测
-        Query q = Query.query(Criteria.where("forceFocus").is(true));
-        q.fields().include("mid");
-        authorList = mongoTemplate.find(q, Author.class, "author");
-        for (Author author : authorList) {
-            this.upsertAuthorFreq(author.getMid(), SECOND_OF_MINUTES * 60);
-        }
+        logger.fatal("[START] 调整观测频率: 本次计划调整 {} 个UP主的频率", intervalMap.size());
+        intervalMap.forEach(this::upsertAuthorFreq);
+        logger.fatal("[FINISH] 调整观测频率 完成");
 
-        logger.info("[FINISH] 调整观测频率");
     }
 
     @Override

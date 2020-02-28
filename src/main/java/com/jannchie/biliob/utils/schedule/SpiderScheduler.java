@@ -55,7 +55,6 @@ public class SpiderScheduler {
     @Scheduled(fixedDelay = MICROSECOND_OF_MINUTES)
     @Async
     public void updateAuthorData() {
-        logger.info("[SPIDER] 每分钟更新作者数据");
         int count = 0;
         Calendar c = Calendar.getInstance();
         List<AuthorIntervalRecord> authorList = mongoTemplate.find(Query.query(Criteria.where("next").lt(c.getTime())), AuthorIntervalRecord.class, "author_interval");
@@ -67,7 +66,7 @@ public class SpiderScheduler {
             redisOps.postAuthorCrawlTask(mid);
             count++;
         }
-        logger.info("[SPIDER] 新增{}个爬虫任务", count);
+        logger.fatal("[SPIDER] 每分钟更新作者数据: 新增{}个爬虫任务", count);
     }
 
     /**
@@ -125,19 +124,9 @@ public class SpiderScheduler {
      * 每日執行一次
      * 更新访问频率
      */
-    @Scheduled(fixedDelay = MICROSECOND_OF_DAY)
-    @Async
-    public void updateAuthorFreq() {
-        authorService.updateObserveFreq();
-    }
-
-    /**
-     * 每日執行一次
-     * 更新作者增长速率
-     */
     @Scheduled(fixedDelay = MICROSECOND_OF_DAY, initialDelay = MICROSECOND_OF_DAY)
     @Async
-    public void updateAuthorRate() {
+    public void updateAuthorFreq() {
         authorService.updateObserveFreq();
     }
 
