@@ -23,6 +23,7 @@ public class Author {
     private ArrayList<Channel> channels;
     private Rank rank;
     private Boolean focus;
+    private Integer obInterval;
     private Boolean forceFocus;
     private Integer cRate;
     private ArrayList<String> keyword;
@@ -190,6 +191,14 @@ public class Author {
 
     public void setTimeline(List<AuthorTimelineItem> timeline) {
         this.timeline = timeline;
+    }
+
+    public Integer getObInterval() {
+        return obInterval;
+    }
+
+    public void setObInterval(Integer obInterval) {
+        this.obInterval = obInterval;
     }
 
     public static class Rank {

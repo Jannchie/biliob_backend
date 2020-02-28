@@ -30,7 +30,7 @@ public interface AuthorRepository
      */
     @Query(
             fields =
-                    "{ 'name' : 1, 'mid' : 1, 'face' : 1, 'official' : 1, 'focus':1, 'forceFocus':1, 'sex':1,'level':1}"
+                    "{'fansRate':0, 'data': 0}"
     )
     Slice<Author> findByKeywordContaining(String[] keyword, Pageable pageable);
 
@@ -40,7 +40,7 @@ public interface AuthorRepository
      * @param mid 作者id
      * @return 作者对象
      */
-    @Query(fields = "{ 'fansRate' : 0}")
+    @Query(fields = "{'fansRate' : 0}")
     Author findByMid(@Param("mid") Long mid);
 
 
@@ -50,7 +50,7 @@ public interface AuthorRepository
      * @param mid 作者id
      * @return 作者对象
      */
-    @Query(fields = "{ 'fansRate': 0, 'data': 0}")
+    @Query(fields = "{'fansRate': 0, 'data': 0}")
     Author findAuthorByMid(@Param("mid") Long mid);
 
 
@@ -62,7 +62,7 @@ public interface AuthorRepository
      */
     @Query(
             fields =
-                    "{ 'name' : 1, 'mid' : 1, 'face' : 1, 'official' : 1, 'focus':1, 'forceFocus':1, 'sex':1,'level':1}"
+                    "{'fansRate':0, 'data': 0}"
     )
     Slice<Author> findAllByDataIsNotNull(Pageable pageable);
 
@@ -75,8 +75,7 @@ public interface AuthorRepository
      */
     @Query(
             value = "{'mid' : ?0}",
-            fields =
-                    "{ 'name' : 1, 'mid' : 1, 'face' : 1, 'official' : 1, 'focus':1, 'forceFocus':1, 'sex':1,'level':1}"
+            fields = "{'fansRate':0, 'data': 0}"
     )
     Slice<Author> searchByMid(@Param("mid") Long mid, Pageable pageable);
 
@@ -90,7 +89,7 @@ public interface AuthorRepository
     @Query(
             value = "{$or:[{name:{$regex:?0}},{official:{$regex:?0}}]}",
             fields =
-                    "{ 'name' : 1, 'mid' : 1, 'face' : 1, 'official' : 1, 'focus':1, 'forceFocus':1, 'sex':1,'level':1}"
+                    "{'name' : 1, 'mid' : 1, 'face' : 1, 'official' : 1, 'focus':1, 'forceFocus':1, 'sex':1,'level':1}"
     )
     Slice<Author> search(String text, Pageable pageable);
 
@@ -104,7 +103,7 @@ public interface AuthorRepository
     @Query(
             value = "{$or:?0,data:{$ne:null}}",
             fields =
-                    "{ 'name' : 1, 'mid' : 1, 'face' : 1, 'official' : 1, 'focus':1, 'forceFocus':1, 'sex':1, 'level':1}"
+                    "{'name' : 1, 'mid' : 1, 'face' : 1, 'official' : 1, 'focus':1, 'forceFocus':1, 'sex':1, 'level':1}"
     )
     Slice getFavoriteAuthor(ArrayList<HashMap<String, Long>> mapsList, PageRequest of);
 

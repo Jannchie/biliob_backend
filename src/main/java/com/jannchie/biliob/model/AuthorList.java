@@ -18,7 +18,7 @@ public class AuthorList extends Document {
     @Id
     private ObjectId id;
     private ArrayList<Long> mids;
-    private String creater;
+    private String creator;
     private String name;
     private Integer like;
     private Date cTime;
@@ -31,7 +31,7 @@ public class AuthorList extends Document {
 
     public AuthorList(String name, String userName) {
         this.name = name;
-        this.creater = userName;
+        this.creator = userName;
         this.updateTime = Calendar.getInstance().getTime();
     }
 
@@ -59,12 +59,12 @@ public class AuthorList extends Document {
         this.mids = mids;
     }
 
-    public String getCreater() {
-        return creater;
+    public String getCreator() {
+        return creator;
     }
 
-    public void setCreater(String creater) {
-        this.creater = creater;
+    public void setCreator(String creator) {
+        this.creator = creator;
     }
 
     public Integer getLike() {

@@ -99,7 +99,13 @@ public class AuthorServiceImpl implements AuthorService {
         Author author =
                 mongoTemplate.aggregate(a, "author", Author.class).getMappedResults().get(0);
         setRankData(author);
+        getInterval(author);
         return author;
+    }
+
+    private void getInterval(Author author) {
+        AuthorIntervalRecord authorIntervalRecord = mongoTemplate.findOne(Query.query(Criteria.where("mid").is(author.getMid())), AuthorIntervalRecord.class);
+        author.setObInterval(authorIntervalRecord != null ? authorIntervalRecord.getInterval() : -1);
     }
 
     private void setRankData(Author author) {
@@ -180,40 +186,57 @@ public class AuthorServiceImpl implements AuthorService {
     }
 
     @Override
-    @Cacheable(value = "author_slice", key = "#mid + #text + #page + #pagesize + #sort")
+//    @Cacheable(value = "author_slice", key = "#mid + #text + #page + #pagesize + #sort")
     public MySlice<Author> getAuthor(Long mid, String text, Integer page, Integer pagesize,
                                      Integer sort) {
         if (pagesize > PageSizeEnum.BIG_SIZE.getValue()) {
             pagesize = PageSizeEnum.BIG_SIZE.getValue();
         }
+        MySlice<Author> result;
         String sortKey = AuthorSortEnum.getKeyByFlag(sort);
         if (mid != -1) {
             AuthorServiceImpl.logger.info(mid);
-            return new MySlice<>(respository.searchByMid(mid,
+            result = new MySlice<>(respository.searchByMid(mid,
                     PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, sortKey))));
         } else if (!Objects.equals(text, "")) {
             AuthorServiceImpl.logger.info(text);
             if (InputInspection.isId(text)) {
                 // get a mid
-                return new MySlice<>(respository.searchByMid(Long.valueOf(text),
+                result = new MySlice<>(respository.searchByMid(Long.valueOf(text),
                         PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, sortKey))));
-            }
-            // get text
-            String[] textArray = text.split(" ");
-            MySlice<Author> mySlice = new MySlice<>(respository.findByKeywordContaining(textArray,
-                    PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, sortKey))));
-            if (mySlice.getContent().isEmpty()) {
-                for (String eachText : textArray) {
-                    HashMap<String, String> map = new HashMap<>(1);
-                    map.put("mid", eachText);
-                    mongoTemplate.insert(map, "search_word");
+            } else {
+
+                // get text
+                String[] textArray = text.split(" ");
+                result = new MySlice<>(respository.findByKeywordContaining(textArray,
+                        PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, sortKey))));
+                if (result.getContent().isEmpty()) {
+                    for (String eachText : textArray) {
+                        HashMap<String, String> map = new HashMap<>(1);
+                        map.put("mid", eachText);
+                        mongoTemplate.insert(map, "search_word");
+                    }
                 }
             }
-            return mySlice;
+
         } else {
             AuthorServiceImpl.logger.info("查看所有UP主列表");
-            return new MySlice<>(respository.findAllByDataIsNotNull(
+            result = new MySlice<>(respository.findAllByDataIsNotNull(
                     PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, sortKey))));
+        }
+
+        getInterval(result.getContent());
+        return result;
+    }
+
+    private void getInterval(List<Author> authors) {
+        List<Long> midList = authors.stream().map(Author::getMid).collect(Collectors.toList());
+        Query q = Query.query(Criteria.where("mid").in(midList));
+        Map<Long, Integer> intervalMap = mongoTemplate.find(q, AuthorIntervalRecord.class)
+                .stream().collect(Collectors.toMap(AuthorIntervalRecord::getMid, AuthorIntervalRecord::getInterval));
+        for (Author author : authors
+        ) {
+            author.setObInterval(intervalMap.get(author.getMid()));
         }
     }
 
