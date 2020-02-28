@@ -213,6 +213,9 @@ public class Author {
         @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
         private Date updateTime;
 
+        public Rank() {
+        }
+
         public Rank(Long fansRank, Long archiveViewRank, Long articleViewRank, Long likeRank, Long dFansRank, Long dArchiveViewRank, Long dArticleViewRank, Long dLikeRank, Date updateTime) {
             this.fansRank = fansRank;
             this.archiveViewRank = archiveViewRank;
