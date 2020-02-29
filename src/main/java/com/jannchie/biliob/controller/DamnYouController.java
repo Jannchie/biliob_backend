@@ -45,4 +45,17 @@ public class DamnYouController {
         return ResponseEntity.accepted().body(new Result<>(ResultEnum.ACCEPTED));
     }
 
+    @RequestMapping(method = RequestMethod.POST, value = "/api/damn-you/upload/history")
+    public ResponseEntity<Result<String>> uploadHistory(
+            @RequestParam("file") MultipartFile file) throws IOException {
+        damnYouService.saveHistoryData(file);
+        return ResponseEntity.accepted().body(new Result<>(ResultEnum.ACCEPTED));
+    }
+
+    @RequestMapping(method = RequestMethod.POST, value = "/api/damn-you/upload/info")
+    public ResponseEntity<Result<String>> uploadInfo(
+            @RequestParam("file") MultipartFile file) throws IOException {
+        damnYouService.saveInfoData(file);
+        return ResponseEntity.accepted().body(new Result<>(ResultEnum.ACCEPTED));
+    }
 }

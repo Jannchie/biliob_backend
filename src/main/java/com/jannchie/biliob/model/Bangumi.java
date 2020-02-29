@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.Date;
-import java.util.List;
 
 /**
  * @author jannchie
@@ -12,119 +11,212 @@ import java.util.List;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Document(collection = "bangumi")
 public class Bangumi {
-
-    private String title;
-    private List tag;
-    private List<Data> data;
-    private String squareCover;
+    private Long sid;
+    private Long mid;
+    private String name;
+    private String foreignName;
+    private String copyright;
+    // 专题类型/专题分区，其中1:番剧，4:国创
+    private Short type;
+    // 专题状态（-1: 下架, 2:免费, 13:大会员抢先/专享）
+    private Byte state;
+    private Date pubDate;
+    private Boolean isSerializing;
+    private Boolean isFinished;
+    private Long cView;
+    private Long cCoin;
+    private Long oldFollow;
+    private Long newFollow;
+    private Float score;
+    private Long scoreCount;
     private String cover;
-    private Integer currentPlay;
-    private Integer currentPts;
-    private Integer currentReview;
-    private Integer currentWatch;
-    private Integer currentDanmaku;
+    private String smallCover;
+    private String charge;
+    private String area;
+
+    public Bangumi(Long sid, Long mid, String name, String foreignName, String copyright, Short type, Byte state, Date pubDate, Boolean isSerializing, Boolean isFinished, Long cView, Long cCoin, Long oldFollow, Long newFollow, Float score, Long scoreCount, String cover, String smallCover, String charge, String area) {
+        this.sid = sid;
+        this.mid = mid;
+        this.name = name;
+        this.foreignName = foreignName;
+        this.copyright = copyright;
+        this.type = type;
+        this.state = state;
+        this.pubDate = pubDate;
+        this.isSerializing = isSerializing;
+        this.isFinished = isFinished;
+        this.cView = cView;
+        this.cCoin = cCoin;
+        this.oldFollow = oldFollow;
+        this.newFollow = newFollow;
+        this.score = score;
+        this.scoreCount = scoreCount;
+        this.cover = cover;
+        this.smallCover = smallCover;
+        this.charge = charge;
+        this.area = area;
+    }
+
+    public Bangumi() {
+    }
+
+    public Long getSid() {
+        return sid;
+    }
+
+    public void setSid(Long sid) {
+        this.sid = sid;
+    }
+
+    public Long getMid() {
+        return mid;
+    }
+
+    public void setMid(Long mid) {
+        this.mid = mid;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getForeignName() {
+        return foreignName;
+    }
+
+    public void setForeignName(String foreignName) {
+        this.foreignName = foreignName;
+    }
+
+    public String getCopyright() {
+        return copyright;
+    }
+
+    public void setCopyright(String copyright) {
+        this.copyright = copyright;
+    }
+
+    public Short getType() {
+        return type;
+    }
+
+    public void setType(Short type) {
+        this.type = type;
+    }
+
+    public Byte getState() {
+        return state;
+    }
+
+    public void setState(Byte state) {
+        this.state = state;
+    }
+
+    public Date getPubDate() {
+        return pubDate;
+    }
+
+    public void setPubDate(Date pubDate) {
+        this.pubDate = pubDate;
+    }
+
+    public Boolean getSerializing() {
+        return isSerializing;
+    }
+
+    public void setSerializing(Boolean serializing) {
+        isSerializing = serializing;
+    }
+
+    public Boolean getFinished() {
+        return isFinished;
+    }
+
+    public void setFinished(Boolean finished) {
+        isFinished = finished;
+    }
+
+    public Long getcView() {
+        return cView;
+    }
+
+    public void setcView(Long cView) {
+        this.cView = cView;
+    }
+
+    public Long getcCoin() {
+        return cCoin;
+    }
+
+    public void setcCoin(Long cCoin) {
+        this.cCoin = cCoin;
+    }
+
+    public Long getOldFollow() {
+        return oldFollow;
+    }
+
+    public void setOldFollow(Long oldFollow) {
+        this.oldFollow = oldFollow;
+    }
+
+    public Long getNewFollow() {
+        return newFollow;
+    }
+
+    public void setNewFollow(Long newFollow) {
+        this.newFollow = newFollow;
+    }
+
+    public Float getScore() {
+        return score;
+    }
+
+    public void setScore(Float score) {
+        this.score = score;
+    }
+
+    public Long getScoreCount() {
+        return scoreCount;
+    }
+
+    public void setScoreCount(Long scoreCount) {
+        this.scoreCount = scoreCount;
+    }
 
     public String getCover() {
         return cover;
     }
 
-    public List<Data> getData() {
-        return data;
+    public void setCover(String cover) {
+        this.cover = cover;
     }
 
-    public void setData(List<Data> data) {
-        this.data = data;
+    public String getSmallCover() {
+        return smallCover;
     }
 
-    public String getSquareCover() {
-        return squareCover;
+    public void setSmallCover(String smallCover) {
+        this.smallCover = smallCover;
     }
 
-    public void setSquareCover(String squareCover) {
-        this.squareCover = squareCover;
+    public String getCharge() {
+        return charge;
     }
 
-    public Integer getCurrentPlay() {
-        return currentPlay;
+    public void setCharge(String charge) {
+        this.charge = charge;
     }
 
-    public void setCurrentPlay(Integer currentPlay) {
-        this.currentPlay = currentPlay;
+    public String getArea() {
+        return area;
     }
 
-    public Integer getCurrentPts() {
-        return currentPts;
-    }
-
-    public void setCurrentPts(Integer currentPts) {
-        this.currentPts = currentPts;
-    }
-
-    public Integer getCurrentReview() {
-        return currentReview;
-    }
-
-    public void setCurrentReview(Integer currentReview) {
-        this.currentReview = currentReview;
-    }
-
-    public Integer getCurrentWatch() {
-        return currentWatch;
-    }
-
-    public void setCurrentWatch(Integer currentWatch) {
-        this.currentWatch = currentWatch;
-    }
-
-    public Integer getCurrentDanmaku() {
-        return currentDanmaku;
-    }
-
-    public void setCurrentDanmaku(Integer currentDanmaku) {
-        this.currentDanmaku = currentDanmaku;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public List getTag() {
-        return tag;
-    }
-
-    public void setTag(List tag) {
-        this.tag = tag;
-    }
-
-    private class Data {
-        private String danmaku;
-        private String watch;
-        private String play;
-        private Integer pts;
-        private Date datetime;
-
-        public String getDanmaku() {
-            return danmaku;
-        }
-
-        public String getWatch() {
-            return watch;
-        }
-
-        public String getPlay() {
-            return play;
-        }
-
-        public Integer getPts() {
-            return pts;
-        }
-
-        public Date getDatetime() {
-            return datetime;
-        }
+    public void setArea(String area) {
+        this.area = area;
     }
 }

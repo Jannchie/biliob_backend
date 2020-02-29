@@ -1,6 +1,7 @@
 package com.jannchie.biliob.service;
 
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
@@ -24,4 +25,8 @@ public interface DamnYouService {
      * @param files file
      */
     void deleteFile(File... files);
+
+    void saveHistoryData(MultipartFile file) throws IOException;
+
+    void saveInfoData(MultipartFile file) throws IOException;
 }

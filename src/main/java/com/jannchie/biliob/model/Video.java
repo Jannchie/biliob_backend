@@ -29,6 +29,8 @@ public class Video {
     private Integer cView;
     private Integer cFavorite;
     private Integer cDanmaku;
+    private Integer cReply;
+    private Integer cJannchie;
     private Integer cCoin;
     private Integer cShare;
     private Integer cLike;
@@ -67,6 +69,10 @@ public class Video {
                 return getcShare();
             case "cLike":
                 return getcLike();
+            case "cJannchie":
+                return getcJannchie();
+            case "cReply":
+                return getcReply();
             default:
                 return null;
         }
@@ -240,6 +246,22 @@ public class Video {
         this.cDatetime = cDatetime;
     }
 
+    public Integer getcJannchie() {
+        return cJannchie;
+    }
+
+    public void setcJannchie(Integer cJannchie) {
+        this.cJannchie = cJannchie;
+    }
+
+    public Integer getcReply() {
+        return cReply;
+    }
+
+    public void setcReply(Integer cReply) {
+        this.cReply = cReply;
+    }
+
     public static class Data {
         private Integer view;
         private Integer favorite;
@@ -247,42 +269,92 @@ public class Video {
         private Integer coin;
         private Integer share;
         private Integer like;
+        private Integer reply;
+        private Integer jannchie;
         private Integer dislike;
         private Date datetime;
 
         public Data() {
         }
 
+        public Integer getReply() {
+            return reply;
+        }
+
+        public void setReply(Integer reply) {
+            this.reply = reply;
+        }
+
+        public Integer getJannchie() {
+            return jannchie;
+        }
+
+        public void setJannchie(Integer jannchie) {
+            this.jannchie = jannchie;
+        }
+
         public Integer getView() {
             return view;
+        }
+
+        public void setView(Integer view) {
+            this.view = view;
         }
 
         public Integer getFavorite() {
             return favorite;
         }
 
+        public void setFavorite(Integer favorite) {
+            this.favorite = favorite;
+        }
+
         public Integer getDanmaku() {
             return danmaku;
+        }
+
+        public void setDanmaku(Integer danmaku) {
+            this.danmaku = danmaku;
         }
 
         public Integer getCoin() {
             return coin;
         }
 
+        public void setCoin(Integer coin) {
+            this.coin = coin;
+        }
+
         public Integer getShare() {
             return share;
+        }
+
+        public void setShare(Integer share) {
+            this.share = share;
         }
 
         public Integer getLike() {
             return like;
         }
 
+        public void setLike(Integer like) {
+            this.like = like;
+        }
+
         public Integer getDislike() {
             return dislike;
         }
 
+        public void setDislike(Integer dislike) {
+            this.dislike = dislike;
+        }
+
         public Date getDatetime() {
             return datetime;
+        }
+
+        public void setDatetime(Date datetime) {
+            this.datetime = datetime;
         }
     }
 }
