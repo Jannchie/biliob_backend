@@ -27,4 +27,6 @@ public interface DamnYouService {
     void deleteFile(File... files);
 
     void saveHistoryData(MultipartFile file) throws IOException;
+
+    void saveInfoData(MultipartFile file) throws IOException;
 }
