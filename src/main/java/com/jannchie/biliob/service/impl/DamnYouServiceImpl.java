@@ -10,11 +10,9 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.util.Calendar;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -34,15 +32,14 @@ public class DamnYouServiceImpl implements DamnYouService {
             if (zipEntry.toString().endsWith("txt")) {
                 BufferedReader br = new BufferedReader(
                         new InputStreamReader(zipFile.getInputStream(zipEntry)));
-                saveDataFromTxt(br);
+                saveHistoryDataFromTxt(br);
                 br.close();
 
             }
         }
-
     }
 
-    private void saveDataFromTxt(BufferedReader br) throws IOException {
+    public void saveHistoryDataFromTxt(BufferedReader br) throws IOException {
         String line;
         Calendar c = Calendar.getInstance();
         while ((line = br.readLine()) != null) {
@@ -70,6 +67,16 @@ public class DamnYouServiceImpl implements DamnYouService {
                 e.printStackTrace();
             }
         }
+    }
+
+    @Async
+    @Override
+    public void saveHistoryData(MultipartFile file) throws IOException {
+        InputStream inputStream = file.getInputStream();
+        InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
+        BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+        saveHistoryDataFromTxt(bufferedReader);
+        bufferedReader.close();
     }
 
     @Async
