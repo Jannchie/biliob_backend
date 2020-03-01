@@ -49,13 +49,13 @@ public class MailUtil {
         return checkStatus;
     }
 
-    public ResponseEntity<?> sendActivationCode(String receiver) {
+    public ResponseEntity sendActivationCode(String receiver) {
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper;
-        if (mongoTemplate.exists(Query.query(Criteria.where("mail").is(receiver)), "user")) {
-            return new ResponseEntity<>(
-                    new Result<>(ResultEnum.MAIL_HAD_BEEN_REGISTERED), HttpStatus.NOT_ACCEPTABLE);
-        }
+//        if (mongoTemplate.exists(Query.query(Criteria.where("mail").is(receiver)), "user")) {
+//            return new ResponseEntity<>(
+//                    new Result<>(ResultEnum.MAIL_HAD_BEEN_REGISTERED), HttpStatus.NOT_ACCEPTABLE);
+//        }
 
         try {
             helper = new MimeMessageHelper(message, true);

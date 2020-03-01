@@ -4,6 +4,8 @@ import com.jannchie.biliob.model.Bangumi;
 import com.jannchie.biliob.model.BangumiData;
 import com.jannchie.biliob.service.DamnYouService;
 import com.mongodb.MongoException;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -14,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -22,6 +25,7 @@ import java.util.zip.ZipInputStream;
 @EnableAsync
 @Service
 public class DamnYouServiceImpl implements DamnYouService {
+    private static final Logger logger = LogManager.getLogger();
     @Autowired
     MongoTemplate mongoTemplate;
 
@@ -45,7 +49,7 @@ public class DamnYouServiceImpl implements DamnYouService {
         Calendar c = Calendar.getInstance();
         while ((line = br.readLine()) != null) {
             try {
-                String[] params = line.split("\t");
+                String[] params = line.split("\t", -1);
                 c.setTimeInMillis(Long.parseLong(params[10]));
                 Long sid = Long.valueOf(params[0]);
                 BangumiData bangumiData = new BangumiData(
@@ -65,6 +69,7 @@ public class DamnYouServiceImpl implements DamnYouService {
                     mongoTemplate.save(bangumiData);
                 }
             } catch (Exception e) {
+                logger.error(line);
                 e.printStackTrace();
             }
         }
@@ -92,11 +97,13 @@ public class DamnYouServiceImpl implements DamnYouService {
 
     private void saveInfoDataFromText(BufferedReader bufferedReader) throws IOException {
         String line;
-        Calendar c = Calendar.getInstance();
+        Calendar pubCalendar = Calendar.getInstance();
+        Calendar updateCalendar = Calendar.getInstance();
         while ((line = bufferedReader.readLine()) != null) {
+            String[] params = line.split("\t", -1);
             try {
-                String[] params = line.split("\t");
-                c.setTimeInMillis(Long.parseLong(params[7]));
+                pubCalendar.setTimeInMillis(Long.parseLong(params[7]));
+                updateCalendar.setTimeInMillis(Long.parseLong(params[20]));
                 Long sid = Long.valueOf(params[0]);
                 Bangumi bangumi = new Bangumi(
                         sid,
@@ -106,7 +113,7 @@ public class DamnYouServiceImpl implements DamnYouService {
                         String.valueOf(params[4]),
                         Short.valueOf(params[5]),
                         Byte.valueOf(params[6]),
-                        c.getTime(),
+                        pubCalendar.getTime(),
                         Boolean.valueOf(params[8]),
                         Boolean.valueOf(params[9]),
                         Long.valueOf(params[10]),
@@ -118,10 +125,13 @@ public class DamnYouServiceImpl implements DamnYouService {
                         String.valueOf(params[16]),
                         String.valueOf(params[17]),
                         String.valueOf(params[18]),
-                        String.valueOf(params[19])
+                        String.valueOf(params[19]),
+                        updateCalendar.getTime()
                 );
                 mongoTemplate.save(bangumi);
             } catch (Exception e) {
+                logger.error(line);
+                logger.error(Arrays.toString(params));
                 e.printStackTrace();
             }
         }

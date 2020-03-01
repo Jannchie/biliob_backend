@@ -84,14 +84,14 @@ public class UserController {
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/api/user/video")
-    public Slice getFavoriteVideo(
+    public Slice<?> getFavoriteVideo(
             @RequestParam(defaultValue = "0") Integer page,
             @RequestParam(defaultValue = "20") Integer pageSize) {
         return userService.getFavoriteVideo(page, pageSize);
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/api/user/author")
-    public Slice getFavoriteAuthor(
+    public Slice<?> getFavoriteAuthor(
             @RequestParam(defaultValue = "0") Integer page,
             @RequestParam(defaultValue = "20") Integer pageSize) {
         return userService.getFavoriteAuthor(page, pageSize);

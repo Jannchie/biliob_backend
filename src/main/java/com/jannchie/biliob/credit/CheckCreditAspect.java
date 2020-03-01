@@ -58,7 +58,7 @@ public class CheckCreditAspect {
     }
 
     @Around(value = "checkCredit() && args(user, creditConstant, ..)", argNames = "pjp,user,creditConstant")
-    public ResponseEntity<?> doAround(ProceedingJoinPoint pjp, User user, CreditConstant creditConstant) throws Throwable {
+    public ResponseEntity doAround(ProceedingJoinPoint pjp, User user, CreditConstant creditConstant) throws Throwable {
         Double value = creditConstant.getValue();
         if (user == null) {
             return new ResponseEntity<Result<?>>(
@@ -73,7 +73,7 @@ public class CheckCreditAspect {
         String userName = user.getName();
         Object o = pjp.proceed();
         if (o instanceof ResponseEntity) {
-            ResponseEntity<?> res = ((ResponseEntity<?>) o);
+            ResponseEntity res = ((ResponseEntity) o);
             if (res.getBody() instanceof Result<?>) {
                 Result<?> result = (Result<?>) res.getBody();
                 if (result.getData() instanceof String) {

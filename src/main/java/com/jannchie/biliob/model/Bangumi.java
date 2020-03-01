@@ -33,8 +33,9 @@ public class Bangumi {
     private String smallCover;
     private String charge;
     private String area;
+    private Date updateTime;
 
-    public Bangumi(Long sid, Long mid, String name, String foreignName, String copyright, Short type, Byte state, Date pubDate, Boolean isSerializing, Boolean isFinished, Long cView, Long cCoin, Long oldFollow, Long newFollow, Float score, Long scoreCount, String cover, String smallCover, String charge, String area) {
+    public Bangumi(Long sid, Long mid, String name, String foreignName, String copyright, Short type, Byte state, Date pubDate, Boolean isSerializing, Boolean isFinished, Long cView, Long cCoin, Long oldFollow, Long newFollow, Float score, Long scoreCount, String cover, String smallCover, String charge, String area, Date updateTime) {
         this.sid = sid;
         this.mid = mid;
         this.name = name;
@@ -55,9 +56,7 @@ public class Bangumi {
         this.smallCover = smallCover;
         this.charge = charge;
         this.area = area;
-    }
-
-    public Bangumi() {
+        this.updateTime = updateTime;
     }
 
     public Long getSid() {
@@ -218,5 +217,13 @@ public class Bangumi {
 
     public void setArea(String area) {
         this.area = area;
+    }
+
+    public Date getUpdateTime() {
+        return updateTime;
+    }
+
+    public void setUpdateTime(Date updateTime) {
+        this.updateTime = updateTime;
     }
 }

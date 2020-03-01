@@ -27,7 +27,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -117,16 +116,21 @@ class UserServiceImpl implements UserService {
     public ResponseEntity<Result<?>> createUser(
             String username, String password, String mail, String activationCode) {
         User user = new User(username, password, RoleEnum.NORMAL_USER.getName());
+        if (!mailUtil.checkActivationCode(mail, activationCode)) {
+            return new ResponseEntity<>(
+                    new Result<>(ResultEnum.ACTIVATION_CODE_UNMATCHED), HttpStatus.BAD_REQUEST);
+        }
         // activation code unmatched
         if (1 == userRepository.countByName(user.getName())) {
             // 已存在同名
             return new ResponseEntity<>(
                     new Result<>(ResultEnum.USER_ALREADY_EXIST), HttpStatus.BAD_REQUEST);
         }
-        if (!mailUtil.checkActivationCode(mail, activationCode)) {
+        if (mongoTemplate.exists(Query.query(Criteria.where("mail").is(mail)), "user")) {
             return new ResponseEntity<>(
-                    new Result<>(ResultEnum.ACTIVATION_CODE_UNMATCHED), HttpStatus.BAD_REQUEST);
+                    new Result<>(ResultEnum.MAIL_HAD_BEEN_REGISTERED), HttpStatus.NOT_ACCEPTABLE);
         }
+
         user.setName(user.getName());
         user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
         user.setNickName(user.getName());
@@ -619,12 +623,16 @@ class UserServiceImpl implements UserService {
             return new ResponseEntity<>(
                     new Result(ResultEnum.HAS_NOT_LOGGED_IN), HttpStatus.UNAUTHORIZED);
         }
+
+        if (mongoTemplate.exists(Query.query(Criteria.where("mail").is(mail)), User.class)) {
+            return new ResponseEntity<>(
+                    new Result<>(ResultEnum.MAIL_HAD_BEEN_REGISTERED), HttpStatus.UNAUTHORIZED);
+        }
         if (!mailUtil.checkActivationCode(mail, activationCode)) {
             return new ResponseEntity<>(
                     new Result(ResultEnum.ACTIVATION_CODE_UNMATCHED), HttpStatus.BAD_REQUEST);
         }
-        mongoTemplate.updateFirst(Query.query(Criteria.where("name").is(user.getName())), Update.update("mail", mail), "user");
-        return ResponseEntity.ok(new Result(ResultEnum.SUCCEED));
+        return creditHandle.modifyMail(UserUtils.getUser(), CreditConstant.MODIFY_MAIL, mail);
     }
 
     @Override
