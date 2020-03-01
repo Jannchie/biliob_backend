@@ -3,6 +3,7 @@ package com.jannchie.biliob.service;
 import com.jannchie.biliob.exception.UserAlreadyFavoriteAuthorException;
 import com.jannchie.biliob.exception.UserAlreadyFavoriteVideoException;
 import com.jannchie.biliob.exception.UserNotExistException;
+import com.jannchie.biliob.form.ChangePasswordForm;
 import com.jannchie.biliob.model.User;
 import com.jannchie.biliob.model.UserRecord;
 import com.jannchie.biliob.utils.MySlice;
@@ -272,4 +273,12 @@ public interface UserService {
      * @return result
      */
     ResponseEntity<Result<String>> changeMail(String newMail);
+
+    /**
+     * change password
+     *
+     * @param changePasswordForm form for change password
+     * @return result
+     */
+    ResponseEntity<Result<String>> changePassword(ChangePasswordForm changePasswordForm);
 }

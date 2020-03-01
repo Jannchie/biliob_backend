@@ -19,6 +19,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .antMatchers("/api/user/activation-code").permitAll()
+                .antMatchers("/api/user/password").permitAll()
                 .antMatchers("/api/user").permitAll()
                 .antMatchers("/api/admin/**").hasAnyAuthority("管理员")
                 .antMatchers("/api/user/**").hasAnyAuthority("普通用户", "管理员")

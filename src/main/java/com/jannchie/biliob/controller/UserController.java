@@ -4,6 +4,7 @@ import com.jannchie.biliob.constant.ResultEnum;
 import com.jannchie.biliob.exception.UserAlreadyFavoriteAuthorException;
 import com.jannchie.biliob.exception.UserAlreadyFavoriteVideoException;
 import com.jannchie.biliob.form.ChangeMailForm;
+import com.jannchie.biliob.form.ChangePasswordForm;
 import com.jannchie.biliob.model.Question;
 import com.jannchie.biliob.model.User;
 import com.jannchie.biliob.object.LoginForm;
@@ -234,4 +235,8 @@ public class UserController {
         return userService.changeMail(changeMailForm.getMail());
     }
 
+    @RequestMapping(method = RequestMethod.PUT, value = "/api/user/password")
+    public ResponseEntity<Result<String>> changeMail(@RequestBody @Valid ChangePasswordForm changePasswordForm) {
+        return userService.changePassword(changePasswordForm);
+    }
 }

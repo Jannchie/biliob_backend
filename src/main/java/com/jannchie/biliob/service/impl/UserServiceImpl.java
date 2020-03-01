@@ -6,6 +6,7 @@ import com.jannchie.biliob.constant.ResultEnum;
 import com.jannchie.biliob.constant.RoleEnum;
 import com.jannchie.biliob.credit.handle.CreditHandle;
 import com.jannchie.biliob.exception.UserNotExistException;
+import com.jannchie.biliob.form.ChangePasswordForm;
 import com.jannchie.biliob.model.Author;
 import com.jannchie.biliob.model.Question;
 import com.jannchie.biliob.model.User;
@@ -27,6 +28,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -623,15 +625,15 @@ class UserServiceImpl implements UserService {
             return new ResponseEntity<>(
                     new Result(ResultEnum.HAS_NOT_LOGGED_IN), HttpStatus.UNAUTHORIZED);
         }
-
-        if (mongoTemplate.exists(Query.query(Criteria.where("mail").is(mail)), User.class)) {
-            return new ResponseEntity<>(
-                    new Result<>(ResultEnum.MAIL_HAD_BEEN_REGISTERED), HttpStatus.UNAUTHORIZED);
-        }
         if (!mailUtil.checkActivationCode(mail, activationCode)) {
             return new ResponseEntity<>(
                     new Result(ResultEnum.ACTIVATION_CODE_UNMATCHED), HttpStatus.BAD_REQUEST);
         }
+        if (mongoTemplate.exists(Query.query(Criteria.where("mail").is(mail)), User.class)) {
+            return new ResponseEntity<>(
+                    new Result<>(ResultEnum.MAIL_HAD_BEEN_REGISTERED), HttpStatus.UNAUTHORIZED);
+        }
+
         return creditHandle.modifyMail(UserUtils.getUser(), CreditConstant.MODIFY_MAIL, mail);
     }
 
@@ -661,5 +663,19 @@ class UserServiceImpl implements UserService {
         }
         user.setMail(newMail);
         return creditHandle.modifyMail(UserUtils.getUser(), CreditConstant.MODIFY_MAIL, newMail);
+    }
+
+    @Override
+    public ResponseEntity<Result<String>> changePassword(ChangePasswordForm changePasswordForm) {
+        if (!mailUtil.checkActivationCode(changePasswordForm.getMail(), changePasswordForm.getActivationCode())) {
+            return new ResponseEntity<>(
+                    new Result<>(ResultEnum.ACTIVATION_CODE_UNMATCHED), HttpStatus.BAD_REQUEST);
+        }
+        mongoTemplate.updateFirst(
+                Query.query(Criteria.where("mail").is(changePasswordForm.getMail())),
+                Update.update("password", bCryptPasswordEncoder.encode(changePasswordForm.getPassword())),
+                User.class);
+        return new ResponseEntity<>(
+                new Result<>(ResultEnum.SUCCEED), HttpStatus.OK);
     }
 }
