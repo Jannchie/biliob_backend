@@ -62,7 +62,13 @@ public class UserCommentServiceImpl implements UserCommentService {
                         Aggregation.project().andExpression("{ password: 0, favoriteMid: 0, favoriteAid: 0 }").as("user")
                 ), Comment.class, Comment.class);
         List<Comment> result = ar.getMappedResults();
+
+        result.forEach(comment -> {
+            UserUtils.setUserTitleAndRank(comment.getUser());
+        });
+
         User user = UserUtils.getUser();
+
         if (user == null) {
             return result;
         }
