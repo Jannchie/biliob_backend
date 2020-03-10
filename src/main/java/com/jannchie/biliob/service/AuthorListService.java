@@ -20,7 +20,7 @@ public interface AuthorListService {
      * @param name 作者列表名称
      * @return 添加反馈
      */
-    ResponseEntity<String> postAuthorList(String name);
+    ResponseEntity<Result<String>> postAuthorList(String name);
 
     /**
      * 根据点赞数，列出分页作者列表数据

@@ -17,11 +17,12 @@ import java.util.Date;
 public class AuthorList extends Document {
     @Id
     private ObjectId id;
-    private ArrayList<Long> mids;
+    private ArrayList<Author> authorList;
+    private ArrayList<Long> midList;
     private String creator;
     private String name;
     private Integer like;
-    private Date cTime;
+    private Date createTime;
     private Date updateTime;
     private ArrayList<String> updateRecord;
 
@@ -51,13 +52,6 @@ public class AuthorList extends Document {
         this.name = name;
     }
 
-    public ArrayList<Long> getMids() {
-        return mids;
-    }
-
-    public void setMids(ArrayList<Long> mids) {
-        this.mids = mids;
-    }
 
     public String getCreator() {
         return creator;
@@ -75,11 +69,43 @@ public class AuthorList extends Document {
         this.like = like;
     }
 
-    public Date getcTime() {
-        return cTime;
+    public Date getCreateTime() {
+        return createTime;
     }
 
-    public void setcTime(Date cTime) {
-        this.cTime = cTime;
+    public void setCreateTime(Date createTime) {
+        this.createTime = createTime;
+    }
+
+    public ArrayList<Author> getAuthorList() {
+        return authorList;
+    }
+
+    public void setAuthorList(ArrayList<Author> authorList) {
+        this.authorList = authorList;
+    }
+
+    public ArrayList<String> getUpdateRecord() {
+        return updateRecord;
+    }
+
+    public void setUpdateRecord(ArrayList<String> updateRecord) {
+        this.updateRecord = updateRecord;
+    }
+
+    public Date getUpdateTime() {
+        return updateTime;
+    }
+
+    public void setUpdateTime(Date updateTime) {
+        this.updateTime = updateTime;
+    }
+
+    public ArrayList<Long> getMidList() {
+        return midList;
+    }
+
+    public void setMidList(ArrayList<Long> midList) {
+        this.midList = midList;
     }
 }

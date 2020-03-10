@@ -1,6 +1,7 @@
 package com.jannchie.biliob.controller;
 
 import com.jannchie.biliob.service.AuthorListService;
+import com.jannchie.biliob.utils.Result;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -26,7 +27,13 @@ public class AuthorListController {
     }
 
     @RequestMapping(method = RequestMethod.POST, value = "/api/author/list")
-    public ResponseEntity postAuthorList(
+    public ResponseEntity<Result<String>> postAuthorList(
+            @RequestBody @Valid String name) {
+        return authorListService.postAuthorList(name);
+    }
+
+    @RequestMapping(method = RequestMethod.PUT, value = "/api/author/list/{id}")
+    public ResponseEntity<Result<String>> putNewAuthor(
             @RequestBody @Valid String name) {
         return authorListService.postAuthorList(name);
     }

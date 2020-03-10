@@ -95,12 +95,6 @@ public interface VideoService {
      */
     Long getNumberOfVideo();
 
-    /**
-     * gete video rank table
-     *
-     * @return the map of video rank table
-     */
-    Map getRankTable();
 
     /**
      * get aggregated video data

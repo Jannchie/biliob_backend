@@ -10,8 +10,8 @@ public enum AuthorSortEnum {
      * ARCHIVE_VIEW: author's archive view flag and keyword.
      */
     FANS(0, "cFans"),
-    ARCHIVE_VIEW(1, "cArchiveView"),
-    ARTICLE_VIEW(2, "cArticleView"),
+    ARCHIVE_VIEW(1, "cArchive_view"),
+    ARTICLE_VIEW(2, "cArticle_view"),
     LIKE(3, "cLike");
 
     private Integer flag;

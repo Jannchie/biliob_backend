@@ -16,9 +16,13 @@ public class IndexController {
     @Autowired
     IndexService indexService;
 
-    @RequestMapping(method = RequestMethod.GET, value = "/api/index")
-    public JannchieIndex getIndex(@RequestParam(name = "keyword") String keyword) {
-        return indexService.getIndex(keyword);
+    @RequestMapping(method = RequestMethod.GET, value = "/api/sim-index")
+    public JannchieIndex getSimIndex(@RequestParam(name = "keyword") String keyword) {
+        return indexService.getSimIndex(keyword);
     }
 
+    @RequestMapping(method = RequestMethod.GET, value = "/api/index")
+    public JannchieIndex getIndex(@RequestParam(name = "keyword") String keyword) {
+        return indexService.getSimIndex(keyword);
+    }
 }

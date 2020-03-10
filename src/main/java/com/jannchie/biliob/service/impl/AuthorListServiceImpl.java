@@ -34,7 +34,7 @@ public class AuthorListServiceImpl implements AuthorListService {
     }
 
     @Override
-    public ResponseEntity postAuthorList(String name) {
+    public ResponseEntity<Result<String>> postAuthorList(String name) {
         User user = UserUtils.getUser();
         return creditHandle.createAuthorList(user, CreditConstant.ADD_AUTHOR_LIST, name);
     }
