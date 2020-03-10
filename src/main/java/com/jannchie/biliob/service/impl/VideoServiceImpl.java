@@ -77,7 +77,7 @@ public class VideoServiceImpl implements VideoService {
      */
     @Override
     @Cacheable(value = "popular_keyword")
-    public List getPopularKeyword() {
+    public List getPopularTag() {
         int delta = 7;
         int compare = 90;
         VideoServiceImpl.logger.info("获取最流行的TAG列表");

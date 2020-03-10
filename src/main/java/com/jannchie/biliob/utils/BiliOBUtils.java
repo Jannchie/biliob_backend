@@ -38,7 +38,6 @@ public class BiliOBUtils {
     }
 
     public Map getVisitData(String userName, Long mid) {
-
         Date date = Calendar.getInstance().getTime();
         Map data = new HashMap<String, Object>() {
             {

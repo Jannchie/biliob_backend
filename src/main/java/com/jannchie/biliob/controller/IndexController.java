@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 /**
  * @author jannchie
  */
@@ -24,5 +26,10 @@ public class IndexController {
     @RequestMapping(method = RequestMethod.GET, value = "/api/index")
     public JannchieIndex getIndex(@RequestParam(name = "keyword") String keyword) {
         return indexService.getSimIndex(keyword);
+    }
+
+    @RequestMapping(method = RequestMethod.GET, value = "/api/index/recently-rank")
+    public List<?> getRecentlyRank() {
+        return indexService.getRecentlyRank();
     }
 }

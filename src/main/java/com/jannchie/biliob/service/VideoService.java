@@ -109,7 +109,7 @@ public interface VideoService {
      *
      * @return popular keyword list
      */
-    List getPopularKeyword();
+    List getPopularTag();
 
     /**
      * get guest prefer keyword
