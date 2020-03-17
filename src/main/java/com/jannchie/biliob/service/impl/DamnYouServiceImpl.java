@@ -1,5 +1,6 @@
 package com.jannchie.biliob.service.impl;
 
+import com.jannchie.biliob.constant.BiliobConstant;
 import com.jannchie.biliob.model.Bangumi;
 import com.jannchie.biliob.model.BangumiData;
 import com.jannchie.biliob.service.DamnYouService;
@@ -7,7 +8,9 @@ import com.mongodb.MongoException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.scheduling.annotation.Async;
@@ -18,10 +21,14 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.*;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 
+/**
+ * @author Jannchie
+ */
 @EnableAsync
 @Service
 public class DamnYouServiceImpl implements DamnYouService {
@@ -95,6 +102,7 @@ public class DamnYouServiceImpl implements DamnYouService {
         bufferedReader.close();
     }
 
+
     private void saveInfoDataFromText(BufferedReader bufferedReader) throws IOException {
         String line;
         Calendar pubCalendar = Calendar.getInstance();
@@ -114,8 +122,8 @@ public class DamnYouServiceImpl implements DamnYouService {
                         Short.valueOf(params[5]),
                         Byte.valueOf(params[6]),
                         pubCalendar.getTime(),
-                        Boolean.valueOf(params[8]),
-                        Boolean.valueOf(params[9]),
+                        "1".equals(params[8]),
+                        "1".equals(params[9]),
                         Long.valueOf(params[10]),
                         Long.valueOf(params[11]),
                         Long.valueOf(params[12]),
@@ -147,4 +155,37 @@ public class DamnYouServiceImpl implements DamnYouService {
             }
         }
     }
+
+    @Override
+    public List<Bangumi> listInfo(Integer page, Long pageSize, String keyword) {
+        if (pageSize > BiliobConstant.MAX_PAGE_SIZE) {
+            pageSize = BiliobConstant.MAX_PAGE_SIZE;
+        }
+        logger.info("查询番剧动画列表");
+        return mongoTemplate.aggregate(
+                Aggregation.newAggregation(
+                        Aggregation.match(Criteria.where("name").regex(keyword)),
+                        Aggregation.sort(Sort.Direction.DESC, "cView"),
+                        Aggregation.skip((page - 1) * pageSize),
+                        Aggregation.limit(pageSize)
+                ), Bangumi.class, Bangumi.class
+        ).getMappedResults();
+    }
+
+    @Override
+    public Bangumi getDetail(Long sid) {
+        Bangumi bangumi = mongoTemplate.aggregate(
+                Aggregation.newAggregation(
+                        Aggregation.match(Criteria.where("sid").is(sid)),
+                        Aggregation.lookup("bangumiData", "sid", "sid", "bangumiHistoryData")
+                ),
+                Bangumi.class, Bangumi.class
+        ).getUniqueMappedResult();
+        if (bangumi != null) {
+            return bangumi;
+        } else {
+            return null;
+        }
+    }
+
 }

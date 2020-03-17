@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * @author jannchie
@@ -34,6 +35,7 @@ public class Bangumi {
     private String charge;
     private String area;
     private Date updateTime;
+    private List<BangumiData> bangumiHistoryData;
 
     public Bangumi(Long sid, Long mid, String name, String foreignName, String copyright, Short type, Byte state, Date pubDate, Boolean isSerializing, Boolean isFinished, Long cView, Long cCoin, Long oldFollow, Long newFollow, Float score, Long scoreCount, String cover, String smallCover, String charge, String area, Date updateTime) {
         this.sid = sid;
@@ -225,5 +227,13 @@ public class Bangumi {
 
     public void setUpdateTime(Date updateTime) {
         this.updateTime = updateTime;
+    }
+
+    public List<BangumiData> getBangumiHistoryData() {
+        return bangumiHistoryData;
+    }
+
+    public void setBangumiHistoryData(List<BangumiData> bangumiHistoryData) {
+        this.bangumiHistoryData = bangumiHistoryData;
     }
 }

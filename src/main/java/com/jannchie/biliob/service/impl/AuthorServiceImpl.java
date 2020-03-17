@@ -1,7 +1,7 @@
 package com.jannchie.biliob.service.impl;
 
 import com.jannchie.biliob.constant.AuthorSortEnum;
-import com.jannchie.biliob.constant.BiliOBConstant;
+import com.jannchie.biliob.constant.BiliobConstant;
 import com.jannchie.biliob.constant.PageSizeEnum;
 import com.jannchie.biliob.exception.AuthorAlreadyFocusedException;
 import com.jannchie.biliob.exception.UserAlreadyFavoriteAuthorException;
@@ -157,7 +157,7 @@ public class AuthorServiceImpl implements AuthorService {
             ArrayList<Author.Data> tempData = author.getData();
             tempData.removeIf(data -> {
                         Calendar c = Calendar.getInstance();
-                        c.add(Calendar.DATE, -BiliOBConstant.GUEST_VIEW_MAX_DAYS);
+                        c.add(Calendar.DATE, -BiliobConstant.GUEST_VIEW_MAX_DAYS);
                         return data.getDatetime().before(c.getTime());
                     }
             );

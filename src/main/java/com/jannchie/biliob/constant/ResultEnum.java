@@ -34,7 +34,11 @@ public enum ResultEnum {
     ACTIVATION_CODE_UNMATCHED(-1, "验证激活码错误"),
     MAIL_HAD_BEEN_REGISTERED(-1, "邮箱已被注册"),
     ALREADY_BANED(-1, "该IP已经被禁止"),
-    SEND_MAIL_FAILED(-1, "发送邮件失败,可能是目标邮箱不受支持"), ALREADY_LIKE(-1, "已经喜欢"), EXP_NOT_ENOUGH(-1, "经验值不足"), COMMENT_NOT_FOUND(-1, "未找到评论");
+    SEND_MAIL_FAILED(-1, "发送邮件失败,可能是目标邮箱不受支持"),
+    ALREADY_LIKE(-1, "已经喜欢"),
+    EXP_NOT_ENOUGH(-1, "经验值不足"),
+    COMMENT_NOT_FOUND(-1, "未找到评论"),
+    BANGUMI_NOT_FOUND(-1, "未找到番剧");
 
     private int code;
     private String msg;

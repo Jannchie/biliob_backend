@@ -1,6 +1,7 @@
 package com.jannchie.biliob.controller;
 
 import com.jannchie.biliob.constant.ResultEnum;
+import com.jannchie.biliob.model.Bangumi;
 import com.jannchie.biliob.service.DamnYouService;
 import com.jannchie.biliob.utils.Result;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +16,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
+import java.util.List;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 
@@ -57,5 +59,18 @@ public class DamnYouController {
             @RequestParam("file") MultipartFile file) throws IOException {
         damnYouService.saveInfoData(file);
         return ResponseEntity.accepted().body(new Result<>(ResultEnum.ACCEPTED));
+    }
+
+    @RequestMapping(method = RequestMethod.GET, value = "/api/damn-you/bangumi/detail")
+    public ResponseEntity<?> getDetail(@RequestParam("sid") Long sid) {
+        return ResponseEntity.ok(damnYouService.getDetail(sid));
+    }
+
+    @RequestMapping(method = RequestMethod.GET, value = "/api/damn-you/bangumi/info")
+    public ResponseEntity<List<Bangumi>> listInfo(
+            @RequestParam("p") Integer page,
+            @RequestParam("ps") Long pageSize,
+            @RequestParam(value = "kw", defaultValue = "") String keyword) {
+        return ResponseEntity.ok(damnYouService.listInfo(page, pageSize, keyword));
     }
 }
