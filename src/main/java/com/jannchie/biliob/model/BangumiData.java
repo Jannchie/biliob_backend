@@ -1,6 +1,8 @@
 package com.jannchie.biliob.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import org.bson.types.ObjectId;
+import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.Date;
@@ -11,7 +13,8 @@ import java.util.Date;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Document
 public class BangumiData {
-
+    @Id
+    private ObjectId id;
     private Long sid;
     private Long play;
     private Long danmaku;
@@ -127,5 +130,13 @@ public class BangumiData {
 
     public void setDatetime(Date datetime) {
         this.datetime = datetime;
+    }
+
+    public ObjectId getId() {
+        return id;
+    }
+
+    public void setId(ObjectId id) {
+        this.id = id;
     }
 }

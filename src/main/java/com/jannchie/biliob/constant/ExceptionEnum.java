@@ -6,7 +6,7 @@ package com.jannchie.biliob.constant;
 public enum ExceptionEnum {
 
     /**
-     * Parameter out of range
+     * Parameter out of ResponseEntity
      */
     ALREADY_SIGNED(-1, "已经签过到了"),
     OUT_OF_RANGE(-1, "参数超出范围"),

@@ -4,9 +4,6 @@ import com.jannchie.biliob.repository.BangumiRepository;
 import com.jannchie.biliob.service.BangumiService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -36,10 +33,6 @@ public class BangumiServiceImpl implements BangumiService {
             pagesize = MAX_PAGE_SIZE;
         }
         logger.info("获得番剧列表");
-        return new ResponseEntity<>(
-
-                bangumiRepository.sliceBangumi(
-                        PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, "currentPts"))),
-                HttpStatus.OK);
+        return null;
     }
 }

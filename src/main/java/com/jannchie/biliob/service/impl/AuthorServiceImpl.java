@@ -144,9 +144,9 @@ public class AuthorServiceImpl implements AuthorService {
             Query query = Query.query(where("mid").is(mid));
             author = mongoTemplate.findOne(query, Author.class, "author");
         }
-        filterAuthorData(author);
         setFreq(author);
         gerRankData(author);
+        filterAuthorData(author);
         authorUtil.getInterval(author);
         return author;
     }

@@ -28,7 +28,6 @@ public class DamnYouController {
     @Autowired
     public DamnYouService damnYouService;
 
-
     @RequestMapping(method = RequestMethod.POST, value = "/api/damn-you/upload")
     public ResponseEntity<Result<String>> uploadData(
             @RequestParam("file") MultipartFile file) throws IOException {

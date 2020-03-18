@@ -3,16 +3,20 @@ package com.jannchie.biliob.service.impl;
 import com.jannchie.biliob.constant.BiliobConstant;
 import com.jannchie.biliob.model.Bangumi;
 import com.jannchie.biliob.model.BangumiData;
+import com.jannchie.biliob.repository.BangumiDataRepository;
+import com.jannchie.biliob.repository.BangumiRepository;
 import com.jannchie.biliob.service.DamnYouService;
 import com.mongodb.MongoException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Service;
@@ -35,6 +39,12 @@ public class DamnYouServiceImpl implements DamnYouService {
     private static final Logger logger = LogManager.getLogger();
     @Autowired
     MongoTemplate mongoTemplate;
+
+    @Autowired
+    BangumiRepository bangumiRepository;
+
+    @Autowired
+    BangumiDataRepository bangumiDataRepository;
 
     @Async
     @Override
@@ -111,7 +121,9 @@ public class DamnYouServiceImpl implements DamnYouService {
             String[] params = line.split("\t", -1);
             try {
                 pubCalendar.setTimeInMillis(Long.parseLong(params[7]));
-                updateCalendar.setTimeInMillis(Long.parseLong(params[20]));
+                if (params.length == 21) {
+                    updateCalendar.setTimeInMillis(Long.parseLong(params[20]));
+                }
                 Long sid = Long.valueOf(params[0]);
                 Bangumi bangumi = new Bangumi(
                         sid,
@@ -136,7 +148,9 @@ public class DamnYouServiceImpl implements DamnYouService {
                         String.valueOf(params[19]),
                         updateCalendar.getTime()
                 );
-                mongoTemplate.save(bangumi);
+                Document bangumiDoc = new Document();
+                mongoTemplate.getConverter().write(bangumi, bangumiDoc);
+                mongoTemplate.upsert(Query.query(Criteria.where("sid").is(sid)), Update.fromDocument(bangumiDoc), Bangumi.class);
             } catch (Exception e) {
                 logger.error(line);
                 logger.error(Arrays.toString(params));

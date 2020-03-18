@@ -1,6 +1,8 @@
 package com.jannchie.biliob.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import org.bson.types.ObjectId;
+import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.Date;
@@ -12,6 +14,8 @@ import java.util.List;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Document(collection = "bangumi")
 public class Bangumi {
+    @Id
+    private ObjectId id;
     private Long sid;
     private Long mid;
     private String name;
@@ -235,5 +239,13 @@ public class Bangumi {
 
     public void setBangumiHistoryData(List<BangumiData> bangumiHistoryData) {
         this.bangumiHistoryData = bangumiHistoryData;
+    }
+
+    public ObjectId getId() {
+        return id;
+    }
+
+    public void setId(ObjectId id) {
+        this.id = id;
     }
 }
