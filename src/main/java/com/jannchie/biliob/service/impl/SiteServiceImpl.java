@@ -2,6 +2,7 @@ package com.jannchie.biliob.service.impl;
 
 import com.jannchie.biliob.constant.ResultEnum;
 import com.jannchie.biliob.model.Site;
+import com.jannchie.biliob.object.StockData;
 import com.jannchie.biliob.service.SiteService;
 import com.jannchie.biliob.utils.Result;
 import com.mongodb.Block;
@@ -153,6 +154,32 @@ public class SiteServiceImpl implements SiteService {
     public ResponseEntity postAlert() {
         return ResponseEntity.ok("");
 //        return mongoTemplate.upsert();
+    }
+
+    @Override
+    public List<?> groupOnline(Integer days) {
+        days = days > 365 ? 365 : days;
+        Calendar c = Calendar.getInstance();
+        c.add(Calendar.DATE, -days);
+        return mongoTemplate.aggregate(
+                Aggregation.newAggregation(
+                        Aggregation.match(Criteria.where("datetime").gt(c.getTime())),
+                        Aggregation.project()
+                                .and("datetime").dateAsFormattedString("%Y-%m-%d").as("date")
+                                .and("play_online").as("value")
+                                .andExpression("week($datetime)").as("week"),
+                        Aggregation.group("date")
+                                .max("value").as("value").first("week").as("week"),
+                        Aggregation.project("value", "week").and("_id").as("date"),
+                        Aggregation.sort(Sort.Direction.ASC, "date"),
+                        Aggregation.group("week")
+                                .last("date").as("date")
+                                .max("value").as("max")
+                                .min("value").as("min")
+                                .first("value").as("first")
+                                .last("value").as("last")
+                ), "site_info", StockData.class
+        ).getMappedResults();
     }
 
 

@@ -62,6 +62,7 @@ public class DamnYouServiceImpl implements DamnYouService {
     }
 
     public void saveHistoryDataFromTxt(BufferedReader br) throws IOException {
+        logger.info("发动番剧历史数据更新");
         String line;
         Calendar c = Calendar.getInstance();
         while ((line = br.readLine()) != null) {
@@ -114,6 +115,7 @@ public class DamnYouServiceImpl implements DamnYouService {
 
 
     private void saveInfoDataFromText(BufferedReader bufferedReader) throws IOException {
+        logger.info("发动番剧信息数据更新");
         String line;
         Calendar pubCalendar = Calendar.getInstance();
         Calendar updateCalendar = Calendar.getInstance();

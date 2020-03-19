@@ -69,4 +69,10 @@ public interface SiteService {
      * @return result
      */
     ResponseEntity postAlert();
+
+    /**
+     * @param days
+     * @return
+     */
+    List<?> groupOnline(Integer days);
 }
