@@ -2,6 +2,7 @@ package com.jannchie.biliob.service.impl;
 
 import com.jannchie.biliob.constant.ResultEnum;
 import com.jannchie.biliob.model.Site;
+import com.jannchie.biliob.model.Sponsor;
 import com.jannchie.biliob.object.StockData;
 import com.jannchie.biliob.service.SiteService;
 import com.jannchie.biliob.utils.Result;
@@ -179,6 +180,21 @@ public class SiteServiceImpl implements SiteService {
                                 .first("value").as("first")
                                 .last("value").as("last")
                 ), "site_info", StockData.class
+        ).getMappedResults();
+    }
+
+    @Override
+    public List<?> listSponsor(Integer page, Long pageSize, Integer sort) {
+        return mongoTemplate.aggregate(
+                Aggregation.newAggregation(
+                        Aggregation.group("user.name")
+                                .last("user").as("user")
+                                .max("createDate").as("create_date")
+                                .sum("orderPrice").as("order_price"),
+                        Aggregation.sort(Sort.Direction.DESC, sort == 0 ? "create_date" : "order_price"),
+                        Aggregation.skip((page - 1) * pageSize),
+                        Aggregation.limit(pageSize)
+                ), Sponsor.class, Sponsor.class
         ).getMappedResults();
     }
 

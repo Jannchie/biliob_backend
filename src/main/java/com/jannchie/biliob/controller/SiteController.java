@@ -69,4 +69,14 @@ public class SiteController {
     public ResponseEntity postAlert() {
         return siteService.postAlert();
     }
+
+    @RequestMapping(method = RequestMethod.GET, value = "/api/site/sponsor")
+    public ResponseEntity listSponsor(@RequestParam(value = "sort", defaultValue = "0") Integer sort,
+                                      @RequestParam(value = "p", defaultValue = "1") Integer page,
+                                      @RequestParam(value = "ps", defaultValue = "20") Long pageSize
+
+    ) {
+        return ResponseEntity.ok(siteService.listSponsor(page, pageSize, sort));
+    }
+
 }

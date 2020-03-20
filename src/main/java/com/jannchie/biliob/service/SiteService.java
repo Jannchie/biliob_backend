@@ -75,4 +75,6 @@ public interface SiteService {
      * @return
      */
     List<?> groupOnline(Integer days);
+
+    List<?> listSponsor(Integer page, Long pageSize, Integer sort);
 }
