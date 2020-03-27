@@ -30,7 +30,7 @@ public interface UserCommentService {
      * @param comment post comment
      * @return result with comment
      */
-    ResponseEntity<Result<String>> postComment(Comment comment);
+    ResponseEntity<Result<Comment>> postComment(Comment comment);
 
     /**
      * like

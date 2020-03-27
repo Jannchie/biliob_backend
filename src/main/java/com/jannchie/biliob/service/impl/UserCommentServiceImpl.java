@@ -3,6 +3,7 @@ package com.jannchie.biliob.service.impl;
 import com.jannchie.biliob.constant.CreditConstant;
 import com.jannchie.biliob.constant.ResultEnum;
 import com.jannchie.biliob.credit.handle.CreditHandle;
+import com.jannchie.biliob.credit.handle.CreditOperateHandle;
 import com.jannchie.biliob.model.Comment;
 import com.jannchie.biliob.model.User;
 import com.jannchie.biliob.service.UserCommentService;
@@ -35,11 +36,13 @@ public class UserCommentServiceImpl implements UserCommentService {
     private static final Logger logger = LogManager.getLogger(UserCommentServiceImpl.class);
     private static MongoTemplate mongoTemplate;
     private CreditHandle creditHandle;
+    private CreditOperateHandle creditOperateHandle;
 
     @Autowired
-    public UserCommentServiceImpl(MongoTemplate mongoTemplate, CreditHandle creditHandle) {
+    public UserCommentServiceImpl(MongoTemplate mongoTemplate, CreditHandle creditHandle, CreditOperateHandle creditOperateHandle) {
         UserCommentServiceImpl.mongoTemplate = mongoTemplate;
         this.creditHandle = creditHandle;
+        this.creditOperateHandle = creditOperateHandle;
     }
 
 
@@ -85,20 +88,31 @@ public class UserCommentServiceImpl implements UserCommentService {
     }
 
     @Override
-    public ResponseEntity<Result<String>> postComment(Comment comment) {
+    public ResponseEntity<Result<Comment>> postComment(Comment comment) {
         User user = UserUtils.getUser();
         Integer mapExp = 100;
         if (user.getExp() < mapExp) {
             return ResponseEntity.badRequest().body(new Result<>(ResultEnum.EXP_NOT_ENOUGH));
         }
-        return creditHandle.doCreditOperation(user, CreditConstant.POST_COMMENT, () -> {
-            comment.setDate(Calendar.getInstance().getTime());
-            comment.setLikeList(new ArrayList<>());
-            comment.setDisLikeList(new ArrayList<>());
-            comment.setUserId(user.getId());
+        if (mongoTemplate.exists(Query.query(
+                Criteria
+                        .where("path").is(comment.getPath())
+                        .and("userId").is(user.getId())
+                        .and("content").is(comment.getContent())
+                ), Comment.class
+        )) {
+            return ResponseEntity.badRequest().body(new Result<>(ResultEnum.DUMP_COMMENT));
+        }
+
+        comment.setDate(Calendar.getInstance().getTime());
+        comment.setLikeList(new ArrayList<>());
+        comment.setDisLikeList(new ArrayList<>());
+        comment.setUserId(user.getId());
+        Result<Comment> c = creditOperateHandle.doCreditOperate(user, CreditConstant.POST_COMMENT, () -> {
             mongoTemplate.save(comment);
-            return comment.getPath();
+            return comment;
         });
+        return ResponseEntity.ok(c);
     }
 
     @Override
@@ -117,9 +131,7 @@ public class UserCommentServiceImpl implements UserCommentService {
         User publisher = mongoTemplate.findOne(Query.query(Criteria.where("_id").is(commentPublisherId)), User.class);
         return creditHandle.doCreditOperation(user, CreditConstant.LIKE_COMMENT, () -> {
             mongoTemplate.updateFirst(Query.query(Criteria.where("_id").is(commentId)), new Update().addToSet("likeList", user.getId()).inc("like", 1), Comment.class);
-            creditHandle.doCreditOperation(publisher, CreditConstant.BE_LIKE_COMMENT, () -> {
-                return commentId;
-            });
+            creditHandle.doCreditOperation(publisher, CreditConstant.BE_LIKE_COMMENT, () -> commentId);
             return commentId;
         });
 

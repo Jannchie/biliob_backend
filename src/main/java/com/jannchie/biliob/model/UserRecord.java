@@ -6,6 +6,8 @@ import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.Date;
+
 /**
  * @author jannchie
  */
@@ -18,6 +20,8 @@ public class UserRecord {
     private String userName;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private String datetime;
+    private Date createTime;
+    private Date executeTime;
     private String message;
     private Double credit;
     private Boolean isExecuted;
@@ -40,6 +44,22 @@ public class UserRecord {
         this.credit = credit;
         this.userName = userName;
         this.isExecuted = isExecuted;
+    }
+
+    public Date getCreateTime() {
+        return createTime;
+    }
+
+    public void setCreateTime(Date createTime) {
+        this.createTime = createTime;
+    }
+
+    public Date getExecuteTime() {
+        return executeTime;
+    }
+
+    public void setExecuteTime(Date executeTime) {
+        this.executeTime = executeTime;
     }
 
     public ObjectId getId() {
