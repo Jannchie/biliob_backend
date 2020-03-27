@@ -9,6 +9,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 
 /**
@@ -21,11 +22,10 @@ public class User {
     private ObjectId id;
 
     @NotBlank(message = "用户ID不能为空")
-    @Length(max = 20, message = "账号最长为16位")
+    @Length(min = 2, max = 50, message = "账号最长为50位，最短为两位")
     private String name;
 
     @Length(min = 6, message = "密码至少为6位")
-    @NotBlank(message = "用户密码不能为空!")
     private String password;
 
     private String role;
@@ -38,7 +38,9 @@ public class User {
 
     private Integer rank;
     @NotBlank(message = "用户ID不能为空")
-    @Length(max = 20, message = "账号最长为16位")
+    @NotNull
+    @NotBlank
+    @Length(max = 50, min = 2, message = "昵称最长为50位，最短为2位")
     private String nickName;
     @Email(message = "邮箱格式错误")
     @NotBlank(message = "邮箱不能为空")

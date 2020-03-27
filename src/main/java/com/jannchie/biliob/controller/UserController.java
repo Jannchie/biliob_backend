@@ -8,6 +8,7 @@ import com.jannchie.biliob.form.ChangePasswordForm;
 import com.jannchie.biliob.model.Question;
 import com.jannchie.biliob.model.User;
 import com.jannchie.biliob.object.LoginForm;
+import com.jannchie.biliob.object.NickNameForm;
 import com.jannchie.biliob.security.UserAuthenticationProvider;
 import com.jannchie.biliob.service.UserService;
 import com.jannchie.biliob.utils.Message;
@@ -173,7 +174,7 @@ public class UserController {
     }
 
     @RequestMapping(method = RequestMethod.PUT, value = "/api/user/name")
-    public ResponseEntity modifyUserName(@RequestParam(defaultValue = "") @Valid String name) {
+    public ResponseEntity modifyUserName(@RequestParam(defaultValue = "", value = "name") @Valid String name) {
         return userService.modifyUserName(name);
     }
 
@@ -226,8 +227,8 @@ public class UserController {
     }
 
     @RequestMapping(method = RequestMethod.POST, value = "/api/user/nickname")
-    public ResponseEntity<Result<String>> changeNickName(@RequestBody @Valid String newNickname) {
-        return userService.changeNickName(newNickname);
+    public ResponseEntity<Result<String>> changeNickName(@RequestBody @Valid NickNameForm user) {
+        return userService.changeNickName(user.getNickName());
     }
 
     @RequestMapping(method = RequestMethod.POST, value = "/api/user/mail")

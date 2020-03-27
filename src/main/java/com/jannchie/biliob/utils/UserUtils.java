@@ -2,6 +2,7 @@ package com.jannchie.biliob.utils;
 
 import com.jannchie.biliob.model.User;
 import com.jannchie.biliob.repository.UserRepository;
+import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -36,6 +37,15 @@ public class UserUtils {
         String username = getUsername();
         return getUserByUsernameOrMail(username);
     }
+
+    public static ObjectId getUserId() {
+        User user = getUser();
+        if (user == null) {
+            return null;
+        }
+        return user.getId();
+    }
+
 
     public static String getUsername() {
         return SecurityContextHolder.getContext().getAuthentication().getName();
