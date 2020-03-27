@@ -2,7 +2,6 @@ package com.jannchie.biliob.credit.handle;
 
 import com.jannchie.biliob.constant.CreditConstant;
 import com.jannchie.biliob.constant.ResultEnum;
-import com.jannchie.biliob.model.AuthorList;
 import com.jannchie.biliob.model.User;
 import com.jannchie.biliob.utils.Result;
 import org.apache.logging.log4j.LogManager;
@@ -28,13 +27,6 @@ public class CreditHandle {
 
     public CreditHandle(MongoTemplate mongoTemplate) {
         this.mongoTemplate = mongoTemplate;
-    }
-
-    public ResponseEntity<Result<String>> createAuthorList(User user, CreditConstant creditConstant, String title) {
-        AuthorList authorList = new AuthorList(title, user.getName());
-        mongoTemplate.save(authorList);
-        String param = String.format("%s (%s)", title, authorList.get("_id"));
-        return getSuccessResponse(user, creditConstant, param);
     }
 
 
