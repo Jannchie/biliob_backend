@@ -23,8 +23,8 @@ public class Comment {
     private Date date;
     @NotBlank(message = "路径不能为空")
     private String path;
-    @NotBlank(message = "评论内容不能为空")
-    @Length(max = 100, message = "评论最长为100个字符")
+    @NotBlank(message = "观测记录内容不能为空")
+    @Length(max = 100, message = "观测记录最长为100个字符")
     private String content;
     private ArrayList<ObjectId> likeList;
     private ArrayList<ObjectId> disLikeList;
@@ -121,8 +121,8 @@ public class Comment {
         private String commentId;
         private ArrayList<Reply> replies;
         private Date date;
-        @NotBlank(message = "评论内容不能为空")
-        @Length(max = 100, message = "评论最长为100个字符")
+        @NotBlank(message = "观测记录内容不能为空")
+        @Length(max = 100, message = "观测记录最长为100个字符")
         private String content;
         private User user;
 
