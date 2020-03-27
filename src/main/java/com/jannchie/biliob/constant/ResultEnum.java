@@ -16,7 +16,7 @@ public enum ResultEnum {
     HAS_NOT_LOGGED_IN(-1, "未登录"),
     WRONG_PASSWORD(-1, "密码错误"),
     USER_NOT_EXIST(-1, "用户不存在"),
-    OUT_OF_RANGE(-1, "超出范围"),
+    OUT_OF_RANGE(-1, "超出观测记录"),
     PARAM_ERROR(-1, "参数错误"),
     ALREADY_FAVORITE_AUTHOR(-1, "已经在关注了此作者"),
     ALREADY_FAVORITE_VIDEO(-1, "已经收藏了此视频"),
@@ -37,8 +37,11 @@ public enum ResultEnum {
     SEND_MAIL_FAILED(-1, "发送邮件失败,可能是目标邮箱不受支持"),
     ALREADY_LIKE(-1, "已经喜欢"),
     EXP_NOT_ENOUGH(-1, "经验值不足"),
-    COMMENT_NOT_FOUND(-1, "未找到评论"),
-    BANGUMI_NOT_FOUND(-1, "未找到番剧");
+    COMMENT_NOT_FOUND(-1, "未找到观测记录"),
+    LIST_NOT_FOUND(-1, "未找到列表"),
+    ALREADY_EXIST(-1, "已存在同名项目"),
+    BANGUMI_NOT_FOUND(-1, "未找到番剧"),
+    DUMP_COMMENT(-1, "检测到重复观测记录");
 
     private int code;
     private String msg;
