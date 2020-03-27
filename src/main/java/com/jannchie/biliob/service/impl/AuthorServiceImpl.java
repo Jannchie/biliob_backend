@@ -108,7 +108,10 @@ public class AuthorServiceImpl implements AuthorService {
 
         AuthorRankData lastRankData = authorUtil.getLastRankData(author);
         AuthorRankData currentRankData = getCurrentRankData(author);
-        Date date = author.getData().get(0).getDatetime();
+        Date date = Calendar.getInstance().getTime();
+        if (author.getData() != null) {
+            date = author.getData().get(0).getDatetime();
+        }
         Author.Rank rank = new Author.Rank(currentRankData.getFansRank(),
                 currentRankData.getArchiveViewRank(), currentRankData.getArticleViewRank(),
                 currentRankData.getLikeRank(),
@@ -144,11 +147,18 @@ public class AuthorServiceImpl implements AuthorService {
             Query query = Query.query(where("mid").is(mid));
             author = mongoTemplate.findOne(query, Author.class, "author");
         }
+        if (author == null) {
+            return null;
+        }
+        disposeAuthor(author);
+        return author;
+    }
+
+    private void disposeAuthor(Author author) {
         setFreq(author);
         gerRankData(author);
         filterAuthorData(author);
         authorUtil.getInterval(author);
-        return author;
     }
 
     private void filterAuthorData(Author author) {
@@ -302,7 +312,9 @@ public class AuthorServiceImpl implements AuthorService {
      */
     @Override
     public Author getAuthorInfo(Long mid) {
-        return respository.findAuthorByMid(mid);
+        Author author = respository.findAuthorByMid(mid);
+        disposeAuthor(author);
+        return author;
     }
 
     /**
@@ -580,5 +592,12 @@ public class AuthorServiceImpl implements AuthorService {
     @Override
     public List<AuthorVisitRecord> listHotAuthor() {
         return this.listMostVisitAuthorId(1, 10);
+    }
+
+    @Override
+    public List<Long> getTopFansAuthors(int limit) {
+        Query q = new Query().with(Sort.by("cFans").descending()).limit(limit);
+        q.fields().include("mid");
+        return mongoTemplate.find(q, Author.class).stream().map(Author::getMid).collect(Collectors.toList());
     }
 }

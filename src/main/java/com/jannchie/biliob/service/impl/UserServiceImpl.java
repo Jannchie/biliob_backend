@@ -137,6 +137,9 @@ class UserServiceImpl implements UserService {
         user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
         user.setNickName(user.getName());
         user.setMail(mail);
+        user.setCredit(0D);
+        user.setExp(0D);
+        user.setRole("普通用户");
         userRepository.save(user);
         UserServiceImpl.logger.info(user.getName());
         // 不要返回密码

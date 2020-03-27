@@ -108,7 +108,7 @@ public class UserCommentServiceImpl implements UserCommentService {
         comment.setLikeList(new ArrayList<>());
         comment.setDisLikeList(new ArrayList<>());
         comment.setUserId(user.getId());
-        Result<Comment> c = creditOperateHandle.doCreditOperate(user, CreditConstant.POST_COMMENT, () -> {
+        Result<Comment> c = creditOperateHandle.doCreditOperate(user, CreditConstant.POST_COMMENT, comment.getPath(), () -> {
             mongoTemplate.save(comment);
             return comment;
         });

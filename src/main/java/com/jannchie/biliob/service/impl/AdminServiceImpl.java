@@ -302,7 +302,7 @@ public class AdminServiceImpl implements AdminService {
     /**
      * 提交作者爬虫列表
      *
-     * @param authorListData 作者列表、上传者、爬取频率等信息
+     * @param authorListData UP主名单、上传者、爬取频率等信息
      * @return 提交反馈
      */
     @Override

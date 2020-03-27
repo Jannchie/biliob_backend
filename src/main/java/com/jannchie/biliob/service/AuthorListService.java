@@ -2,11 +2,10 @@ package com.jannchie.biliob.service;
 
 import com.jannchie.biliob.model.AuthorList;
 import com.jannchie.biliob.utils.Result;
-import org.bson.types.ObjectId;
-import org.springframework.http.ResponseEntity;
+import com.mongodb.client.result.UpdateResult;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author jannchie
@@ -15,100 +14,103 @@ import java.util.ArrayList;
 public interface AuthorListService {
 
     /**
-     * 添加作者列表
+     * Init author list
      *
-     * @param name 作者列表名称
-     * @return 添加反馈
+     * @param name list name
+     * @param desc list desc
+     * @param tag  list tag
+     * @return result with list
      */
-    ResponseEntity<Result<String>> postAuthorList(String name);
+    Result<AuthorList> initAuthorList(String name, String desc, List<String> tag);
 
     /**
-     * 根据点赞数，列出分页作者列表数据
+     * Set author list info
      *
-     * @param page     页号
-     * @param pageSize 页大小
-     * @return 作者列表数据
+     * @param id   list id
+     * @param name list name
+     * @param desc list desc
+     * @param tag  list tag
+     * @return result with list
      */
-    ArrayList<AuthorList> listAuthorListByLike(Integer page, Integer pageSize);
+    Result<UpdateResult> setAuthorListInfo(String id, String name, String desc, List<String> tag);
 
     /**
-     * 根据创建日期，列出分页作者列表数据
+     * Delete author list
      *
-     * @param page     页号
-     * @param pageSize 页大小
-     * @return 作者列表数据
+     * @param objectId author list id
+     * @return result
      */
-    ArrayList<AuthorList> listAuthorListByDate(Integer page, Integer pageSize);
+    Result<?> deleteAuthorList(String objectId);
 
     /**
-     * 根据更新日期，列出分页作者列表数据
+     * Add author to author list
      *
-     * @param page     页号
-     * @param pageSize 页大小
-     * @return 作者列表数据
+     * @param objectId author list id
+     * @param mid      author mid
+     * @return result
      */
-    ArrayList<AuthorList> listAuthorByUpdatetime(Integer page, Integer pageSize);
+    Result<?> addAuthorToAuthorList(String objectId, Long mid);
 
     /**
-     * 根据创建者，列出分页作者列表数据
+     * Remove author from author list
      *
-     * @param page     页号
-     * @param pageSize 页大小
-     * @return 作者列表数据
+     * @param objectId author list id
+     * @param mid      author mid
+     * @return result
      */
-    ArrayList<AuthorList> listAuthorListByUser(Integer page, Integer pageSize);
+    Result<?> removeAuthorFromAuthorList(String objectId, Long mid);
 
     /**
-     * 列出个人喜欢的作者列表数据
+     * Star author list
      *
-     * @param page     页号
-     * @param pageSize 页大小
-     * @return 作者列表数据
+     * @param objectId author list id
+     * @return result
      */
-    ArrayList<AuthorList> listAuthorListByUserLike(Integer page, Integer pageSize);
+    Result<?> starAuthorList(String objectId);
 
     /**
-     * 列出作者列表详情
+     * Star author list
      *
-     * @param id 作者列表ID
-     * @return 作者列表详情
+     * @param objectId author list id
+     * @return result
      */
-    AuthorList getAuthorListDetail(ObjectId id);
+    Result<?> forkAuthorList(String objectId);
 
     /**
-     * 添加作者到现有作者列表中
+     * List author list
      *
-     * @param id  作者列表ID
-     * @param mid 作者ID
-     * @return 添加反馈
+     * @param keyword  keyword
+     * @param page     page
+     * @param pageSize page size
+     * @return list of author list
      */
-    ResponseEntity<Result> addAuthorToAuthorList(ObjectId id, Long mid);
+    List<AuthorList> listAuthorList(String keyword, Long page, Integer pageSize);
 
     /**
-     * 从现有作者列表中移除作者
+     * Get author list
      *
-     * @param id  作者列表ID
-     * @param mid 作者ID
-     * @return 移除反馈
+     * @param objectId author list id
+     * @return author list
      */
-    ResponseEntity<Result> removeAuthorToAuthorList(ObjectId id, Long mid);
+    AuthorList getAuthorList(String objectId);
+
 
     /**
-     * 从现有作者列表中移除作者
+     * unstar author list
      *
-     * @param id   作者列表ID
-     * @param name 新的作者列表名称
-     * @return 移除反馈
+     * @param objectId author list id
+     * @return result
      */
-    ResponseEntity<Result> updateAuthorListName(ObjectId id, String name);
+    Result<?> unstarAuthorList(String objectId);
 
     /**
-     * 创建者功能 删除整个作者列表
+     * Get user author list
      *
-     * @param id 作者列表ID
-     * @return 删除反馈
+     * @param page     page
+     * @param pageSize page size
+     * @param type     type
+     * @return author list
      */
-    ResponseEntity<Result> deleteAuthorList(ObjectId id);
 
-    ResponseEntity<Result> getFail();
+    List<AuthorList> listUserAuthorList(Integer page, Integer pageSize, int type);
 }

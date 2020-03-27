@@ -12,7 +12,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author jannchie
@@ -97,5 +100,36 @@ public class AuthorController {
     @RequestMapping(method = RequestMethod.GET, value = "/api/author/hot")
     public List listHotAuthor() {
         return authorService.listHotAuthor();
+    }
+
+    @RequestMapping(method = RequestMethod.GET, value = "/api/author/compare")
+    public List<Author> compareAuthor(
+            @RequestParam(defaultValue = "", value = "mid") String mids,
+            @RequestParam(defaultValue = "0", value = "type") Integer type
+    ) {
+        Stream<Author> authors = Arrays.stream(mids.split(",")).map((midString) -> {
+            Long mid = Long.valueOf(midString);
+            if (type == 0) {
+                return authorService.getAuthorInfo(mid);
+            } else {
+                return authorService.getAuthorDetails(mid, 1);
+            }
+        });
+        return authors.collect(Collectors.toList());
+    }
+
+    @RequestMapping(method = RequestMethod.GET, value = "/api/author/compare/top-fans")
+    public List<Author> compareAuthor(
+            @RequestParam(defaultValue = "0", value = "type") Integer type
+    ) {
+        List<Long> midList = authorService.getTopFansAuthors(3);
+        Stream<Author> authors = midList.stream().map((mid) -> {
+            if (type == 0) {
+                return authorService.getAuthorInfo(mid);
+            } else {
+                return authorService.getAuthorDetails(mid, 1);
+            }
+        });
+        return authors.collect(Collectors.toList());
     }
 }

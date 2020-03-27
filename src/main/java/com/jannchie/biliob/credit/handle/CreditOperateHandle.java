@@ -44,18 +44,28 @@ public class CreditOperateHandle {
 
 
     public <T> Result<T> doCreditOperate(User user, CreditConstant creditConstant, Execution<T> execution) {
-
         UserRecord userRecord = getUserRecord(creditConstant);
         T data = execution.execute();
-        saveUserRecord(userRecord);
+        saveUserRecord(userRecord, creditConstant.getMsg());
         Result<T> result = updateUserInfo(user, creditConstant.getValue());
         result.setData(data);
         log(user.getName(), creditConstant.getValue(), creditConstant.getMsg());
         return result;
     }
 
-    private void saveUserRecord(UserRecord userRecord) {
+    public <T> Result<T> doCreditOperate(User user, CreditConstant creditConstant, String param, Execution<T> execution) {
+        UserRecord userRecord = getUserRecord(creditConstant);
+        T data = execution.execute();
+        saveUserRecord(userRecord, creditConstant.getMsg(param));
+        Result<T> result = updateUserInfo(user, creditConstant.getValue());
+        result.setData(data);
+        log(user.getName(), creditConstant.getValue(), creditConstant.getMsg());
+        return result;
+    }
+
+    private void saveUserRecord(UserRecord userRecord, String msg) {
         userRecord.setExecuteTime(Calendar.getInstance().getTime());
+        userRecord.setMessage(msg);
         mongoTemplate.save(userRecord);
     }
 
@@ -80,6 +90,7 @@ public class CreditOperateHandle {
         mongoTemplate.updateFirst(query, update, User.class);
         return new Result<>(ResultEnum.SUCCEED, credit, exp);
     }
+
 
     @FunctionalInterface
     public interface Execution<Q> {

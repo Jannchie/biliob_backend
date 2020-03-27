@@ -55,10 +55,11 @@ public class User {
         this.title = "";
     }
 
+    public User(ObjectId id) {
+        this.id = id;
+    }
+
     public User() {
-        this.role = "普通用户";
-        this.credit = 0D;
-        this.exp = 0D;
     }
 
     public Integer getRank() {

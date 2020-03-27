@@ -34,15 +34,20 @@ public enum CreditConstant {
     SET_KICHIKU_OBSERVE(-300D, "设置鬼畜级频率追踪一周"),
     ASK_QUESTION(-30D, "提出问题"),
     DONATE(100D, "试图捐款"),
-    REFRESH_AUTHOR_DATA(-5D, "立即刷新id为 %s 的UP主数据"),
+    REFRESH_AUTHOR_DATA(-5D, "立即刷新ID为 %s 的UP主数据"),
     REFRESH_VIDEO_DATA(-1D, "立即刷新 av%s 的视频数据"),
     DANMAKU_AGGREGATE(-10D, "对 av%s 进行弹幕分析"),
     ALWAYS_FAIL(-999999999D, "不可能完成的任务"),
-    ADD_AUTHOR_LIST(-10D, "创建一个名为 %s 的作者列表 "),
     LIKE_COMMENT(-0.1D, "喜欢编号为 %s 的观测记录"),
     BE_LIKE_COMMENT(0.1D, "编号为 %s 的观测记录被喜欢"),
     MODIFY_MAIL(-50D, "改邮箱为 %s"),
-    POST_COMMENT(-1D, "在 %s 下发布观测记录");
+    POST_COMMENT(-1D, "在 %s 下发布观测记录"),
+    INIT_AUTHOR_LIST(-20D, "创建名为 %s 的UP主名单"),
+    FORK_AUTHOR_LIST(-20D, "分支ID为 %s 的UP主名单"),
+    BE_FORKED_AUTHOR_LIST(10D, "ID为 %s 的UP主名单被分支"),
+    MODIFY_AUTHOR_LIST_INFO(-50D, "修改ID为 %s 的UP主名单"),
+    STAR_AUTHOR_LIST(-1D, "收藏ID为 %s 的UP主名单"),
+    BE_STARED_AUTHOR_LIST(0.5D, "ID为 %s 的UP主名单被收藏");
 
     private Double value;
     private String msg;

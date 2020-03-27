@@ -136,6 +136,11 @@ public interface AuthorService {
     List<AuthorVisitRecord> listMostVisitAuthorId(Integer days, Integer limit);
 
     /**
+     * Update Observe Freq Per Minute
+     */
+    void updateObserveFreqPerMinute();
+
+    /**
      * 更新观测频率
      */
     void updateObserveFreq();
@@ -151,12 +156,15 @@ public interface AuthorService {
     /**
      * 获取热搜作者
      *
-     * @return 热搜作者列表
+     * @return 热搜UP主名单
      */
     List listHotAuthor();
 
     /**
-     * 每分钟更新作者观测数据
+     * Get Top Fans Authors
+     *
+     * @param limit number of authors
+     * @return top fans authors' mid
      */
-    void updateObserveFreqPerMinute();
+    List<Long> getTopFansAuthors(int limit);
 }

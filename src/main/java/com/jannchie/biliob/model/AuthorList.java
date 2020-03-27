@@ -1,46 +1,77 @@
 package com.jannchie.biliob.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 /**
  * @author jannchie
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @org.springframework.data.mongodb.core.mapping.Document(collection = "author_list")
-public class AuthorList extends Document {
+public class AuthorList {
     @Id
-    private ObjectId id;
-    private ArrayList<Author> authorList;
-    private ArrayList<Long> midList;
-    private String creator;
+    private String id;
+    private List<Author> authorList = new ArrayList<>();
+    private List<String> tagList = new ArrayList<>();
+    private User creator;
+    private User maintainer;
+    private String desc;
     private String name;
-    private Integer like;
+    private List<User> starList = new ArrayList<>();
     private Date createTime;
     private Date updateTime;
-    private ArrayList<String> updateRecord;
+    private Date forkTime;
+    private List<String> updateRecord = new ArrayList<>();
 
     public AuthorList() {
-        this.updateTime = Calendar.getInstance().getTime();
+
     }
 
-    public AuthorList(String name, String userName) {
+    public AuthorList(String name, String desc, List<String> tag, ObjectId userId) {
         this.name = name;
-        this.creator = userName;
+        creator = new User(userId);
+        maintainer = creator;
+        this.tagList = tag;
+        this.desc = desc;
         this.updateTime = Calendar.getInstance().getTime();
+        this.createTime = Calendar.getInstance().getTime();
     }
 
-    public ObjectId getId() {
+    public User getMaintainer() {
+        return maintainer;
+    }
+
+    public void setMaintainer(User maintainer) {
+        this.maintainer = maintainer;
+    }
+
+    public List<User> getStarList() {
+        return starList;
+    }
+
+    public void setStarList(List<User> starList) {
+        this.starList = starList;
+    }
+
+    public Date getForkTime() {
+        return forkTime;
+    }
+
+    public void setForkTime(Date forkTime) {
+        this.forkTime = forkTime;
+    }
+
+    public String getId() {
         return id;
     }
 
-    public void setId(ObjectId id) {
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -52,23 +83,6 @@ public class AuthorList extends Document {
         this.name = name;
     }
 
-
-    public String getCreator() {
-        return creator;
-    }
-
-    public void setCreator(String creator) {
-        this.creator = creator;
-    }
-
-    public Integer getLike() {
-        return like;
-    }
-
-    public void setLike(Integer like) {
-        this.like = like;
-    }
-
     public Date getCreateTime() {
         return createTime;
     }
@@ -77,19 +91,19 @@ public class AuthorList extends Document {
         this.createTime = createTime;
     }
 
-    public ArrayList<Author> getAuthorList() {
+    public List<Author> getAuthorList() {
         return authorList;
     }
 
-    public void setAuthorList(ArrayList<Author> authorList) {
+    public void setAuthorList(List<Author> authorList) {
         this.authorList = authorList;
     }
 
-    public ArrayList<String> getUpdateRecord() {
+    public List<String> getUpdateRecord() {
         return updateRecord;
     }
 
-    public void setUpdateRecord(ArrayList<String> updateRecord) {
+    public void setUpdateRecord(List<String> updateRecord) {
         this.updateRecord = updateRecord;
     }
 
@@ -101,11 +115,35 @@ public class AuthorList extends Document {
         this.updateTime = updateTime;
     }
 
-    public ArrayList<Long> getMidList() {
-        return midList;
+    public List<String> getTagList() {
+        return tagList;
     }
 
-    public void setMidList(ArrayList<Long> midList) {
-        this.midList = midList;
+    public void setTagList(List<String> tagList) {
+        this.tagList = tagList;
+    }
+
+    public String getDesc() {
+        return desc;
+    }
+
+    public void setDesc(String desc) {
+        this.desc = desc;
+    }
+
+
+    public User getCreator() {
+        return creator;
+    }
+
+    public void setCreator(User creator) {
+        this.creator = creator;
+    }
+
+    public Integer getStars() {
+        return starList.size();
+    }
+
+    public void setStars(Integer stars) {
     }
 }
