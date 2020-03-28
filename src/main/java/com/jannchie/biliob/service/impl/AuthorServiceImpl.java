@@ -93,6 +93,7 @@ public class AuthorServiceImpl implements AuthorService {
                         .last("like").as("like")
                         .last("attention").as("attention")
                         .first("mid").as("mid"),
+                Aggregation.sort(Sort.Direction.DESC, "datetime"),
                 Aggregation.group().push(
                         new BasicDBObject("datetime", "$datetime")
                                 .append("fans", "$fans")
