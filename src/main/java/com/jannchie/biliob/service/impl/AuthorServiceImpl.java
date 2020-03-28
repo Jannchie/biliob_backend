@@ -16,6 +16,7 @@ import com.jannchie.biliob.repository.RealTimeFansRepository;
 import com.jannchie.biliob.service.AuthorService;
 import com.jannchie.biliob.service.UserService;
 import com.jannchie.biliob.utils.*;
+import com.mongodb.BasicDBObject;
 import com.mongodb.client.AggregateIterable;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.model.Projections;
@@ -80,21 +81,33 @@ public class AuthorServiceImpl implements AuthorService {
 
     @Override
     public Author getAggregatedData(Long mid) {
-        String[] fields = {"mid", "name", "face", "sex", "official", "level", "channels", "rank",
-                "focus", "forceFocus", "cRate", "cFans", "cLike", "cArchive_view", "cArticle_view"};
-        String[] timeFields = {"month", "year", "day", "mid", "name", "face", "sex", "official",
-                "level", "channels", "rank", "focus", "forceFocus", "cLike", "cRate", "cFans",
-                "cArchive_view", "cArticle_view"};
-        Aggregation a = Aggregation.newAggregation(Aggregation.match(Criteria.where("mid").is(mid)),
-                Aggregation.unwind("$data"),
-                Aggregation.project("data").andInclude(fields).andExpression("year($data.datetime)")
-                        .as("year").andExpression("month($data.datetime)").as("month")
-                        .andExpression("dayOfMonth($data.datetime)").as("day"),
-                Aggregation.group(timeFields).first("data").as("data"),
-                Aggregation.sort(Sort.Direction.DESC, "year", "month", "day"),
-                Aggregation.group(fields).push("data").as("data"));
-
-        return mongoTemplate.aggregate(a, "author", Author.class).getMappedResults().get(0);
+        Aggregation a = Aggregation.newAggregation(
+                Aggregation.match(Criteria.where("mid").is(mid)),
+                Aggregation.sort(Sort.Direction.ASC, "datetime"),
+                Aggregation.project("fans", "archiveView", "articleView", "like", "attention", "datetime", "mid").and("datetime").dateAsFormattedString("%Y-%m-%d").as("date"),
+                Aggregation.group("date")
+                        .last("datetime").as("datetime")
+                        .last("fans").as("fans")
+                        .last("archiveView").as("archiveView")
+                        .last("articleView").as("articleView")
+                        .last("like").as("like")
+                        .last("attention").as("attention")
+                        .first("mid").as("mid"),
+                Aggregation.group().push(
+                        new BasicDBObject("datetime", "$datetime")
+                                .append("fans", "$fans")
+                                .append("archiveView", "$archiveView")
+                                .append("articleView", "$articleView")
+                                .append("archive", "$archive")
+                                .append("article", "$article")
+                                .append("like", "$like")
+                ).as("data").first("mid").as("mid"),
+                Aggregation.lookup("author", "mid", "mid", "author"),
+                Aggregation.unwind("author"),
+                (aoc) -> new Document("$addFields", new Document("author.data", "$data")),
+                Aggregation.replaceRoot("author")
+        );
+        return mongoTemplate.aggregate(a, "author_data", Author.class).getUniqueMappedResult();
     }
 
     private void setFreq(Author author) {
@@ -140,13 +153,7 @@ public class AuthorServiceImpl implements AuthorService {
     @Override
     public Author getAuthorDetails(Long mid, Integer type) {
         addAuthorVisit(mid);
-        Author author;
-        if (mongoTemplate.exists(Query.query(where("mid").is(mid).and("data.100").exists(true)), Author.class)) {
-            author = getAggregatedData(mid);
-        } else {
-            Query query = Query.query(where("mid").is(mid));
-            author = mongoTemplate.findOne(query, Author.class, "author");
-        }
+        Author author = getAggregatedData(mid);
         if (author == null) {
             return null;
         }

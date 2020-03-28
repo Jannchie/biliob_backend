@@ -2,6 +2,7 @@ package com.jannchie.biliob.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.util.ArrayList;
@@ -301,6 +302,7 @@ public class Author {
         }
     }
 
+    @Document(value = "author_data")
     public static class Data {
         private Integer fans;
         private Integer attention;
