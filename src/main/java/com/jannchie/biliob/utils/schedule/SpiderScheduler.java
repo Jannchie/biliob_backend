@@ -88,16 +88,6 @@ public class SpiderScheduler {
     }
 
     /**
-     * 每日執行一次
-     * 计算作者日增数据
-     */
-    @Scheduled(fixedDelay = MICROSECOND_OF_DAY, initialDelay = MICROSECOND_OF_DAY)
-    @Async
-    public void calculateAuthorDailyData() {
-        authorService.calculateAuthorDailyData();
-    }
-
-    /**
      * 每周執行一次
      */
     @Scheduled(fixedDelay = MICROSECOND_OF_DAY * 7, initialDelay = MICROSECOND_OF_DAY)
