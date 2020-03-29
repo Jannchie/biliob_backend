@@ -112,11 +112,11 @@ public class AuthorServiceImpl implements AuthorService {
                 (aoc) -> new Document("$addFields", new Document("author.data", "$data")),
                 Aggregation.replaceRoot("author"),
                 Aggregation.lookup("author_interval", "mid", "mid", "interval"),
-                Aggregation.unwind("interval"),
-                (aoc) -> new Document("$addFields", new Document("obInterval", "$interval.interval")),
-                Aggregation.lookup("author_achievement", "mid", "author.mid", "achievements")
+                (aoc) -> new Document("$addFields", new Document("obInterval", new Document("$arrayElemAt", Arrays.asList("$interval.interval", 0)))),
+                Aggregation.lookup("author_achievement", "mid", "author.mid", "achievements"),
+                Aggregation.project().andExpression("{ mid: 0}").as("data")
         );
-        return mongoTemplate.aggregate(a, "author_data", Author.class).getUniqueMappedResult();
+        return mongoTemplate.aggregate(a, Author.Data.class, Author.class).getUniqueMappedResult();
     }
 
     private void setFreq(Author author) {
@@ -173,12 +173,12 @@ public class AuthorServiceImpl implements AuthorService {
     private void disposeAuthor(Author author) {
         setFreq(author);
         gerRankData(author);
-        filterAuthorData(author);
         authorAchievementService.rapidlyAnalyzeAuthorAchievement(author);
-//        authorUtil.getInterval(author);
+        filterAuthorData(author);
     }
 
     private void filterAuthorData(Author author) {
+
         User user = UserUtils.getUser();
         if (user == null || user.getExp() < 100) {
             ArrayList<Author.Data> tempData = author.getData();

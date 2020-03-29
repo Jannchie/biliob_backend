@@ -69,6 +69,9 @@ public class AuthorAchievementServiceImpl implements AuthorAchievementService {
     @Override
     @Async
     public void rapidlyAnalyzeAuthorAchievement(Author author) {
+        if (author == null) {
+            return;
+        }
         List<Author.Achievement> achievements = author.getAchievements();
         HashSet<Integer> hashSet = new HashSet<>();
         achievements.forEach(a -> {
@@ -213,7 +216,7 @@ public class AuthorAchievementServiceImpl implements AuthorAchievementService {
                 } else {
                     a.setDate(null);
                 }
-                mongoTemplate.save(a);
+                mongoTemplate.insert(a);
                 logger.info("为 {} 添加成就 {}", mid, ae.getName());
                 return;
             }
