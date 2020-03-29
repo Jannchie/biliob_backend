@@ -427,7 +427,7 @@ public class Author {
         private Date date;
         private Author author;
         private Long value;
-        private Integer id;
+        private Integer code;
         private Integer level;
         private String name;
         private String desc;
@@ -439,7 +439,7 @@ public class Author {
             this.value = authorAchievementEnum.getValue();
             this.level = authorAchievementEnum.getLevel();
             this.name = authorAchievementEnum.getName();
-            this.id = authorAchievementEnum.getId();
+            this.code = authorAchievementEnum.getId();
             this.desc = authorAchievementEnum.getDesc();
             this.author = author;
         }
@@ -449,18 +449,18 @@ public class Author {
             this.level = authorAchievementEnum.getLevel();
             this.name = authorAchievementEnum.getName();
             this.desc = authorAchievementEnum.getDesc();
-            this.id = authorAchievementEnum.getId();
+            this.code = authorAchievementEnum.getId();
             Author a = new Author();
             a.setMid(mid);
             this.author = a;
         }
 
-        public Achievement(Long mid, Long value, Integer id, Integer level, String name, String desc) {
+        public Achievement(Long mid, Long value, Integer code, Integer level, String name, String desc) {
             Author a = new Author();
             a.setMid(mid);
             this.author = a;
             this.value = value;
-            this.id = id;
+            this.code = code;
             this.level = level;
             this.name = name;
             this.desc = desc;
@@ -469,7 +469,7 @@ public class Author {
         public Achievement(AuthorUniqueAchievementEnum authorAchievementEnum, Long mid, Long value) {
             this.level = authorAchievementEnum.getLevel();
             this.name = authorAchievementEnum.getName();
-            this.id = authorAchievementEnum.getId();
+            this.code = authorAchievementEnum.getId();
             this.desc = authorAchievementEnum.getDesc();
             this.value = value;
             Author a = new Author();
@@ -480,7 +480,7 @@ public class Author {
         public Achievement(AuthorAchievementEnum authorAchievementEnum, Long mid, Long value) {
             this.level = authorAchievementEnum.getLevel();
             this.name = authorAchievementEnum.getName();
-            this.id = authorAchievementEnum.getId();
+            this.code = authorAchievementEnum.getId();
             this.desc = authorAchievementEnum.getDesc();
             this.value = value;
             Author a = new Author();
@@ -493,18 +493,18 @@ public class Author {
             this.level = e.getLevel();
             this.name = e.getName();
             this.desc = e.getDesc();
-            this.id = e.getId();
+            this.code = e.getId();
             Author a = new Author();
             a.setMid(mid);
             this.author = a;
         }
 
-        public Integer getId() {
-            return id;
+        public Integer getCode() {
+            return code;
         }
 
-        public void setId(Integer id) {
-            this.id = id;
+        public void setCode(Integer code) {
+            this.code = code;
         }
 
         public Integer getLevel() {

@@ -49,7 +49,7 @@ public class AuthorAchievementServiceImpl implements AuthorAchievementService {
         List<Author.Achievement> achievements = mongoTemplate.find(Query.query(Criteria.where("author.mid").is(mid)).with(Sort.by("date").ascending()), Author.Achievement.class);
         HashSet<Integer> hashSet = new HashSet<>();
         achievements.forEach(a -> {
-            hashSet.add(a.getId());
+            hashSet.add(a.getCode());
         });
         Date lastDate = null;
         if (achievements.size() != 0) {
@@ -75,7 +75,7 @@ public class AuthorAchievementServiceImpl implements AuthorAchievementService {
         List<Author.Achievement> achievements = author.getAchievements();
         HashSet<Integer> hashSet = new HashSet<>();
         achievements.forEach(a -> {
-            hashSet.add(a.getId());
+            hashSet.add(a.getCode());
         });
         List<Author.Data> dataList = author.getData();
         doRapidlyAddAchievements(author.getMid(), hashSet, dataList);
