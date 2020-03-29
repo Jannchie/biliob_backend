@@ -172,13 +172,17 @@ public class AuthorServiceImpl implements AuthorService {
 
     private void disposeAuthor(Author author) {
         setFreq(author);
+
         gerRankData(author);
-        authorAchievementService.rapidlyAnalyzeAuthorAchievement(author);
-        filterAuthorData(author);
+        if (author.getAchievements() != null) {
+            authorAchievementService.rapidlyAnalyzeAuthorAchievement(author);
+        }
+        if (author.getData() != null) {
+            filterAuthorData(author);
+        }
     }
 
     private void filterAuthorData(Author author) {
-
         User user = UserUtils.getUser();
         if (user == null || user.getExp() < 100) {
             ArrayList<Author.Data> tempData = author.getData();
