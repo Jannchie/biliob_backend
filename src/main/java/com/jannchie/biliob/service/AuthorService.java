@@ -5,6 +5,7 @@ import com.jannchie.biliob.exception.UserAlreadyFavoriteAuthorException;
 import com.jannchie.biliob.model.Author;
 import com.jannchie.biliob.object.AuthorVisitRecord;
 import com.jannchie.biliob.utils.MySlice;
+import com.jannchie.biliob.utils.Result;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -19,11 +20,10 @@ public interface AuthorService {
     /**
      * 获取作者详情
      *
-     * @param mid  作者id
-     * @param type default: get original data; 1: get aggregated data
+     * @param mid 作者id
      * @return 作者详细信息
      */
-    Author getAuthorDetails(Long mid, Integer type);
+    Author getAuthorDetails(Long mid);
 
     /**
      * get aggregated data of author
@@ -167,4 +167,11 @@ public interface AuthorService {
      * @return top fans authors' mid
      */
     List<Long> getTopFansAuthors(int limit);
+
+    /**
+     * Calculate Author Daily Data
+     *
+     * @return result
+     */
+    Result<?> calculateAuthorDailyData();
 }

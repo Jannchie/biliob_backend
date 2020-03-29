@@ -33,7 +33,7 @@ public class AuthorController {
     @RequestMapping(method = RequestMethod.GET, value = "/api/author/{mid}")
     public Author getAuthorDetails(
             @PathVariable("mid") Long mid, @RequestParam(defaultValue = "1") Integer type) {
-        return authorService.getAuthorDetails(mid, type);
+        return authorService.getAuthorDetails(mid);
     }
 
     @RequestMapping(method = RequestMethod.POST, value = "/api/author")
@@ -112,7 +112,7 @@ public class AuthorController {
             if (type == 0) {
                 return authorService.getAuthorInfo(mid);
             } else {
-                return authorService.getAuthorDetails(mid, 1);
+                return authorService.getAuthorDetails(mid);
             }
         });
         return authors.collect(Collectors.toList());
@@ -127,7 +127,7 @@ public class AuthorController {
             if (type == 0) {
                 return authorService.getAuthorInfo(mid);
             } else {
-                return authorService.getAuthorDetails(mid, 1);
+                return authorService.getAuthorDetails(mid);
             }
         });
         return authors.collect(Collectors.toList());

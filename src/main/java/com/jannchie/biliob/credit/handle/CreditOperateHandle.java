@@ -91,6 +91,14 @@ public class CreditOperateHandle {
         return new Result<>(ResultEnum.SUCCEED, credit, exp);
     }
 
+    public <T> Result<T> doAsyncCreditOperate(User user, CreditConstant creditConstant, Execution<T> execution) {
+        T data = execution.execute();
+        Result<T> result = updateUserInfo(user, creditConstant.getValue());
+        result.setData(data);
+        log(user.getName(), creditConstant.getValue(), creditConstant.getMsg());
+        return result;
+    }
+
 
     @FunctionalInterface
     public interface Execution<Q> {

@@ -24,7 +24,6 @@ public class SpiderSchedulerTest {
 
     @Test
     public void updateAuthorData() {
-        spiderScheduler.updateAuthorData();
     }
 
     @Test

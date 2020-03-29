@@ -5,12 +5,14 @@ import com.jannchie.biliob.constant.FieldConstant;
 import com.jannchie.biliob.constant.ResultEnum;
 import com.jannchie.biliob.constant.RoleEnum;
 import com.jannchie.biliob.credit.handle.CreditHandle;
+import com.jannchie.biliob.credit.handle.CreditOperateHandle;
 import com.jannchie.biliob.exception.UserNotExistException;
 import com.jannchie.biliob.form.ChangePasswordForm;
 import com.jannchie.biliob.model.Author;
 import com.jannchie.biliob.model.Question;
 import com.jannchie.biliob.model.User;
 import com.jannchie.biliob.model.UserRecord;
+import com.jannchie.biliob.object.AuthorIntervalRecord;
 import com.jannchie.biliob.repository.*;
 import com.jannchie.biliob.service.UserService;
 import com.jannchie.biliob.utils.*;
@@ -77,6 +79,7 @@ class UserServiceImpl implements UserService {
     private CreditHandle creditHandle;
     private BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
     private AuthorUtil authorUtil;
+    private CreditOperateHandle creditOperateHandle;
 
     @Autowired
     public UserServiceImpl(
@@ -95,7 +98,7 @@ class UserServiceImpl implements UserService {
             ModifyNickNameCreditCalculator modifyNickNameCreditCalculator,
             CreditHandle creditHandle,
             MailUtil mailUtil,
-            RecommendVideo recommendVideo, AuthorUtil authorUtil) {
+            RecommendVideo recommendVideo, AuthorUtil authorUtil, CreditOperateHandle creditOperateHandle) {
         this.creditUtil = creditUtil;
         this.userRepository = userRepository;
         this.videoRepository = videoRepository;
@@ -112,6 +115,7 @@ class UserServiceImpl implements UserService {
         this.mailUtil = mailUtil;
         this.recommendVideo = recommendVideo;
         this.authorUtil = authorUtil;
+        this.creditOperateHandle = creditOperateHandle;
     }
 
     @Override
@@ -444,15 +448,19 @@ class UserServiceImpl implements UserService {
      * @return response
      */
     @Override
-    public ResponseEntity refreshAuthor(@Valid Long mid) {
-        return refreshAuthorCreditCalculator.executeAndGetResponse(
-                CreditConstant.REFRESH_AUTHOR_DATA, mid);
+    public ResponseEntity<?> refreshAuthor(@Valid Long mid) {
+        User u = UserUtils.getUser();
+        UserRecord userRecord = mongoTemplate.insert(new UserRecord(CreditConstant.REFRESH_AUTHOR_DATA, String.valueOf(mid), u.getName()));
+        Result<?> result = creditOperateHandle.doAsyncCreditOperate(u, CreditConstant.REFRESH_AUTHOR_DATA, () -> mongoTemplate.updateFirst(Query.query(Criteria.where("mid").is(mid)), new Update().addToSet("order", userRecord.getId()), AuthorIntervalRecord.class));
+        return ResponseEntity.ok(result);
     }
 
     @Override
-    public ResponseEntity refreshVideo(@Valid Long aid) {
-        return refreshVideoCreditCalculator.executeAndGetResponse(
-                CreditConstant.REFRESH_VIDEO_DATA, aid);
+    public ResponseEntity<?> refreshVideo(@Valid Long aid) {
+        User u = UserUtils.getUser();
+        UserRecord userRecord = mongoTemplate.insert(new UserRecord(CreditConstant.REFRESH_VIDEO_DATA, String.valueOf(aid), u.getName()));
+        Result<?> result = creditOperateHandle.doAsyncCreditOperate(u, CreditConstant.REFRESH_VIDEO_DATA, () -> mongoTemplate.updateFirst(Query.query(Criteria.where("aid").is(aid)), new Update().addToSet("order", userRecord.getId()), "video_interval"));
+        return ResponseEntity.ok(result);
     }
 
     /**

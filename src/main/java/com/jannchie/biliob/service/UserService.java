@@ -155,7 +155,7 @@ public interface UserService {
      * @param mid author id
      * @return response
      */
-    ResponseEntity refreshAuthor(@Valid Long mid);
+    ResponseEntity<?> refreshAuthor(@Valid Long mid);
 
     /**
      * Refresh video data immediately.
@@ -163,7 +163,7 @@ public interface UserService {
      * @param aid video id
      * @return response
      */
-    ResponseEntity refreshVideo(@Valid Long aid);
+    ResponseEntity<?> refreshVideo(@Valid Long aid);
 
     /**
      * Rank of user, order by exp

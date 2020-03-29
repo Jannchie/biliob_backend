@@ -1,7 +1,5 @@
 package com.jannchie.biliob.utils.schedule;
 
-import com.jannchie.biliob.model.Video;
-import com.jannchie.biliob.object.AuthorIntervalRecord;
 import com.jannchie.biliob.service.AuthorService;
 import com.jannchie.biliob.service.VideoService;
 import com.jannchie.biliob.utils.RedisOps;
@@ -9,8 +7,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.aggregation.Aggregation;
-import org.springframework.data.mongodb.core.aggregation.TypedAggregation;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
@@ -46,45 +42,6 @@ public class SpiderScheduler {
         this.redisOps = redisOps;
         this.authorService = authorService;
         this.videoService = videoService;
-    }
-
-
-    /**
-     * 每分鐘更新作者數據
-     */
-    @Scheduled(fixedDelay = MICROSECOND_OF_MINUTES)
-    @Async
-    public void updateAuthorData() {
-        int count = 0;
-        Calendar c = Calendar.getInstance();
-        List<AuthorIntervalRecord> authorList = mongoTemplate.find(Query.query(Criteria.where("next").lt(c.getTime())), AuthorIntervalRecord.class, "author_interval");
-        for (AuthorIntervalRecord freqData : authorList) {
-            c.setTime(freqData.getNext());
-            Long mid = freqData.getMid();
-            c.add(Calendar.SECOND, freqData.getInterval());
-            mongoTemplate.updateFirst(Query.query(Criteria.where("mid").is(mid)), Update.update("next", c.getTime()), "author_interval");
-            redisOps.postAuthorCrawlTask(mid);
-            count++;
-        }
-        logger.fatal("[SPIDER] 每分钟更新作者数据: 新增{}个爬虫任务", count);
-    }
-
-    /**
-     * 每分鐘添加tag数据
-     */
-    @Scheduled(fixedDelay = MICROSECOND_OF_MINUTES)
-    @Async
-    public void addTagData() {
-        List<Video> videoList = mongoTemplate.aggregate(
-                TypedAggregation.newAggregation(Video.class,
-                        Aggregation.match(Criteria.where("tag").exists(false)),
-                        Aggregation.project("aid"),
-                        Aggregation.limit(100)), Video.class).getMappedResults();
-        redisOps.deleteTagTask();
-        for (Video eachVideo : videoList) {
-            Long aid = eachVideo.getAid();
-            redisOps.postTagSpiderTask(aid);
-        }
     }
 
     public void updateVideoData() {
@@ -128,6 +85,16 @@ public class SpiderScheduler {
     @Async
     public void updateAuthorFreq() {
         authorService.updateObserveFreq();
+    }
+
+    /**
+     * 每日執行一次
+     * 计算作者日增数据
+     */
+    @Scheduled(fixedDelay = MICROSECOND_OF_DAY, initialDelay = MICROSECOND_OF_DAY)
+    @Async
+    public void calculateAuthorDailyData() {
+        authorService.calculateAuthorDailyData();
     }
 
     /**

@@ -2,10 +2,12 @@ package com.jannchie.biliob.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.jannchie.biliob.constant.CreditConstant;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.Calendar;
 import java.util.Date;
 
 /**
@@ -35,6 +37,16 @@ public class UserRecord {
         this.credit = credit;
         this.userName = userName;
         this.isExecuted = false;
+    }
+
+    public UserRecord(CreditConstant creditConstant, String param, String userName) {
+        Date d = Calendar.getInstance().getTime();
+        this.datetime = d.toString();
+        this.message = creditConstant.getMsg(param);
+        this.credit = creditConstant.getValue();
+        this.userName = userName;
+        this.isExecuted = false;
+        this.createTime = d;
     }
 
     public UserRecord(

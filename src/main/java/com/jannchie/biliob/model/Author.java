@@ -2,6 +2,8 @@ package com.jannchie.biliob.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.jannchie.biliob.constant.AuthorAchievementEnum;
+import com.jannchie.biliob.constant.AuthorUniqueAchievementEnum;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
@@ -14,6 +16,7 @@ import java.util.List;
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Author {
+    private List<Achievement> achievements;
     private Long mid;
     private String name;
     private String face;
@@ -35,10 +38,7 @@ public class Author {
     private Long cArticleView;
     private Long cLike;
 
-    private List<AuthorTimelineItem> timeline;
-
     public Author() {
-        focus = true;
     }
 
     public Author(Long mid) {
@@ -186,13 +186,6 @@ public class Author {
         this.focus = focus;
     }
 
-    public List<AuthorTimelineItem> getTimeline() {
-        return timeline;
-    }
-
-    public void setTimeline(List<AuthorTimelineItem> timeline) {
-        this.timeline = timeline;
-    }
 
     public Integer getObInterval() {
         return obInterval;
@@ -200,6 +193,14 @@ public class Author {
 
     public void setObInterval(Integer obInterval) {
         this.obInterval = obInterval;
+    }
+
+    public List<Achievement> getAchievements() {
+        return achievements;
+    }
+
+    public void setAchievements(List<Achievement> achievements) {
+        this.achievements = achievements;
     }
 
     public static class Rank {
@@ -304,7 +305,8 @@ public class Author {
 
     @Document(value = "author_data")
     public static class Data {
-        private Integer fans;
+        private Long mid;
+        private Long fans;
         private Integer attention;
         private Integer archive;
         private Integer article;
@@ -313,6 +315,14 @@ public class Author {
         private Long like;
         @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
         private Date datetime;
+
+        public Long getMid() {
+            return mid;
+        }
+
+        public void setMid(Long mid) {
+            this.mid = mid;
+        }
 
         public Long getArchiveView() {
             return archiveView;
@@ -338,11 +348,11 @@ public class Author {
             this.articleView = articleView;
         }
 
-        public Integer getFans() {
+        public Long getFans() {
             return fans;
         }
 
-        public void setFans(Integer fans) {
+        public void setFans(Long fans) {
             this.fans = fans;
         }
 
@@ -409,63 +419,141 @@ public class Author {
         }
     }
 
-    public static class AuthorTimelineItem {
-        private Date datetime;
-        private Integer fansVariation;
-        private String title;
-        private String info;
-        private Video relateVideo;
+    /**
+     * @author Jannchie
+     */
+    @Document("author_achievement")
+    public static class Achievement {
+        private Date date;
+        private Author author;
+        private Long value;
+        private Integer id;
+        private Integer level;
+        private String name;
+        private String desc;
 
-        public AuthorTimelineItem(Date datetime, Integer fansVariation, String title, String info, Video relateVideo) {
-            this.datetime = datetime;
-            this.fansVariation = fansVariation;
-            this.title = title;
-            this.info = info;
-            this.relateVideo = relateVideo;
+        public Achievement() {
         }
 
-        AuthorTimelineItem() {
-
+        public Achievement(AuthorAchievementEnum authorAchievementEnum, Author author) {
+            this.value = authorAchievementEnum.getValue();
+            this.level = authorAchievementEnum.getLevel();
+            this.name = authorAchievementEnum.getName();
+            this.id = authorAchievementEnum.getId();
+            this.desc = authorAchievementEnum.getDesc();
+            this.author = author;
         }
 
-        public Date getDatetime() {
-            return datetime;
+        public Achievement(AuthorAchievementEnum authorAchievementEnum, Long mid) {
+            this.value = authorAchievementEnum.getValue();
+            this.level = authorAchievementEnum.getLevel();
+            this.name = authorAchievementEnum.getName();
+            this.desc = authorAchievementEnum.getDesc();
+            this.id = authorAchievementEnum.getId();
+            Author a = new Author();
+            a.setMid(mid);
+            this.author = a;
         }
 
-        public void setDatetime(Date datetime) {
-            this.datetime = datetime;
+        public Achievement(Long mid, Long value, Integer id, Integer level, String name, String desc) {
+            Author a = new Author();
+            a.setMid(mid);
+            this.author = a;
+            this.value = value;
+            this.id = id;
+            this.level = level;
+            this.name = name;
+            this.desc = desc;
         }
 
-        public Integer getFansVariation() {
-            return fansVariation;
+        public Achievement(AuthorUniqueAchievementEnum authorAchievementEnum, Long mid, Long value) {
+            this.level = authorAchievementEnum.getLevel();
+            this.name = authorAchievementEnum.getName();
+            this.id = authorAchievementEnum.getId();
+            this.desc = authorAchievementEnum.getDesc();
+            this.value = value;
+            Author a = new Author();
+            a.setMid(mid);
+            this.author = a;
         }
 
-        public void setFansVariation(Integer fansVariation) {
-            this.fansVariation = fansVariation;
+        public Achievement(AuthorAchievementEnum authorAchievementEnum, Long mid, Long value) {
+            this.level = authorAchievementEnum.getLevel();
+            this.name = authorAchievementEnum.getName();
+            this.id = authorAchievementEnum.getId();
+            this.desc = authorAchievementEnum.getDesc();
+            this.value = value;
+            Author a = new Author();
+            a.setMid(mid);
+            this.author = a;
         }
 
-        public String getTitle() {
-            return title;
+        public Achievement(AuthorUniqueAchievementEnum e, Long mid) {
+            this.value = e.getValue();
+            this.level = e.getLevel();
+            this.name = e.getName();
+            this.desc = e.getDesc();
+            this.id = e.getId();
+            Author a = new Author();
+            a.setMid(mid);
+            this.author = a;
         }
 
-        public void setTitle(String title) {
-            this.title = title;
+        public Integer getId() {
+            return id;
         }
 
-        public String getInfo() {
-            return info;
+        public void setId(Integer id) {
+            this.id = id;
         }
 
-        public void setInfo(String info) {
-            this.info = info;
+        public Integer getLevel() {
+            return level;
         }
 
-        public Video getRelateVideo() {
-            return relateVideo;
+        public void setLevel(Integer level) {
+            this.level = level;
         }
 
-        public void setRelateVideo(Video relateVideo) {
-            this.relateVideo = relateVideo;
+        public String getName() {
+            return name;
         }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public String getDesc() {
+            return desc;
+        }
+
+        public void setDesc(String desc) {
+            this.desc = desc;
+        }
+
+        public Long getValue() {
+            return value;
+        }
+
+        public void setValue(Long value) {
+            this.value = value;
+        }
+
+        public Date getDate() {
+            return date;
+        }
+
+        public void setDate(Date date) {
+            this.date = date;
+        }
+
+        public Author getAuthor() {
+            return author;
+        }
+
+        public void setAuthor(Author author) {
+            this.author = author;
+        }
+
     }
 }

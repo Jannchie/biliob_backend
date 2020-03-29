@@ -13,6 +13,7 @@ import com.jannchie.biliob.object.AuthorIntervalRecord;
 import com.jannchie.biliob.object.AuthorVisitRecord;
 import com.jannchie.biliob.repository.AuthorRepository;
 import com.jannchie.biliob.repository.RealTimeFansRepository;
+import com.jannchie.biliob.service.AuthorAchievementService;
 import com.jannchie.biliob.service.AuthorService;
 import com.jannchie.biliob.service.UserService;
 import com.jannchie.biliob.utils.*;
@@ -64,11 +65,13 @@ public class AuthorServiceImpl implements AuthorService {
     private AuthorUtil authorUtil;
     private BiliOBUtils biliOBUtils;
 
+    private AuthorAchievementService authorAchievementService;
+
     @Autowired
     public AuthorServiceImpl(AuthorRepository respository, UserService userService,
                              MongoClient mongoClient, MongoTemplate mongoTemplate, InputInspection inputInspection,
                              AuthorUtil authorUtil, RealTimeFansRepository realTimeFansRepository,
-                             RedisOps redisOps, BiliOBUtils biliOBUtils) {
+                             RedisOps redisOps, BiliOBUtils biliOBUtils, AuthorAchievementService authorAchievementService) {
         this.respository = respository;
         this.userService = userService;
         this.mongoTemplate = mongoTemplate;
@@ -77,6 +80,7 @@ public class AuthorServiceImpl implements AuthorService {
         this.realTimeFansRepository = realTimeFansRepository;
         this.redisOps = redisOps;
         this.biliOBUtils = biliOBUtils;
+        this.authorAchievementService = authorAchievementService;
     }
 
     @Override
@@ -106,7 +110,11 @@ public class AuthorServiceImpl implements AuthorService {
                 Aggregation.lookup("author", "mid", "mid", "author"),
                 Aggregation.unwind("author"),
                 (aoc) -> new Document("$addFields", new Document("author.data", "$data")),
-                Aggregation.replaceRoot("author")
+                Aggregation.replaceRoot("author"),
+                Aggregation.lookup("author_interval", "mid", "mid", "interval"),
+                Aggregation.unwind("interval"),
+                (aoc) -> new Document("$addFields", new Document("obInterval", "$interval.interval")),
+                Aggregation.lookup("author_achievement", "mid", "author.mid", "achievements")
         );
         return mongoTemplate.aggregate(a, "author_data", Author.class).getUniqueMappedResult();
     }
@@ -152,7 +160,7 @@ public class AuthorServiceImpl implements AuthorService {
 
 
     @Override
-    public Author getAuthorDetails(Long mid, Integer type) {
+    public Author getAuthorDetails(Long mid) {
         addAuthorVisit(mid);
         Author author = getAggregatedData(mid);
         if (author == null) {
@@ -166,7 +174,8 @@ public class AuthorServiceImpl implements AuthorService {
         setFreq(author);
         gerRankData(author);
         filterAuthorData(author);
-        authorUtil.getInterval(author);
+        authorAchievementService.rapidlyAnalyzeAuthorAchievement(author);
+//        authorUtil.getInterval(author);
     }
 
     private void filterAuthorData(Author author) {

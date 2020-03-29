@@ -10,6 +10,9 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * @author Jannchie
+ */
 @Component
 public class BiliOBUtils {
     @Autowired
