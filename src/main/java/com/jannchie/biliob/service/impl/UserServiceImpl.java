@@ -451,7 +451,9 @@ class UserServiceImpl implements UserService {
     public ResponseEntity<?> refreshAuthor(@Valid Long mid) {
         User u = UserUtils.getUser();
         UserRecord userRecord = mongoTemplate.insert(new UserRecord(CreditConstant.REFRESH_AUTHOR_DATA, String.valueOf(mid), u.getName()));
-        Result<?> result = creditOperateHandle.doAsyncCreditOperate(u, CreditConstant.REFRESH_AUTHOR_DATA, () -> mongoTemplate.updateFirst(Query.query(Criteria.where("mid").is(mid)), new Update().addToSet("order", userRecord.getId()), AuthorIntervalRecord.class));
+        Result<?> result = creditOperateHandle.doAsyncCreditOperate(u, CreditConstant.REFRESH_AUTHOR_DATA,
+                () -> mongoTemplate.updateFirst(Query.query(Criteria.where("mid").is(mid)),
+                        new Update().addToSet("order", userRecord.getId()), AuthorIntervalRecord.class));
         return ResponseEntity.ok(result);
     }
 
@@ -459,7 +461,19 @@ class UserServiceImpl implements UserService {
     public ResponseEntity<?> refreshVideo(@Valid Long aid) {
         User u = UserUtils.getUser();
         UserRecord userRecord = mongoTemplate.insert(new UserRecord(CreditConstant.REFRESH_VIDEO_DATA, String.valueOf(aid), u.getName()));
-        Result<?> result = creditOperateHandle.doAsyncCreditOperate(u, CreditConstant.REFRESH_VIDEO_DATA, () -> mongoTemplate.updateFirst(Query.query(Criteria.where("aid").is(aid)), new Update().addToSet("order", userRecord.getId()), "video_interval"));
+        Result<?> result = creditOperateHandle.doAsyncCreditOperate(u, CreditConstant.REFRESH_VIDEO_DATA,
+                () -> mongoTemplate.updateFirst(Query.query(Criteria.where("aid").is(aid)),
+                        new Update().addToSet("order", userRecord.getId()), "video_interval"));
+        return ResponseEntity.ok(result);
+    }
+
+    @Override
+    public ResponseEntity<?> refreshVideo(@Valid String bvid) {
+        User u = UserUtils.getUser();
+        UserRecord userRecord = mongoTemplate.insert(new UserRecord(CreditConstant.REFRESH_VIDEO_DATA, bvid, u.getName()));
+        Result<?> result = creditOperateHandle.doAsyncCreditOperate(u, CreditConstant.REFRESH_VIDEO_DATA,
+                () -> mongoTemplate.updateFirst(Query.query(Criteria.where("bvid").is(bvid)),
+                        new Update().addToSet("order", userRecord.getId()), "video_interval"));
         return ResponseEntity.ok(result);
     }
 

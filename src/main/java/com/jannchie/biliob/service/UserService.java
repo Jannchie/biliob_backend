@@ -163,7 +163,15 @@ public interface UserService {
      * @param aid video id
      * @return response
      */
-    ResponseEntity<?> refreshVideo(@Valid Long aid);
+    ResponseEntity<?> refreshVideo(Long aid);
+
+    /**
+     * Refresh video data immediately.
+     *
+     * @param bvid video id
+     * @return response
+     */
+    ResponseEntity<?> refreshVideo(String bvid);
 
     /**
      * Rank of user, order by exp

@@ -7,6 +7,7 @@ import com.jannchie.biliob.form.ChangeMailForm;
 import com.jannchie.biliob.form.ChangePasswordForm;
 import com.jannchie.biliob.model.Question;
 import com.jannchie.biliob.model.User;
+import com.jannchie.biliob.model.Video;
 import com.jannchie.biliob.object.LoginForm;
 import com.jannchie.biliob.object.NickNameForm;
 import com.jannchie.biliob.security.UserAuthenticationProvider;
@@ -181,6 +182,17 @@ public class UserController {
     @RequestMapping(method = RequestMethod.PUT, value = "/api/user/video/{aid}/data")
     public ResponseEntity refreshVideo(@PathVariable("aid") @Valid Long aid) {
         return userService.refreshVideo(aid);
+    }
+
+    @RequestMapping(method = RequestMethod.PUT, value = "/api/user/video/data")
+    public ResponseEntity refreshVideo(@RequestBody Video video) {
+        if (video.getBvid() != null) {
+            return userService.refreshVideo(video.getBvid());
+        }
+        if (video.getAid() != null) {
+            return userService.refreshVideo(video.getAid());
+        }
+        return null;
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/api/rank/user")

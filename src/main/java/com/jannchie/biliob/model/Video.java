@@ -14,6 +14,7 @@ import java.util.Map;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Video {
     private Long aid;
+    private String bvid;
     private Long mid;
     private String title;
     private String author;
@@ -260,6 +261,14 @@ public class Video {
 
     public void setcReply(Integer cReply) {
         this.cReply = cReply;
+    }
+
+    public String getBvid() {
+        return bvid;
+    }
+
+    public void setBvid(String bvid) {
+        this.bvid = bvid;
     }
 
     public static class Data {
