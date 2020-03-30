@@ -5,7 +5,7 @@ import javax.servlet.http.HttpServletRequest;
 /**
  * @author jannchie
  */
-class IpUtil {
+public class IpUtil {
     private static final String UNKNOWN = "unknown";
     private static final String COMMA = ",";
     private static final Integer IP_LENGTH = 15;

@@ -13,6 +13,7 @@ import com.jannchie.biliob.object.AuthorIntervalRecord;
 import com.jannchie.biliob.object.AuthorVisitRecord;
 import com.jannchie.biliob.repository.AuthorRepository;
 import com.jannchie.biliob.repository.RealTimeFansRepository;
+import com.jannchie.biliob.service.AdminService;
 import com.jannchie.biliob.service.AuthorAchievementService;
 import com.jannchie.biliob.service.AuthorService;
 import com.jannchie.biliob.service.UserService;
@@ -64,6 +65,8 @@ public class AuthorServiceImpl implements AuthorService {
     private MongoClient mongoClient;
     private AuthorUtil authorUtil;
     private BiliOBUtils biliOBUtils;
+    private AdminService adminService;
+
 
     private AuthorAchievementService authorAchievementService;
 
@@ -71,7 +74,7 @@ public class AuthorServiceImpl implements AuthorService {
     public AuthorServiceImpl(AuthorRepository respository, UserService userService,
                              MongoClient mongoClient, MongoTemplate mongoTemplate, InputInspection inputInspection,
                              AuthorUtil authorUtil, RealTimeFansRepository realTimeFansRepository,
-                             RedisOps redisOps, BiliOBUtils biliOBUtils, AuthorAchievementService authorAchievementService) {
+                             RedisOps redisOps, BiliOBUtils biliOBUtils, AdminService adminService, AuthorAchievementService authorAchievementService) {
         this.respository = respository;
         this.userService = userService;
         this.mongoTemplate = mongoTemplate;
@@ -80,6 +83,7 @@ public class AuthorServiceImpl implements AuthorService {
         this.realTimeFansRepository = realTimeFansRepository;
         this.redisOps = redisOps;
         this.biliOBUtils = biliOBUtils;
+        this.adminService = adminService;
         this.authorAchievementService = authorAchievementService;
     }
 
@@ -172,7 +176,6 @@ public class AuthorServiceImpl implements AuthorService {
 
     private void disposeAuthor(Author author) {
         setFreq(author);
-
         gerRankData(author);
         if (author.getAchievements() != null) {
             authorAchievementService.rapidlyAnalyzeAuthorAchievement(author);
@@ -180,6 +183,17 @@ public class AuthorServiceImpl implements AuthorService {
         if (author.getData() != null) {
             filterAuthorData(author);
         }
+    }
+
+    private void filterAuthorData(Author author, Integer days) {
+        ArrayList<Author.Data> tempData = author.getData();
+        tempData.removeIf(data -> {
+                    Calendar c = Calendar.getInstance();
+                    c.add(Calendar.DATE, -days);
+                    return data.getDatetime().before(c.getTime());
+                }
+        );
+        author.setData(tempData);
     }
 
     private void filterAuthorData(Author author) {
@@ -336,6 +350,13 @@ public class AuthorServiceImpl implements AuthorService {
         Author author = respository.findAuthorByMid(mid);
         disposeAuthor(author);
         return author;
+    }
+
+    @Override
+    public Author getAuthorDetails(Long mid, int days) {
+        Author a = getAuthorDetails(mid);
+        filterAuthorData(a, days);
+        return a;
     }
 
     /**
@@ -621,4 +642,6 @@ public class AuthorServiceImpl implements AuthorService {
         q.fields().include("mid");
         return mongoTemplate.find(q, Author.class).stream().map(Author::getMid).collect(Collectors.toList());
     }
+
+
 }

@@ -127,7 +127,7 @@ public class AuthorController {
             if (type == 0) {
                 return authorService.getAuthorInfo(mid);
             } else {
-                return authorService.getAuthorDetails(mid);
+                return authorService.getAuthorDetails(mid, 30);
             }
         });
         return authors.collect(Collectors.toList());

@@ -166,4 +166,13 @@ public interface AuthorService {
      * @return top fans authors' mid
      */
     List<Long> getTopFansAuthors(int limit);
+
+    /**
+     * get author detail with days
+     *
+     * @param mid  author id
+     * @param days days
+     * @return author data
+     */
+    Author getAuthorDetails(Long mid, int days);
 }
