@@ -322,10 +322,10 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    public ResponseEntity<Result> banUserAgent(String userAgent) {
+    public ResponseEntity<Result<?>> banUserAgent(String userAgent) {
         banSuspiciousIp();
         mongoTemplate.save(new UserAgentBlackList(userAgent));
-        return ResponseEntity.ok(new Result(ResultEnum.SUCCEED));
+        return ResponseEntity.ok(new Result<>(ResultEnum.SUCCEED));
     }
 
     @Override
@@ -409,6 +409,39 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
+    public Result<?> dataReduction() {
+        List<Author> l = mongoTemplate.aggregate(
+                Aggregation.newAggregation(
+                        Aggregation.sort(Sort.by("cFans").descending()),
+                        Aggregation.project().andInclude("mid")
+                ), Author.class, Author.class
+        ).getMappedResults();
+        l.forEach(e -> {
+            Long mid = e.getMid();
+            reduceByMid(mid);
+        });
+        return new Result<>(ResultEnum.SUCCEED);
+    }
+
+    @Override
+    public Result<?> reduceByMid(Long mid) {
+        List<Author.Data> data = mongoTemplate.find(Query.query(Criteria.where("mid").is(mid)).with(Sort.by("datetime").ascending()), Author.Data.class);
+        if (data.size() <= 1) {
+            return null;
+        }
+        Date lastDate = data.get(0).getDatetime();
+        for (int i = 1; i < data.size(); i++) {
+            Date currentDate = data.get(i).getDatetime();
+            if (currentDate.getTime() - lastDate.getTime() < 1000 * 60 * 60) {
+                mongoTemplate.remove(Query.query(Criteria.where("mid").is(mid).and("datetime").is(currentDate)), Author.Data.class);
+            } else {
+                lastDate = data.get(i).getDatetime();
+            }
+        }
+        return new Result<>(ResultEnum.SUCCEED);
+    }
+
+    @Override
     public Map<Integer, Integer> getDistribute(String ip) {
         List<IpVisitRecord> visitRecords = mongoTemplate.aggregate(Aggregation.newAggregation(Aggregation.match(Criteria.where("ip").is(ip)), Aggregation.sort(Sort.Direction.DESC, "datetime"), Aggregation.limit(500)), IpVisitRecord.class, IpVisitRecord.class).getMappedResults();
         Map<Integer, Integer> result = new HashMap<>();
@@ -443,6 +476,27 @@ public class AdminServiceImpl implements AdminService {
                 mongoTemplate.save(mongoTemplate.save(new Blacklist(ip)));
                 logger.info("[BAN] IP: {},Variance {}", ip, variance);
             }
+        }
+    }
+
+    static class AuthorAggregationData {
+        private Long mid;
+        private Integer count;
+
+        public Long getMid() {
+            return mid;
+        }
+
+        public void setMid(Long mid) {
+            this.mid = mid;
+        }
+
+        public Integer getCount() {
+            return count;
+        }
+
+        public void setCount(Integer count) {
+            this.count = count;
         }
     }
 }

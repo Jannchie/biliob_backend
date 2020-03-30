@@ -148,7 +148,7 @@ public interface AdminService {
      * @param userAgent UA
      * @return 禁用結果
      */
-    ResponseEntity<Result> banUserAgent(String userAgent);
+    ResponseEntity<Result<?>> banUserAgent(String userAgent);
 
     ArrayList<IpVisitRecord> getVisitVariance();
 
@@ -156,7 +156,11 @@ public interface AdminService {
 
     Map<Integer, Integer> getDistribute(String ip);
 
-    Result banIp(String ip);
+    Result<?> banIp(String ip);
 
     List<AuthorIntervalCount> getSpiderStat();
+
+    Result<?> dataReduction();
+
+    Result<?> reduceByMid(Long mid);
 }

@@ -33,6 +33,7 @@ import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
+import org.springframework.data.mongodb.core.aggregation.MatchOperation;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
@@ -87,10 +88,20 @@ public class AuthorServiceImpl implements AuthorService {
         this.authorAchievementService = authorAchievementService;
     }
 
-    @Override
-    public Author getAggregatedData(Long mid) {
+    private MatchOperation getAggregateMatch(int days, Long mid) {
+        if (days == -1) {
+            return Aggregation.match(Criteria.where("mid").is(mid));
+        } else {
+            Calendar c = Calendar.getInstance();
+            c.add(Calendar.DATE, -days);
+            return Aggregation.match(Criteria.where("mid").is(mid).and("datetime").gt(c.getTime()));
+        }
+    }
+
+    private Author getAggregatedData(Long mid, int days) {
+        MatchOperation match = getAggregateMatch(days, mid);
         Aggregation a = Aggregation.newAggregation(
-                Aggregation.match(Criteria.where("mid").is(mid)),
+                match,
                 Aggregation.sort(Sort.Direction.ASC, "datetime"),
                 Aggregation.project("fans", "archiveView", "articleView", "like", "attention", "datetime", "mid").and("datetime").dateAsFormattedString("%Y-%m-%d").as("date"),
                 Aggregation.group("date")
@@ -122,6 +133,12 @@ public class AuthorServiceImpl implements AuthorService {
         );
         return mongoTemplate.aggregate(a, Author.Data.class, Author.class).getUniqueMappedResult();
     }
+
+    @Override
+    public Author getAggregatedData(Long mid) {
+        return getAggregatedData(mid, -1);
+    }
+
 
     private void setFreq(Author author) {
         if (!mongoTemplate.exists(Query.query(Criteria.where("mid").is(author.getMid())), "author_interval")) {
@@ -160,6 +177,18 @@ public class AuthorServiceImpl implements AuthorService {
 
     public AuthorRankData getCurrentRankData(Author author) {
         return authorUtil.getRankData(author);
+    }
+
+
+    @Override
+    public Author getAuthorDetails(Long mid, int days) {
+        addAuthorVisit(mid);
+        Author author = getAggregatedData(mid, days);
+        if (author == null) {
+            return null;
+        }
+        disposeAuthor(author);
+        return author;
     }
 
 
@@ -352,12 +381,6 @@ public class AuthorServiceImpl implements AuthorService {
         return author;
     }
 
-    @Override
-    public Author getAuthorDetails(Long mid, int days) {
-        Author a = getAuthorDetails(mid);
-        filterAuthorData(a, days);
-        return a;
-    }
 
     /**
      * list real time data

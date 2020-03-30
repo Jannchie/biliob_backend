@@ -122,7 +122,7 @@ public class AdminController {
     }
 
     @RequestMapping(method = RequestMethod.POST, value = "/ua")
-    public ResponseEntity<Result> postBanedUserAgent(@RequestBody String userAgent) {
+    public ResponseEntity<Result<?>> postBanedUserAgent(@RequestBody String userAgent) {
         return adminService.banUserAgent(userAgent);
     }
 
@@ -140,4 +140,15 @@ public class AdminController {
     public Double getIpIntVariance(@RequestParam(defaultValue = "") String ip) {
         return adminService.getVariance(ip);
     }
+
+    @RequestMapping(method = RequestMethod.DELETE, value = "/data/reduction")
+    public Result<?> authorReduction() {
+        return adminService.dataReduction();
+    }
+
+    @RequestMapping(method = RequestMethod.DELETE, value = "/data/reduction/author/{mid}")
+    public Result<?> deleteByMid(@PathVariable Long mid) {
+        return adminService.reduceByMid(mid);
+    }
+
 }
