@@ -38,7 +38,7 @@ public class CreditOperateAspect {
 
 
     @Around(value = "checkCredit() && args(user, creditConstant, ..)", argNames = "user,creditConstant")
-    public Result<?> doAround(ProceedingJoinPoint pjp, User user, CreditConstant creditConstant) {
+    public Object doAround(ProceedingJoinPoint pjp, User user, CreditConstant creditConstant) throws Throwable {
         Double value = creditConstant.getValue();
         if (user == null) {
             return new Result<>(ResultEnum.HAS_NOT_LOGGED_IN);
@@ -46,7 +46,8 @@ public class CreditOperateAspect {
             logger.info("用户：{},积分不足,当前积分：{}", user.getName(), user.getCredit());
             return new Result<>(ResultEnum.CREDIT_NOT_ENOUGH);
         }
-        return null;
+
+        return pjp.proceed();
     }
 
 }
