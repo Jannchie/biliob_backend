@@ -41,7 +41,7 @@ public class CheckCreditAspect {
         this.mongoTemplate = mongoTemplate;
     }
 
-    @Pointcut(value = "execution(public org.springframework.http.ResponseEntity com.jannchie.biliob.credit.handle.CreditHandle.*(com.jannchie.biliob.model.User,com.jannchie.biliob.constant.CreditConstant,..))")
+    @Pointcut(value = "execution(public * com.jannchie.biliob.credit.handle.CreditHandle.*(com.jannchie.biliob.model.User,com.jannchie.biliob.constant.CreditConstant,..))")
     public void checkCredit() {
     }
 

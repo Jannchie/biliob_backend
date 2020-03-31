@@ -179,10 +179,16 @@ public class UserController {
         return userService.modifyUserName(name);
     }
 
-    @RequestMapping(method = RequestMethod.PUT, value = "/api/user/video/{aid}/data")
-    public ResponseEntity refreshVideo(@PathVariable("aid") @Valid Long aid) {
+    @RequestMapping(method = RequestMethod.PUT, value = "/api/user/video/AV{aid}/data")
+    public ResponseEntity<?> refreshVideo(@PathVariable("aid") @Valid Long aid) {
         return userService.refreshVideo(aid);
     }
+
+    @RequestMapping(method = RequestMethod.PUT, value = "/api/user/video/BV{bvid}/data")
+    public ResponseEntity<?> refreshVideo(@PathVariable("bvid") @Valid String bvid) {
+        return userService.refreshVideo(bvid);
+    }
+
 
     @RequestMapping(method = RequestMethod.PUT, value = "/api/user/video/data")
     public ResponseEntity refreshVideo(@RequestBody Video video) {

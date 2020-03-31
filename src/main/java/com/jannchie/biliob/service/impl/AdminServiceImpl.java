@@ -425,6 +425,7 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     public Result<?> reduceByMid(Long mid) {
+        logger.info("正在精简 {} 的数据", mid);
         List<Author.Data> data = mongoTemplate.find(Query.query(Criteria.where("mid").is(mid)).with(Sort.by("datetime").ascending()), Author.Data.class);
         if (data.size() <= 1) {
             return null;

@@ -6,12 +6,11 @@ import com.jannchie.biliob.model.User;
 import com.jannchie.biliob.utils.Result;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.aspectj.lang.ProceedingJoinPoint;
+import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
-import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -33,20 +32,19 @@ public class CreditOperateAspect {
         this.mongoTemplate = mongoTemplate;
     }
 
-    @Pointcut(value = "execution(public org.springframework.http.ResponseEntity com.jannchie.biliob.credit.handle.CreditOperateHandle.doCreditOperate(com.jannchie.biliob.model.User,com.jannchie.biliob.constant.CreditConstant,..))")
+    @Pointcut(value = "execution(public * com.jannchie.biliob.credit.handle.CreditOperateHandle.*(com.jannchie.biliob.model.User,com.jannchie.biliob.constant.CreditConstant,..))")
     public void checkCredit() {
     }
 
 
-    @Before(value = "checkCredit() && args(user, creditConstant, ..)", argNames = "user,creditConstant")
-    public ResponseEntity<Result<?>> doBefore(User user, CreditConstant creditConstant) {
+    @Around(value = "checkCredit() && args(user, creditConstant, ..)", argNames = "user,creditConstant")
+    public Result<?> doAround(ProceedingJoinPoint pjp, User user, CreditConstant creditConstant) {
         Double value = creditConstant.getValue();
         if (user == null) {
-            return new ResponseEntity<>(
-                    new Result<>(ResultEnum.HAS_NOT_LOGGED_IN), HttpStatus.UNAUTHORIZED);
+            return new Result<>(ResultEnum.HAS_NOT_LOGGED_IN);
         } else if (value < 0 && user.getCredit() < (-value)) {
             logger.info("用户：{},积分不足,当前积分：{}", user.getName(), user.getCredit());
-            return new ResponseEntity<>(new Result<>(ResultEnum.CREDIT_NOT_ENOUGH), HttpStatus.ACCEPTED);
+            return new Result<>(ResultEnum.CREDIT_NOT_ENOUGH);
         }
         return null;
     }
