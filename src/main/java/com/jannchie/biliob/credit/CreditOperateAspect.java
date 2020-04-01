@@ -46,8 +46,17 @@ public class CreditOperateAspect {
             logger.info("用户：{},积分不足,当前积分：{}", user.getName(), user.getCredit());
             return new Result<>(ResultEnum.CREDIT_NOT_ENOUGH);
         }
-
         return pjp.proceed();
     }
 
+    @Around(value = "checkCredit() && args(user, credit, creditConstant, ..)", argNames = "user, credit, creditConstant")
+    public Object doAround(ProceedingJoinPoint pjp, User user, Double credit, CreditConstant creditConstant) throws Throwable {
+        if (user == null) {
+            return new Result<>(ResultEnum.HAS_NOT_LOGGED_IN);
+        } else if (credit < 0 && user.getCredit() < (-credit)) {
+            logger.info("用户：{},积分不足,当前积分：{}", user.getName(), user.getCredit());
+            return new Result<>(ResultEnum.CREDIT_NOT_ENOUGH);
+        }
+        return pjp.proceed();
+    }
 }

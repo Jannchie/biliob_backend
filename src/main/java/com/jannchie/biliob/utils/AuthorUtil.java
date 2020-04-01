@@ -54,4 +54,6 @@ public class AuthorUtil {
         AuthorIntervalRecord authorIntervalRecord = mongoTemplate.findOne(Query.query(Criteria.where("mid").is(author.getMid())), AuthorIntervalRecord.class);
         author.setObInterval(authorIntervalRecord != null ? authorIntervalRecord.getInterval() : -1);
     }
+
+
 }

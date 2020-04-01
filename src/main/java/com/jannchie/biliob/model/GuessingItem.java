@@ -1,9 +1,12 @@
 package com.jannchie.biliob.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -12,19 +15,19 @@ import java.util.List;
 @Document("guessing_item")
 public class GuessingItem {
     @Id
-    private ObjectId id;
+    private ObjectId guessingId;
+    private Integer type;
     private User creator;
     private String title;
-    private List<String> options;
     private List<PokerChip> pokerChips;
     private Integer state;
 
-    public ObjectId getId() {
-        return id;
+    public Integer getType() {
+        return type;
     }
 
-    public void setId(ObjectId id) {
-        this.id = id;
+    public void setType(Integer type) {
+        this.type = type;
     }
 
     public User getCreator() {
@@ -43,13 +46,6 @@ public class GuessingItem {
         this.title = title;
     }
 
-    public List<String> getOptions() {
-        return options;
-    }
-
-    public void setOptions(List<String> options) {
-        this.options = options;
-    }
 
     public List<PokerChip> getPokerChips() {
         return pokerChips;
@@ -67,10 +63,72 @@ public class GuessingItem {
         this.state = state;
     }
 
-    static class PokerChip {
+    public String getGuessingId() {
+        return guessingId.toHexString();
+    }
+
+    public void setGuessingId(ObjectId guessingId) {
+        this.guessingId = guessingId;
+    }
+
+    public Integer getTotalUser() {
+        if (pokerChips == null) {
+            return 0;
+        }
+        return pokerChips.size();
+    }
+
+    public Double getTotalCredit() {
+        Double total = 0D;
+        if (pokerChips == null) {
+            return total;
+        }
+        for (PokerChip pokerChip : pokerChips
+        ) {
+            total += pokerChip.getCredit();
+        }
+        return total;
+    }
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
+    public Date getAverageTime() {
+        long totalTime = 0L;
+        Double totalCredit = 0D;
+        if (pokerChips == null) {
+            return null;
+        }
+        for (PokerChip pokerChip : pokerChips
+        ) {
+            totalTime += pokerChip.getGuessingDate().getTime() * pokerChip.getCredit();
+            totalCredit += pokerChip.getCredit();
+        }
+        Calendar c = Calendar.getInstance();
+        c.setTimeInMillis((long) (totalTime / totalCredit));
+        return c.getTime();
+    }
+
+    public static class PokerChip {
         private User user;
-        private Integer value;
-        private Integer optionIndex;
+        private Double credit;
+        @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
+        private Date guessingDate;
+        private Date createTime;
+
+        public Date getGuessingDate() {
+            return guessingDate;
+        }
+
+        public void setGuessingDate(Date guessingDate) {
+            this.guessingDate = guessingDate;
+        }
+
+        public Date getCreateTime() {
+            return createTime;
+        }
+
+        public void setCreateTime(Date createTime) {
+            this.createTime = createTime;
+        }
 
         public User getUser() {
             return user;
@@ -80,20 +138,13 @@ public class GuessingItem {
             this.user = user;
         }
 
-        public Integer getValue() {
-            return value;
+        public Double getCredit() {
+            return credit;
         }
 
-        public void setValue(Integer value) {
-            this.value = value;
+        public void setCredit(Double credit) {
+            this.credit = credit;
         }
 
-        public Integer getOptionIndex() {
-            return optionIndex;
-        }
-
-        public void setOptionIndex(Integer optionIndex) {
-            this.optionIndex = optionIndex;
-        }
     }
 }

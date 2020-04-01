@@ -47,7 +47,8 @@ public enum CreditConstant {
     BE_FORKED_AUTHOR_LIST(10D, "ID为 %s 的UP主名单被分支"),
     MODIFY_AUTHOR_LIST_INFO(-50D, "修改ID为 %s 的UP主名单"),
     STAR_AUTHOR_LIST(-1D, "收藏ID为 %s 的UP主名单"),
-    BE_STARED_AUTHOR_LIST(0.5D, "ID为 %s 的UP主名单被收藏");
+    BE_STARED_AUTHOR_LIST(0.5D, "ID为 %s 的UP主名单被收藏"),
+    JOIN_GUESSING(0D, "参加预测项目");
 
     private Double value;
     private String msg;

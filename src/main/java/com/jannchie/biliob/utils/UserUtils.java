@@ -7,8 +7,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
+
+import java.math.BigDecimal;
 
 /**
  * @author Jannchie
@@ -67,6 +70,11 @@ public class UserUtils {
         String username = getUsername();
         Query query = getUserQuery(username);
         return mongoTemplate.findOne(query, User.class);
+    }
+
+    public static void updateUserCreditAndExp(User user, Double credit) {
+        mongoTemplate.updateFirst(Query.query(Criteria.where("name").is(user.getName())),
+                Update.update("credit", BigDecimal.valueOf(user.getCredit() - credit).setScale(2, BigDecimal.ROUND_HALF_DOWN)).set("exp", user.getExp() + credit), User.class);
     }
 
     public static void setUserTitleAndRank(User user) {

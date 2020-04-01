@@ -44,7 +44,7 @@ public class CreditOperateHandle {
 
 
     public <T> Result<T> doCreditOperate(User user, CreditConstant creditConstant, Execution<T> execution) {
-        UserRecord userRecord = getUserRecord(creditConstant);
+        UserRecord userRecord = getUserRecord(user, creditConstant);
         T data = execution.execute();
         saveUserRecord(userRecord, creditConstant.getMsg());
         Result<T> result = updateUserInfo(user, creditConstant.getValue());
@@ -53,8 +53,20 @@ public class CreditOperateHandle {
         return result;
     }
 
+    public <T> Result<T> doCustomCreditOperate(User user, CreditConstant creditConstant, Double credit, Execution<T> execution) {
+        UserRecord userRecord = getUserRecord(user, creditConstant, -credit);
+        userRecord.setExecuted(true);
+        T data = execution.execute();
+        saveUserRecord(userRecord, creditConstant.getMsg());
+        Result<T> result = updateUserInfo(user, -credit);
+        result.setData(data);
+        log(user.getName(), -credit, creditConstant.getMsg());
+        return result;
+    }
+
+
     public <T> Result<T> doCreditOperate(User user, CreditConstant creditConstant, String param, Execution<T> execution) {
-        UserRecord userRecord = getUserRecord(creditConstant);
+        UserRecord userRecord = getUserRecord(user, creditConstant);
         T data = execution.execute();
         saveUserRecord(userRecord, creditConstant.getMsg(param));
         Result<T> result = updateUserInfo(user, creditConstant.getValue());
@@ -69,14 +81,19 @@ public class CreditOperateHandle {
         mongoTemplate.save(userRecord);
     }
 
-    private UserRecord getUserRecord(CreditConstant creditConstant) {
+    private UserRecord getUserRecord(User user, CreditConstant creditConstant, Double credit) {
         UserRecord userRecord = new UserRecord();
+        userRecord.setUserName(user.getName());
         userRecord.setExecuted(false);
-        userRecord.setCredit(creditConstant.getValue());
+        userRecord.setCredit(credit);
         userRecord.setDatetime(new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
         userRecord.setCreateTime(Calendar.getInstance().getTime());
         userRecord.setMessage(creditConstant.getMsg());
         return userRecord;
+    }
+
+    private UserRecord getUserRecord(User user, CreditConstant creditConstant) {
+        return getUserRecord(user, creditConstant, creditConstant.getValue());
     }
 
     private <T> Result<T> updateUserInfo(User user, Double value) {
