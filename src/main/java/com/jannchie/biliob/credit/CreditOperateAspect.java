@@ -36,6 +36,20 @@ public class CreditOperateAspect {
     public void checkCredit() {
     }
 
+    @Pointcut(value = "execution(public * com.jannchie.biliob.credit.handle.CreditOperateHandle.doCustomCreditOperate(com.jannchie.biliob.model.User,..))")
+    public void checkCreditGuessing() {
+    }
+
+    @Around(value = "checkCreditGuessing() && args(user, credit, ..)", argNames = "user,credit")
+    public Object doAround(ProceedingJoinPoint pjp, User user, Double credit) throws Throwable {
+        if (user == null) {
+            return new Result<>(ResultEnum.HAS_NOT_LOGGED_IN);
+        } else if (credit > 0 && user.getCredit() < (credit)) {
+            logger.info("用户：{},积分不足,当前积分：{}", user.getName(), user.getCredit());
+            return new Result<>(ResultEnum.CREDIT_NOT_ENOUGH);
+        }
+        return pjp.proceed();
+    }
 
     @Around(value = "checkCredit() && args(user, creditConstant, ..)", argNames = "user,creditConstant")
     public Object doAround(ProceedingJoinPoint pjp, User user, CreditConstant creditConstant) throws Throwable {
@@ -43,17 +57,6 @@ public class CreditOperateAspect {
         if (user == null) {
             return new Result<>(ResultEnum.HAS_NOT_LOGGED_IN);
         } else if (value < 0 && user.getCredit() < (-value)) {
-            logger.info("用户：{},积分不足,当前积分：{}", user.getName(), user.getCredit());
-            return new Result<>(ResultEnum.CREDIT_NOT_ENOUGH);
-        }
-        return pjp.proceed();
-    }
-
-    @Around(value = "checkCredit() && args(user, credit, creditConstant, ..)", argNames = "user, credit, creditConstant")
-    public Object doAround(ProceedingJoinPoint pjp, User user, Double credit, CreditConstant creditConstant) throws Throwable {
-        if (user == null) {
-            return new Result<>(ResultEnum.HAS_NOT_LOGGED_IN);
-        } else if (credit < 0 && user.getCredit() < (-credit)) {
             logger.info("用户：{},积分不足,当前积分：{}", user.getName(), user.getCredit());
             return new Result<>(ResultEnum.CREDIT_NOT_ENOUGH);
         }

@@ -115,7 +115,7 @@ public class GuessingService {
             return new Result<>(ResultEnum.EXECUTE_FAILURE);
         }
         User user = UserUtils.getUser();
-        return creditOperateHandle.doCustomCreditOperate(user, CreditConstant.JOIN_GUESSING, pokerChip.getCredit(), () -> {
+        return creditOperateHandle.doCustomCreditOperate(user, pokerChip.getCredit(), CreditConstant.JOIN_GUESSING, () -> {
             User userInfo = new User();
             userInfo.setId(user.getId());
             userInfo.setName(user.getName());

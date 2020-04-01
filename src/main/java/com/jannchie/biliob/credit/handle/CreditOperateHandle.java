@@ -53,7 +53,7 @@ public class CreditOperateHandle {
         return result;
     }
 
-    public <T> Result<T> doCustomCreditOperate(User user, CreditConstant creditConstant, Double credit, Execution<T> execution) {
+    public <T> Result<T> doCustomCreditOperate(User user, Double credit, CreditConstant creditConstant, Execution<T> execution) {
         UserRecord userRecord = getUserRecord(user, creditConstant, -credit);
         userRecord.setExecuted(true);
         T data = execution.execute();
