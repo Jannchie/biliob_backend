@@ -26,6 +26,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -56,19 +57,32 @@ public class UserCommentServiceImpl implements UserCommentService {
         }
         AggregationResults<Comment> ar = mongoTemplate.aggregate(
                 Aggregation.newAggregation(
-                        Aggregation.match(Criteria.where("path").is(path)),
+                        Aggregation.match(Criteria.where("path").is(path).and("parentId").exists(false)),
                         sortAggregationOperation,
-                        Aggregation.skip(page * pageSize),
+                        Aggregation.skip((long) page * pageSize),
                         Aggregation.limit(pageSize),
                         Aggregation.lookup("user", "userId", "_id", "user"),
                         Aggregation.unwind("user"),
                         Aggregation.project().andExpression("{ password: 0, favoriteMid: 0, favoriteAid: 0 }").as("user")
                 ), Comment.class, Comment.class);
         List<Comment> result = ar.getMappedResults();
-
+        HashMap<String, User> userHashMap = new HashMap<>(20);
         result.forEach(comment -> {
-            UserUtils.setUserTitleAndRank(comment.getUser());
-        });
+                    setUserMap(userHashMap, comment);
+                    List<Comment> replies = mongoTemplate.aggregate(
+                            Aggregation.newAggregation(
+                                    Aggregation.match(
+                                            Criteria.where("parentId").is(comment.getCommentId())),
+                                    Aggregation.sort(Sort.by("date").descending()),
+                                    Aggregation.lookup("user", "userId", "_id", "user"),
+                                    Aggregation.unwind("user"),
+                                    Aggregation.project().andExpression("{ password: 0, favoriteMid: 0, favoriteAid: 0 }").as("user")
+                            )
+                            , Comment.class, Comment.class).getMappedResults();
+                    replies.forEach(r -> setUserMap(userHashMap, r));
+                    comment.setReplies(replies);
+                }
+        );
 
         User user = UserUtils.getUser();
 
@@ -87,17 +101,27 @@ public class UserCommentServiceImpl implements UserCommentService {
         return result;
     }
 
+    private void setUserMap(HashMap<String, User> userHashMap, Comment comment) {
+        if (userHashMap.containsKey(comment.getUser().getName())) {
+            comment.setUser(userHashMap.get(comment.getUser().getName()));
+        } else {
+            UserUtils.setUserTitleAndRank(comment.getUser());
+            userHashMap.put(comment.getUser().getName(), comment.getUser());
+        }
+    }
+
     @Override
     public ResponseEntity<Result<Comment>> postComment(Comment comment) {
         User user = UserUtils.getUser();
-        Integer mapExp = 100;
-        if (user.getExp() < mapExp) {
+        Integer need = 100;
+        if (user.getExp() < need) {
             return ResponseEntity.badRequest().body(new Result<>(ResultEnum.EXP_NOT_ENOUGH));
         }
         if (mongoTemplate.exists(Query.query(
                 Criteria
                         .where("path").is(comment.getPath())
                         .and("userId").is(user.getId())
+                        .and("parentId").is(comment.getParentId())
                         .and("content").is(comment.getContent())
                 ), Comment.class
         )) {
@@ -155,6 +179,7 @@ public class UserCommentServiceImpl implements UserCommentService {
         ObjectId commentPublisherId = comment.getUserId();
         if (commentPublisherId.equals(user.getId())) {
             mongoTemplate.remove(Query.query(Criteria.where("_id").is(commentId)), Comment.class);
+            mongoTemplate.remove(Query.query(Criteria.where("parentId   ").is(commentId)), Comment.class);
             return ResponseEntity.ok(new Result<>(ResultEnum.SUCCEED));
         } else {
             return ResponseEntity.ok(new Result<>(ResultEnum.EXECUTE_FAILURE));

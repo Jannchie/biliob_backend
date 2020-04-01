@@ -1,12 +1,19 @@
 package com.jannchie.biliob.controller;
 
+import com.jannchie.biliob.constant.ResultEnum;
+import com.jannchie.biliob.model.User;
+import com.jannchie.biliob.utils.Result;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.http.ResponseEntity;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 /**
  * @author Jannchie
@@ -17,10 +24,23 @@ public class ManagerController {
     @Autowired
     MongoTemplate mongoTemplate;
 
-    @RequestMapping(method = RequestMethod.GET, value = "/u")
-    public ResponseEntity getPendingQuestion(
-            @RequestParam(defaultValue = "0") Integer page,
-            @RequestParam(defaultValue = "20") Integer pagesize) {
-        return null;
+    @RequestMapping(method = RequestMethod.POST, value = "/user/data")
+    public Result<?> setUserData(@RequestBody User user) {
+        mongoTemplate.updateFirst(Query.query(Criteria.where("name").is(user.getName())),
+                Update.update("credit", user.getCredit()).set("exp", user.getExp()), User.class);
+        return new Result<>(ResultEnum.SUCCEED);
+    }
+
+    @RequestMapping(method = RequestMethod.POST, value = "/user/fix-data")
+    public Result<?> fixMinusUserData() {
+        List<User> users = mongoTemplate.find(Query.query(Criteria.where("credit").lt(0)), User.class);
+        for (User user : users
+        ) {
+            Double val = user.getCredit();
+
+            mongoTemplate.updateFirst(Query.query(Criteria.where("name").is(user.getName())),
+                    Update.update("credit", user.getCredit() - val).set("exp", user.getExp() + val), User.class);
+        }
+        return new Result<>(ResultEnum.SUCCEED);
     }
 }

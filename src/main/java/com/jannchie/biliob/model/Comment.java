@@ -9,6 +9,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import javax.validation.constraints.NotBlank;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /**
  * @author jannchie
@@ -18,19 +19,28 @@ import java.util.Date;
 public class Comment {
     @Id
     private String commentId;
+    private String parentId;
     private ObjectId userId;
-    private ArrayList<Reply> replies;
+    private List<Comment> replies;
     private Date date;
     @NotBlank(message = "路径不能为空")
     private String path;
     @NotBlank(message = "观测记录内容不能为空")
     @Length(max = 100, message = "观测记录最长为100个字符")
     private String content;
-    private ArrayList<ObjectId> likeList;
-    private ArrayList<ObjectId> disLikeList;
+    private List<ObjectId> likeList;
+    private List<ObjectId> disLikeList;
     private User user;
     private Integer like;
     private boolean liked;
+
+    public List<Comment> getReplies() {
+        return replies;
+    }
+
+    public void setReplies(List<Comment> replies) {
+        this.replies = replies;
+    }
 
     public Integer getLike() {
         return like;
@@ -72,19 +82,19 @@ public class Comment {
         this.commentId = commentId;
     }
 
-    public ArrayList<ObjectId> getLikeList() {
+    public List<ObjectId> getLikeList() {
         return likeList;
     }
 
-    public void setLikeList(ArrayList<ObjectId> likeList) {
+    public void setLikeList(List<ObjectId> likeList) {
         this.likeList = likeList;
     }
 
-    public ArrayList<ObjectId> getDisLikeList() {
+    public List<ObjectId> getDisLikeList() {
         return disLikeList;
     }
 
-    public void setDisLikeList(ArrayList<ObjectId> disLikeList) {
+    public void setDisLikeList(List<ObjectId> disLikeList) {
         this.disLikeList = disLikeList;
     }
 
@@ -114,6 +124,14 @@ public class Comment {
 
     public void setLiked(boolean liked) {
         this.liked = liked;
+    }
+
+    public String getParentId() {
+        return parentId;
+    }
+
+    public void setParentId(String parentId) {
+        this.parentId = parentId;
     }
 
     private static class Reply {
