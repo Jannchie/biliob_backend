@@ -594,7 +594,7 @@ public class AuthorServiceImpl implements AuthorService {
         // 涨掉粉榜，前三名：每1分钟一次；前20名：每5分钟一次。
         Sort.Direction[] d = {Sort.Direction.DESC, Sort.Direction.ASC};
         for (Sort.Direction direction : d) {
-            Query q = new Query().with(Sort.by(direction, "cRate"));
+            Query q = new Query(Criteria.where("cRate").exists(true)).with(Sort.by(direction, "cRate"));
             q.fields().include("mid");
             List<Author> authors = mongoTemplate.find(q.limit(20), Author.class);
             int idx = 0;
