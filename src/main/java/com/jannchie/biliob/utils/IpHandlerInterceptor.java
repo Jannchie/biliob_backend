@@ -12,7 +12,6 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.http.HttpStatus;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
@@ -20,7 +19,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.HashMap;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -38,9 +36,8 @@ public class IpHandlerInterceptor implements HandlerInterceptor {
     private static final Integer MAX_CUD_IN_MINUTE = 180;
     private static final Integer MAX_R_IN_MINUTE = 360;
     private static final String IP = "ip";
-    private static final Pattern numberPattern = Pattern.compile("[0-9]+");
-    private static final Double CHECK_RATE = 0.1D;
-    private static HashMap<String, Integer> blackIP = new HashMap<>(256);
+    private static final Pattern NUMBER_PATTERN = Pattern.compile("[0-9]+");
+    private static final Double CHECK_RATE = 0.05D;
     private final MongoTemplate mongoTemplate;
 
     /**
@@ -52,7 +49,7 @@ public class IpHandlerInterceptor implements HandlerInterceptor {
     }
 
     public static String replaceDigital(String value) {
-        Matcher matcher = numberPattern.matcher(value);
+        Matcher matcher = NUMBER_PATTERN.matcher(value);
         return matcher.replaceAll("{id}");
     }
 
@@ -101,7 +98,6 @@ public class IpHandlerInterceptor implements HandlerInterceptor {
     private void addToBlackList(HttpServletResponse response, String ip, String reason) {
         mongoTemplate.save(new Blacklist(ip, String.format("%s", reason)));
         logger.info(ip);
-        blackIP.remove(ip);
         response.setStatus(HttpStatus.FORBIDDEN.value());
         returnJson(response);
     }
@@ -115,11 +111,6 @@ public class IpHandlerInterceptor implements HandlerInterceptor {
             }
         }
         return false;
-    }
-
-    @Scheduled(cron = "0 0/1 * * * ?")
-    public void refresh() {
-        blackIP = new HashMap<>(256);
     }
 
     private void returnJson(HttpServletResponse response) {
