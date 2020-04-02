@@ -23,6 +23,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import static com.jannchie.biliob.constant.TimeConstant.MICROSECOND_OF_MINUTES;
@@ -37,6 +38,14 @@ public class GuessingService {
     MongoTemplate mongoTemplate;
     @Autowired
     CreditOperateHandle creditOperateHandle;
+
+    public Date getCorrectGuessingTime(FansGuessingItem.PokerChip pokerChip) {
+        Calendar.getInstance().getTime();
+        Calendar guessingCal = Calendar.getInstance();
+        guessingCal.setTime(pokerChip.getGuessingDate());
+        guessingCal.add(Calendar.HOUR, -8);
+        return guessingCal.getTime();
+    }
 
     public List<FansGuessingItem> listFansGuessing(Integer page) {
         return mongoTemplate.find(new Query().with(PageRequest.of(page, 10, Sort.by("date").ascending())), FansGuessingItem.class);
@@ -111,9 +120,18 @@ public class GuessingService {
     }
 
     public Result<?> joinFansGuessing(String guessingId, FansGuessingItem.PokerChip pokerChip) {
-        if (pokerChip.getGuessingDate().before(Calendar.getInstance().getTime())) {
+        Calendar guessingCal = Calendar.getInstance();
+        guessingCal.setTime(pokerChip.getGuessingDate());
+        Calendar calendar = Calendar.getInstance();
+        Date correctGuessingTime = getCorrectGuessingTime(pokerChip);
+        if (correctGuessingTime.before(calendar.getTime())) {
             return new Result<>(ResultEnum.EXECUTE_FAILURE);
         }
+        calendar.add(Calendar.YEAR, 1);
+        if (correctGuessingTime.after(calendar.getTime())) {
+            return new Result<>(ResultEnum.EXECUTE_FAILURE);
+        }
+
         User user = UserUtils.getUser();
         return creditOperateHandle.doCustomCreditOperate(user, pokerChip.getCredit(), CreditConstant.JOIN_GUESSING, () -> {
             User userInfo = new User();

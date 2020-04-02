@@ -93,14 +93,18 @@ public class GuessingItem {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
     public Date getAverageTime() {
         long totalTime = 0L;
-        Double totalCredit = 0D;
+        double totalCredit = 0D;
         if (pokerChips == null) {
             return null;
         }
         for (PokerChip pokerChip : pokerChips
         ) {
-            totalTime += pokerChip.getGuessingDate().getTime() * pokerChip.getCredit();
-            totalCredit += pokerChip.getCredit();
+            Calendar calendar = Calendar.getInstance();
+            calendar.add(Calendar.YEAR, 1);
+            if (pokerChip.getGuessingDate().before(calendar.getTime())) {
+                totalTime += pokerChip.getGuessingDate().getTime() * pokerChip.getCredit();
+                totalCredit += pokerChip.getCredit();
+            }
         }
         Calendar c = Calendar.getInstance();
         c.setTimeInMillis((long) (totalTime / totalCredit));

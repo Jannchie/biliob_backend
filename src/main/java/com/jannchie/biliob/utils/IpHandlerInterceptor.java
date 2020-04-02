@@ -53,7 +53,7 @@ public class IpHandlerInterceptor implements HandlerInterceptor {
         String ip = IpUtil.getIpAddress(request);
         String userAgent = request.getHeader("user-agent");
         String uri = request.getRequestURI();
-
+        logger.info("{},{}", ip, uri);
         // 在白名单中直接放过
         if (mongoTemplate.exists(query(where(IP).is(ip)), WhiteList.class)) {
             return true;
