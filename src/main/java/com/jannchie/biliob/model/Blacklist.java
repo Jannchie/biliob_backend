@@ -13,10 +13,17 @@ import java.util.Date;
 public class Blacklist {
     private String ip;
     private Date date;
+    private String reason;
 
     public Blacklist(String ip) {
         this.ip = ip;
         this.date = new Date();
+    }
+
+    public Blacklist(String ip, String reason) {
+        this.ip = ip;
+        this.date = new Date();
+        this.reason = reason;
     }
 
     public Date getDate() {
@@ -33,5 +40,13 @@ public class Blacklist {
 
     public void setIp(String ip) {
         this.ip = ip;
+    }
+
+    public String getReason() {
+        return reason;
+    }
+
+    public void setReason(String reason) {
+        this.reason = reason;
     }
 }
