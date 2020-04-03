@@ -66,20 +66,22 @@ public class GuessingService {
             fansGuessingItem.setTotalUser(fansGuessingItem.getPokerChips() == null ? 0 : fansGuessingItem.getPokerChips().size());
 
             long totalTime = 0L;
+            double totalCredit2 = 0D;
             if (fansGuessingItem.getPokerChips() != null) {
-                for (GuessingItem.PokerChip pokerChip : fansGuessingItem.getPokerChips()
+                for (FansGuessingItem.PokerChip pokerChip : fansGuessingItem.getPokerChips()
                 ) {
                     Calendar calendar = Calendar.getInstance();
                     calendar.add(Calendar.YEAR, 1);
                     if (pokerChip.getGuessingDate().before(calendar.getTime())) {
                         totalTime += pokerChip.getGuessingDate().getTime() * pokerChip.getCredit();
+                        totalCredit2 += pokerChip.getCredit();
                     }
                 }
-            }
-            Calendar c = Calendar.getInstance();
-            c.setTimeInMillis((long) (totalTime / totalCredit));
+                Calendar c = Calendar.getInstance();
+                c.setTimeInMillis((long) (totalTime / totalCredit2));
 
-            fansGuessingItem.setAverageTime(c.getTime());
+                fansGuessingItem.setAverageTime(c.getTime());
+            }
             fansGuessingItem.setPokerChips(null);
         });
         return result;
