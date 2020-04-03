@@ -4,6 +4,7 @@ import com.jannchie.biliob.object.UserGuessingResult;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * @author Jannchie
@@ -13,13 +14,13 @@ public class FansGuessingItem extends GuessingItem {
     Author author;
     Long target;
     Date reachDate;
-    UserGuessingResult result;
+    List<UserGuessingResult> result;
 
-    public UserGuessingResult getResult() {
+    public List<UserGuessingResult> getResult() {
         return result;
     }
 
-    public void setResult(UserGuessingResult result) {
+    public void setResult(List<UserGuessingResult> result) {
         this.result = result;
     }
 

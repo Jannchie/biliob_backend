@@ -22,6 +22,7 @@ public class GuessingItem {
     private Integer state;
     private Double totalCredit;
     private Integer totalUser;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
     private Date averageTime;
 
     public Integer getType() {
@@ -72,7 +73,7 @@ public class GuessingItem {
         this.guessingId = guessingId;
     }
 
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
+
     public Date getAverageTime() {
         return this.averageTime;
     }

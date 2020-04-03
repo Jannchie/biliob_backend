@@ -73,7 +73,6 @@ public class GuessingService {
                     calendar.add(Calendar.YEAR, 1);
                     if (pokerChip.getGuessingDate().before(calendar.getTime())) {
                         totalTime += pokerChip.getGuessingDate().getTime() * pokerChip.getCredit();
-                        totalCredit += pokerChip.getCredit();
                     }
                 }
             }
