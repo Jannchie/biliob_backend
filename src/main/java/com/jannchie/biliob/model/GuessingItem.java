@@ -5,7 +5,6 @@ import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -21,6 +20,9 @@ public class GuessingItem {
     private String title;
     private List<PokerChip> pokerChips;
     private Integer state;
+    private Double totalCredit;
+    private Integer totalUser;
+    private Date averageTime;
 
     public Integer getType() {
         return type;
@@ -46,7 +48,6 @@ public class GuessingItem {
         this.title = title;
     }
 
-
     public List<PokerChip> getPokerChips() {
         return pokerChips;
     }
@@ -71,44 +72,29 @@ public class GuessingItem {
         this.guessingId = guessingId;
     }
 
-    public Integer getTotalUser() {
-        if (pokerChips == null) {
-            return 0;
-        }
-        return pokerChips.size();
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
+    public Date getAverageTime() {
+        return this.averageTime;
+    }
+
+    public void setAverageTime(Date averageTime) {
+        this.averageTime = averageTime;
     }
 
     public Double getTotalCredit() {
-        Double total = 0D;
-        if (pokerChips == null) {
-            return total;
-        }
-        for (PokerChip pokerChip : pokerChips
-        ) {
-            total += pokerChip.getCredit();
-        }
-        return total;
+        return totalCredit;
     }
 
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
-    public Date getAverageTime() {
-        long totalTime = 0L;
-        double totalCredit = 0D;
-        if (pokerChips == null) {
-            return null;
-        }
-        for (PokerChip pokerChip : pokerChips
-        ) {
-            Calendar calendar = Calendar.getInstance();
-            calendar.add(Calendar.YEAR, 1);
-            if (pokerChip.getGuessingDate().before(calendar.getTime())) {
-                totalTime += pokerChip.getGuessingDate().getTime() * pokerChip.getCredit();
-                totalCredit += pokerChip.getCredit();
-            }
-        }
-        Calendar c = Calendar.getInstance();
-        c.setTimeInMillis((long) (totalTime / totalCredit));
-        return c.getTime();
+    public void setTotalCredit(Double totalCredit) {
+        this.totalCredit = totalCredit;
+    }
+
+    public Integer getTotalUser() {
+        return totalUser;
+    }
+
+    public void setTotalUser(Integer totalUser) {
+        this.totalUser = totalUser;
     }
 
     public static class PokerChip {

@@ -5,7 +5,9 @@ import com.jannchie.biliob.constant.ResultEnum;
 import com.jannchie.biliob.credit.handle.CreditOperateHandle;
 import com.jannchie.biliob.model.Author;
 import com.jannchie.biliob.model.FansGuessingItem;
+import com.jannchie.biliob.model.GuessingItem;
 import com.jannchie.biliob.model.User;
+import com.jannchie.biliob.object.UserGuessingResult;
 import com.jannchie.biliob.utils.Result;
 import com.jannchie.biliob.utils.UserUtils;
 import org.apache.logging.log4j.LogManager;
@@ -23,9 +25,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 import static com.jannchie.biliob.constant.TimeConstant.MICROSECOND_OF_MINUTES;
 
@@ -49,7 +49,41 @@ public class GuessingService {
     }
 
     public List<FansGuessingItem> listFansGuessing(Integer page) {
-        return mongoTemplate.find(new Query().with(PageRequest.of(page, 10, Sort.by("date").ascending())), FansGuessingItem.class);
+        Query q = new Query().with(PageRequest.of(page, 10, Sort.by("date").ascending()));
+        List<FansGuessingItem> result = mongoTemplate.find(q, FansGuessingItem.class);
+
+        result.forEach(fansGuessingItem -> {
+            Double totalCredit = 0D;
+            if (fansGuessingItem.getPokerChips() != null) {
+                for (GuessingItem.PokerChip pokerChip : fansGuessingItem.getPokerChips()
+                ) {
+                    totalCredit += pokerChip.getCredit();
+                }
+            }
+
+            fansGuessingItem.setTotalCredit(totalCredit);
+
+            fansGuessingItem.setTotalUser(fansGuessingItem.getPokerChips() == null ? 0 : fansGuessingItem.getPokerChips().size());
+
+            long totalTime = 0L;
+            if (fansGuessingItem.getPokerChips() != null) {
+                for (GuessingItem.PokerChip pokerChip : fansGuessingItem.getPokerChips()
+                ) {
+                    Calendar calendar = Calendar.getInstance();
+                    calendar.add(Calendar.YEAR, 1);
+                    if (pokerChip.getGuessingDate().before(calendar.getTime())) {
+                        totalTime += pokerChip.getGuessingDate().getTime() * pokerChip.getCredit();
+                        totalCredit += pokerChip.getCredit();
+                    }
+                }
+            }
+            Calendar c = Calendar.getInstance();
+            c.setTimeInMillis((long) (totalTime / totalCredit));
+
+            fansGuessingItem.setAverageTime(c.getTime());
+            fansGuessingItem.setPokerChips(null);
+        });
+        return result;
     }
 
     public Result<?> joinGuessing(ObjectId guessingId, Integer index, Double value) {
@@ -67,14 +101,13 @@ public class GuessingService {
         Query q = new Query(Criteria.where("state").is(1));
         List<FansGuessingItem> fansGuessingItems = mongoTemplate.aggregate(
                 Aggregation.newAggregation(
-                        Aggregation.match(Criteria.where("state").is(1)),
+                        Aggregation.match(Criteria.where("state").ne(3)),
                         Aggregation.lookup("author", "author.mid", "mid", "author"),
                         Aggregation.unwind("author"),
                         Aggregation.project().andExpression("{ data: 0, keyword: 0}").as("author").and("target")
                 ), FansGuessingItem.class, FansGuessingItem.class
         ).getMappedResults();
         fansGuessingItems.forEach(fansGuessingItem -> {
-
             if (fansGuessingItem.getAuthor().getcFans() > fansGuessingItem.getTarget()) {
                 logger.info("竞猜[{}]已经达成", fansGuessingItem.getTitle());
                 Query query = Query.query(Criteria.where("mid").is(fansGuessingItem.getAuthor().getMid()).and("fans").gt(fansGuessingItem.getTarget())).with(Sort.by("fans").ascending());
@@ -83,7 +116,7 @@ public class GuessingService {
                 assert data != null;
                 mongoTemplate.updateFirst(
                         Query.query(Criteria.where("guessingId").is(fansGuessingItem.getGuessingId())),
-                        Update.update("state", 2).set("reachDate", data.getDatetime()),
+                        Update.update("state", 3).set("reachDate", data.getDatetime()),
                         FansGuessingItem.class);
             } else if (fansGuessingItem.getAuthor().getcFans() + 20000 > fansGuessingItem.getTarget()) {
                 logger.info("竞猜[{}]已经快要达成", fansGuessingItem.getTitle());
@@ -175,5 +208,82 @@ public class GuessingService {
         });
     }
 
+    @Scheduled(fixedDelay = MICROSECOND_OF_MINUTES * 10)
+    @Async
+    public Result<?> judgeFinishedFansGuessing() {
+        Integer finishedState = 3;
+        List<FansGuessingItem> fansGuessingItems = mongoTemplate.find(Query.query(Criteria.where("state").is(finishedState)), FansGuessingItem.class);
+        for (FansGuessingItem f : fansGuessingItems
+        ) {
+            Date reachDate = f.getReachDate();
+            Calendar c = Calendar.getInstance();
+            c.setTime(reachDate);
+            c.add(Calendar.HOUR, -8);
 
+            Date finalReachDate = c.getTime();
+            HashMap<String, Long> result = new HashMap<>();
+            HashMap<String, Double> sumCreditMap = new HashMap<>();
+            HashMap<String, Long> sumTimeStamp = new HashMap<>();
+            HashMap<String, Long> sumCreateTimeStamp = new HashMap<>();
+            f.getPokerChips().forEach(pokerChip -> {
+
+                Date cDate = pokerChip.getCreateTime();
+                User user = pokerChip.getUser();
+                String name = user.getName();
+                Date guessingDate = getCorrectGuessingTime(pokerChip);
+                long deltaTime = Math.abs(guessingDate.getTime() - finalReachDate.getTime());
+                if (deltaTime == 0) {
+                    deltaTime = 1L;
+                }
+                Double credit = pokerChip.getCredit();
+                // 积分数 = 筹码积分值 × ( 实际达成时间 - 发起预测时间 ) ÷ ( | 实际达成时间 - 预测达成时间 |)
+                Long score = credit.longValue() * ((finalReachDate.getTime() - cDate.getTime()) / deltaTime);
+
+                if (sumCreditMap.containsKey(name)) {
+                    sumCreditMap.put(name, sumCreditMap.get(name) + credit);
+                } else {
+                    sumCreditMap.put(name, credit);
+                }
+
+                if (sumTimeStamp.containsKey(name)) {
+                    sumTimeStamp.put(name, sumTimeStamp.get(name) + guessingDate.getTime() * credit.longValue());
+                } else {
+                    sumTimeStamp.put(name, guessingDate.getTime() * credit.longValue());
+                }
+                if (sumCreateTimeStamp.containsKey(name)) {
+                    sumCreateTimeStamp.put(name, sumCreateTimeStamp.get(name) + cDate.getTime() * credit.longValue());
+                } else {
+                    sumCreateTimeStamp.put(name, cDate.getTime() * credit.longValue());
+                }
+
+                if (result.containsKey(name)) {
+                    result.put(name, result.get(name) + score);
+                } else {
+                    result.put(name, score);
+                }
+                logger.info("{} {} {} {}", name, result.get(name), guessingDate.toString(), cDate.toString());
+            });
+            logger.info(result);
+            ArrayList<UserGuessingResult> resultList = new ArrayList<>();
+            Calendar tempCal = Calendar.getInstance();
+            long sumScore = result.values().stream().reduce(0L, Long::sum);
+            long sumCredit = sumCreditMap.values().stream().reduce(0D, Double::sum).longValue();
+            result.keySet().forEach(key -> {
+                UserGuessingResult r = new UserGuessingResult();
+                r.setScore(result.get(key));
+                r.setName(key);
+                r.setCredit(sumCreditMap.get(key));
+                long averageGuessingTime = sumTimeStamp.get(key) / sumCreditMap.get(key).longValue();
+                tempCal.setTimeInMillis(averageGuessingTime);
+                r.setAverageDate(tempCal.getTime());
+                long averageCreateTime = sumCreateTimeStamp.get(key) / sumCreditMap.get(key).longValue();
+                tempCal.setTimeInMillis(averageCreateTime);
+                r.setAverageCreateTime(tempCal.getTime());
+                resultList.add(r);
+            });
+            resultList.sort(Comparator.comparingLong(UserGuessingResult::getScore).reversed());
+            mongoTemplate.updateFirst(Query.query(Criteria.where("guessingId").is(f.getGuessingId())), Update.update("result", resultList), FansGuessingItem.class);
+        }
+        return new Result<>(ResultEnum.SUCCEED);
+    }
 }

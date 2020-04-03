@@ -1,5 +1,6 @@
 package com.jannchie.biliob.model;
 
+import com.jannchie.biliob.object.UserGuessingResult;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.Date;
@@ -12,6 +13,15 @@ public class FansGuessingItem extends GuessingItem {
     Author author;
     Long target;
     Date reachDate;
+    UserGuessingResult result;
+
+    public UserGuessingResult getResult() {
+        return result;
+    }
+
+    public void setResult(UserGuessingResult result) {
+        this.result = result;
+    }
 
     public Date getReachDate() {
         return reachDate;
