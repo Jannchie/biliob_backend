@@ -41,7 +41,7 @@ public enum ResultEnum {
     LIST_NOT_FOUND(-1, "未找到列表"),
     ALREADY_EXIST(-1, "已存在同名项目"),
     BANGUMI_NOT_FOUND(-1, "未找到番剧"),
-    DUMP_COMMENT(-1, "检测到重复观测记录");
+    DUMP_COMMENT(-1, "检测到重复观测记录"), ALREADY_FINISHED(-1, "已结束"), NOT_FOUND(-1, "未找到");
 
     private int code;
     private String msg;

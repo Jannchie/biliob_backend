@@ -19,6 +19,7 @@ import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -59,9 +60,10 @@ public class GuessingService {
         return null;
     }
 
-    @Scheduled(fixedDelay = MICROSECOND_OF_MINUTES * 10)
+    @Scheduled(fixedDelay = MICROSECOND_OF_MINUTES)
+    @Async
     public Result<?> autoUpdateGuessing() {
-        logger.info("查看竞猜是否达成");
+        logger.info("查看竞猜是快要达成");
         Query q = new Query(Criteria.where("state").is(1));
         List<FansGuessingItem> fansGuessingItems = mongoTemplate.aggregate(
                 Aggregation.newAggregation(
@@ -72,18 +74,36 @@ public class GuessingService {
                 ), FansGuessingItem.class, FansGuessingItem.class
         ).getMappedResults();
         fansGuessingItems.forEach(fansGuessingItem -> {
+
             if (fansGuessingItem.getAuthor().getcFans() > fansGuessingItem.getTarget()) {
                 logger.info("竞猜[{}]已经达成", fansGuessingItem.getTitle());
+                Query query = Query.query(Criteria.where("mid").is(fansGuessingItem.getAuthor().getMid()).and("fans").gt(fansGuessingItem.getTarget())).with(Sort.by("fans").ascending());
+                query.fields().include("mid").include("datetime");
+                Author.Data data = mongoTemplate.findOne(query, Author.Data.class);
+                assert data != null;
+                mongoTemplate.updateFirst(
+                        Query.query(Criteria.where("guessingId").is(fansGuessingItem.getGuessingId())),
+                        Update.update("state", 2).set("reachDate", data.getDatetime()),
+                        FansGuessingItem.class);
+            } else if (fansGuessingItem.getAuthor().getcFans() + 20000 > fansGuessingItem.getTarget()) {
+                logger.info("竞猜[{}]已经快要达成", fansGuessingItem.getTitle());
                 mongoTemplate.updateFirst(
                         Query.query(Criteria.where("guessingId").is(fansGuessingItem.getGuessingId())),
                         Update.update("state", 2),
                         FansGuessingItem.class);
+            } else {
+                Query query = Query.query(Criteria.where("mid").is(fansGuessingItem.getAuthor().getMid())).with(Sort.by("fans").descending());
+                query.fields().include("mid").include("datetime").include("fans");
+                Author.Data data = mongoTemplate.findOne(query, Author.Data.class);
+                assert data != null;
+                logger.info("{} 还差 {}", fansGuessingItem.getTitle(), fansGuessingItem.getTarget() - data.getFans());
             }
         });
         return new Result<>(ResultEnum.SUCCEED);
     }
 
     @Scheduled(fixedDelay = MICROSECOND_OF_MINUTES * 10)
+    @Async
     public Result<?> autoPostAuthorFansGuessing() {
         logger.info("添加预测竞猜");
         Query q = new Query().with(Sort.by("cFans").descending());
@@ -131,7 +151,15 @@ public class GuessingService {
         if (correctGuessingTime.after(calendar.getTime())) {
             return new Result<>(ResultEnum.EXECUTE_FAILURE);
         }
-
+        Query q = Query.query(Criteria.where("guessingId").is(guessingId));
+        q.fields().include("state");
+        FansGuessingItem fansGuessingItem = mongoTemplate.findOne(Query.query(Criteria.where("guessingId").is(guessingId)), FansGuessingItem.class);
+        if (fansGuessingItem == null) {
+            return new Result<>(ResultEnum.NOT_FOUND);
+        }
+        if (fansGuessingItem.getState() != 1) {
+            return new Result<>(ResultEnum.ALREADY_FINISHED);
+        }
         User user = UserUtils.getUser();
         return creditOperateHandle.doCustomCreditOperate(user, pokerChip.getCredit(), CreditConstant.JOIN_GUESSING, () -> {
             User userInfo = new User();
@@ -146,4 +174,6 @@ public class GuessingService {
             return null;
         });
     }
+
+
 }
