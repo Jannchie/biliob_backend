@@ -6,6 +6,7 @@ import java.util.Date;
  * @author Jannchie
  */
 public class UserGuessingResult {
+    private String guessingId;
     private String name;
     private Date averageDate;
     private Double credit;
@@ -13,6 +14,13 @@ public class UserGuessingResult {
     private Date averageCreateTime;
     private Double revenue;
 
+    public String getGuessingId() {
+        return guessingId;
+    }
+
+    public void setGuessingId(String guessingId) {
+        this.guessingId = guessingId;
+    }
 
     public Double getRevenue() {
         return revenue;

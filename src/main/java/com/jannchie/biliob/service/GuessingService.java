@@ -196,7 +196,7 @@ public class GuessingService {
             return new Result<>(ResultEnum.ALREADY_FINISHED);
         }
         User user = UserUtils.getUser();
-        return creditOperateHandle.doCustomCreditOperate(user, pokerChip.getCredit(), CreditConstant.JOIN_GUESSING, () -> {
+        return creditOperateHandle.doCustomCreditOperate(user, pokerChip.getCredit(), CreditConstant.JOIN_GUESSING, guessingId, () -> {
             User userInfo = new User();
             userInfo.setId(user.getId());
             userInfo.setName(user.getName());
@@ -305,7 +305,15 @@ public class GuessingService {
             mongoTemplate.updateFirst(Query.query(Criteria.where("guessingId").is(f.getGuessingId())), Update.update("result", resultList).set("state", 4), FansGuessingItem.class);
             resultList.forEach(userGuessingResult -> {
                 User u = mongoTemplate.findOne(Query.query(Criteria.where("name").is(userGuessingResult.getName())), User.class);
-                creditOperateHandle.doCustomCreditOperate(u, -userGuessingResult.getRevenue(), CreditConstant.GUESSING_REVENUE, () -> null);
+                if (u == null) {
+                    return;
+                }
+
+                if (!mongoTemplate.exists(Query.query(Criteria.where("name").is(userGuessingResult.getName()).and("guessingId").is(f.getGuessingId())), UserGuessingResult.class, "cashed_user_guessing")) {
+                    userGuessingResult.setGuessingId(f.getGuessingId());
+                    creditOperateHandle.doCustomCreditOperate(u, -userGuessingResult.getRevenue(), CreditConstant.GUESSING_REVENUE, f.getGuessingId(), () -> null);
+                    mongoTemplate.save(userGuessingResult, "cashed_user_guessing");
+                }
             });
         }
         return new Result<>(ResultEnum.SUCCEED);

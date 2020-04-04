@@ -53,6 +53,17 @@ public class CreditOperateHandle {
         return result;
     }
 
+    public <T> Result<T> doCustomCreditOperate(User user, Double credit, CreditConstant creditConstant, String param, Execution<T> execution) {
+        UserRecord userRecord = getUserRecord(user, creditConstant, -credit);
+        userRecord.setExecuted(true);
+        T data = execution.execute();
+        saveUserRecord(userRecord, creditConstant.getMsg(param));
+        Result<T> result = updateUserInfoWithOutExp(user, -credit);
+        result.setData(data);
+        log(user.getName(), -credit, creditConstant.getMsg());
+        return result;
+    }
+
     public <T> Result<T> doCustomCreditOperate(User user, Double credit, CreditConstant creditConstant, Execution<T> execution) {
         UserRecord userRecord = getUserRecord(user, creditConstant, -credit);
         userRecord.setExecuted(true);

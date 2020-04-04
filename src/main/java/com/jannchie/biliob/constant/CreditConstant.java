@@ -48,7 +48,8 @@ public enum CreditConstant {
     MODIFY_AUTHOR_LIST_INFO(-50D, "修改ID为 %s 的UP主名单"),
     STAR_AUTHOR_LIST(-1D, "收藏ID为 %s 的UP主名单"),
     BE_STARED_AUTHOR_LIST(0.5D, "ID为 %s 的UP主名单被收藏"),
-    JOIN_GUESSING(0D, "参加预测项目"), GUESSING_REVENUE(0D, "预测项目赏金");
+    JOIN_GUESSING(0D, "参加ID为 %s 的预测项目"),
+    GUESSING_REVENUE(0D, "获得ID为 %s 的预测项目赏金");
 
     private Double value;
     private String msg;
