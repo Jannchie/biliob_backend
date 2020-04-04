@@ -58,10 +58,21 @@ public class CreditOperateHandle {
         userRecord.setExecuted(true);
         T data = execution.execute();
         saveUserRecord(userRecord, creditConstant.getMsg());
-        Result<T> result = updateUserInfo(user, -credit);
+        Result<T> result = updateUserInfoWithOutExp(user, -credit);
         result.setData(data);
         log(user.getName(), -credit, creditConstant.getMsg());
         return result;
+    }
+
+    private <T> Result<T> updateUserInfoWithOutExp(User user, double value) {
+        double credit = BigDecimal.valueOf(user.getCredit() + value).setScale(2, BigDecimal.ROUND_HALF_DOWN).doubleValue();
+        double exp = user.getExp();
+        String userName = user.getName();
+        Query query = new Query(where("name").is(userName));
+        Update update = new Update();
+        update.set("credit", credit);
+        mongoTemplate.updateFirst(query, update, User.class);
+        return new Result<>(ResultEnum.SUCCEED, credit, exp);
     }
 
 

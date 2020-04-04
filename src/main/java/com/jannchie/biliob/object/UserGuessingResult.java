@@ -2,13 +2,25 @@ package com.jannchie.biliob.object;
 
 import java.util.Date;
 
+/**
+ * @author Jannchie
+ */
 public class UserGuessingResult {
     private String name;
     private Date averageDate;
     private Double credit;
     private Long score;
-    private Date reachDate;
     private Date averageCreateTime;
+    private Double revenue;
+
+
+    public Double getRevenue() {
+        return revenue;
+    }
+
+    public void setRevenue(Double revenue) {
+        this.revenue = revenue;
+    }
 
     public String getName() {
         return name;
@@ -42,20 +54,12 @@ public class UserGuessingResult {
         this.score = score;
     }
 
-    public Date getReachDate() {
-        return reachDate;
-    }
-
-    public void setReachDate(Date reachDate) {
-        this.reachDate = reachDate;
-    }
-
     public Date getAverageCreateTime() {
         return averageCreateTime;
     }
 
     public void setAverageCreateTime(Date averageCreateTime) {
-        
+
         this.averageCreateTime = averageCreateTime;
     }
 }
