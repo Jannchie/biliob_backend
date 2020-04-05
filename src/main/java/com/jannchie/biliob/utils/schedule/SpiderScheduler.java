@@ -1,5 +1,6 @@
 package com.jannchie.biliob.utils.schedule;
 
+import com.jannchie.biliob.model.Video;
 import com.jannchie.biliob.object.VideoIntervalRecord;
 import com.jannchie.biliob.service.AuthorService;
 import com.jannchie.biliob.service.VideoService;
@@ -47,16 +48,25 @@ public class SpiderScheduler {
     private void updateIntervalByDaysAndInterval(Integer days, Integer interval) {
         Calendar c = Calendar.getInstance();
         c.add(Calendar.DATE, -days);
-        List<VideoIntervalRecord> recordList = mongoTemplate.find(Query.query(Criteria.where("date").lt(c.getTime())), VideoIntervalRecord.class);
+        List<VideoIntervalRecord> recordList = mongoTemplate.find(new Query(), VideoIntervalRecord.class);
         recordList.forEach(e -> {
             try {
-
                 if (e.getBvid() != null) {
-                    mongoTemplate.updateFirst(Query.query(Criteria.where("bvid").is(e.getBvid())), Update.update("interval", interval), VideoIntervalRecord.class);
-                    logger.info("更新了 BV{} 爬取频率", e.getBvid());
+                    Query q = Query.query(Criteria.where("bvid").is(e.getBvid()));
+                    q.fields().include("datetime");
+                    Video v = mongoTemplate.findOne(q, Video.class);
+                    if (v != null && v.getDatetime() != null && v.getDatetime().before(c.getTime())) {
+                        mongoTemplate.updateFirst(Query.query(Criteria.where("bvid").is(e.getBvid())), Update.update("interval", interval), VideoIntervalRecord.class);
+                        logger.info("更新了 BV{} 爬取频率", e.getBvid());
+                    }
                 } else {
-                    mongoTemplate.updateFirst(Query.query(Criteria.where("aid").is(e.getAid())), Update.update("interval", interval), VideoIntervalRecord.class);
-                    logger.info("更新了 AV{} 爬取频率", e.getAid());
+                    Query q = Query.query(Criteria.where("aid").is(e.getAid()));
+                    q.fields().include("datetime");
+                    Video v = mongoTemplate.findOne(q, Video.class);
+                    if (v != null && v.getDatetime() != null && v.getDatetime().before(c.getTime())) {
+                        mongoTemplate.updateFirst(Query.query(Criteria.where("aid").is(e.getAid())), Update.update("interval", interval), VideoIntervalRecord.class);
+                        logger.info("更新了 AV{} 爬取频率", e.getAid());
+                    }
                 }
             } catch (Exception exception) {
                 exception.printStackTrace();
@@ -120,8 +130,6 @@ public class SpiderScheduler {
         updateIntervalByDaysAndInterval(7, SECOND_OF_DAY * 7);
         logger.info("更新新视频爬取频率完成");
     }
-
-    ;
 
     /**
      * 每周執行一次
