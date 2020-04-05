@@ -120,7 +120,7 @@ public class GuessingService {
                         Query.query(Criteria.where("guessingId").is(fansGuessingItem.getGuessingId())),
                         Update.update("state", 3).set("reachDate", data.getDatetime()),
                         FansGuessingItem.class);
-            } else if (fansGuessingItem.getAuthor().getcFans() + 20000 > fansGuessingItem.getTarget()) {
+            } else if (fansGuessingItem.getAuthor().getcFans() + 100000 > fansGuessingItem.getTarget()) {
                 logger.info("竞猜[{}]已经快要达成", fansGuessingItem.getTitle());
                 mongoTemplate.updateFirst(
                         Query.query(Criteria.where("guessingId").is(fansGuessingItem.getGuessingId())),

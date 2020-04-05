@@ -26,7 +26,7 @@ public class Video {
     private Boolean focus;
     private ArrayList<Data> data;
     private ArrayList<String> keyword;
-    private Map rank;
+    private Map<?, ?> rank;
     private Integer cView;
     private Integer cFavorite;
     private Integer cDanmaku;

@@ -1,5 +1,6 @@
 package com.jannchie.biliob.utils.schedule;
 
+import com.jannchie.biliob.object.VideoIntervalRecord;
 import com.jannchie.biliob.service.AuthorService;
 import com.jannchie.biliob.service.VideoService;
 import com.jannchie.biliob.utils.RedisOps;
@@ -19,8 +20,7 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
 
-import static com.jannchie.biliob.constant.TimeConstant.MICROSECOND_OF_DAY;
-import static com.jannchie.biliob.constant.TimeConstant.MICROSECOND_OF_MINUTES;
+import static com.jannchie.biliob.constant.TimeConstant.*;
 
 /**
  * @author Pan Jianqi
@@ -42,6 +42,26 @@ public class SpiderScheduler {
         this.redisOps = redisOps;
         this.authorService = authorService;
         this.videoService = videoService;
+    }
+
+    private void updateIntervalByDaysAndInterval(Integer days, Integer interval) {
+        Calendar c = Calendar.getInstance();
+        c.add(Calendar.DATE, -days);
+        List<VideoIntervalRecord> recordList = mongoTemplate.find(Query.query(Criteria.where("date").lt(c.getTime())), VideoIntervalRecord.class);
+        recordList.forEach(e -> {
+            try {
+
+                if (e.getBvid() != null) {
+                    mongoTemplate.updateFirst(Query.query(Criteria.where("bvid").is(e.getBvid())), Update.update("interval", interval), VideoIntervalRecord.class);
+                    logger.info("更新了 BV{} 爬取频率", e.getBvid());
+                } else {
+                    mongoTemplate.updateFirst(Query.query(Criteria.where("aid").is(e.getAid())), Update.update("interval", interval), VideoIntervalRecord.class);
+                    logger.info("更新了 AV{} 爬取频率", e.getAid());
+                }
+            } catch (Exception exception) {
+                exception.printStackTrace();
+            }
+        });
     }
 
     public void updateVideoData() {
@@ -86,6 +106,22 @@ public class SpiderScheduler {
     public void updateAuthorFreq() {
         authorService.updateObserveFreq();
     }
+
+    /**
+     * 每日執行一次
+     * 更新访问频率
+     */
+    @Scheduled(fixedDelay = MICROSECOND_OF_DAY)
+    @Async
+    public void newUpdateInterval() {
+        Calendar c = Calendar.getInstance();
+        logger.info("开始更新新视频爬取频率");
+        updateIntervalByDaysAndInterval(1, SECOND_OF_DAY);
+        updateIntervalByDaysAndInterval(7, SECOND_OF_DAY * 7);
+        logger.info("更新新视频爬取频率完成");
+    }
+
+    ;
 
     /**
      * 每周執行一次
