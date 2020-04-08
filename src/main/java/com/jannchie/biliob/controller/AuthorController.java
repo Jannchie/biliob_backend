@@ -3,7 +3,9 @@ package com.jannchie.biliob.controller;
 import com.jannchie.biliob.exception.AuthorAlreadyFocusedException;
 import com.jannchie.biliob.exception.UserAlreadyFavoriteAuthorException;
 import com.jannchie.biliob.model.Author;
+import com.jannchie.biliob.service.AdminService;
 import com.jannchie.biliob.service.AuthorService;
+import com.jannchie.biliob.utils.IpUtil;
 import com.jannchie.biliob.utils.Message;
 import com.jannchie.biliob.utils.MySlice;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.Arrays;
 import java.util.List;
@@ -23,11 +26,14 @@ import java.util.stream.Stream;
 @RestController
 public class AuthorController {
 
-    private final AuthorService authorService;
+    private AuthorService authorService;
+    private AdminService adminService;
+
 
     @Autowired
-    public AuthorController(AuthorService authorService) {
+    public AuthorController(AuthorService authorService, AdminService adminService) {
         this.authorService = authorService;
+        this.adminService = adminService;
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/api/author/{mid}")
@@ -45,11 +51,15 @@ public class AuthorController {
 
     @RequestMapping(method = RequestMethod.GET, value = "/api/author")
     public MySlice<Author> getAuthor(
+            HttpServletRequest request,
             @RequestParam(defaultValue = "0") Integer sort,
             @RequestParam(defaultValue = "0") Integer page,
             @RequestParam(defaultValue = "20") Integer pageSize,
             @RequestParam(defaultValue = "-1") Long mid,
             @RequestParam(defaultValue = "") String text) {
+        if (page > 100) {
+            adminService.banIp(IpUtil.getIpAddress(request));
+        }
         return authorService.getAuthor(mid, text, page, pageSize, sort);
     }
 

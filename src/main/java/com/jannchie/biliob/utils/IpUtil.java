@@ -10,7 +10,7 @@ public class IpUtil {
     private static final String COMMA = ",";
     private static final Integer IP_LENGTH = 15;
 
-    static String getIpAddress(HttpServletRequest request) {
+    public static String getIpAddress(HttpServletRequest request) {
         String ipAddress = null;
         try {
             ipAddress = request.getHeader("x-forwarded-for");

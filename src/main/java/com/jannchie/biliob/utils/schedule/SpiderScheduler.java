@@ -111,7 +111,7 @@ public class SpiderScheduler {
      * 每日執行一次
      * 更新访问频率
      */
-    @Scheduled(fixedDelay = MICROSECOND_OF_DAY, initialDelay = MICROSECOND_OF_DAY)
+    @Scheduled(fixedDelay = MICROSECOND_OF_DAY)
     @Async
     public void updateAuthorFreq() {
         authorService.updateObserveFreq();

@@ -1,6 +1,5 @@
 package com.jannchie.biliob.service.impl;
 
-import com.jannchie.biliob.service.AuthorService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +12,7 @@ import org.springframework.test.context.web.WebAppConfiguration;
 @WebAppConfiguration
 public class AuthorServiceImplTest {
     @Autowired
-    AuthorService authorService;
+    AuthorServiceImpl authorService;
 
     @Test
     public void upsertAuthorFreq() {

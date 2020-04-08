@@ -519,7 +519,10 @@ public class AuthorServiceImpl implements AuthorService {
         nextCal.add(Calendar.SECOND, interval);
         // 更新访问频率数据。
 
-        Update u = Update.update("date", cTime).set("interval", interval);
+        Update u = Update.update("date", cTime);
+        if (preInterval != null && interval < preInterval.getInterval()) {
+            u.set("interval", interval);
+        }
         // 如果此前没有访问频率数据，或者更新后的访问时间比原来的访问时间还短，则刷新下次访问的时间。
         if (preInterval == null
                 || nextCal.getTimeInMillis() < preInterval.getNext().getTime()) {
@@ -538,14 +541,12 @@ public class AuthorServiceImpl implements AuthorService {
                         Aggregation.group("mid").count().as("count").first("mid").as("mid"),
                         Aggregation.sort(Sort.Direction.DESC, "count"), Aggregation.limit(limit)),
                 "author_visit", AuthorVisitRecord.class).getMappedResults();
-
         Query q = Query.query(Criteria.where("mid")
                 .in(results.stream().map(AuthorVisitRecord::getMid).collect(Collectors.toList())));
         q.fields().include("name").include("mid");
         List<Author> authorList = mongoTemplate.find(q, Author.class);
         for (AuthorVisitRecord result : results) {
             for (Author author : authorList) {
-
                 if (result.getMid().equals(author.getMid())) {
                     result.setName(author.getName());
                 }
@@ -571,26 +572,40 @@ public class AuthorServiceImpl implements AuthorService {
     @Override
     public void updateObserveFreqPerMinute() {
         HashMap<Long, Integer> intervalMap = new HashMap<>();
+        calculateTopVisitIntervalData(intervalMap);
+        calculateTopClassIntervalData(intervalMap);
+        calculateFansRankIntervalData(intervalMap);
+        logger.fatal("[START] 调整观测频率: 本次计划调整 {} 个UP主的频率", intervalMap.size());
+        intervalMap.forEach(this::upsertAuthorFreq);
+        logger.fatal("[FINISH] 调整观测频率 完成");
+    }
 
-
+    public void calculateTopVisitIntervalData(HashMap<Long, Integer> intervalMap) {
         // 点击频率最高，每十分钟一次
         List<AuthorVisitRecord> authorList = this.listMostVisitAuthorId(1, 30);
         for (AuthorVisitRecord author : authorList) {
             setIntervalMap(intervalMap, author.getMid(), SECOND_OF_MINUTES * 10);
             this.upsertAuthorFreq(author.getMid(), SECOND_OF_MINUTES * 10);
         }
+    }
+
+    public void calculateTopClassIntervalData(HashMap<Long, Integer> intervalMap) {
         // 各指标最高，前三名：每1分钟一次；前20名：每10分钟一次。
         for (int i = 0; i <= 3; i++) {
-            mongoTemplate.aggregate(
+            List<Author> authors = mongoTemplate.aggregate(
                     Aggregation.newAggregation(
                             Aggregation.sort(Sort.Direction.DESC, AuthorSortEnum.getKeyByFlag(i)),
-                            Aggregation.limit(20), Aggregation.project("mid")),
-                    "author", Map.class);
+                            Aggregation.limit(20),
+                            Aggregation.project("mid")),
+                    Author.class, Author.class).getMappedResults();
             int idx = 0;
-            for (AuthorVisitRecord author : authorList) {
+            for (Author author : authors) {
                 setIntervalMap(intervalMap, author.getMid(), (idx++ <= 3) ? SECOND_OF_MINUTES : SECOND_OF_MINUTES * 10);
             }
         }
+    }
+
+    public void calculateFansRankIntervalData(HashMap<Long, Integer> intervalMap) {
         // 涨掉粉榜，前三名：每1分钟一次；前20名：每5分钟一次。
         Sort.Direction[] d = {Sort.Direction.DESC, Sort.Direction.ASC};
         for (Sort.Direction direction : d) {
@@ -602,9 +617,6 @@ public class AuthorServiceImpl implements AuthorService {
                 setIntervalMap(intervalMap, author.getMid(), (idx++ <= 3) ? SECOND_OF_MINUTES : SECOND_OF_MINUTES * 5);
             }
         }
-        logger.fatal("[START] 调整观测频率: 本次计划调整 {} 个UP主的频率", intervalMap.size());
-        intervalMap.forEach(this::upsertAuthorFreq);
-        logger.fatal("[FINISH] 调整观测频率 完成");
     }
 
     private void setIntervalMap(HashMap<Long, Integer> intervalMap, Long mid, Integer interval) {
@@ -623,7 +635,6 @@ public class AuthorServiceImpl implements AuthorService {
         List<Author> authorList = getAuthorFansGt(10000);
         for (Author author : authorList) {
             setIntervalMap(intervalMap, author.getMid(), SECOND_OF_DAY);
-
         }
 
         // 人为设置：强行观测
@@ -665,6 +676,4 @@ public class AuthorServiceImpl implements AuthorService {
         q.fields().include("mid");
         return mongoTemplate.find(q, Author.class).stream().map(Author::getMid).collect(Collectors.toList());
     }
-
-
 }
