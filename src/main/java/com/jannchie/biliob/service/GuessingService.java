@@ -27,6 +27,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.jannchie.biliob.constant.TimeConstant.MICROSECOND_OF_MINUTES;
 
@@ -50,9 +51,11 @@ public class GuessingService {
     }
 
     public List<FansGuessingItem> listFansGuessing(Integer page) {
-        Query q = new Query().with(PageRequest.of(page, 10, Sort.by("date").ascending()));
+        Query q = new Query().with(PageRequest.of(page, 10, Sort.by("state").descending()));
         List<FansGuessingItem> result = mongoTemplate.find(q, FansGuessingItem.class);
-
+        Calendar tempC = Calendar.getInstance();
+        tempC.add(Calendar.DATE, -7);
+        result = result.stream().filter((fansGuessingItem) -> fansGuessingItem.getReachDate() == null || !fansGuessingItem.getReachDate().before(tempC.getTime())).collect(Collectors.toList());
         result.forEach(fansGuessingItem -> {
             Double totalCredit = 0D;
             if (fansGuessingItem.getPokerChips() != null) {
