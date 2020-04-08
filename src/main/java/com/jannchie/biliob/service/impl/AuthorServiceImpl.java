@@ -518,9 +518,8 @@ public class AuthorServiceImpl implements AuthorService {
         Date cTime = Calendar.getInstance().getTime();
         nextCal.add(Calendar.SECOND, interval);
         // 更新访问频率数据。
-
         Update u = Update.update("date", cTime);
-        if (preInterval != null && interval < preInterval.getInterval()) {
+        if (preInterval == null || interval < preInterval.getInterval()) {
             u.set("interval", interval);
         }
         // 如果此前没有访问频率数据，或者更新后的访问时间比原来的访问时间还短，则刷新下次访问的时间。
