@@ -99,7 +99,7 @@ public class GuessingService {
         return null;
     }
 
-    @Scheduled(fixedDelay = MICROSECOND_OF_MINUTES)
+    @Scheduled(fixedDelay = MICROSECOND_OF_MINUTES * 10)
     @Async
     public Result<?> autoUpdateGuessing() {
         logger.info("查看竞猜是快要达成");

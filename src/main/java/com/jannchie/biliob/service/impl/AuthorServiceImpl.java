@@ -208,6 +208,7 @@ public class AuthorServiceImpl implements AuthorService {
         gerRankData(author);
         if (author.getAchievements() != null) {
             authorAchievementService.rapidlyAnalyzeAuthorAchievement(author);
+            authorAchievementService.analyzeDailyAchievement(author.getMid());
         }
         if (author.getData() != null) {
             filterAuthorData(author);

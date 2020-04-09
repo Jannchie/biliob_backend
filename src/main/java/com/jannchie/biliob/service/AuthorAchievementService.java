@@ -4,6 +4,8 @@ import com.jannchie.biliob.model.Author;
 import com.jannchie.biliob.utils.Result;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 /**
  * @author Jannchie
  */
@@ -32,4 +34,18 @@ public interface AuthorAchievementService {
      * @return result
      */
     Result<?> analyzeAllAuthorAchievement();
+
+    /**
+     * Analyze daily achievement
+     *
+     * @param mid mid
+     * @return analyze result
+     */
+    Result<?> analyzeDailyAchievement(Long mid);
+
+    /**
+     * @param level level
+     * @return result
+     */
+    List<Author.Achievement> getAuthorAchievementByLevel(Integer level);
 }

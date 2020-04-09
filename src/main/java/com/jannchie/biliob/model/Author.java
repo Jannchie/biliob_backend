@@ -499,6 +499,18 @@ public class Author {
             this.author = a;
         }
 
+        public Achievement(AuthorAchievementEnum achievementEnum, Long mid, Long value, Date datetime) {
+            this.level = achievementEnum.getLevel();
+            this.name = achievementEnum.getName();
+            this.code = achievementEnum.getId();
+            this.desc = achievementEnum.getDesc();
+            this.date = datetime;
+            this.value = value;
+            Author a = new Author();
+            a.setMid(mid);
+            this.author = a;
+        }
+
         public Integer getCode() {
             return code;
         }

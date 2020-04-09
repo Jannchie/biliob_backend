@@ -45,6 +45,14 @@ public class SpiderScheduler {
         this.videoService = videoService;
     }
 
+    @Async
+    private void reduceIntervalByDaysAndInterval(Integer days, Integer interval) {
+        Calendar c = Calendar.getInstance();
+        c.add(Calendar.DATE, -days);
+        mongoTemplate.updateMulti(Query.query(Criteria.where("date").lt(c.getTime()).and("interval").gt(interval)), Update.update("interval", interval), VideoIntervalRecord.class);
+        logger.info("减少了 {}天前加入的 爬取频率到 {}", days, interval);
+    }
+
     private void updateIntervalByDaysAndInterval(Integer days, Integer interval) {
         Calendar c = Calendar.getInstance();
         c.add(Calendar.DATE, -days);
@@ -117,14 +125,23 @@ public class SpiderScheduler {
         authorService.updateObserveFreq();
     }
 
+    @Async
+    @Scheduled(fixedDelay = MICROSECOND_OF_MINUTES * 60)
+    public void reduceVideoInterval() {
+        logger.info("开始减少新视频爬取频率");
+        reduceIntervalByDaysAndInterval(7, SECOND_OF_DAY * 7);
+        reduceIntervalByDaysAndInterval(1, SECOND_OF_DAY);
+        logger.info("减少新视频爬取频率完成");
+    }
+
     /**
      * 每日執行一次
      * 更新访问频率
+     * <p>
+     * Scheduled(fixedDelay = MICROSECOND_OF_DAY, initialDelay = MICROSECOND_OF_DAY)
      */
-    @Scheduled(fixedDelay = MICROSECOND_OF_DAY)
     @Async
     public void newUpdateInterval() {
-        Calendar c = Calendar.getInstance();
         logger.info("开始更新新视频爬取频率");
         updateIntervalByDaysAndInterval(1, SECOND_OF_DAY);
         updateIntervalByDaysAndInterval(7, SECOND_OF_DAY * 7);

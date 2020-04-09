@@ -4,10 +4,9 @@ import com.jannchie.biliob.model.Author;
 import com.jannchie.biliob.service.AuthorAchievementService;
 import com.jannchie.biliob.utils.Result;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * @author Jannchie
@@ -22,4 +21,8 @@ public class AuthorAchievementController {
         return authorAchievementService.analyzeAuthorAchievement(author.getMid());
     }
 
+    @RequestMapping(method = RequestMethod.GET, value = "/api/author/achievement")
+    public List<Author.Achievement> postAnalyzeRequest(@RequestParam(value = "lv", defaultValue = "5") Integer level) {
+        return authorAchievementService.getAuthorAchievementByLevel(level);
+    }
 }

@@ -4,6 +4,7 @@ import com.jannchie.biliob.constant.AuthorAchievementEnum;
 import com.jannchie.biliob.constant.AuthorUniqueAchievementEnum;
 import com.jannchie.biliob.constant.ResultEnum;
 import com.jannchie.biliob.model.Author;
+import com.jannchie.biliob.model.AuthorDailyTrend;
 import com.jannchie.biliob.service.AuthorAchievementService;
 import com.jannchie.biliob.service.AuthorService;
 import com.jannchie.biliob.utils.Result;
@@ -11,6 +12,7 @@ import org.apache.logging.log4j.LogManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.scheduling.annotation.Async;
@@ -233,5 +235,119 @@ public class AuthorAchievementServiceImpl implements AuthorAchievementService {
     public Result<?> analyzeAllAuthorAchievement() {
 
         return null;
+    }
+
+    @Override
+    @Async
+    public Result<?> analyzeDailyAchievement(Long mid) {
+        List<AuthorDailyTrend> dailyTrends = mongoTemplate.find(Query.query(Criteria.where("mid").is(mid)), AuthorDailyTrend.class);
+        if (dailyTrends.size() > 1) {
+            AuthorDailyTrend pData = dailyTrends.get(0);
+            for (AuthorDailyTrend cData : dailyTrends) {
+                if (cData.getFans() == null) {
+                    continue;
+                }
+                AuthorAchievementEnum[] increaseInDayAchievements = {
+                        AuthorAchievementEnum.INCREASE_IN_DAY_LV10,
+                        AuthorAchievementEnum.INCREASE_IN_DAY_LV9,
+                        AuthorAchievementEnum.INCREASE_IN_DAY_LV8};
+
+                AuthorAchievementEnum[] decreaseInDayAchievements = {
+                        AuthorAchievementEnum.REDUCE_IN_DAY_LV9,
+                        AuthorAchievementEnum.REDUCE_IN_DAY_LV8,
+                        AuthorAchievementEnum.REDUCE_IN_DAY_LV7};
+
+                AuthorAchievementEnum[] increaseAchievements = {
+                        AuthorAchievementEnum.INCREASE_LV5,
+                        AuthorAchievementEnum.INCREASE_LV4,
+                        AuthorAchievementEnum.INCREASE_LV3};
+
+                for (AuthorAchievementEnum achievementEnum : increaseInDayAchievements) {
+                    if (checkAndAddFansIncreaseAchievement(cData, achievementEnum)) {
+                        logger.info("为 {} 添加成就 {}", mid, achievementEnum.getName());
+                        break;
+                    }
+                }
+
+                for (AuthorAchievementEnum achievementEnum : decreaseInDayAchievements) {
+                    if (checkAndAddFansDecreaseAchievement(cData, achievementEnum)) {
+                        logger.info("为 {} 添加成就 {}", mid, achievementEnum.getName());
+                        break;
+                    }
+                }
+
+                if (pData.getFans() > 1000 && cData.getFans() < -1000) {
+                    insertAchievementIfNotExist(cData, AuthorAchievementEnum.UP_TO_DOWN);
+                }
+
+                for (AuthorAchievementEnum achievementEnum : increaseAchievements) {
+                    if (pData.getFans() < 0) {
+                        continue;
+                    }
+                    if (cData.getFans() > pData.getFans() * achievementEnum.getValue()) {
+                        Author.Data d = new Author.Data();
+                        if (pData.getFans() == 0) {
+                            continue;
+                        }
+                        d.setFans(cData.getFans() / pData.getFans());
+                        d.setMid(cData.getMid());
+                        d.setDatetime(cData.getDatetime());
+                        if (insertAchievementIfNotExist(cData, achievementEnum)) {
+                            logger.info("为 {} 添加成就 {}", mid, achievementEnum.getName());
+                            break;
+                        }
+                    }
+                }
+                pData = cData;
+            }
+
+            return new Result<>(ResultEnum.SUCCEED);
+        } else {
+            return new Result<>(ResultEnum.EXECUTE_FAILURE);
+        }
+    }
+
+    @Override
+    public List<Author.Achievement> getAuthorAchievementByLevel(Integer level) {
+        logger.info("查询Lv.{}以上的最新B站事件", level);
+        return mongoTemplate.aggregate(
+                Aggregation.newAggregation(
+                        Aggregation.match(Criteria.where("level").gt(level)),
+                        Aggregation.sort(Sort.by("date").descending()),
+                        Aggregation.lookup("author", "author.mid", "mid", "author"),
+                        Aggregation.unwind("author"),
+                        Aggregation.project().andExpression("{data:0 , keyword:0}").as("author"),
+                        Aggregation.limit(20)
+                ), Author.Achievement.class, Author.Achievement.class
+        ).getMappedResults();
+    }
+
+    private boolean checkAndAddFansDecreaseAchievement(AuthorDailyTrend data, AuthorAchievementEnum achievementEnum) {
+        Long cFans = data.getFans();
+        if (cFans < -achievementEnum.getValue()) {
+            return insertAchievementIfNotExist(data, achievementEnum);
+        }
+        return false;
+    }
+
+    private boolean checkAndAddFansIncreaseAchievement(AuthorDailyTrend data, AuthorAchievementEnum achievementEnum) {
+        Long cFans = data.getFans();
+        if (cFans > achievementEnum.getValue()) {
+            return insertAchievementIfNotExist(data, achievementEnum);
+        }
+        return false;
+    }
+
+    private boolean insertAchievementIfNotExist(AuthorDailyTrend data, AuthorAchievementEnum achievementEnum) {
+        boolean wasGotten = mongoTemplate.exists(
+                Query.query(
+                        Criteria.where("author.mid").is(data.getMid())
+                                .and("code").is(achievementEnum.getId())
+                                .and("date").is(data.getDatetime())), Author.Achievement.class);
+        if (!wasGotten) {
+            mongoTemplate.save(new Author.Achievement(achievementEnum, data.getMid(), data.getFans(), data.getDatetime()));
+            return true;
+        }
+        return false;
     }
 }
