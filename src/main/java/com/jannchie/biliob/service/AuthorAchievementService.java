@@ -44,6 +44,8 @@ public interface AuthorAchievementService {
     Result<?> analyzeDailyAchievement(Long mid);
 
     /**
+     * get Author Achievement By Level
+     *
      * @param level level
      * @return result
      */

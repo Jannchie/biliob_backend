@@ -312,8 +312,8 @@ public class AuthorAchievementServiceImpl implements AuthorAchievementService {
         logger.info("查询Lv.{}以上的最新B站事件", level);
         return mongoTemplate.aggregate(
                 Aggregation.newAggregation(
-                        Aggregation.match(Criteria.where("level").gt(level)),
                         Aggregation.sort(Sort.by("date").descending()),
+                        Aggregation.match(Criteria.where("level").gt(level)),
                         Aggregation.lookup("author", "author.mid", "mid", "author"),
                         Aggregation.unwind("author"),
                         Aggregation.project().andExpression("{data:0 , keyword:0}").as("author"),

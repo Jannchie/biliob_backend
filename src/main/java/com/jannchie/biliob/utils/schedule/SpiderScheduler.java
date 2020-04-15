@@ -52,7 +52,7 @@ public class SpiderScheduler {
         mongoTemplate.updateMulti(Query.query(Criteria.where("date").lt(c.getTime()).and("interval").gt(interval)), Update.update("interval", interval), VideoIntervalRecord.class);
         logger.info("减少了 {}天前加入的 爬取频率到 {}", days, interval);
     }
-
+    
     private void updateIntervalByDaysAndInterval(Integer days, Integer interval) {
         Calendar c = Calendar.getInstance();
         c.add(Calendar.DATE, -days);
