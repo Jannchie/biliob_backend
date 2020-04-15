@@ -52,7 +52,20 @@ public class SpiderScheduler {
         mongoTemplate.updateMulti(Query.query(Criteria.where("date").lt(c.getTime()).and("interval").gt(interval)), Update.update("interval", interval), VideoIntervalRecord.class);
         logger.info("减少了 {}天前加入的 爬取频率到 {}", days, interval);
     }
-    
+
+    @Async
+    private void keepMostViewVideoInterval() {
+        Query q = Query.query(Criteria.where("cView").gt(5000000));
+        q.fields().include("aid");
+        List<Video> v = mongoTemplate.find(q, Video.class);
+        for (Video video : v
+        ) {
+            Long aid = video.getAid();
+            mongoTemplate.upsert(Query.query(Criteria.where("aid").is(aid)), Update.update("interval", SECOND_OF_DAY), VideoIntervalRecord.class);
+            logger.info("每日更新av{}", aid);
+        }
+    }
+
     private void updateIntervalByDaysAndInterval(Integer days, Integer interval) {
         Calendar c = Calendar.getInstance();
         c.add(Calendar.DATE, -days);
@@ -127,11 +140,11 @@ public class SpiderScheduler {
 
     @Async
     @Scheduled(fixedDelay = MICROSECOND_OF_MINUTES * 60)
-    public void reduceVideoInterval() {
-        logger.info("开始减少新视频爬取频率");
+    public void updateVideoInterval() {
+        logger.info("计算新视频爬取频率");
+        keepMostViewVideoInterval();
         reduceIntervalByDaysAndInterval(7, SECOND_OF_DAY * 7);
         reduceIntervalByDaysAndInterval(1, SECOND_OF_DAY);
-        logger.info("减少新视频爬取频率完成");
     }
 
     /**
