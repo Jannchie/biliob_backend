@@ -109,7 +109,7 @@ public class GuessingService {
                         Aggregation.match(Criteria.where("state").lt(3)),
                         Aggregation.lookup("author", "author.mid", "mid", "author"),
                         Aggregation.unwind("author"),
-                        Aggregation.project().andExpression("{ data: 0, keyword: 0}").as("author").and("target")
+                        Aggregation.project().andExpression("{data:0 , keyword:0, fansRate: 0, follows: 0, rank: 0}").as("author").and("target")
                 ), FansGuessingItem.class, FansGuessingItem.class
         ).getMappedResults();
         fansGuessingItems.forEach(fansGuessingItem -> {

@@ -35,7 +35,7 @@ public class AuthorDailyTrendService {
                         Aggregation.limit(10),
                         Aggregation.lookup("author", "mid", "mid", "author"),
                         Aggregation.unwind("author"),
-                        Aggregation.project().andExpression("{data: 0, keyword: 0, rank: 0, focus:0, forceFocus:  0}").as("author")
+                        Aggregation.project().andExpression("{{data:0 , keyword:0, fansRate: 0, follows: 0, rank: 0}}").as("author")
                 ),
                 AuthorDailyTrend.class, AuthorDailyTrend.class).getMappedResults();
     }

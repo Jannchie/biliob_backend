@@ -314,10 +314,10 @@ public class AuthorAchievementServiceImpl implements AuthorAchievementService {
                 Aggregation.newAggregation(
                         Aggregation.sort(Sort.by("date").descending()),
                         Aggregation.match(Criteria.where("level").gt(level)),
+                        Aggregation.limit(20),
                         Aggregation.lookup("author", "author.mid", "mid", "author"),
                         Aggregation.unwind("author"),
-                        Aggregation.project().andExpression("{data:0 , keyword:0}").as("author"),
-                        Aggregation.limit(20)
+                        Aggregation.project().andExpression("{data:0 , keyword:0, fansRate: 0, follows: 0, rank: 0}").as("author")
                 ), Author.Achievement.class, Author.Achievement.class
         ).getMappedResults();
     }
