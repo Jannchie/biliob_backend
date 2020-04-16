@@ -27,7 +27,6 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static com.jannchie.biliob.constant.TimeConstant.MICROSECOND_OF_MINUTES;
 
@@ -51,11 +50,10 @@ public class GuessingService {
     }
 
     public List<FansGuessingItem> listFansGuessing(Integer page) {
-        Query q = new Query().with(PageRequest.of(page, 10, Sort.by("state").descending()));
-        List<FansGuessingItem> result = mongoTemplate.find(q, FansGuessingItem.class);
         Calendar tempC = Calendar.getInstance();
         tempC.add(Calendar.DATE, -7);
-        result = result.stream().filter((fansGuessingItem) -> fansGuessingItem.getReachDate() == null || !fansGuessingItem.getReachDate().before(tempC.getTime())).collect(Collectors.toList());
+        Query q = new Query(new Criteria().orOperator(Criteria.where("reachDate").is(null), Criteria.where("reachDate").gt(tempC.getTime()))).with(PageRequest.of(page, 10, Sort.by("state").descending()));
+        List<FansGuessingItem> result = mongoTemplate.find(q, FansGuessingItem.class);
         result.forEach(fansGuessingItem -> {
             Double totalCredit = 0D;
             if (fansGuessingItem.getPokerChips() != null) {
@@ -140,10 +138,11 @@ public class GuessingService {
         return new Result<>(ResultEnum.SUCCEED);
     }
 
-    @Scheduled(fixedDelay = MICROSECOND_OF_MINUTES * 10)
+    @Scheduled(fixedDelay = MICROSECOND_OF_MINUTES * 60)
     @Async
     public Result<?> autoPostAuthorFansGuessing() {
         logger.info("添加预测竞猜");
+        long MIN_FANS = 5000000L;
         Query q = new Query().with(Sort.by("cFans").descending());
         q.fields().include("mid").include("cFans");
         Author topAuthorData = mongoTemplate.findOne(q, Author.class);
@@ -155,7 +154,8 @@ public class GuessingService {
         Query userQuery = Query.query(Criteria.where("name").is("jannchie"));
         userQuery.fields().include("name");
         User user = mongoTemplate.findOne(userQuery, User.class);
-        while (nextTop > 5000000) {
+
+        while (nextTop >= MIN_FANS) {
             q = new Query(Criteria.where("cFans").lt(nextTop).and("cRate").gt(0)).with(Sort.by("cFans").descending());
             q.fields().include("mid").include("name");
             Author nextAuthor = mongoTemplate.findOne(q, Author.class);
