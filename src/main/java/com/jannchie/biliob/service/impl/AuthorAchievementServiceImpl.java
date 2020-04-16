@@ -290,9 +290,9 @@ public class AuthorAchievementServiceImpl implements AuthorAchievementService {
                         if (pData.getFans() == 0) {
                             continue;
                         }
-                        d.setFans(cData.getFans() / pData.getFans());
                         d.setMid(cData.getMid());
                         d.setDatetime(cData.getDatetime());
+                        achievementEnum.setValue(cData.getFans() / pData.getFans());
                         if (insertAchievementIfNotExist(cData, achievementEnum)) {
                             logger.info("为 {} 添加成就 {}", mid, achievementEnum.getName());
                             break;

@@ -7,6 +7,7 @@ import com.jannchie.biliob.utils.DataReducerTest;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.web.WebAppConfiguration;
 
 @RunWith(Suite.class)
@@ -20,5 +21,6 @@ import org.springframework.test.context.web.WebAppConfiguration;
         VideoServiceImplTest.class,
         UserServiceImplTest.class
 })
+@TestPropertySource(properties = "app.scheduling.enable=false")
 public class BiliobApplicationTests {
 }
