@@ -28,7 +28,7 @@ public enum AuthorAchievementEnum {
     INCREASE_IN_DAY_LV8(2006, 8, "大量涨粉", "单日涨粉达到 %,d", 100000L),
 
     NEW_STAR(3100, 8, "新星爆发", "粉丝数少于300,000且单日涨幅大于100,000"),
-    UP_TO_DOWN(4004, 8, "急转直下", "前日涨粉超过1,000，后日掉粉超过1,000");
+    UP_TO_DOWN(4004, 8, "急转直下", "前日涨粉超过100，后日掉粉超过500");
 
 
     private String name;

@@ -263,25 +263,42 @@ public class AuthorAchievementServiceImpl implements AuthorAchievementService {
                         AuthorAchievementEnum.INCREASE_LV4,
                         AuthorAchievementEnum.INCREASE_LV3};
 
+                boolean flag = false;
                 for (AuthorAchievementEnum achievementEnum : increaseInDayAchievements) {
+                    if (flag) {
+                        break;
+                    }
                     if (checkAndAddFansIncreaseAchievement(cData, achievementEnum)) {
                         logger.info("为 {} 添加成就 {}", mid, achievementEnum.getName());
                         break;
+                    } else {
+                        flag = true;
                     }
                 }
-
+                flag = false;
                 for (AuthorAchievementEnum achievementEnum : decreaseInDayAchievements) {
+                    if (flag) {
+                        break;
+                    }
                     if (checkAndAddFansDecreaseAchievement(cData, achievementEnum)) {
                         logger.info("为 {} 添加成就 {}", mid, achievementEnum.getName());
                         break;
+                    } else {
+                        flag = true;
                     }
                 }
 
-                if (pData.getFans() > 1000 && cData.getFans() < -1000) {
-                    insertAchievementIfNotExist(cData, AuthorAchievementEnum.UP_TO_DOWN);
+                if (pData.getFans() > 100 && cData.getFans() < -500) {
+                    AuthorAchievementEnum e = AuthorAchievementEnum.UP_TO_DOWN;
+                    e.setValue(cData.getFans());
+                    insertAchievementIfNotExist(cData, e);
                 }
 
+                flag = false;
                 for (AuthorAchievementEnum achievementEnum : increaseAchievements) {
+                    if (flag) {
+                        break;
+                    }
                     if (pData.getFans() < 0) {
                         continue;
                     }
@@ -296,6 +313,8 @@ public class AuthorAchievementServiceImpl implements AuthorAchievementService {
                         if (insertAchievementIfNotExist(cData, achievementEnum)) {
                             logger.info("为 {} 添加成就 {}", mid, achievementEnum.getName());
                             break;
+                        } else {
+                            flag = true;
                         }
                     }
                 }
@@ -347,7 +366,7 @@ public class AuthorAchievementServiceImpl implements AuthorAchievementService {
                                 .and("code").is(achievementEnum.getId())
                                 .and("date").is(data.getDatetime())), Author.Achievement.class);
         if (!wasGotten) {
-            mongoTemplate.save(new Author.Achievement(achievementEnum, data.getMid(), data.getFans(), data.getDatetime()));
+            mongoTemplate.save(new Author.Achievement(achievementEnum, data.getMid(), achievementEnum.getValue(), data.getDatetime()));
             return true;
         }
         return false;
