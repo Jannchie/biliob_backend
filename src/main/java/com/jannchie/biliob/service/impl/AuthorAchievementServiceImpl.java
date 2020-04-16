@@ -10,6 +10,7 @@ import com.jannchie.biliob.service.AuthorService;
 import com.jannchie.biliob.utils.Result;
 import org.apache.logging.log4j.LogManager;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
@@ -308,6 +309,7 @@ public class AuthorAchievementServiceImpl implements AuthorAchievementService {
     }
 
     @Override
+    @Cacheable(value = "achievement_by_level", key = "#level")
     public List<Author.Achievement> getAuthorAchievementByLevel(Integer level) {
         logger.info("查询Lv.{}以上的最新B站事件", level);
         return mongoTemplate.aggregate(

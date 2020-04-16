@@ -45,7 +45,7 @@ public class RedisConfig extends CachingConfigurerSupport {
         RedisSerializationContext.SerializationPair<Object> pair =
                 RedisSerializationContext.SerializationPair.fromSerializer(jackson2JsonRedisSerializer);
         return RedisCacheConfiguration.defaultCacheConfig()
-                .entryTtl(Duration.ofDays(1))
+                .entryTtl(Duration.ofHours(1))
                 .serializeValuesWith(pair)
                 .serializeKeysWith(
                         RedisSerializationContext.SerializationPair.fromSerializer(
