@@ -263,42 +263,26 @@ public class AuthorAchievementServiceImpl implements AuthorAchievementService {
                         AuthorAchievementEnum.INCREASE_LV4,
                         AuthorAchievementEnum.INCREASE_LV3};
 
-                boolean flag = false;
                 for (AuthorAchievementEnum achievementEnum : increaseInDayAchievements) {
-                    if (flag) {
-                        break;
-                    }
                     if (checkAndAddFansIncreaseAchievement(cData, achievementEnum)) {
                         logger.info("为 {} 添加成就 {}", mid, achievementEnum.getName());
                         break;
-                    } else {
-                        flag = true;
                     }
                 }
-                flag = false;
                 for (AuthorAchievementEnum achievementEnum : decreaseInDayAchievements) {
-                    if (flag) {
-                        break;
-                    }
+
                     if (checkAndAddFansDecreaseAchievement(cData, achievementEnum)) {
                         logger.info("为 {} 添加成就 {}", mid, achievementEnum.getName());
                         break;
-                    } else {
-                        flag = true;
                     }
                 }
 
                 if (pData.getFans() > 100 && cData.getFans() < -500) {
                     AuthorAchievementEnum e = AuthorAchievementEnum.UP_TO_DOWN;
-                    e.setValue(cData.getFans());
-                    insertAchievementIfNotExist(cData, e);
+                    insertAchievementIfNotExist(cData, e, cData.getFans());
                 }
 
-                flag = false;
                 for (AuthorAchievementEnum achievementEnum : increaseAchievements) {
-                    if (flag) {
-                        break;
-                    }
                     if (pData.getFans() < 0) {
                         continue;
                     }
@@ -309,13 +293,8 @@ public class AuthorAchievementServiceImpl implements AuthorAchievementService {
                         }
                         d.setMid(cData.getMid());
                         d.setDatetime(cData.getDatetime());
-                        achievementEnum.setValue(cData.getFans() / pData.getFans());
-                        if (insertAchievementIfNotExist(cData, achievementEnum)) {
-                            logger.info("为 {} 添加成就 {}", mid, achievementEnum.getName());
-                            break;
-                        } else {
-                            flag = true;
-                        }
+                        insertAchievementIfNotExist(cData, achievementEnum, cData.getFans() / pData.getFans());
+                        break;
                     }
                 }
                 pData = cData;
@@ -346,7 +325,8 @@ public class AuthorAchievementServiceImpl implements AuthorAchievementService {
     private boolean checkAndAddFansDecreaseAchievement(AuthorDailyTrend data, AuthorAchievementEnum achievementEnum) {
         Long cFans = data.getFans();
         if (cFans < -achievementEnum.getValue()) {
-            return insertAchievementIfNotExist(data, achievementEnum);
+            insertAchievementIfNotExist(data, achievementEnum, cFans);
+            return true;
         }
         return false;
     }
@@ -354,21 +334,21 @@ public class AuthorAchievementServiceImpl implements AuthorAchievementService {
     private boolean checkAndAddFansIncreaseAchievement(AuthorDailyTrend data, AuthorAchievementEnum achievementEnum) {
         Long cFans = data.getFans();
         if (cFans > achievementEnum.getValue()) {
-            return insertAchievementIfNotExist(data, achievementEnum);
+            insertAchievementIfNotExist(data, achievementEnum, cFans);
+            return true;
         }
         return false;
     }
 
-    private boolean insertAchievementIfNotExist(AuthorDailyTrend data, AuthorAchievementEnum achievementEnum) {
+    private void insertAchievementIfNotExist(AuthorDailyTrend data, AuthorAchievementEnum achievementEnum, Long value) {
         boolean wasGotten = mongoTemplate.exists(
                 Query.query(
                         Criteria.where("author.mid").is(data.getMid())
                                 .and("code").is(achievementEnum.getId())
                                 .and("date").is(data.getDatetime())), Author.Achievement.class);
         if (!wasGotten) {
-            mongoTemplate.save(new Author.Achievement(achievementEnum, data.getMid(), achievementEnum.getValue(), data.getDatetime()));
-            return true;
+            logger.info("添加成就: {} {}", data.getMid(), achievementEnum.getName());
+            mongoTemplate.save(new Author.Achievement(achievementEnum, data.getMid(), value, data.getDatetime()));
         }
-        return false;
     }
 }
