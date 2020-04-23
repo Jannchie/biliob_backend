@@ -213,98 +213,17 @@ public class GuessingService {
         });
     }
 
-    @Scheduled(fixedDelay = MICROSECOND_OF_MINUTES * 60 * 24)
+    //    @Scheduled(fixedDelay = MICROSECOND_OF_MINUTES * 60 * 24)
     @Async
     public Result<?> judgeFinishedFansGuessing() {
         Integer finishedState = 3;
         List<FansGuessingItem> fansGuessingItems = mongoTemplate.find(Query.query(Criteria.where("state").is(finishedState)), FansGuessingItem.class);
         for (FansGuessingItem f : fansGuessingItems
         ) {
-            Date reachDate = f.getReachDate();
-            Calendar c = Calendar.getInstance();
-            c.setTime(reachDate);
-            c.add(Calendar.HOUR, -8);
-
-            Date finalReachDate = c.getTime();
-            HashMap<String, Long> result = new HashMap<>();
-            HashMap<String, Double> sumCreditMap = new HashMap<>();
-            HashMap<String, Long> sumTimeStamp = new HashMap<>();
-            HashMap<String, Long> sumCreateTimeStamp = new HashMap<>();
-            f.getPokerChips().forEach(pokerChip -> {
-
-                Date cDate = pokerChip.getCreateTime();
-                User user = pokerChip.getUser();
-                String name = user.getName();
-                Date guessingDate = getCorrectGuessingTime(pokerChip);
-                long deltaTime = Math.abs(guessingDate.getTime() - finalReachDate.getTime());
-                if (deltaTime == 0) {
-                    deltaTime = 1L;
-                }
-                Double credit = pokerChip.getCredit();
-                // 积分数 = 筹码积分值 × ( 实际达成时间 - 平均发起预测时间 ) ÷ ( | 实际达成时间 - 平均预测达成时间 |)
-                Long deltaGuessingTime = finalReachDate.getTime() - cDate.getTime();
-                Long score = credit.longValue() * ((deltaGuessingTime / 3600000 + 24) / (deltaTime / 3600000 + 1));
-
-                if (sumCreditMap.containsKey(name)) {
-                    sumCreditMap.put(name, sumCreditMap.get(name) + credit);
-                } else {
-                    sumCreditMap.put(name, credit);
-                }
-
-                if (sumTimeStamp.containsKey(name)) {
-                    sumTimeStamp.put(name, sumTimeStamp.get(name) + guessingDate.getTime() * credit.longValue());
-                } else {
-                    sumTimeStamp.put(name, guessingDate.getTime() * credit.longValue());
-                }
-                if (sumCreateTimeStamp.containsKey(name)) {
-                    sumCreateTimeStamp.put(name, sumCreateTimeStamp.get(name) + cDate.getTime() * credit.longValue());
-                } else {
-                    sumCreateTimeStamp.put(name, cDate.getTime() * credit.longValue());
-                }
-
-                if (result.containsKey(name)) {
-                    result.put(name, result.get(name) + score);
-                } else {
-                    result.put(name, score);
-                }
-            });
-            ArrayList<UserGuessingResult> resultList = new ArrayList<>();
-
-
-            Calendar tempCal = Calendar.getInstance();
-
-            result.keySet().forEach(key -> {
-                UserGuessingResult r = new UserGuessingResult();
-
-
-                r.setName(key);
-                r.setCredit(sumCreditMap.get(key));
-                long averageGuessingTime = sumTimeStamp.get(key) / sumCreditMap.get(key).longValue();
-                tempCal.setTimeInMillis(averageGuessingTime);
-                r.setAverageDate(tempCal.getTime());
-                long averageCreateTime = sumCreateTimeStamp.get(key) / sumCreditMap.get(key).longValue();
-                tempCal.setTimeInMillis(averageCreateTime);
-                r.setAverageCreateTime(tempCal.getTime());
-                // 积分数 = 筹码积分值 × ( 实际达成时间 - 平均发起预测时间 ) ÷ ( | 实际达成时间 - 平均预测达成时间 |)
-                long deltaGuessingTime = finalReachDate.getTime() - averageCreateTime;
-                long deltaTime = Math.abs(averageGuessingTime - finalReachDate.getTime());
-
-                Long score = r.getCredit().longValue() * ((deltaGuessingTime / 3600000 + 24) / (deltaTime / 600000 + 1));
-
-                r.setScore(score);
-                resultList.add(r);
-            });
-            long sumScore = resultList.stream().map(UserGuessingResult::getScore).reduce(0L, Long::sum);
-            long sumCredit = resultList.stream().map(UserGuessingResult::getCredit).reduce(0D, Double::sum).longValue();
-            if (sumScore == 0) {
+            ArrayList<UserGuessingResult> resultList = getUserGuessingResults(f);
+            if (resultList == null) {
                 continue;
             }
-            Double rate = (double) sumCredit / (double) (sumScore);
-            resultList.forEach(userGuessingResult ->
-            {
-                userGuessingResult.setRevenue(BigDecimal.valueOf(rate * userGuessingResult.getScore()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
-            });
-            resultList.sort(Comparator.comparingLong(UserGuessingResult::getScore).reversed());
             mongoTemplate.updateFirst(Query.query(Criteria.where("guessingId").is(f.getGuessingId())), Update.update("result", resultList).set("state", 4), FansGuessingItem.class);
             resultList.forEach(userGuessingResult -> {
                 User u = mongoTemplate.findOne(Query.query(Criteria.where("name").is(userGuessingResult.getName())), User.class);
@@ -320,5 +239,100 @@ public class GuessingService {
             });
         }
         return new Result<>(ResultEnum.SUCCEED);
+    }
+
+    private ArrayList<UserGuessingResult> getUserGuessingResults(FansGuessingItem f) {
+        Date reachDate = f.getReachDate();
+        Calendar c = Calendar.getInstance();
+        c.setTime(reachDate);
+        c.add(Calendar.HOUR, -8);
+
+        Date finalReachDate = c.getTime();
+        HashMap<String, Long> result = new HashMap<>();
+        HashMap<String, Double> sumCreditMap = new HashMap<>();
+        HashMap<String, Long> sumTimeStamp = new HashMap<>();
+        HashMap<String, Long> sumCreateTimeStamp = new HashMap<>();
+        f.getPokerChips().forEach(pokerChip -> {
+
+            Date cDate = pokerChip.getCreateTime();
+            User user = pokerChip.getUser();
+            String name = user.getName();
+            Date guessingDate = getCorrectGuessingTime(pokerChip);
+            long deltaTime = Math.abs(guessingDate.getTime() - finalReachDate.getTime());
+            if (deltaTime == 0) {
+                deltaTime = 1L;
+            }
+            Double credit = pokerChip.getCredit();
+            // 积分数 = 筹码积分值 × ( 实际达成时间 - 平均发起预测时间 ) ÷ ( | 实际达成时间 - 平均预测达成时间 |)
+            Long deltaGuessingTime = finalReachDate.getTime() - cDate.getTime();
+            Long score = credit.longValue() * ((deltaGuessingTime / 3600000 + 24 * 7) / (deltaTime / 3600000 + 6));
+
+            if (sumCreditMap.containsKey(name)) {
+                sumCreditMap.put(name, sumCreditMap.get(name) + credit);
+            } else {
+                sumCreditMap.put(name, credit);
+            }
+
+            if (sumTimeStamp.containsKey(name)) {
+                sumTimeStamp.put(name, sumTimeStamp.get(name) + guessingDate.getTime() * credit.longValue());
+            } else {
+                sumTimeStamp.put(name, guessingDate.getTime() * credit.longValue());
+            }
+            if (sumCreateTimeStamp.containsKey(name)) {
+                sumCreateTimeStamp.put(name, sumCreateTimeStamp.get(name) + cDate.getTime() * credit.longValue());
+            } else {
+                sumCreateTimeStamp.put(name, cDate.getTime() * credit.longValue());
+            }
+
+            if (result.containsKey(name)) {
+                result.put(name, result.get(name) + score);
+            } else {
+                result.put(name, score);
+            }
+        });
+        ArrayList<UserGuessingResult> resultList = new ArrayList<>();
+
+
+        Calendar tempCal = Calendar.getInstance();
+
+        result.keySet().forEach(key -> {
+            UserGuessingResult r = new UserGuessingResult();
+
+
+            r.setName(key);
+            r.setCredit(sumCreditMap.get(key));
+            long averageGuessingTime = sumTimeStamp.get(key) / sumCreditMap.get(key).longValue();
+            tempCal.setTimeInMillis(averageGuessingTime);
+            r.setAverageDate(tempCal.getTime());
+            long averageCreateTime = sumCreateTimeStamp.get(key) / sumCreditMap.get(key).longValue();
+            tempCal.setTimeInMillis(averageCreateTime);
+            r.setAverageCreateTime(tempCal.getTime());
+            // 积分数 = 筹码积分值 × ( 实际达成时间 - 平均发起预测时间 ) ÷ ( | 实际达成时间 - 平均预测达成时间 |)
+            long deltaGuessingTime = finalReachDate.getTime() - averageCreateTime;
+            long deltaTime = Math.abs(averageGuessingTime - finalReachDate.getTime());
+
+            Long score = r.getCredit().longValue() * 10000 * ((deltaGuessingTime / 3600000 + 100) / (deltaTime / 3600000 + 10));
+
+            r.setScore(score);
+            resultList.add(r);
+        });
+        long sumScore = resultList.stream().map(UserGuessingResult::getScore).reduce(0L, Long::sum);
+        long sumCredit = resultList.stream().map(UserGuessingResult::getCredit).reduce(0D, Double::sum).longValue();
+        if (sumScore == 0) {
+            return null;
+        }
+        Double rate = (double) sumCredit / (double) (sumScore);
+        resultList.forEach(userGuessingResult ->
+        {
+            userGuessingResult.setRevenue(BigDecimal.valueOf(rate * userGuessingResult.getScore()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+        });
+        resultList.sort(Comparator.comparingLong(UserGuessingResult::getScore).reversed());
+        return resultList;
+    }
+
+    public Result<?> getGuessingResult(String guessingId) {
+        FansGuessingItem fansGuessingItem = mongoTemplate.findOne(Query.query(Criteria.where("guessingId").is(guessingId)), FansGuessingItem.class);
+        ArrayList<UserGuessingResult> resultList = getUserGuessingResults(fansGuessingItem);
+        return new Result<>(ResultEnum.SUCCEED, resultList);
     }
 }

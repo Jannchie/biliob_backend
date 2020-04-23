@@ -26,4 +26,9 @@ public class GuessingController {
     public Result<?> joinGuessing(@RequestBody FansGuessingItem.PokerChip pokerChip, @PathVariable String guessingId) {
         return guessingService.joinFansGuessing(guessingId, pokerChip);
     }
+
+    @RequestMapping(method = RequestMethod.GET, value = "/api/author/fans-guessing/{guessingId}/result")
+    public Result<?> getGuessingResult(@PathVariable String guessingId) {
+        return guessingService.getGuessingResult(guessingId);
+    }
 }
