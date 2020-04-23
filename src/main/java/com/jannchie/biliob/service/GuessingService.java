@@ -213,7 +213,7 @@ public class GuessingService {
         });
     }
 
-    //    @Scheduled(fixedDelay = MICROSECOND_OF_MINUTES * 60 * 24)
+    @Scheduled(fixedDelay = MICROSECOND_OF_MINUTES * 60 * 24)
     @Async
     public Result<?> judgeFinishedFansGuessing() {
         Integer finishedState = 3;
