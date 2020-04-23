@@ -20,6 +20,7 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import javax.validation.Valid;
@@ -391,12 +392,17 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    public Result banIp(String ip) {
+    public Result<?> banIp(String ip) {
+        return banIp(ip, "管理员手动操作");
+    }
+
+    @Override
+    public Result<?> banIp(String ip, String reason) {
         if (mongoTemplate.exists(Query.query(Criteria.where("ip").is(ip)), Blacklist.class)) {
-            return new Result(ResultEnum.ALREADY_BANED);
+            return new Result<>(ResultEnum.ALREADY_BANED);
         }
-        mongoTemplate.save(new Blacklist(ip));
-        return new Result(ResultEnum.SUCCEED);
+        mongoTemplate.save(new Blacklist(ip, reason));
+        return new Result<>(ResultEnum.SUCCEED);
     }
 
     @Override
@@ -409,6 +415,7 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
+    @Async
     public Result<?> dataReduction() {
         List<Author> l = mongoTemplate.aggregate(
                 Aggregation.newAggregation(
@@ -424,6 +431,7 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
+    @Async
     public Result<?> reduceByMid(Long mid) {
         logger.info("正在精简 {} 的数据", mid);
         List<Author.Data> data = mongoTemplate.find(Query.query(Criteria.where("mid").is(mid)).with(Sort.by("datetime").ascending()), Author.Data.class);
@@ -474,7 +482,7 @@ public class AdminServiceImpl implements AdminService {
         for (String ip : suspiciousIp) {
             Double variance = getVariance(ip);
             if (getVariance(ip) < 0.02) {
-                mongoTemplate.save(mongoTemplate.save(new Blacklist(ip)));
+                mongoTemplate.save(new Blacklist(ip, "访问过于模式化"));
                 logger.info("[BAN] IP: {},Variance {}", ip, variance);
             }
         }

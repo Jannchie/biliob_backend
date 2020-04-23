@@ -335,4 +335,15 @@ public class GuessingService {
         ArrayList<UserGuessingResult> resultList = getUserGuessingResults(fansGuessingItem);
         return new Result<>(ResultEnum.SUCCEED, resultList);
     }
+
+    public Result<?> cancelRevenue(String guessingId) {
+        List<UserGuessingResult> ugrs = mongoTemplate.find(Query.query(Criteria.where("guessingId").is(guessingId)), UserGuessingResult.class, "cashed_user_guessing");
+        for (UserGuessingResult ugr : ugrs
+        ) {
+            String userName = ugr.getName();
+            Double revenue = ugr.getRevenue();
+            mongoTemplate.upsert(Query.query(Criteria.where("name").is(userName)), new Update().inc("credit", -revenue), User.class);
+        }
+        return new Result<>(ResultEnum.SUCCEED);
+    }
 }

@@ -31,4 +31,9 @@ public class GuessingController {
     public Result<?> getGuessingResult(@PathVariable String guessingId) {
         return guessingService.getGuessingResult(guessingId);
     }
+
+    @RequestMapping(method = RequestMethod.POST, value = "/api/author/fans-guessing/{guessingId}/cancel")
+    public Result<?> cancelRevenue(@PathVariable String guessingId) {
+        return guessingService.cancelRevenue(guessingId);
+    }
 }

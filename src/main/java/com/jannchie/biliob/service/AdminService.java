@@ -6,6 +6,7 @@ import com.jannchie.biliob.model.SearchMethod;
 import com.jannchie.biliob.object.AuthorIntervalCount;
 import com.jannchie.biliob.utils.Result;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Async;
 
 import javax.validation.Valid;
 import java.util.ArrayList;
@@ -158,8 +159,11 @@ public interface AdminService {
 
     Result<?> banIp(String ip);
 
+    Result<?> banIp(String ip, String reason);
+
     List<AuthorIntervalCount> getSpiderStat();
 
+    @Async
     Result<?> dataReduction();
 
     Result<?> reduceByMid(Long mid);

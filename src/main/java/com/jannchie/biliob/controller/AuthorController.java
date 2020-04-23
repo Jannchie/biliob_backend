@@ -57,8 +57,9 @@ public class AuthorController {
             @RequestParam(defaultValue = "20") Integer pageSize,
             @RequestParam(defaultValue = "-1") Long mid,
             @RequestParam(defaultValue = "") String text) {
-        if (page > 100) {
+        if (page > 30) {
             adminService.banIp(IpUtil.getIpAddress(request));
+            page = 1;
         }
         return authorService.getAuthor(mid, text, page, pageSize, sort);
     }

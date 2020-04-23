@@ -17,7 +17,7 @@ public class Video {
     private String bvid;
     private Long mid;
     private String title;
-    private String author;
+    private Author author;
     private String channel;
     private String subChannel;
     private Date datetime;
@@ -167,14 +167,6 @@ public class Video {
         this.title = title;
     }
 
-    public String getAuthor() {
-        return author;
-    }
-
-    public void setAuthor(String author) {
-        this.author = author;
-    }
-
     public String getChannel() {
         return channel;
     }
@@ -269,6 +261,14 @@ public class Video {
 
     public void setBvid(String bvid) {
         this.bvid = bvid;
+    }
+
+    public Author getAuthor() {
+        return author;
+    }
+
+    public void setAuthor(Author author) {
+        this.author = author;
     }
 
     public static class Data {
