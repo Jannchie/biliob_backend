@@ -33,9 +33,9 @@ public class VideoServiceV2 {
     private Video getVideoWithAuthorDataByCriteria(Criteria c) {
         Video v = mongoTemplate.aggregate(Aggregation.newAggregation(
                 Aggregation.match(c),
-                Aggregation.lookup("author", "mid", "mid", "author"),
-                Aggregation.unwind("author"),
-                Aggregation.project().andExpression("{data:0 , keyword:0, fansRate: 0, follows: 0, rank: 0}").as("author")
+                Aggregation.lookup("author", "mid", "mid", "author_info"),
+                Aggregation.unwind("author_info"),
+                Aggregation.project().andExpression("{data:0 , keyword:0, fansRate: 0, follows: 0, rank: 0}").as("author_info")
         ), Video.class, Video.class).getUniqueMappedResult();
         if (v == null) {
             return null;
