@@ -17,6 +17,7 @@ public class Video {
     private String bvid;
     private Long mid;
     private String title;
+    @Field("author_info")
     private Author author;
     private String channel;
     private String subChannel;
@@ -38,6 +39,8 @@ public class Video {
     private ArrayList<String> tag;
     @Field("danmaku_aggregate")
     private HashMap<Object, Object> danmakuAggregate;
+    @Field("author")
+    private String authorName;
 
     public Video(Long aid) {
         this.aid = aid;
@@ -46,6 +49,14 @@ public class Video {
 
     public Video() {
         this.focus = true;
+    }
+
+    public String getAuthorName() {
+        return authorName;
+    }
+
+    public void setAuthorName(String authorName) {
+        this.authorName = authorName;
     }
 
     public ArrayList<String> getTag() {

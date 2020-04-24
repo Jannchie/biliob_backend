@@ -272,7 +272,7 @@ public class VideoServiceImpl implements VideoService {
         } else {
             video = repository.findByAid(aid);
         }
-        HashMap rank = getVideoRank(video);
+        HashMap<?, ?> rank = getVideoRank(video);
         video.setRank(rank);
         filterVideoData(video);
         return video;
