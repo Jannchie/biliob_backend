@@ -39,7 +39,7 @@ public interface VideoRepository
     @Query(
             value = "{data:{$ne:null}}",
             fields =
-                    "{ 'pic' : 1, 'mid' : 1, 'author' : 1, 'channel' : 1, 'title' : 1, 'aid' : 1, 'focus':1}"
+                    "{ 'pic' : 1, 'mid' : 1, 'author' : 1, 'authorName' : 1, 'channel' : 1, 'title' : 1, 'aid' : 1, 'focus':1}"
     )
     Slice<Video> findAllByAid(Pageable pageable);
 
@@ -53,7 +53,7 @@ public interface VideoRepository
     @Query(
             value = "{'aid' : ?0 }",
             fields =
-                    "{ 'pic' : 1, 'mid' : 1, 'author' : 1, 'channel' : 1, 'title' : 1, 'aid' : 1, 'focus':1, 'tag': 1, 'datetime':1}"
+                    "{ 'pic' : 1, 'mid' : 1, 'author' : 1, 'authorName' : 1, 'channel' : 1, 'title' : 1, 'aid' : 1, 'focus':1, 'tag': 1, 'datetime':1}"
     )
     Slice<Video> searchByAid(@Param("aid") Long aid, Pageable pageable);
 
@@ -67,7 +67,7 @@ public interface VideoRepository
     @Query(
             value = "{$or:[{channel:{$regex:?0}},{author:{$regex:?0}},{title:{$regex:?0}}]}",
             fields =
-                    "{ 'pic' : 1, 'mid' : 1, 'author' : 1, 'channel' : 1, 'title' : 1, 'aid' : 1, 'focus':1, 'tag': 1}"
+                    "{ 'pic' : 1, 'mid' : 1, 'author' : 1, 'authorName' : 1, 'channel' : 1, 'title' : 1, 'aid' : 1, 'focus':1, 'tag': 1}"
     )
     Slice<Video> searchByText(String text, Pageable pageable);
 
@@ -81,7 +81,7 @@ public interface VideoRepository
     @Query(
             value = "{$or:[{'tag': {'$in': ?0}},{'keyword': {'$all': ?0}}]}",
             fields =
-                    "{ 'pic' : 1, 'mid' : 1, 'author' : 1, 'channel' : 1, 'title' : 1, 'aid' : 1, 'focus':1, 'tag': 1}"
+                    "{ 'pic' : 1, 'mid' : 1, 'author' : 1, 'authorName' : 1, 'channel' : 1, 'title' : 1, 'aid' : 1, 'focus':1, 'tag': 1}"
     )
     Slice<Video> findByKeywordContaining(String[] keyword, Pageable pageable);
 
@@ -95,7 +95,7 @@ public interface VideoRepository
     @Query(
             value = "{$or:[{'tag': ?0},{'keyword': ?0}]}",
             fields =
-                    "{ 'pic' : 1, 'mid' : 1, 'author' : 1, 'channel' : 1, 'title' : 1, 'aid' : 1, 'focus':1, 'tag': 1}"
+                    "{ 'pic' : 1, 'mid' : 1, 'author' : 1, 'authorName' : 1, 'channel' : 1, 'title' : 1, 'aid' : 1, 'focus':1, 'tag': 1}"
     )
     Slice<Video> findByOneKeyword(String keyword, Pageable pageable);
 
@@ -108,7 +108,7 @@ public interface VideoRepository
      */
     @Query(
             fields =
-                    "{ 'pic' : 1, 'mid' : 1, 'author' : 1, 'channel' : 1, 'title' : 1, 'aid' : 1, 'focus':1, 'tag': 1, 'datetime': 1}"
+                    "{ 'pic' : 1, 'mid' : 1, 'author' : 1, 'authorName' : 1, 'channel' : 1, 'title' : 1, 'aid' : 1, 'focus':1, 'tag': 1, 'datetime': 1}"
     )
     Slice<Video> findAllByDatetimeGreaterThan(Date date, Pageable pageable);
 
@@ -120,7 +120,7 @@ public interface VideoRepository
      */
     @Query(
             fields =
-                    "{ 'pic' : 1, 'mid' : 1, 'author' : 1, 'channel' : 1, 'title' : 1, 'aid' : 1, 'focus':1, 'tag': 1, 'datetime': 1}"
+                    "{ 'pic' : 1, 'mid' : 1, 'author' : 1, 'authorName' : 1, 'channel' : 1, 'title' : 1, 'aid' : 1, 'focus':1, 'tag': 1, 'datetime': 1}"
     )
     Slice<Video> findAllByDataIsNotNull(Pageable pageable);
 
@@ -133,7 +133,7 @@ public interface VideoRepository
      */
     @Query(
             fields =
-                    "{ 'pic' : 1, 'mid' : 1, 'author' : 1, 'channel' : 1, 'title' : 1, 'aid' : 1, 'focus':1, 'tag': 1, 'datetime': 1}"
+                    "{ 'pic' : 1, 'mid' : 1, 'author' : 1, 'authorName' : 1, 'channel' : 1, 'title' : 1, 'aid' : 1, 'focus':1, 'tag': 1, 'datetime': 1}"
     )
     Slice<Video> findVideoBy(Pageable pageable);
 
@@ -174,7 +174,7 @@ public interface VideoRepository
     @Query(
             value = "{$or:?0,data:{$ne:null}}",
             fields =
-                    "{ 'pic' : 1, 'mid' : 1, 'author' : 1, 'channel' : 1, 'title' : 1, 'aid' : 1, 'focus': 1, 'tag': 1}"
+                    "{ 'pic' : 1, 'mid' : 1, 'author' : 1, 'authorName' : 1, 'channel' : 1, 'title' : 1, 'aid' : 1, 'focus': 1, 'tag': 1}"
     )
     Slice getFavoriteVideo(ArrayList<HashMap<String, Long>> aids, PageRequest of);
 }

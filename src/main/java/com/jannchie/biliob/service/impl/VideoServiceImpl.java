@@ -335,7 +335,7 @@ public class VideoServiceImpl implements VideoService {
             pagesize = PageSizeEnum.BIG_SIZE.getValue();
         }
 
-        if (!(aid == -1)) {
+        if (aid != -1) {
             VideoServiceImpl.logger.info(aid);
             return new MySlice<>(
                     repository.searchByAid(
