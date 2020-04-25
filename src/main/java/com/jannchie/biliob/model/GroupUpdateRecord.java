@@ -14,26 +14,31 @@ import java.util.List;
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @org.springframework.data.mongodb.core.mapping.Document(collection = "author_list")
-public class AuthorList {
+public class AuthorGroup {
     @Id
     private String id;
     private List<Author> authorList = new ArrayList<>();
     private List<String> tagList = new ArrayList<>();
     private User creator;
     private User maintainer;
+    private List<User> editors;
     private String desc;
     private String name;
-    private List<User> starList = new ArrayList<>();
+    private List<UserStarAuthorGroup> starList;
     private Date createTime;
     private Date updateTime;
     private Date forkTime;
     private List<String> updateRecord = new ArrayList<>();
 
-    public AuthorList() {
+    private boolean stared;
+    private Integer stars;
+    private Integer authors;
+
+    public AuthorGroup() {
 
     }
 
-    public AuthorList(String name, String desc, List<String> tag, ObjectId userId) {
+    public AuthorGroup(String name, String desc, List<String> tag, ObjectId userId) {
         this.name = name;
         creator = new User(userId);
         maintainer = creator;
@@ -41,6 +46,22 @@ public class AuthorList {
         this.desc = desc;
         this.updateTime = Calendar.getInstance().getTime();
         this.createTime = Calendar.getInstance().getTime();
+    }
+
+    public Integer getStars() {
+        return stars;
+    }
+
+    public void setStars(Integer stars) {
+        this.stars = stars;
+    }
+
+    public boolean isStared() {
+        return stared;
+    }
+
+    public void setStared(boolean b) {
+        this.stared = b;
     }
 
     public User getMaintainer() {
@@ -51,11 +72,11 @@ public class AuthorList {
         this.maintainer = maintainer;
     }
 
-    public List<User> getStarList() {
+    public List<UserStarAuthorGroup> getStarList() {
         return starList;
     }
 
-    public void setStarList(List<User> starList) {
+    public void setStarList(List<UserStarAuthorGroup> starList) {
         this.starList = starList;
     }
 
@@ -131,7 +152,6 @@ public class AuthorList {
         this.desc = desc;
     }
 
-
     public User getCreator() {
         return creator;
     }
@@ -140,10 +160,19 @@ public class AuthorList {
         this.creator = creator;
     }
 
-    public Integer getStars() {
-        return starList.size();
+    public List<User> getEditors() {
+        return editors;
     }
 
-    public void setStars(Integer stars) {
+    public void setEditors(List<User> editors) {
+        this.editors = editors;
+    }
+
+    public Integer getAuthors() {
+        return authors;
+    }
+
+    public void setAuthors(Integer authors) {
+        this.authors = authors;
     }
 }

@@ -265,14 +265,12 @@ public class AuthorAchievementServiceImpl implements AuthorAchievementService {
 
                 for (AuthorAchievementEnum achievementEnum : increaseInDayAchievements) {
                     if (checkAndAddFansIncreaseAchievement(cData, achievementEnum)) {
-                        logger.info("为 {} 添加成就 {}", mid, achievementEnum.getName());
                         break;
                     }
                 }
                 for (AuthorAchievementEnum achievementEnum : decreaseInDayAchievements) {
 
                     if (checkAndAddFansDecreaseAchievement(cData, achievementEnum)) {
-                        logger.info("为 {} 添加成就 {}", mid, achievementEnum.getName());
                         break;
                     }
                 }

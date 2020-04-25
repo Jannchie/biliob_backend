@@ -99,6 +99,7 @@ public class AuthorServiceImpl implements AuthorService {
     }
 
     private Author getAggregatedData(Long mid, int days) {
+        Calendar timer = Calendar.getInstance();
         MatchOperation match = getAggregateMatch(days, mid);
         Aggregation a = Aggregation.newAggregation(
                 match,
@@ -131,7 +132,14 @@ public class AuthorServiceImpl implements AuthorService {
                 Aggregation.lookup("author_achievement", "mid", "author.mid", "achievements"),
                 Aggregation.project().andExpression("{ mid: 0}").as("data")
         );
-        return mongoTemplate.aggregate(a, Author.Data.class, Author.class).getUniqueMappedResult();
+        Author data = mongoTemplate.aggregate(a, Author.Data.class, Author.class).getUniqueMappedResult();
+        long deltaTime = Calendar.getInstance().getTimeInMillis() - timer.getTimeInMillis();
+        // 太慢，则精简数据
+        logger.info(deltaTime);
+        if (deltaTime > 5000) {
+            adminService.reduceByMid(mid);
+        }
+        return data;
     }
 
     @Override
@@ -211,6 +219,7 @@ public class AuthorServiceImpl implements AuthorService {
             authorAchievementService.analyzeDailyAchievement(author.getMid());
         }
         if (author.getData() != null) {
+
             filterAuthorData(author);
         }
     }

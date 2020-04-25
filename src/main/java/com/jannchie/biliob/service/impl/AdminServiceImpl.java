@@ -434,14 +434,16 @@ public class AdminServiceImpl implements AdminService {
     @Async
     public Result<?> reduceByMid(Long mid) {
         logger.info("正在精简 {} 的数据", mid);
-        List<Author.Data> data = mongoTemplate.find(Query.query(Criteria.where("mid").is(mid)).with(Sort.by("datetime").ascending()), Author.Data.class);
+        Calendar c = Calendar.getInstance();
+        c.set(Calendar.DATE, -7);
+        List<Author.Data> data = mongoTemplate.find(Query.query(Criteria.where("mid").is(mid).and("datetime").lt(c)).with(Sort.by("datetime").ascending()), Author.Data.class);
         if (data.size() <= 1) {
             return null;
         }
         Date lastDate = data.get(0).getDatetime();
         for (int i = 1; i < data.size(); i++) {
             Date currentDate = data.get(i).getDatetime();
-            if (currentDate.getTime() - lastDate.getTime() < 1000 * 60 * 60) {
+            if (currentDate.getTime() - lastDate.getTime() < 1000 * 60 * 60 * 6) {
                 mongoTemplate.remove(Query.query(Criteria.where("mid").is(mid).and("datetime").is(currentDate)), Author.Data.class);
             } else {
                 lastDate = data.get(i).getDatetime();
