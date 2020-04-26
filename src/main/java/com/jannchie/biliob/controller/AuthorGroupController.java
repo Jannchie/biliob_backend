@@ -1,7 +1,8 @@
 package com.jannchie.biliob.controller;
 
-import com.jannchie.biliob.model.AuthorList;
-import com.jannchie.biliob.service.AuthorListService;
+import com.jannchie.biliob.model.AuthorGroup;
+import com.jannchie.biliob.model.GroupUpdateRecord;
+import com.jannchie.biliob.service.AuthorGroupService;
 import com.jannchie.biliob.utils.Result;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -15,81 +16,95 @@ import java.util.List;
  * @author jannchie
  */
 @RestController
-public class AuthorListController {
+public class AuthorGroupController {
 
-    private final AuthorListService authorListService;
+    private final AuthorGroupService authorGroupService;
 
     @Autowired
-    public AuthorListController(AuthorListService authorListService) {
-        this.authorListService = authorListService;
+    public AuthorGroupController(AuthorGroupService authorGroupService) {
+        this.authorGroupService = authorGroupService;
 
     }
 
-    @RequestMapping(method = RequestMethod.POST, value = "/api/author/list")
-    public Result<AuthorList> initAuthorList(
-            @RequestBody @Valid AuthorList authorList) {
-        return authorListService.initAuthorList(authorList.getName(), authorList.getDesc(), authorList.getTagList());
+    @RequestMapping(method = RequestMethod.POST, value = "/api/author/group")
+    public Result<AuthorGroup> initAuthorList(
+            @RequestBody @Valid AuthorGroup authorGroup) {
+        return authorGroupService.initAuthorList(authorGroup.getName(), authorGroup.getDesc(), authorGroup.getTagList());
     }
 
-    @RequestMapping(method = RequestMethod.GET, value = "/api/author/list")
-    public List<AuthorList> listAuthorList(
+    @RequestMapping(method = RequestMethod.GET, value = "/api/author/group")
+    public List<AuthorGroup> listAuthorList(
             @RequestParam(value = "p", defaultValue = "1") Long page,
             @RequestParam(value = "ps", defaultValue = "20") Integer pageSize,
             @RequestParam(value = "kw", defaultValue = "") String keyword
     ) {
-        return authorListService.listAuthorList(keyword, page, pageSize);
+        return authorGroupService.listAuthorList(keyword, page, pageSize);
     }
 
-    @RequestMapping(method = RequestMethod.DELETE, value = "/api/author/list/{id}")
+    @RequestMapping(method = RequestMethod.DELETE, value = "/api/author/group/{id}")
     public Result<?> listAuthorList(
             @PathVariable("id") String id
     ) {
-        return authorListService.deleteAuthorList(id);
+        return authorGroupService.deleteAuthorList(id);
     }
 
-    @RequestMapping(method = RequestMethod.GET, value = "/api/author/list/{id}")
-    public AuthorList getAuthorList(
+    @RequestMapping(method = RequestMethod.GET, value = "/api/author/group/{id}")
+    public AuthorGroup getAuthorList(
             @PathVariable("id") String id
     ) {
-        return authorListService.getAuthorList(id);
+        return authorGroupService.getAuthorList(id);
     }
 
-    @RequestMapping(method = RequestMethod.PUT, value = "/api/author/list/{id}/star")
+    @RequestMapping(method = RequestMethod.PUT, value = "/api/author/group/{id}/star")
     public Result<?> starAuthorList(
             @PathVariable("id") String id
     ) {
-        return authorListService.starAuthorList(id);
+        return authorGroupService.starAuthorList(id);
     }
 
-    @RequestMapping(method = RequestMethod.DELETE, value = "/api/author/list/{id}/star")
+    @RequestMapping(method = RequestMethod.DELETE, value = "/api/author/group/{id}/star")
     public Result<?> unstarAuthorList(
             @PathVariable("id") String id
     ) {
-        return authorListService.unstarAuthorList(id);
+        return authorGroupService.unstarAuthorList(id);
     }
 
-    @RequestMapping(method = RequestMethod.GET, value = "/api/user/author/list/star")
-    public List<AuthorList> listStaredAuthorList(
+    @RequestMapping(method = RequestMethod.GET, value = "/api/user/author/group/star")
+    public List<AuthorGroup> listStaredAuthorList(
             @RequestParam(value = "p") Integer page,
             @RequestParam(value = "ps") Integer pageSize
     ) {
-        return authorListService.listUserAuthorList(page, pageSize, 0);
+        return authorGroupService.listUserAuthorList(page, pageSize, 0);
     }
 
-    @RequestMapping(method = RequestMethod.GET, value = "/api/user/author/list/maintain")
-    public List<AuthorList> listMaintainAuthorList(
+    @RequestMapping(method = RequestMethod.GET, value = "/api/user/author/group/maintain")
+    public List<AuthorGroup> listMaintainAuthorList(
             @RequestParam(value = "p") Integer page,
             @RequestParam(value = "ps") Integer pageSize
     ) {
-        return authorListService.listUserAuthorList(page, pageSize, 1);
+        return authorGroupService.listUserAuthorList(page, pageSize, 1);
     }
 
-    @RequestMapping(method = RequestMethod.GET, value = "/api/user/author/list/create")
-    public List<AuthorList> listCreatedAuthorList(
+    @RequestMapping(method = RequestMethod.GET, value = "/api/user/author/group/create")
+    public List<AuthorGroup> listCreatedAuthorList(
             @RequestParam(value = "p") Integer page,
             @RequestParam(value = "ps") Integer pageSize
     ) {
-        return authorListService.listUserAuthorList(page, pageSize, 2);
+        return authorGroupService.listUserAuthorList(page, pageSize, 2);
     }
-    // TODO: Modify List's Author
+
+    @RequestMapping(method = RequestMethod.PUT, value = "/api/author/group/{gid}/add/{mid}")
+    public Result<?> addAuthorToGroup(@PathVariable("gid") String gid, @PathVariable("mid") Long mid) {
+        return authorGroupService.addAuthorToGroup(gid, mid);
+    }
+
+    @RequestMapping(method = RequestMethod.PUT, value = "/api/author/group/{gid}/del/{mid}")
+    public Result<?> deleteAuthorFromGroup(@PathVariable("gid") String gid, @PathVariable("mid") Long mid) {
+        return authorGroupService.deleteAuthorFromGroup(gid, mid);
+    }
+
+    @RequestMapping(method = RequestMethod.GET, value = "/api/author/group/{gid}/log")
+    public List<GroupUpdateRecord> listChangeLog(@PathVariable("gid") String gid) {
+        return authorGroupService.listChangeLog(gid);
+    }
 }

@@ -60,11 +60,11 @@ public interface AuthorRepository
      * @param pageable 分页
      * @return 一页作者
      */
-    @Query(
+    @Query(value = "{}",
             fields =
-                    "{'fansRate':0, 'data': 0}"
+                    "{'fansRate':0, 'data': 0, 'keyword': 0}"
     )
-    Slice<Author> findAllByDataIsNotNull(Pageable pageable);
+    Slice<Author> listAll(Pageable pageable);
 
     /**
      * 通过mid搜索作者

@@ -6,29 +6,24 @@ import org.springframework.data.mongodb.core.mapping.Document;
 /**
  * @author Jannchie
  */
-@Document("user_star_author_group")
-public class UserStarAuthorGroup {
-    private ObjectId userId;
-    private ObjectId groupId;
+@Document("author_group_item")
+public class AuthorGroupItem {
+    private Long mid;
+    private ObjectId gid;
 
-    public UserStarAuthorGroup(ObjectId userId, ObjectId groupId) {
-        this.userId = userId;
-        this.groupId = groupId;
+    public Long getMid() {
+        return mid;
     }
 
-    public ObjectId getUserId() {
-        return userId;
+    public void setMid(Long mid) {
+        this.mid = mid;
     }
 
-    public void setUserId(ObjectId userId) {
-        this.userId = userId;
+    public ObjectId getGid() {
+        return gid;
     }
 
-    public ObjectId getGroupId() {
-        return groupId;
-    }
-
-    public void setGroupId(ObjectId groupId) {
-        this.groupId = groupId;
+    public void setGid(ObjectId gid) {
+        this.gid = gid;
     }
 }

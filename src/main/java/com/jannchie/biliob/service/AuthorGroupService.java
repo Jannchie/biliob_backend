@@ -1,6 +1,7 @@
 package com.jannchie.biliob.service;
 
-import com.jannchie.biliob.model.AuthorList;
+import com.jannchie.biliob.model.AuthorGroup;
+import com.jannchie.biliob.model.GroupUpdateRecord;
 import com.jannchie.biliob.utils.Result;
 import com.mongodb.client.result.UpdateResult;
 import org.springframework.stereotype.Service;
@@ -11,7 +12,7 @@ import java.util.List;
  * @author jannchie
  */
 @Service
-public interface AuthorListService {
+public interface AuthorGroupService {
 
     /**
      * Init author list
@@ -21,7 +22,7 @@ public interface AuthorListService {
      * @param tag  list tag
      * @return result with list
      */
-    Result<AuthorList> initAuthorList(String name, String desc, List<String> tag);
+    Result<AuthorGroup> initAuthorList(String name, String desc, List<String> tag);
 
     /**
      * Set author list info
@@ -84,7 +85,7 @@ public interface AuthorListService {
      * @param pageSize page size
      * @return list of author list
      */
-    List<AuthorList> listAuthorList(String keyword, Long page, Integer pageSize);
+    List<AuthorGroup> listAuthorList(String keyword, Long page, Integer pageSize);
 
     /**
      * Get author list
@@ -92,7 +93,7 @@ public interface AuthorListService {
      * @param objectId author list id
      * @return author list
      */
-    AuthorList getAuthorList(String objectId);
+    AuthorGroup getAuthorList(String objectId);
 
 
     /**
@@ -112,5 +113,31 @@ public interface AuthorListService {
      * @return author list
      */
 
-    List<AuthorList> listUserAuthorList(Integer page, Integer pageSize, int type);
+    List<AuthorGroup> listUserAuthorList(Integer page, Integer pageSize, int type);
+
+    /**
+     * Delete author from group
+     *
+     * @param gid group id
+     * @param mid author id
+     * @return result
+     */
+    Result<?> deleteAuthorFromGroup(String gid, Long mid);
+
+    /**
+     * Add author to group
+     *
+     * @param gid group id
+     * @param mid author id
+     * @return result
+     */
+    Result<?> addAuthorToGroup(String gid, Long mid);
+
+    /**
+     * list change log
+     *
+     * @param gid group id
+     * @return change log
+     */
+    List<GroupUpdateRecord> listChangeLog(String gid);
 }

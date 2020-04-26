@@ -166,5 +166,6 @@ public interface AdminService {
     @Async
     Result<?> dataReduction();
 
+    @Async
     Result<?> reduceByMid(Long mid);
 }

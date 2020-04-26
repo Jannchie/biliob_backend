@@ -142,7 +142,7 @@ public class GuessingService {
     @Async
     public Result<?> autoPostAuthorFansGuessing() {
         logger.info("添加预测竞猜");
-        long MIN_FANS = 5000000L;
+        long minFans = 5000000L;
         Query q = new Query().with(Sort.by("cFans").descending());
         q.fields().include("mid").include("cFans");
         Author topAuthorData = mongoTemplate.findOne(q, Author.class);
@@ -155,7 +155,7 @@ public class GuessingService {
         userQuery.fields().include("name");
         User user = mongoTemplate.findOne(userQuery, User.class);
 
-        while (nextTop >= MIN_FANS) {
+        while (nextTop >= minFans) {
             q = new Query(Criteria.where("cFans").lt(nextTop).and("cRate").gt(0)).with(Sort.by("cFans").descending());
             q.fields().include("mid").include("name");
             Author nextAuthor = mongoTemplate.findOne(q, Author.class);

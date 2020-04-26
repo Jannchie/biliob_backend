@@ -61,8 +61,11 @@ public class SpiderScheduler {
         for (Video video : v
         ) {
             Long aid = video.getAid();
-            mongoTemplate.upsert(Query.query(Criteria.where("aid").is(aid)), Update.update("interval", SECOND_OF_DAY), VideoIntervalRecord.class);
-            logger.info("每日更新av{}", aid);
+            VideoIntervalRecord vir = mongoTemplate.findOne(Query.query(Criteria.where("aid").is(aid)), VideoIntervalRecord.class);
+            if (vir == null || vir.getNext() == null || vir.getDate() == null) {
+                mongoTemplate.upsert(Query.query(Criteria.where("aid").is(aid)), Update.update("interval", SECOND_OF_DAY).set("next", Calendar.getInstance().getTime()).set("date", Calendar.getInstance().getTime()), VideoIntervalRecord.class);
+                logger.info("每日更新av{}", aid);
+            }
         }
     }
 
