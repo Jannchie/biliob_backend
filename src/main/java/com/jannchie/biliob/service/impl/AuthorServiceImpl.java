@@ -304,7 +304,7 @@ public class AuthorServiceImpl implements AuthorService {
 
         } else {
             AuthorServiceImpl.logger.info("查看所有UP主列表");
-            result = new MySlice<>(respository.findAllByDataIsNotNull(
+            result = new MySlice<>(respository.listAll(
                     PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, sortKey))));
         }
 
