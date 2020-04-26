@@ -153,9 +153,11 @@ public class AuthorGroupServiceImpl implements AuthorGroupService {
                         Aggregation.lookup("user_star_author_group", "_id", "groupId", "starList"),
                         Aggregation.lookup("author_group_item", "_id", "gid", "midList"),
                         Aggregation.lookup("author", "midList.mid", "mid", "authorList"),
-                        Aggregation.project().andExpression("{ _id: 0, groupId: 0 }").as("starList"),
-                        Aggregation.project().andExpression("{ password: 0, favoriteMid: 0, favoriteAid: 0 }").as("creator"),
-                        Aggregation.project().andExpression("{ password: 0, favoriteMid: 0, favoriteAid: 0 }").as("maintainer")
+                        Aggregation.project("starList", "tagList", "name", "desc")
+                                .andExpression("{ userId: 1}").as("starList")
+                                .andExpression("{ face: 1, mid: 1}").as("authorList")
+                                .andExpression("{ nickName: 1 }").as("creator")
+                                .andExpression("{ nickName: 1 }").as("maintainer")
                 ), AuthorGroup.class, AuthorGroup.class
         ).getMappedResults();
         ObjectId userId = UserUtils.getUserId();
@@ -192,9 +194,11 @@ public class AuthorGroupServiceImpl implements AuthorGroupService {
                         Aggregation.lookup("user_star_author_group", "_id", "groupId", "starList"),
                         Aggregation.lookup("author_group_item", "_id", "gid", "midList"),
                         Aggregation.lookup("author", "midList.mid", "mid", "authorList"),
-                        Aggregation.project().andExpression("{ _id: 0, groupId: 0 }").as("starList"),
-                        Aggregation.project().andExpression("{ password: 0, favoriteMid: 0, favoriteAid: 0 }").as("creator"),
-                        Aggregation.project().andExpression("{ password: 0, favoriteMid: 0, favoriteAid: 0 }").as("maintainer")
+                        Aggregation.project("starList", "tagList", "name", "desc", "authorList")
+                                .andExpression("{ userId: 1}").as("starList")
+                                .andExpression("{ nickName: 1 }").as("creator")
+                                .andExpression("{ nickName: 1 }").as("maintainer"),
+                        Aggregation.project().andExpression("{data: 0, keyword: 0}").as("authorList")
                 ), AuthorGroup.class, AuthorGroup.class
         ).getUniqueMappedResult();
         if (a != null) {
@@ -234,7 +238,9 @@ public class AuthorGroupServiceImpl implements AuthorGroupService {
 
     @Override
     public Result<?> deleteAuthorFromGroup(String gid, Long mid) {
-        mongoTemplate.remove(Query.query(Criteria.where("mid").is(mid).and("gid").is(gid)), AuthorGroupItem.class);
+        ObjectId groupId = new ObjectId(gid);
+        mongoTemplate.remove(Query.query(Criteria.where("mid").is(mid).and("gid").is(groupId)), AuthorGroupItem.class);
+        addUpdateLog(groupId, String.format("移除mid为%s的UP主", mid));
         return new Result<>(ResultEnum.SUCCEED);
     }
 
@@ -251,6 +257,18 @@ public class AuthorGroupServiceImpl implements AuthorGroupService {
         gur.setMessage(message);
         gur.setUserId(UserUtils.getUserId());
         gur.setDate(Calendar.getInstance().getTime());
-        mongoTemplate.updateFirst(Query.query(Criteria.where("groupId").is(gid)), new Update().push("updateRecord", gur), AuthorGroup.class);
+        gur.setGid(gid);
+        mongoTemplate.insert(gur);
+    }
+
+    @Override
+    public List<GroupUpdateRecord> listChangeLog(String gid) {
+        Aggregation a = Aggregation.newAggregation(
+                Aggregation.match(Criteria.where("gid").is(new ObjectId(gid))),
+                Aggregation.lookup("user", "userId", "_id", "user"),
+                Aggregation.unwind("user"),
+                Aggregation.project("message", "date").andExpression("{'nickName': 1}").as("user")
+        );
+        return mongoTemplate.aggregate(a, GroupUpdateRecord.class, GroupUpdateRecord.class).getMappedResults();
     }
 }

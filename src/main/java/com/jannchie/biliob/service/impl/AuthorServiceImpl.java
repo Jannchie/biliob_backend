@@ -171,7 +171,6 @@ public class AuthorServiceImpl implements AuthorService {
                 getDelta(currentRankData.getArticleViewRank(), lastRankData.getArticleViewRank()),
                 getDelta(currentRankData.getLikeRank(), lastRankData.getLikeRank()), date);
         author.setRank(rank);
-
     }
 
     private Long getDelta(Long a, Long b) {
@@ -214,6 +213,7 @@ public class AuthorServiceImpl implements AuthorService {
     private void disposeAuthor(Author author) {
         setFreq(author);
         gerRankData(author);
+        mongoTemplate.updateFirst(Query.query(Criteria.where("mid").is(author.getMid())), Update.update("rank", author.getRank()), Author.class);
         if (author.getAchievements() != null) {
             authorAchievementService.rapidlyAnalyzeAuthorAchievement(author);
             authorAchievementService.analyzeDailyAchievement(author.getMid());
