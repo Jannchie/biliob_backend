@@ -155,7 +155,7 @@ public interface AuthorService {
     /**
      * 获取热搜作者
      *
-     * @return 热搜UP主名单
+     * @return 热搜UP主群组
      */
     List listHotAuthor();
 

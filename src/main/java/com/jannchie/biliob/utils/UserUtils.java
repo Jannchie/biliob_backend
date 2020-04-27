@@ -82,9 +82,9 @@ public class UserUtils {
         user.setRank(Math.toIntExact(rank));
         if (rank <= 3) {
             user.setTitle("管理者");
-        } else if (rank <= 3 + 15) {
+        } else if (rank <= 3 + 16) {
             user.setTitle("观测者");
-        } else if (rank <= 3 + 15 + 51) {
+        } else if (rank <= 3 + 16 + 50) {
             user.setTitle("观想者");
         } else if (user.getExp() <= 100) {
             user.setTitle("初心者");
@@ -96,5 +96,11 @@ public class UserUtils {
                 user.setTitle("彷徨者");
             }
         }
+    }
+
+    public static User getUserById(ObjectId id) {
+        Query q = Query.query(Criteria.where("_id").is(id));
+        q.fields().exclude("favoriteAid").exclude("favoriteMid");
+        return mongoTemplate.findOne(q, User.class);
     }
 }

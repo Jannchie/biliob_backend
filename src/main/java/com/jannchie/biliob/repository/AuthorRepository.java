@@ -101,7 +101,7 @@ public interface AuthorRepository
      * @return a Slice of user favorite authors
      */
     @Query(
-            value = "{$or:?0,data:{$ne:null}}",
+            value = "{$or:?0}",
             fields =
                     "{'name' : 1, 'mid' : 1, 'face' : 1, 'official' : 1, 'focus':1, 'forceFocus':1, 'sex':1, 'level':1}"
     )

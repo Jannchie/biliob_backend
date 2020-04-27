@@ -32,6 +32,13 @@ public class AuthorGroupController {
         return authorGroupService.initAuthorList(authorGroup.getName(), authorGroup.getDesc(), authorGroup.getTagList());
     }
 
+    @RequestMapping(method = RequestMethod.PUT, value = "/api/author/group/{gid}/edit")
+    public Result<?> editAuthorList(
+            @PathVariable("gid") String id,
+            @RequestBody @Valid AuthorGroup authorGroup) {
+        return authorGroupService.editAuthorList(id, authorGroup.getName(), authorGroup.getDesc(), authorGroup.getTagList());
+    }
+
     @RequestMapping(method = RequestMethod.GET, value = "/api/author/group")
     public List<AuthorGroup> listAuthorList(
             @RequestParam(value = "p", defaultValue = "1") Long page,

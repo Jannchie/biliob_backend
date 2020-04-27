@@ -44,24 +44,6 @@ public interface AuthorGroupService {
     Result<?> deleteAuthorList(String objectId);
 
     /**
-     * Add author to author list
-     *
-     * @param objectId author list id
-     * @param mid      author mid
-     * @return result
-     */
-    Result<?> addAuthorToAuthorList(String objectId, Long mid);
-
-    /**
-     * Remove author from author list
-     *
-     * @param objectId author list id
-     * @param mid      author mid
-     * @return result
-     */
-    Result<?> removeAuthorFromAuthorList(String objectId, Long mid);
-
-    /**
      * Star author list
      *
      * @param objectId author list id
@@ -140,4 +122,15 @@ public interface AuthorGroupService {
      * @return change log
      */
     List<GroupUpdateRecord> listChangeLog(String gid);
+
+    /**
+     * edit author list
+     *
+     * @param id      group id
+     * @param name    name
+     * @param desc    desc
+     * @param tagList tag list
+     * @return result
+     */
+    Result<?> editAuthorList(String id, String name, String desc, List<String> tagList);
 }

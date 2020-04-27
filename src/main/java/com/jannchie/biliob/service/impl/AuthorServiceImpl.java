@@ -264,7 +264,7 @@ public class AuthorServiceImpl implements AuthorService {
         if (respository.findByMid(mid) != null) {
             throw new AuthorAlreadyFocusedException(mid);
         }
-        redisOps.postAuthorCrawlTask(mid);
+        upsertAuthorFreq(mid, SECOND_OF_DAY);
         respository.save(new Author(mid));
     }
 

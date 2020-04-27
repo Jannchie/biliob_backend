@@ -52,6 +52,24 @@ public class AuthorGroupServiceImpl implements AuthorGroupService {
     }
 
     @Override
+    public Result<?> editAuthorList(String gid, String name, String desc, List<String> tagList) {
+        ObjectId userId = UserUtils.getUserId();
+        AuthorGroup ag = getAuthorList(gid);
+        if (ag == null) {
+            return new Result<>(ResultEnum.NOT_FOUND);
+        }
+        if (userId == null) {
+            return new Result<>(ResultEnum.USER_NOT_EXIST);
+        }
+        if (hasPermission(userId, ag)) {
+            mongoTemplate.updateFirst(Query.query(Criteria.where("_id").is(new ObjectId(gid))), Update.update("name", name).set("desc", desc).set("tagList", tagList), AuthorGroup.class);
+        } else {
+            return new Result<>(ResultEnum.PERMISSION_DENIED);
+        }
+        return new Result<>(ResultEnum.SUCCEED);
+    }
+
+    @Override
     public Result<UpdateResult> setAuthorListInfo(String id, String name, String desc, List<String> tag) {
         return creditOperateHandle.doCreditOperate(
                 UserUtils.getUser(), CreditConstant.MODIFY_AUTHOR_LIST_INFO, id, () ->
@@ -80,22 +98,6 @@ public class AuthorGroupServiceImpl implements AuthorGroupService {
     }
 
     @Override
-    public Result<?> addAuthorToAuthorList(String objectId, Long mid) {
-        Author author = new Author();
-        author.setMid(mid);
-        mongoTemplate.updateFirst(Query.query(Criteria.where("_id").is(objectId)), new Update().addToSet("authorList", author), AuthorGroup.class);
-        return new Result<>(ResultEnum.SUCCEED);
-    }
-
-    @Override
-    public Result<?> removeAuthorFromAuthorList(String objectId, Long mid) {
-        Author author = new Author();
-        author.setMid(mid);
-        mongoTemplate.updateFirst(Query.query(Criteria.where("_id").is(objectId)), new Update().pull("authorList", author), AuthorGroup.class);
-        return new Result<>(ResultEnum.SUCCEED);
-    }
-
-    @Override
     public Result<?> starAuthorList(String objectId) {
         User user = UserUtils.getUser();
 
@@ -116,7 +118,7 @@ public class AuthorGroupServiceImpl implements AuthorGroupService {
 
         return creditOperateHandle.doCreditOperate(
                 user, CreditConstant.STAR_AUTHOR_LIST, () -> {
-                    creditOperateHandle.doCreditOperate(authorGroup.getMaintainer(), CreditConstant.BE_STARED_AUTHOR_LIST, authorGroup.getId(), () -> null);
+                    creditOperateHandle.doCreditOperate(UserUtils.getUserById(authorGroup.getMaintainer().getId()), CreditConstant.BE_STARED_AUTHOR_LIST, authorGroup.getId(), () -> null);
                     return mongoTemplate.save(new UserStarAuthorGroup(user.getId(), new ObjectId(objectId)));
                 }
         );
@@ -130,7 +132,7 @@ public class AuthorGroupServiceImpl implements AuthorGroupService {
         }
         User user = UserUtils.getUser();
         return creditOperateHandle.doCreditOperate(user, CreditConstant.FORK_AUTHOR_LIST, () -> {
-            creditOperateHandle.doCreditOperate(authorGroup.getMaintainer(), CreditConstant.BE_FORKED_AUTHOR_LIST, authorGroup.getId(), () -> null);
+            creditOperateHandle.doCreditOperate(UserUtils.getUserById(authorGroup.getMaintainer().getId()), CreditConstant.BE_FORKED_AUTHOR_LIST, authorGroup.getId(), () -> null);
             authorGroup.setMaintainer(user);
             authorGroup.setForkTime(Calendar.getInstance().getTime());
             return null;
@@ -156,8 +158,8 @@ public class AuthorGroupServiceImpl implements AuthorGroupService {
                         Aggregation.project("starList", "tagList", "name", "desc")
                                 .andExpression("{ userId: 1}").as("starList")
                                 .andExpression("{ face: 1, mid: 1}").as("authorList")
-                                .andExpression("{ nickName: 1 }").as("creator")
-                                .andExpression("{ nickName: 1 }").as("maintainer")
+                                .andExpression("{ nickName: 1, _id: 1 }").as("creator")
+                                .andExpression("{ nickName: 1, _id: 1 }").as("maintainer")
                 ), AuthorGroup.class, AuthorGroup.class
         ).getMappedResults();
         ObjectId userId = UserUtils.getUserId();
@@ -182,8 +184,7 @@ public class AuthorGroupServiceImpl implements AuthorGroupService {
         }
     }
 
-    @Override
-    public AuthorGroup getAuthorList(String objectId) {
+    public AuthorGroup getAuthorList(ObjectId objectId) {
         AuthorGroup a = mongoTemplate.aggregate(
                 Aggregation.newAggregation(
                         Aggregation.match(Criteria.where("_id").is(objectId)),
@@ -196,16 +197,22 @@ public class AuthorGroupServiceImpl implements AuthorGroupService {
                         Aggregation.lookup("author", "midList.mid", "mid", "authorList"),
                         Aggregation.project("starList", "tagList", "name", "desc", "authorList")
                                 .andExpression("{ userId: 1}").as("starList")
-                                .andExpression("{ nickName: 1 }").as("creator")
-                                .andExpression("{ nickName: 1 }").as("maintainer"),
+                                .andExpression("{ nickName: 1, _id: 1 }").as("creator")
+                                .andExpression("{ nickName: 1, _id: 1 }").as("maintainer"),
                         Aggregation.project().andExpression("{data: 0, keyword: 0}").as("authorList")
                 ), AuthorGroup.class, AuthorGroup.class
         ).getUniqueMappedResult();
         if (a != null) {
+            a.setStars(a.getStarList().size());
             setIsStared(UserUtils.getUserId(), a);
             a.setStarList(null);
         }
         return a;
+    }
+
+    @Override
+    public AuthorGroup getAuthorList(String objectId) {
+        return getAuthorList(new ObjectId(objectId));
     }
 
 
@@ -215,7 +222,7 @@ public class AuthorGroupServiceImpl implements AuthorGroupService {
         if (userId == null) {
             return new Result<>(ResultEnum.HAS_NOT_LOGGED_IN);
         }
-        mongoTemplate.remove(Query.query(Criteria.where("groupId").is(objectId).and("userId").is(userId)), UserStarAuthorGroup.class);
+        mongoTemplate.remove(Query.query(Criteria.where("groupId").is(new ObjectId(objectId)).and("userId").is(userId)), UserStarAuthorGroup.class);
         return new Result<>(ResultEnum.SUCCEED);
     }
 
@@ -239,23 +246,47 @@ public class AuthorGroupServiceImpl implements AuthorGroupService {
     @Override
     public Result<?> deleteAuthorFromGroup(String gid, Long mid) {
         ObjectId groupId = new ObjectId(gid);
-        mongoTemplate.remove(Query.query(Criteria.where("mid").is(mid).and("gid").is(groupId)), AuthorGroupItem.class);
-        addUpdateLog(groupId, String.format("移除mid为%s的UP主", mid));
-        return new Result<>(ResultEnum.SUCCEED);
+        ObjectId userId = UserUtils.getUserId();
+        if (userId == null) {
+            return new Result<>(ResultEnum.HAS_NOT_LOGGED_IN);
+        }
+        if (hasPermission(userId, groupId)) {
+            mongoTemplate.remove(Query.query(Criteria.where("mid").is(mid).and("gid").is(groupId)), AuthorGroupItem.class);
+            addUpdateLog(userId, groupId, String.format("移除mid为%s的UP主", mid));
+            return new Result<>(ResultEnum.SUCCEED);
+        } else {
+            return new Result<>(ResultEnum.PERMISSION_DENIED);
+        }
+    }
+
+    private boolean hasPermission(ObjectId userId, ObjectId groupId) {
+        AuthorGroup ag = getAuthorList(groupId);
+        return userId == null || userId.equals(ag.getMaintainer().getId()) || userId.equals(ag.getCreator().getId());
+    }
+
+    private boolean hasPermission(ObjectId userId, AuthorGroup ag) {
+        return userId.equals(ag.getMaintainer().getId()) || userId.equals(ag.getCreator().getId());
     }
 
     @Override
     public Result<?> addAuthorToGroup(String gid, Long mid) {
         ObjectId groupId = new ObjectId(gid);
+        ObjectId userId = UserUtils.getUserId();
+        if (!hasPermission(userId, groupId)) {
+            return new Result<>(ResultEnum.PERMISSION_DENIED);
+        }
+        if (!mongoTemplate.exists(Query.query(Criteria.where("mid").is(mid)), Author.class)) {
+            return new Result<>(ResultEnum.NOT_OBSERVING);
+        }
         mongoTemplate.upsert(Query.query(Criteria.where("mid").is(mid).and("gid").is(groupId)), Update.update("mid", mid).set("gid", new ObjectId(gid)), AuthorGroupItem.class);
-        addUpdateLog(groupId, String.format("添加mid为%s的UP主", mid));
+        addUpdateLog(userId, groupId, String.format("添加mid为%s的UP主", mid));
         return new Result<>(ResultEnum.SUCCEED);
     }
 
-    private void addUpdateLog(ObjectId gid, String message) {
+    private void addUpdateLog(ObjectId userId, ObjectId gid, String message) {
         GroupUpdateRecord gur = new GroupUpdateRecord();
         gur.setMessage(message);
-        gur.setUserId(UserUtils.getUserId());
+        gur.setUserId(userId);
         gur.setDate(Calendar.getInstance().getTime());
         gur.setGid(gid);
         mongoTemplate.insert(gur);
