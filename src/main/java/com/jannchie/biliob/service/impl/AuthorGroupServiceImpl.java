@@ -5,10 +5,13 @@ import com.jannchie.biliob.constant.ResultEnum;
 import com.jannchie.biliob.credit.handle.CreditOperateHandle;
 import com.jannchie.biliob.model.*;
 import com.jannchie.biliob.service.AuthorGroupService;
+import com.jannchie.biliob.utils.AuthorUtil;
 import com.jannchie.biliob.utils.Result;
 import com.jannchie.biliob.utils.UserUtils;
 import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.UpdateResult;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -30,25 +33,34 @@ import java.util.List;
 @Service
 public class AuthorGroupServiceImpl implements AuthorGroupService {
 
+    final Logger logger = LogManager.getLogger();
     final MongoTemplate mongoTemplate;
     final CreditOperateHandle creditOperateHandle;
+    final AuthorUtil authorUtil;
 
     @Autowired
-    public AuthorGroupServiceImpl(MongoTemplate mongoTemplate, CreditOperateHandle creditOperateHandle) {
+    public AuthorGroupServiceImpl(MongoTemplate mongoTemplate, CreditOperateHandle creditOperateHandle, AuthorUtil authorUtil) {
         this.mongoTemplate = mongoTemplate;
         this.creditOperateHandle = creditOperateHandle;
+        this.authorUtil = authorUtil;
     }
 
     @Override
     public Result<AuthorGroup> initAuthorList(String name, String desc, List<String> tag) {
         AuthorGroup authorGroup = new AuthorGroup(name, desc, tag, UserUtils.getUserId());
         User user = UserUtils.getUser();
-        creditOperateHandle.doCreditOperate(user, CreditConstant.INIT_AUTHOR_LIST, name, () -> {
-            AuthorGroup a = mongoTemplate.save(authorGroup);
-            this.starAuthorList(a.getId());
-            return a;
-        });
-        return new Result<>(ResultEnum.SUCCEED, authorGroup);
+        UserUtils.setUserTitleAndRank(user);
+        if ("观测者".equals(user.getTitle()) || "观想者".equals(user.getTitle()) || "管理者".equals(user.getTitle()) || "追寻者".equals(user.getTitle())) {
+
+            return creditOperateHandle.doCreditOperate(user, CreditConstant.INIT_AUTHOR_LIST, name, () -> {
+                AuthorGroup a = mongoTemplate.save(authorGroup);
+                this.starAuthorList(a.getId());
+                return a;
+            });
+        } else {
+            return new Result<>(ResultEnum.PERMISSION_DENIED);
+        }
+
     }
 
     @Override
@@ -141,11 +153,17 @@ public class AuthorGroupServiceImpl implements AuthorGroupService {
 
     @Override
     public List<AuthorGroup> listAuthorList(String keyword, Long page, Integer pageSize) {
+
+        AggregationOperation match;
         if (!"".equals(keyword)) {
-            AggregationOperation match = Aggregation.match(new Criteria().orOperator(Criteria.where("name").regex(keyword), Criteria.where("desc").regex(keyword), Criteria.where("tag").is(keyword)));
+            match = Aggregation.match(new Criteria().orOperator(Criteria.where("name").regex(keyword), Criteria.where("desc").regex(keyword), Criteria.where("tagList").is(keyword)));
+        } else {
+            match = Aggregation.match(new Criteria());
         }
+        logger.info("{} {}", keyword, page);
         List<AuthorGroup> a = mongoTemplate.aggregate(
                 Aggregation.newAggregation(
+                        match,
                         Aggregation.skip((page - 1) * pageSize),
                         Aggregation.limit(pageSize),
                         Aggregation.lookup("user", "creator._id", "_id", "creator"),
@@ -168,6 +186,8 @@ public class AuthorGroupServiceImpl implements AuthorGroupService {
             if (userId == null) {
                 return;
             }
+            authorGroup.setAuthors(authorGroup.getAuthorList().size());
+            authorGroup.setAuthorList(authorGroup.getAuthorList().subList(0, authorGroup.getAuthors() > 5 ? 5 : authorGroup.getAuthors()));
             setIsStared(userId, authorGroup);
             authorGroup.setStarList(null);
         });
@@ -185,6 +205,8 @@ public class AuthorGroupServiceImpl implements AuthorGroupService {
     }
 
     public AuthorGroup getAuthorList(ObjectId objectId) {
+        ObjectId userId = UserUtils.getUserId();
+        mongoTemplate.save(new ObjectVisitRecord("AuthorGroup", userId, objectId, Calendar.getInstance().getTime()));
         AuthorGroup a = mongoTemplate.aggregate(
                 Aggregation.newAggregation(
                         Aggregation.match(Criteria.where("_id").is(objectId)),
@@ -206,6 +228,8 @@ public class AuthorGroupServiceImpl implements AuthorGroupService {
             a.setStars(a.getStarList().size());
             setIsStared(UserUtils.getUserId(), a);
             a.setStarList(null);
+            a.setAuthors(a.getAuthorList().size());
+            authorUtil.getInterval(a.getAuthorList());
         }
         return a;
     }
