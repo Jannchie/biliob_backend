@@ -8,10 +8,12 @@ import com.jannchie.biliob.constant.ResultEnum;
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Result<T> {
+
     private Integer code;
     private String msg;
     private T data;
     private User user;
+
 
     public Result(ResultEnum resultEnum) {
         this.code = resultEnum.getCode();

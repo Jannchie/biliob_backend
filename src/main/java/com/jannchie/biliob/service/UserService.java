@@ -8,6 +8,7 @@ import com.jannchie.biliob.model.User;
 import com.jannchie.biliob.model.UserRecord;
 import com.jannchie.biliob.utils.MySlice;
 import com.jannchie.biliob.utils.Result;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Slice;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -289,4 +290,12 @@ public interface UserService {
      * @return result
      */
     ResponseEntity<Result<String>> changePassword(ChangePasswordForm changePasswordForm);
+
+    /**
+     * Get User Count
+     *
+     * @return user count
+     */
+    @Cacheable("user-count")
+    long getUserCount();
 }

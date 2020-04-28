@@ -2,6 +2,7 @@ package com.jannchie.biliob.utils;
 
 import com.jannchie.biliob.model.User;
 import com.jannchie.biliob.repository.UserRepository;
+import com.jannchie.biliob.service.UserService;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -20,11 +21,13 @@ import java.math.BigDecimal;
 public class UserUtils {
     private static MongoTemplate mongoTemplate;
     private static UserRepository userRepository;
+    private static UserService userService;
 
     @Autowired
-    public UserUtils(MongoTemplate mongoTemplate, UserRepository userRepository) {
+    public UserUtils(MongoTemplate mongoTemplate, UserRepository userRepository, UserService userService) {
         UserUtils.mongoTemplate = mongoTemplate;
         UserUtils.userRepository = userRepository;
+        UserUtils.userService = userService;
     }
 
     public static User getUserByUsernameOrMail(String name) {
@@ -89,8 +92,8 @@ public class UserUtils {
         } else if (user.getExp() <= 100) {
             user.setTitle("初心者");
         } else {
-            long count = mongoTemplate.count(new Query(), "user");
-            if (rank < count / 5) {
+            long count = userService.getUserCount();
+            if (rank < count / 20) {
                 user.setTitle("追寻者");
             } else {
                 user.setTitle("彷徨者");

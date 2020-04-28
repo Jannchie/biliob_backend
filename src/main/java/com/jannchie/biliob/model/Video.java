@@ -3,10 +3,7 @@ package com.jannchie.biliob.model;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.springframework.data.mongodb.core.mapping.Field;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author jannchie
@@ -19,6 +16,7 @@ public class Video {
     private String title;
     @Field("author_info")
     private Author author;
+    private List<Author> authorList;
     private String channel;
     private String subChannel;
     private Date datetime;
@@ -49,6 +47,14 @@ public class Video {
 
     public Video() {
         this.focus = true;
+    }
+
+    public List<Author> getAuthorList() {
+        return authorList;
+    }
+
+    public void setAuthorList(List<Author> authorList) {
+        this.authorList = authorList;
     }
 
     public String getAuthorName() {

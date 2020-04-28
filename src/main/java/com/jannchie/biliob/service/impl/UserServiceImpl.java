@@ -24,6 +24,7 @@ import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.crypto.hash.Md5Hash;
 import org.apache.shiro.subject.Subject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
@@ -682,5 +683,11 @@ class UserServiceImpl implements UserService {
                 User.class);
         return new ResponseEntity<>(
                 new Result<>(ResultEnum.SUCCEED), HttpStatus.OK);
+    }
+
+    @Override
+    @Cacheable("user-count")
+    public long getUserCount() {
+        return mongoTemplate.count(new Query(), "user");
     }
 }

@@ -17,7 +17,7 @@ public class VideoIntervalRecord {
     private List<Object> order;
     private Integer interval;
 
-    VideoIntervalRecord() {
+    public VideoIntervalRecord() {
     }
 
     public VideoIntervalRecord(Long aid, Integer interval, Date time) {

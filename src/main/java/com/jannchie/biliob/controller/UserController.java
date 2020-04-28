@@ -258,4 +258,5 @@ public class UserController {
     public ResponseEntity<Result<String>> changeMail(@RequestBody @Valid ChangePasswordForm changePasswordForm) {
         return userService.changePassword(changePasswordForm);
     }
+
 }
