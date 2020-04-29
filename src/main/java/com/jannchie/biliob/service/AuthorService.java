@@ -168,6 +168,13 @@ public interface AuthorService {
     List<Long> getTopFansAuthors(int limit);
 
     /**
+     * Get author rank
+     *
+     * @param author author
+     */
+    void getRankData(Author author);
+
+    /**
      * get author detail with days
      *
      * @param mid  author id

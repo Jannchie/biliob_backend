@@ -49,7 +49,7 @@ public class AuthorGroupController {
     }
 
     @RequestMapping(method = RequestMethod.DELETE, value = "/api/author/group/{id}")
-    public Result<?> listAuthorList(
+    public Result<?> delAuthorList(
             @PathVariable("id") String id
     ) {
         return authorGroupService.deleteAuthorList(id);

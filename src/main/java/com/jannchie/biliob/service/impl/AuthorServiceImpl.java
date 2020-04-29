@@ -136,7 +136,7 @@ public class AuthorServiceImpl implements AuthorService {
         long deltaTime = Calendar.getInstance().getTimeInMillis() - timer.getTimeInMillis();
         // 太慢，则精简数据
         logger.info(deltaTime);
-        if (deltaTime > 5000) {
+        if (deltaTime > 7000) {
             adminService.reduceByMid(mid);
         }
         return data;
@@ -154,8 +154,8 @@ public class AuthorServiceImpl implements AuthorService {
         }
     }
 
-
-    private void gerRankData(Author author) {
+    @Override
+    public void getRankData(Author author) {
 
         AuthorRankData lastRankData = authorUtil.getLastRankData(author);
         AuthorRankData currentRankData = getCurrentRankData(author);
@@ -210,16 +210,15 @@ public class AuthorServiceImpl implements AuthorService {
         return author;
     }
 
-    private void disposeAuthor(Author author) {
+    public void disposeAuthor(Author author) {
         setFreq(author);
-        gerRankData(author);
+        getRankData(author);
         mongoTemplate.updateFirst(Query.query(Criteria.where("mid").is(author.getMid())), Update.update("rank", author.getRank()), Author.class);
         if (author.getAchievements() != null) {
             authorAchievementService.rapidlyAnalyzeAuthorAchievement(author);
             authorAchievementService.analyzeDailyAchievement(author.getMid());
         }
         if (author.getData() != null) {
-
             filterAuthorData(author);
         }
     }

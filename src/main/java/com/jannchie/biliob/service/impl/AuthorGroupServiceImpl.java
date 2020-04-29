@@ -5,6 +5,7 @@ import com.jannchie.biliob.constant.ResultEnum;
 import com.jannchie.biliob.credit.handle.CreditOperateHandle;
 import com.jannchie.biliob.model.*;
 import com.jannchie.biliob.service.AuthorGroupService;
+import com.jannchie.biliob.service.AuthorService;
 import com.jannchie.biliob.utils.AuthorUtil;
 import com.jannchie.biliob.utils.Result;
 import com.jannchie.biliob.utils.UserUtils;
@@ -36,12 +37,14 @@ public class AuthorGroupServiceImpl implements AuthorGroupService {
     final Logger logger = LogManager.getLogger();
     final MongoTemplate mongoTemplate;
     final CreditOperateHandle creditOperateHandle;
+    final AuthorService authorService;
     final AuthorUtil authorUtil;
 
     @Autowired
-    public AuthorGroupServiceImpl(MongoTemplate mongoTemplate, CreditOperateHandle creditOperateHandle, AuthorUtil authorUtil) {
+    public AuthorGroupServiceImpl(MongoTemplate mongoTemplate, CreditOperateHandle creditOperateHandle, AuthorService authorService, AuthorUtil authorUtil) {
         this.mongoTemplate = mongoTemplate;
         this.creditOperateHandle = creditOperateHandle;
+        this.authorService = authorService;
         this.authorUtil = authorUtil;
     }
 
@@ -131,6 +134,8 @@ public class AuthorGroupServiceImpl implements AuthorGroupService {
         return creditOperateHandle.doCreditOperate(
                 user, CreditConstant.STAR_AUTHOR_LIST, () -> {
                     creditOperateHandle.doCreditOperate(UserUtils.getUserById(authorGroup.getMaintainer().getId()), CreditConstant.BE_STARED_AUTHOR_LIST, authorGroup.getId(), () -> null);
+                    long stars = mongoTemplate.count(Query.query(Criteria.where(groupIdField).is(objectId)), UserStarAuthorGroup.class);
+                    mongoTemplate.updateFirst(Query.query(Criteria.where("_id").is(objectId)), Update.update("stars", stars + 1), AuthorGroup.class);
                     return mongoTemplate.save(new UserStarAuthorGroup(user.getId(), new ObjectId(objectId)));
                 }
         );
@@ -164,6 +169,7 @@ public class AuthorGroupServiceImpl implements AuthorGroupService {
         List<AuthorGroup> a = mongoTemplate.aggregate(
                 Aggregation.newAggregation(
                         match,
+                        Aggregation.sort(Sort.by("stars").descending()),
                         Aggregation.skip((page - 1) * pageSize),
                         Aggregation.limit(pageSize),
                         Aggregation.lookup("user", "creator._id", "_id", "creator"),
@@ -230,6 +236,9 @@ public class AuthorGroupServiceImpl implements AuthorGroupService {
             a.setStarList(null);
             a.setAuthors(a.getAuthorList().size());
             authorUtil.getInterval(a.getAuthorList());
+            Calendar c = Calendar.getInstance();
+            c.add(Calendar.DATE, -1);
+            a.getAuthorList().stream().filter(author -> author.getRank() == null || author.getRank().getUpdateTime() == null || author.getRank().getUpdateTime().before(c.getTime())).forEach(authorService::getRankData);
         }
         return a;
     }
@@ -247,6 +256,8 @@ public class AuthorGroupServiceImpl implements AuthorGroupService {
             return new Result<>(ResultEnum.HAS_NOT_LOGGED_IN);
         }
         mongoTemplate.remove(Query.query(Criteria.where("groupId").is(new ObjectId(objectId)).and("userId").is(userId)), UserStarAuthorGroup.class);
+        long stars = mongoTemplate.count(Query.query(Criteria.where("groupId").is(objectId)), UserStarAuthorGroup.class);
+        mongoTemplate.updateFirst(Query.query(Criteria.where("_id").is(objectId)), Update.update("stars", stars), AuthorGroup.class);
         return new Result<>(ResultEnum.SUCCEED);
     }
 
