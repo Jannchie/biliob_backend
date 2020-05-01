@@ -15,11 +15,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
-import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
+import org.springframework.data.mongodb.core.aggregation.MatchOperation;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
@@ -27,6 +26,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Calendar;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author jannchie
@@ -54,16 +54,10 @@ public class AuthorGroupServiceImpl implements AuthorGroupService {
         User user = UserUtils.getUser();
         UserUtils.setUserTitleAndRank(user);
         if ("观测者".equals(user.getTitle()) || "观想者".equals(user.getTitle()) || "管理者".equals(user.getTitle()) || "追寻者".equals(user.getTitle())) {
-
-            return creditOperateHandle.doCreditOperate(user, CreditConstant.INIT_AUTHOR_LIST, name, () -> {
-                AuthorGroup a = mongoTemplate.save(authorGroup);
-                this.starAuthorList(a.getId());
-                return a;
-            });
+            return creditOperateHandle.doCreditOperate(user, CreditConstant.INIT_AUTHOR_LIST, name, () -> mongoTemplate.save(authorGroup));
         } else {
             return new Result<>(ResultEnum.PERMISSION_DENIED);
         }
-
     }
 
     @Override
@@ -156,16 +150,8 @@ public class AuthorGroupServiceImpl implements AuthorGroupService {
         });
     }
 
-    @Override
-    public List<AuthorGroup> listAuthorList(String keyword, Long page, Integer pageSize) {
+    public List<AuthorGroup> listAuthorList(MatchOperation match, Long page, Integer pageSize) {
 
-        AggregationOperation match;
-        if (!"".equals(keyword)) {
-            match = Aggregation.match(new Criteria().orOperator(Criteria.where("name").regex(keyword), Criteria.where("desc").regex(keyword), Criteria.where("tagList").is(keyword)));
-        } else {
-            match = Aggregation.match(new Criteria());
-        }
-        logger.info("{} {}", keyword, page);
         List<AuthorGroup> a = mongoTemplate.aggregate(
                 Aggregation.newAggregation(
                         match,
@@ -189,15 +175,27 @@ public class AuthorGroupServiceImpl implements AuthorGroupService {
         ObjectId userId = UserUtils.getUserId();
         a.forEach(authorGroup -> {
             authorGroup.setStars(authorGroup.getStarList().size());
+            authorGroup.setAuthors(authorGroup.getAuthorList().size());
+            authorGroup.setAuthorList(authorGroup.getAuthorList().subList(0, authorGroup.getAuthors() > 5 ? 5 : authorGroup.getAuthors()));
             if (userId == null) {
                 return;
             }
-            authorGroup.setAuthors(authorGroup.getAuthorList().size());
-            authorGroup.setAuthorList(authorGroup.getAuthorList().subList(0, authorGroup.getAuthors() > 5 ? 5 : authorGroup.getAuthors()));
             setIsStared(userId, authorGroup);
             authorGroup.setStarList(null);
         });
         return a;
+    }
+
+    @Override
+    public List<AuthorGroup> listAuthorList(String keyword, Long page, Integer pageSize) {
+        MatchOperation match;
+        if (!"".equals(keyword)) {
+            match = Aggregation.match(new Criteria().orOperator(Criteria.where("name").regex(keyword), Criteria.where("desc").regex(keyword), Criteria.where("tagList").is(keyword)));
+        } else {
+            match = Aggregation.match(new Criteria());
+        }
+        logger.info("{} {}", keyword, page);
+        return this.listAuthorList(match, page, pageSize);
     }
 
     private void setIsStared(ObjectId userId, AuthorGroup authorGroup) {
@@ -213,9 +211,13 @@ public class AuthorGroupServiceImpl implements AuthorGroupService {
     public AuthorGroup getAuthorList(ObjectId objectId) {
         ObjectId userId = UserUtils.getUserId();
         mongoTemplate.save(new ObjectVisitRecord("AuthorGroup", userId, objectId, Calendar.getInstance().getTime()));
+        return getAuthorList(Aggregation.match(Criteria.where("_id").is(objectId)));
+    }
+
+    public AuthorGroup getAuthorList(MatchOperation match) {
         AuthorGroup a = mongoTemplate.aggregate(
                 Aggregation.newAggregation(
-                        Aggregation.match(Criteria.where("_id").is(objectId)),
+                        match,
                         Aggregation.lookup("user", "creator._id", "_id", "creator"),
                         Aggregation.unwind("creator"),
                         Aggregation.lookup("user", "maintainer._id", "_id", "maintainer"),
@@ -267,15 +269,13 @@ public class AuthorGroupServiceImpl implements AuthorGroupService {
         if (userId == null) {
             return null;
         }
-        String field;
         if (type == 0) {
-            field = "starList._id";
+            List<ObjectId> gidList = mongoTemplate.find(Query.query(Criteria.where("userId").is(userId)), UserStarAuthorGroup.class).stream().map(UserStarAuthorGroup::getGroupId).collect(Collectors.toList());
+            return this.listAuthorList(Aggregation.match(Criteria.where("_id").in(gidList)), Long.valueOf(page), pageSize);
         } else if (type == 1) {
-            field = "maintainer._id";
-        } else {
-            field = "creator._id";
+            return this.listAuthorList(Aggregation.match(Criteria.where("maintainer._id").is(userId)), Long.valueOf(page), pageSize);
         }
-        return mongoTemplate.find(Query.query(Criteria.where(field).is(userId)).with(PageRequest.of(page - 1, pageSize, Sort.by("_id").descending())), AuthorGroup.class);
+        return null;
     }
 
     @Override
