@@ -156,7 +156,9 @@ public class AuthorServiceImpl implements AuthorService {
 
     @Override
     public void getRankData(Author author) {
-
+        if (author == null || author.getMid() == null) {
+            return;
+        }
         AuthorRankData lastRankData = authorUtil.getLastRankData(author);
         AuthorRankData currentRankData = getCurrentRankData(author);
         Date date = Calendar.getInstance().getTime();
