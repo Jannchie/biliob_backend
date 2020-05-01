@@ -656,7 +656,7 @@ public class AuthorServiceImpl implements AuthorService {
         // 百万粉以上：高频观测
         authorList = this.getAuthorFansGt(1000000);
         for (Author author : authorList) {
-            setIntervalMap(intervalMap, author.getMid(), SECOND_OF_MINUTES * 60);
+            setIntervalMap(intervalMap, author.getMid(), SECOND_OF_MINUTES * 60 * 6);
         }
 
         logger.fatal("[START] 调整观测频率: 本次计划调整 {} 个UP主的频率", intervalMap.size());
