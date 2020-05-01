@@ -37,18 +37,21 @@ public class TracerScheduler {
     @Scheduled(cron = "0 0/5 * * * ?")
     @Async
     public void recordSpiderQueueStatus() {
-        logger.info("记录爬虫队列状态");
-        Calendar c = Calendar.getInstance();
-        HashMap<String, Long> result = new HashMap<>();
-        Long authorQueueLength = mongoTemplate.count(Query.query(Criteria.where("next").lt(c.getTime())), AuthorIntervalRecord.class);
-        Long videoQueueLength = mongoTemplate.count(Query.query(Criteria.where("next").lt(c.getTime())), "video_interval");
-        Date date = Calendar.getInstance().getTime();
-        Map data = new HashMap<String, Object>() {{
-            put("date", date);
-            put("author", authorQueueLength);
-            put("video", videoQueueLength);
-        }};
-        mongoTemplate.insert(data, "spider_queue_status");
+        try {
+            logger.info("记录爬虫队列状态");
+            Calendar c = Calendar.getInstance();
+            Long authorQueueLength = mongoTemplate.count(Query.query(Criteria.where("next").lt(c.getTime())), AuthorIntervalRecord.class);
+            Long videoQueueLength = mongoTemplate.count(Query.query(Criteria.where("next").lt(c.getTime())), "video_interval");
+            Date date = Calendar.getInstance().getTime();
+            Map<String, Object> data = new HashMap<String, Object>() {{
+                put("date", date);
+                put("author", authorQueueLength);
+                put("video", videoQueueLength);
+            }};
+            mongoTemplate.insert(data, "spider_queue_status");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Scheduled(cron = "0 0/5 * * * ?")
