@@ -449,11 +449,11 @@ public class AdminServiceImpl implements AdminService {
         Calendar c = Calendar.getInstance();
         Calendar currentCalendar = Calendar.getInstance();
         currentCalendar.set(Calendar.YEAR, -1);
-        c.set(Calendar.DATE, -7);
+        c.set(Calendar.DATE, -1);
         while (currentCalendar.getTime().before(c.getTime())) {
             List<Author.Data> data = mongoTemplate.find(Query.query(Criteria.where("mid").is(mid).and("datetime").lt(c.getTime()).gt(currentCalendar.getTime())).with(Sort.by("datetime").ascending()).limit(100), Author.Data.class);
-            if (data.size() <= 1) {
-                continue;
+            if (data.size() < 50) {
+                break;
             }
             Date lastDate = data.get(0).getDatetime();
             for (int i = 1; i < data.size(); i++) {
@@ -466,6 +466,7 @@ public class AdminServiceImpl implements AdminService {
             }
             currentCalendar.setTime(data.get(data.size() - 1).getDatetime());
         }
+        logger.info("精简 {} 的数据 完毕", mid);
         return new Result<>(ResultEnum.SUCCEED);
     }
 
