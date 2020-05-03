@@ -19,7 +19,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.HashMap;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -39,8 +38,6 @@ public class IpHandlerInterceptor implements HandlerInterceptor {
     private static final String IP = "ip";
     private static final Pattern NUMBER_PATTERN = Pattern.compile("[0-9]+");
     private static final Double CHECK_RATE = 0.05D;
-    private static HashMap<String, String> ipLastUri = new HashMap<>(1000);
-    private static HashMap<String, Integer> ipCount = new HashMap<>(1000);
     private final MongoTemplate mongoTemplate;
 
     /**
@@ -63,24 +60,6 @@ public class IpHandlerInterceptor implements HandlerInterceptor {
         String userAgent = request.getHeader("user-agent");
         String uri = replaceDigital(request.getRequestURI());
 
-        if (!"/api/author/compare/top-fans".equals(uri) && !ipLastUri.containsKey(ip)) {
-            // 没有访问记录
-            ipLastUri.put(ip, uri);
-            ipCount.put(ip, 1);
-        } else {
-            if (ipCount.get(ip) < 10) {
-                if (ipLastUri.get(ip).equals(uri)) {
-                    ipCount.put(ip, ipCount.get(ip) + 1);
-                } else {
-                    ipCount.put(ip, 1);
-                }
-            } else {
-                // ban ip
-                ipLastUri.remove(ip);
-                ipCount.remove(ip);
-                addToBlackList(response, ip, String.format("多次访问同一API %s", uri));
-            }
-        }
         // 在白名单中直接放过
         if (mongoTemplate.exists(query(where(IP).is(ip)), WhiteList.class)) {
             return true;
