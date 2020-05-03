@@ -5,7 +5,9 @@ import com.jannchie.biliob.constant.ResultEnum;
 import com.jannchie.biliob.credit.handle.CreditOperateHandle;
 import com.jannchie.biliob.model.User;
 import com.jannchie.biliob.model.Video;
+import com.jannchie.biliob.model.VideoVisit;
 import com.jannchie.biliob.object.VideoIntervalRecord;
+import com.jannchie.biliob.utils.BiliobUtils;
 import com.jannchie.biliob.utils.Result;
 import com.jannchie.biliob.utils.UserUtils;
 import org.apache.logging.log4j.LogManager;
@@ -31,16 +33,18 @@ public class VideoServiceV2 {
     MongoTemplate mongoTemplate;
     @Autowired
     CreditOperateHandle creditOperateHandle;
+    @Autowired
+    BiliobUtils biliobUtils;
 
     public Video getVideoDetailByAid(Long aid) {
         Criteria c = Criteria.where("aid").is(aid);
-        logger.info("获得AV{}的数据", aid);
+        addVideoVisit(aid);
         return getVideoWithAuthorDataByCriteria(c);
     }
 
     public Video getVideoDetailByBvid(String bvid) {
         Criteria c = Criteria.where("bvid").is(bvid);
-        logger.info("获得BV{}的数据", bvid);
+        addVideoVisit(bvid);
         return getVideoWithAuthorDataByCriteria(c);
     }
 
@@ -72,7 +76,28 @@ public class VideoServiceV2 {
         return new Result<>(ResultEnum.SUCCEED);
     }
 
+    private void addVideoVisit(Long aid) {
+        String finalUserName = biliobUtils.getUserName();
+        logger.info("用户[{}]查询aid[{}]的详细数据", finalUserName, aid);
+        VideoVisit vv = new VideoVisit();
+        vv.setAid(aid);
+        vv.setDate(Calendar.getInstance().getTime());
+        vv.setName(finalUserName);
+        mongoTemplate.save(vv);
+    }
+
+    private void addVideoVisit(String bvid) {
+        String finalUserName = biliobUtils.getUserName();
+        logger.info("用户[{}]查询bvid[{}]的详细数据", finalUserName, bvid);
+        VideoVisit vv = new VideoVisit();
+        vv.setBvid(bvid);
+        vv.setDate(Calendar.getInstance().getTime());
+        vv.setName(finalUserName);
+        mongoTemplate.save(vv);
+    }
+
     private Video getVideoWithAuthorDataByCriteria(Criteria c) {
+
         Video v = mongoTemplate.aggregate(Aggregation.newAggregation(
                 Aggregation.match(c),
                 Aggregation.lookup("author", "mid", "mid", "authorList"),

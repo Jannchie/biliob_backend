@@ -6,7 +6,7 @@ import com.jannchie.biliob.model.Video;
 import com.jannchie.biliob.object.JannchieIndexData;
 import com.jannchie.biliob.service.IndexService;
 import com.jannchie.biliob.service.VideoService;
-import com.jannchie.biliob.utils.BiliOBUtils;
+import com.jannchie.biliob.utils.BiliobUtils;
 import com.jannchie.biliob.utils.UserUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -33,7 +33,7 @@ public class IndexServiceImpl implements IndexService {
     @Autowired
     VideoService videoService;
     @Autowired
-    BiliOBUtils biliobUtils;
+    BiliobUtils biliobUtils;
     @Resource
     private IndexService self;
 

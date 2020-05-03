@@ -52,7 +52,6 @@ public class UserUtils {
         return user.getId();
     }
 
-
     public static String getUsername() {
         return SecurityContextHolder.getContext().getAuthentication().getName();
     }

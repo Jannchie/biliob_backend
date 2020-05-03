@@ -14,11 +14,11 @@ import java.util.Map;
  * @author Jannchie
  */
 @Component
-public class BiliOBUtils {
+public class BiliobUtils {
     @Autowired
     private HttpServletRequest request;
 
-    public BiliOBUtils(HttpServletRequest request) {
+    public BiliobUtils(HttpServletRequest request) {
         this.request = request;
     }
 

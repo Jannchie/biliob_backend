@@ -10,6 +10,7 @@ import com.jannchie.biliob.model.VideoOnline;
 import com.jannchie.biliob.object.VideoRankTable;
 import com.jannchie.biliob.repository.UserRepository;
 import com.jannchie.biliob.repository.VideoRepository;
+import com.jannchie.biliob.service.AdminService;
 import com.jannchie.biliob.service.UserService;
 import com.jannchie.biliob.service.VideoService;
 import com.jannchie.biliob.utils.*;
@@ -52,7 +53,8 @@ public class VideoServiceImpl implements VideoService {
     private final UserService userService;
     private final MongoTemplate mongoTemplate;
     private final RecommendVideo recommendVideo;
-    private BiliOBUtils biliOBUtils;
+    private final AdminService adminService;
+    private BiliobUtils biliOBUtils;
 
     @Autowired
     public VideoServiceImpl(
@@ -61,13 +63,14 @@ public class VideoServiceImpl implements VideoService {
             UserService userService,
             MongoTemplate mongoTemplate,
             RedisOps redisOps,
-            RecommendVideo recommendVideo, BiliOBUtils biliOBUtils) {
+            RecommendVideo recommendVideo, BiliobUtils biliOBUtils, AdminService adminService) {
         this.repository = repository;
         this.userService = userService;
         this.mongoTemplate = mongoTemplate;
         this.redisOps = redisOps;
         this.recommendVideo = recommendVideo;
         this.biliOBUtils = biliOBUtils;
+        this.adminService = adminService;
     }
 
     /**
@@ -263,9 +266,11 @@ public class VideoServiceImpl implements VideoService {
         mongoTemplate.insert(data, "video_visit");
     }
 
+
     @Override
+    @Deprecated
     public Video getVideoDetails(Long aid, Integer type) {
-        addVideoVisit(aid);
+        adminService.banItself("访问过时API", true);
         Video video;
         if (this.mongoTemplate.exists(Query.query(where("aid").is(aid).and("data.100").exists(true)), Video.class)) {
             video = getAggregatedData(aid);
@@ -275,6 +280,7 @@ public class VideoServiceImpl implements VideoService {
         HashMap<?, ?> rank = getVideoRank(video);
         video.setRank(rank);
         filterVideoData(video);
+        video.setData(null);
         return video;
     }
 

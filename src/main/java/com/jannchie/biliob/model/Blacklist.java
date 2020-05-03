@@ -26,6 +26,14 @@ public class Blacklist {
         this.reason = reason;
     }
 
+    public Blacklist(String ip, String reason, Boolean forever) {
+        this.ip = ip;
+        this.reason = reason;
+        if (!forever) {
+            this.date = new Date();
+        }
+    }
+
     public Date getDate() {
         return date;
     }

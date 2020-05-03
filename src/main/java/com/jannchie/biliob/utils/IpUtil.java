@@ -1,14 +1,20 @@
 package com.jannchie.biliob.utils;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 import javax.servlet.http.HttpServletRequest;
 
 /**
  * @author jannchie
  */
+@Component
 public class IpUtil {
     private static final String UNKNOWN = "unknown";
     private static final String COMMA = ",";
     private static final Integer IP_LENGTH = 15;
+    @Autowired
+    HttpServletRequest request;
 
     public static String getIpAddress(HttpServletRequest request) {
         String ipAddress = null;
@@ -33,5 +39,9 @@ public class IpUtil {
             ipAddress = "";
         }
         return ipAddress;
+    }
+
+    public String getIpAddress() {
+        return getIpAddress(this.request);
     }
 }

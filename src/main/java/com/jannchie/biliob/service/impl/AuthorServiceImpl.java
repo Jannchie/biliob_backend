@@ -62,7 +62,7 @@ public class AuthorServiceImpl implements AuthorService {
     private final MongoTemplate mongoTemplate;
     private MongoClient mongoClient;
     private AuthorUtil authorUtil;
-    private BiliOBUtils biliOBUtils;
+    private BiliobUtils biliOBUtils;
     private AdminService adminService;
 
 
@@ -72,7 +72,7 @@ public class AuthorServiceImpl implements AuthorService {
     public AuthorServiceImpl(AuthorRepository respository,
                              MongoClient mongoClient, MongoTemplate mongoTemplate, InputInspection inputInspection,
                              AuthorUtil authorUtil, RealTimeFansRepository realTimeFansRepository,
-                             RedisOps redisOps, BiliOBUtils biliOBUtils, AdminService adminService, AuthorAchievementService authorAchievementService) {
+                             RedisOps redisOps, BiliobUtils biliOBUtils, AdminService adminService, AuthorAchievementService authorAchievementService) {
         this.respository = respository;
         this.mongoTemplate = mongoTemplate;
         this.mongoClient = mongoClient;

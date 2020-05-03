@@ -5,6 +5,7 @@ import com.jannchie.biliob.model.*;
 import com.jannchie.biliob.object.AuthorIntervalCount;
 import com.jannchie.biliob.repository.UserRepository;
 import com.jannchie.biliob.service.AdminService;
+import com.jannchie.biliob.utils.IpUtil;
 import com.jannchie.biliob.utils.Result;
 import com.jannchie.biliob.utils.UserUtils;
 import com.mongodb.BasicDBObject;
@@ -38,13 +39,16 @@ public class AdminServiceImpl implements AdminService {
     final MongoTemplate mongoTemplate;
     @Autowired
     final MongoClient mongoClient;
+    @Autowired
+    final IpUtil ipUtil;
 
     @Autowired
     public AdminServiceImpl(
-            UserRepository userRepository, MongoTemplate mongoTemplate, MongoClient mongoClient) {
+            UserRepository userRepository, MongoTemplate mongoTemplate, MongoClient mongoClient, IpUtil ipUtil) {
         this.userRepository = userRepository;
         this.mongoTemplate = mongoTemplate;
         this.mongoClient = mongoClient;
+        this.ipUtil = ipUtil;
     }
 
     /**
@@ -72,7 +76,6 @@ public class AdminServiceImpl implements AdminService {
 
         return mongoTemplate.aggregate(a, "user", Map.class).getMappedResults();
     }
-
 
     /**
      * aggregate user
@@ -397,6 +400,15 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
+    public Result<?> banIp(String ip, String reason, Boolean forever) {
+        if (mongoTemplate.exists(Query.query(Criteria.where("ip").is(ip)), Blacklist.class)) {
+            return new Result<>(ResultEnum.ALREADY_BANED);
+        }
+        mongoTemplate.save(new Blacklist(ip, reason, forever));
+        return new Result<>(ResultEnum.SUCCEED);
+    }
+
+    @Override
     public Result<?> banIp(String ip, String reason) {
         if (mongoTemplate.exists(Query.query(Criteria.where("ip").is(ip)), Blacklist.class)) {
             return new Result<>(ResultEnum.ALREADY_BANED);
@@ -456,6 +468,17 @@ public class AdminServiceImpl implements AdminService {
         }
         return new Result<>(ResultEnum.SUCCEED);
     }
+
+    @Override
+    public void banItself(String reason, Boolean forever) {
+        banIp(ipUtil.getIpAddress(), reason, forever);
+    }
+
+    @Override
+    public void banItself(String reason) {
+        banIp(ipUtil.getIpAddress(), reason, false);
+    }
+
 
     @Override
     public Map<Integer, Integer> getDistribute(String ip) {

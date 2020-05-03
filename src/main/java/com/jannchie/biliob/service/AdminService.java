@@ -161,6 +161,8 @@ public interface AdminService {
 
     Result<?> banIp(String ip, String reason);
 
+    Result<?> banIp(String ip, String reason, Boolean forever);
+
     List<AuthorIntervalCount> getSpiderStat();
 
     @Async
@@ -168,4 +170,8 @@ public interface AdminService {
 
     @Async
     Result<?> reduceByMid(Long mid);
+
+    void banItself(String reason);
+
+    void banItself(String reason, Boolean forever);
 }
