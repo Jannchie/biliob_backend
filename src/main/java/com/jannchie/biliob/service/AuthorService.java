@@ -125,6 +125,8 @@ public interface AuthorService {
      */
     void upsertAuthorFreq(Long mid, Integer interval);
 
+    void upsertAuthorFreq(Long mid, Integer interval, Integer delay);
+
     /**
      * 获取作者ID以及累计访问次数的对象列表
      *

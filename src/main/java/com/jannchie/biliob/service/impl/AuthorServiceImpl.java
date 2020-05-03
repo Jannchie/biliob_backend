@@ -4,7 +4,6 @@ import com.jannchie.biliob.constant.AuthorSortEnum;
 import com.jannchie.biliob.constant.BiliobConstant;
 import com.jannchie.biliob.constant.PageSizeEnum;
 import com.jannchie.biliob.exception.AuthorAlreadyFocusedException;
-import com.jannchie.biliob.exception.UserAlreadyFavoriteAuthorException;
 import com.jannchie.biliob.model.Author;
 import com.jannchie.biliob.model.AuthorRankData;
 import com.jannchie.biliob.model.RealTimeFans;
@@ -16,7 +15,6 @@ import com.jannchie.biliob.repository.RealTimeFansRepository;
 import com.jannchie.biliob.service.AdminService;
 import com.jannchie.biliob.service.AuthorAchievementService;
 import com.jannchie.biliob.service.AuthorService;
-import com.jannchie.biliob.service.UserService;
 import com.jannchie.biliob.utils.*;
 import com.mongodb.BasicDBObject;
 import com.mongodb.client.AggregateIterable;
@@ -62,7 +60,6 @@ public class AuthorServiceImpl implements AuthorService {
     private final AuthorRepository respository;
     private final RealTimeFansRepository realTimeFansRepository;
     private final MongoTemplate mongoTemplate;
-    private final UserService userService;
     private MongoClient mongoClient;
     private AuthorUtil authorUtil;
     private BiliOBUtils biliOBUtils;
@@ -72,12 +69,11 @@ public class AuthorServiceImpl implements AuthorService {
     private AuthorAchievementService authorAchievementService;
 
     @Autowired
-    public AuthorServiceImpl(AuthorRepository respository, UserService userService,
+    public AuthorServiceImpl(AuthorRepository respository,
                              MongoClient mongoClient, MongoTemplate mongoTemplate, InputInspection inputInspection,
                              AuthorUtil authorUtil, RealTimeFansRepository realTimeFansRepository,
                              RedisOps redisOps, BiliOBUtils biliOBUtils, AdminService adminService, AuthorAchievementService authorAchievementService) {
         this.respository = respository;
-        this.userService = userService;
         this.mongoTemplate = mongoTemplate;
         this.mongoClient = mongoClient;
         this.authorUtil = authorUtil;
@@ -103,7 +99,6 @@ public class AuthorServiceImpl implements AuthorService {
         MatchOperation match = getAggregateMatch(days, mid);
         Aggregation a = Aggregation.newAggregation(
                 match,
-                Aggregation.sort(Sort.Direction.ASC, "datetime"),
                 Aggregation.project("fans", "archiveView", "articleView", "like", "attention", "datetime", "mid").and("datetime").dateAsFormattedString("%Y-%m-%d").as("date"),
                 Aggregation.group("date")
                         .last("datetime").as("datetime")
@@ -147,11 +142,14 @@ public class AuthorServiceImpl implements AuthorService {
         return getAggregatedData(mid, -1);
     }
 
+    private void setFreq(Long mid) {
+        if (!mongoTemplate.exists(Query.query(Criteria.where("mid").is(mid)), AuthorIntervalRecord.class)) {
+            this.upsertAuthorFreq(mid, SECOND_OF_DAY);
+        }
+    }
 
     private void setFreq(Author author) {
-        if (!mongoTemplate.exists(Query.query(Criteria.where("mid").is(author.getMid())), "author_interval")) {
-            this.upsertAuthorFreq(author.getMid(), SECOND_OF_DAY);
-        }
+        setFreq(author.getMid());
     }
 
     @Override
@@ -204,6 +202,7 @@ public class AuthorServiceImpl implements AuthorService {
     @Override
     public Author getAuthorDetails(Long mid) {
         addAuthorVisit(mid);
+        setFreq(mid);
         Author author = getAggregatedData(mid);
         if (author == null) {
             return null;
@@ -213,7 +212,6 @@ public class AuthorServiceImpl implements AuthorService {
     }
 
     public void disposeAuthor(Author author) {
-        setFreq(author);
         getRankData(author);
         mongoTemplate.updateFirst(Query.query(Criteria.where("mid").is(author.getMid())), Update.update("rank", author.getRank()), Author.class);
         if (author.getAchievements() != null) {
@@ -259,8 +257,7 @@ public class AuthorServiceImpl implements AuthorService {
 
     @Override
     public void postAuthorByMid(Long mid)
-            throws AuthorAlreadyFocusedException, UserAlreadyFavoriteAuthorException {
-        userService.addFavoriteAuthor(mid);
+            throws AuthorAlreadyFocusedException {
         AuthorServiceImpl.logger.info(mid);
         if (respository.findByMid(mid) != null) {
             throw new AuthorAlreadyFocusedException(mid);
@@ -522,24 +519,32 @@ public class AuthorServiceImpl implements AuthorService {
 
     @Override
     public void upsertAuthorFreq(Long mid, Integer interval) {
+        upsertAuthorFreq(mid, interval, interval);
+    }
+
+
+    @Override
+    public void upsertAuthorFreq(Long mid, Integer interval, Integer delay) {
         AuthorIntervalRecord preInterval =
                 mongoTemplate.findOne(Query.query(Criteria.where("mid").is(mid)),
                         AuthorIntervalRecord.class, "author_interval");
         Calendar nextCal = Calendar.getInstance();
         Date cTime = Calendar.getInstance().getTime();
-        nextCal.add(Calendar.SECOND, interval);
+        nextCal.add(Calendar.SECOND, delay);
         // 更新访问频率数据。
         Update u = Update.update("date", cTime);
         if (preInterval == null || preInterval.getInterval() == null || interval < preInterval.getInterval()) {
             u.set("interval", interval);
         }
         // 如果此前没有访问频率数据，或者更新后的访问时间比原来的访问时间还短，则刷新下次访问的时间。
-        if (preInterval == null
-                || preInterval.getNext() == null || nextCal.getTimeInMillis() < preInterval.getNext().getTime()) {
+        if (preInterval == null || preInterval.getNext() == null) {
+            u.set("next", cTime);
+            logger.info("[UPSERT] 作者：{} 访问频率：{} 下次爬取：{}", mid, interval, cTime);
+        } else if (nextCal.getTimeInMillis() < preInterval.getNext().getTime()) {
             u.set("next", nextCal.getTime());
             logger.info("[UPSERT] 作者：{} 访问频率：{} 下次爬取：{}", mid, interval, nextCal.getTime());
         }
-        mongoTemplate.upsert(Query.query(Criteria.where("mid").is(mid)), u, "author_interval");
+        mongoTemplate.upsert(Query.query(Criteria.where("mid").is(mid)), u, AuthorIntervalRecord.class);
     }
 
     @Override

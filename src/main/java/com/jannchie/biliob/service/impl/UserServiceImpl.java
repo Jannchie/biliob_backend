@@ -14,6 +14,7 @@ import com.jannchie.biliob.model.User;
 import com.jannchie.biliob.model.UserRecord;
 import com.jannchie.biliob.object.AuthorIntervalRecord;
 import com.jannchie.biliob.repository.*;
+import com.jannchie.biliob.service.AuthorService;
 import com.jannchie.biliob.service.UserService;
 import com.jannchie.biliob.utils.*;
 import com.jannchie.biliob.utils.credit.calculator.*;
@@ -74,6 +75,7 @@ class UserServiceImpl implements UserService {
     private final CheckInCreditCalculator checkInCreditCalculator;
 
     private final ForceFocusCreditCalculator forceFocusCreditCalculator;
+    private final AuthorService authorService;
 
     private final MailUtil mailUtil;
     private final RecommendVideo recommendVideo;
@@ -97,7 +99,7 @@ class UserServiceImpl implements UserService {
             DanmakuAggregateCreditCalculator danmakuAggregateCreditCalculator,
             CheckInCreditCalculator checkInCreditCalculator,
             ModifyNickNameCreditCalculator modifyNickNameCreditCalculator,
-            CreditHandle creditHandle,
+            AuthorService authorService, CreditHandle creditHandle,
             MailUtil mailUtil,
             RecommendVideo recommendVideo, AuthorUtil authorUtil, CreditOperateHandle creditOperateHandle) {
         this.creditUtil = creditUtil;
@@ -107,6 +109,7 @@ class UserServiceImpl implements UserService {
         this.questionRepository = questionRepository;
         this.userRecordRepository = userRecordRepository;
         this.mongoTemplate = mongoTemplate;
+        this.authorService = authorService;
         this.creditHandle = creditHandle;
         this.refreshAuthorCreditCalculator = refreshAuthorCreditCalculator;
         this.forceFocusCreditCalculator = forceFocusCreditCalculator;
@@ -453,8 +456,14 @@ class UserServiceImpl implements UserService {
         User u = UserUtils.getUser();
         UserRecord userRecord = mongoTemplate.insert(new UserRecord(CreditConstant.REFRESH_AUTHOR_DATA, String.valueOf(mid), u.getName()));
         Result<?> result = creditOperateHandle.doAsyncCreditOperate(u, CreditConstant.REFRESH_AUTHOR_DATA,
-                () -> mongoTemplate.updateFirst(Query.query(Criteria.where("mid").is(mid)),
-                        new Update().addToSet("order", userRecord.getId()), AuthorIntervalRecord.class));
+                () -> {
+                    Query q = Query.query(Criteria.where("mid").is(mid));
+                    if (!mongoTemplate.exists(q, AuthorIntervalRecord.class)) {
+                        authorService.upsertAuthorFreq(mid, 86400);
+                    }
+                    return mongoTemplate.updateFirst(q,
+                            new Update().addToSet("order", userRecord.getId()), AuthorIntervalRecord.class);
+                });
         return ResponseEntity.ok(result);
     }
 

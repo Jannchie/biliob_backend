@@ -435,19 +435,24 @@ public class AdminServiceImpl implements AdminService {
     public Result<?> reduceByMid(Long mid) {
         logger.info("正在精简 {} 的数据", mid);
         Calendar c = Calendar.getInstance();
+        Calendar currentCalendar = Calendar.getInstance();
+        currentCalendar.set(Calendar.YEAR, -1);
         c.set(Calendar.DATE, -7);
-        List<Author.Data> data = mongoTemplate.find(Query.query(Criteria.where("mid").is(mid).and("datetime").lt(c)).with(Sort.by("datetime").ascending()), Author.Data.class);
-        if (data.size() <= 1) {
-            return null;
-        }
-        Date lastDate = data.get(0).getDatetime();
-        for (int i = 1; i < data.size(); i++) {
-            Date currentDate = data.get(i).getDatetime();
-            if (currentDate.getTime() - lastDate.getTime() < 1000 * 60 * 60 * 6) {
-                mongoTemplate.remove(Query.query(Criteria.where("mid").is(mid).and("datetime").is(currentDate)), Author.Data.class);
-            } else {
-                lastDate = data.get(i).getDatetime();
+        while (currentCalendar.getTime().before(c.getTime())) {
+            List<Author.Data> data = mongoTemplate.find(Query.query(Criteria.where("mid").is(mid).and("datetime").lt(c.getTime()).gt(currentCalendar.getTime())).with(Sort.by("datetime").ascending()).limit(100), Author.Data.class);
+            if (data.size() <= 1) {
+                continue;
             }
+            Date lastDate = data.get(0).getDatetime();
+            for (int i = 1; i < data.size(); i++) {
+                Date currentDate = data.get(i).getDatetime();
+                if (currentDate.getTime() - lastDate.getTime() < 1000 * 60 * 60 * 6) {
+                    mongoTemplate.remove(Query.query(Criteria.where("mid").is(mid).and("datetime").is(currentDate)), Author.Data.class);
+                } else {
+                    lastDate = data.get(i).getDatetime();
+                }
+            }
+            currentCalendar.setTime(data.get(data.size() - 1).getDatetime());
         }
         return new Result<>(ResultEnum.SUCCEED);
     }
