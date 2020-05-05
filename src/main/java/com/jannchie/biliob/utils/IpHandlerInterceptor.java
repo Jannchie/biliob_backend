@@ -100,7 +100,6 @@ public class IpHandlerInterceptor implements HandlerInterceptor {
         mongoTemplate.save(new Blacklist(ip, String.format("%s", reason)));
         logger.info(ip);
         response.setStatus(HttpStatus.FORBIDDEN.value());
-        returnJson(response);
     }
 
     private boolean isBot(String userAgent) {

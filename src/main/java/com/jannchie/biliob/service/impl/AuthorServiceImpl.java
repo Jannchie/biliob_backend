@@ -101,12 +101,12 @@ public class AuthorServiceImpl implements AuthorService {
                 match,
                 Aggregation.project("fans", "archiveView", "articleView", "like", "attention", "datetime", "mid").and("datetime").dateAsFormattedString("%Y-%m-%d").as("date"),
                 Aggregation.group("date")
-                        .last("datetime").as("datetime")
-                        .last("fans").as("fans")
-                        .last("archiveView").as("archiveView")
-                        .last("articleView").as("articleView")
-                        .last("like").as("like")
-                        .last("attention").as("attention")
+                        .first("datetime").as("datetime")
+                        .first("fans").as("fans")
+                        .first("archiveView").as("archiveView")
+                        .first("articleView").as("articleView")
+                        .first("like").as("like")
+                        .first("attention").as("attention")
                         .first("mid").as("mid"),
                 Aggregation.sort(Sort.Direction.DESC, "datetime"),
                 Aggregation.group().push(
