@@ -65,7 +65,7 @@ public interface VideoRepository
      * @return 视频页
      */
     @Query(
-            value = "{$or:[{channel:{$regex:?0}},{author:{$regex:?0}},{title:{$regex:?0}}]}",
+            value = "{'keyword': ?0}",
             fields =
                     "{ 'pic' : 1, 'mid' : 1, 'author' : 1, 'authorName' : 1, 'bvid': 1, 'channel' : 1, 'title' : 1, 'aid' : 1, 'focus':1, 'tag': 1}"
     )
@@ -79,7 +79,7 @@ public interface VideoRepository
      * @return 视频页
      */
     @Query(
-            value = "{$or:[{'tag': {'$in': ?0}},{'keyword': {'$all': ?0}}]}",
+            value = "{'keyword': {'$all': ?0}}",
             fields =
                     "{ 'pic' : 1, 'mid' : 1, 'author' : 1, 'authorName' : 1, 'bvid': 1, 'channel' : 1, 'title' : 1, 'aid' : 1, 'focus':1, 'tag': 1}"
     )
@@ -93,9 +93,8 @@ public interface VideoRepository
      * @return 视频页
      */
     @Query(
-            value = "{$or:[{'tag': ?0},{'keyword': ?0}]}",
-            fields =
-                    "{ 'pic' : 1, 'mid' : 1, 'author' : 1, 'authorName' : 1, 'bvid': 1, 'channel' : 1, 'title' : 1, 'aid' : 1, 'focus':1, 'tag': 1}"
+            value = "{'keyword': ?0}",
+            fields = "{ 'pic' : 1, 'mid' : 1, 'author' : 1, 'authorName' : 1, 'bvid': 1, 'channel' : 1, 'title' : 1, 'aid' : 1, 'focus':1, 'tag': 1}"
     )
     Slice<Video> findByOneKeyword(String keyword, Pageable pageable);
 
