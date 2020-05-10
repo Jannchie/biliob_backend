@@ -157,7 +157,7 @@ public class GuessingService {
 
         while (nextTop >= minFans) {
             logger.info("寻找预测竞猜：粉丝数突破 {}", nextTop);
-            q = new Query(Criteria.where("cFans").lt(nextTop).and("cRate").gt(0)).with(Sort.by("cFans").descending());
+            q = new Query(Criteria.where("cFans").lt(nextTop - 100000).and("cRate").gt(0)).with(Sort.by("cFans").descending());
             q.fields().include("mid").include("name");
             Author nextAuthor = mongoTemplate.findOne(q, Author.class);
             assert nextAuthor != null;
