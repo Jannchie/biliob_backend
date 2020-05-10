@@ -156,22 +156,22 @@ public class GuessingService {
         User user = mongoTemplate.findOne(userQuery, User.class);
 
         while (nextTop >= minFans) {
+            logger.info("寻找预测竞猜：粉丝数突破 {}", nextTop);
             q = new Query(Criteria.where("cFans").lt(nextTop).and("cRate").gt(0)).with(Sort.by("cFans").descending());
             q.fields().include("mid").include("name");
             Author nextAuthor = mongoTemplate.findOne(q, Author.class);
             assert nextAuthor != null;
-            if (mongoTemplate.exists(Query.query(Criteria.where("author.mid").is(nextAuthor.getMid()).and("target").is(nextTop)), FansGuessingItem.class)) {
-                continue;
+            if (!mongoTemplate.exists(Query.query(Criteria.where("author.mid").is(nextAuthor.getMid()).and("target").is(nextTop)), FansGuessingItem.class)) {
+                FansGuessingItem fansGuessingItem = new FansGuessingItem();
+                fansGuessingItem.setAuthor(nextAuthor);
+                fansGuessingItem.setTarget(nextTop);
+                String title = String.format("%s粉丝数突破%,d的时间预测", nextAuthor.getName(), nextTop);
+                fansGuessingItem.setTitle(title);
+                logger.info("添加预测竞猜[{}]", title);
+                fansGuessingItem.setCreator(user);
+                fansGuessingItem.setState(1);
+                mongoTemplate.save(fansGuessingItem);
             }
-            FansGuessingItem fansGuessingItem = new FansGuessingItem();
-            fansGuessingItem.setAuthor(nextAuthor);
-            fansGuessingItem.setTarget(nextTop);
-            String title = String.format("%s粉丝数突破%,d的时间预测", nextAuthor.getName(), nextTop);
-            fansGuessingItem.setTitle(title);
-            logger.info("添加预测竞猜[{}]", title);
-            fansGuessingItem.setCreator(user);
-            fansGuessingItem.setState(1);
-            mongoTemplate.save(fansGuessingItem);
             nextTop -= 1000000;
         }
         return new Result<>(ResultEnum.SUCCEED);
