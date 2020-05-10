@@ -177,7 +177,7 @@ class UserServiceImpl implements UserService {
                     new Result(ResultEnum.HAS_NOT_LOGGED_IN), HttpStatus.UNAUTHORIZED);
         }
 
-        UserUtils.setUserTitleAndRank(user);
+        UserUtils.setUserTitleAndRankAndUpdateRole(user);
         UserServiceImpl.logger.info(user.getName());
         return new ResponseEntity<>(user, HttpStatus.OK);
     }

@@ -11,27 +11,40 @@ public enum RoleEnum {
      *
      * <p>ADMIN: The user who has the highest authority of this site.
      */
-    NORMAL_USER(0, "普通用户"),
-    ADMIN(9, "管理员");
+    NORMAL_USER(0, "普通研究员"),
+    OBSERVER(5, "管理研究员"),
+    ADMIN(7, "特权研究员"),
+    TEST(8, "系统测试员"),
+    JANNCHIE(9, "站长");
 
-    private Integer code;
+    private Integer level;
     private String name;
 
-    RoleEnum(Integer code) {
-        this.code = code;
+    RoleEnum(Integer level) {
+        this.level = level;
     }
 
-    RoleEnum(Integer code, String name) {
-        this.code = code;
+    RoleEnum(Integer level, String name) {
+        this.level = level;
         this.name = name;
     }
 
-    public Integer getCode() {
-        return code;
+    public static Integer getLevelByName(String name) {
+        for (RoleEnum r : RoleEnum.values()
+        ) {
+            if (r.getName().equals(name)) {
+                return r.getLevel();
+            }
+        }
+        return 0;
     }
 
-    public void setCode(Integer code) {
-        this.code = code;
+    public Integer getLevel() {
+        return level;
+    }
+
+    public void setLevel(Integer code) {
+        this.level = code;
     }
 
     public String getName() {

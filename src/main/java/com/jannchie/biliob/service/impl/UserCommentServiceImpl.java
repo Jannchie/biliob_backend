@@ -2,6 +2,7 @@ package com.jannchie.biliob.service.impl;
 
 import com.jannchie.biliob.constant.CreditConstant;
 import com.jannchie.biliob.constant.ResultEnum;
+import com.jannchie.biliob.constant.RoleEnum;
 import com.jannchie.biliob.credit.handle.CreditHandle;
 import com.jannchie.biliob.credit.handle.CreditOperateHandle;
 import com.jannchie.biliob.model.Comment;
@@ -105,7 +106,7 @@ public class UserCommentServiceImpl implements UserCommentService {
         if (userHashMap.containsKey(comment.getUser().getName())) {
             comment.setUser(userHashMap.get(comment.getUser().getName()));
         } else {
-            UserUtils.setUserTitleAndRank(comment.getUser());
+            UserUtils.setUserTitleAndRankAndUpdateRole(comment.getUser());
             userHashMap.put(comment.getUser().getName(), comment.getUser());
         }
     }
@@ -168,21 +169,22 @@ public class UserCommentServiceImpl implements UserCommentService {
 
     @Override
     public ResponseEntity<Result<?>> deleteComment(String commentId) {
-        User user = UserUtils.getUser();
+        User user = UserUtils.getFullInfo();
         if (user == null) {
             return ResponseEntity.badRequest().body(new Result<>(ResultEnum.HAS_NOT_LOGGED_IN));
         }
+        Integer level = RoleEnum.getLevelByName(user.getRole());
         Comment comment = mongoTemplate.findOne(Query.query(Criteria.where("_id").is(commentId)), Comment.class);
         if (comment == null) {
             return ResponseEntity.badRequest().body(new Result<>(ResultEnum.COMMENT_NOT_FOUND));
         }
         ObjectId commentPublisherId = comment.getUserId();
-        if (commentPublisherId.equals(user.getId())) {
+        if (commentPublisherId.equals(user.getId()) || level >= 7) {
             mongoTemplate.remove(Query.query(Criteria.where("_id").is(commentId)), Comment.class);
-            mongoTemplate.remove(Query.query(Criteria.where("parentId   ").is(commentId)), Comment.class);
+            mongoTemplate.remove(Query.query(Criteria.where("parentId").is(commentId)), Comment.class);
             return ResponseEntity.ok(new Result<>(ResultEnum.SUCCEED));
         } else {
-            return ResponseEntity.ok(new Result<>(ResultEnum.EXECUTE_FAILURE));
+            return ResponseEntity.ok(new Result<>(ResultEnum.PERMISSION_DENIED));
         }
     }
 }

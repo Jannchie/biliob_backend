@@ -52,7 +52,7 @@ public class AuthorGroupServiceImpl implements AuthorGroupService {
     public Result<AuthorGroup> initAuthorList(String name, String desc, List<String> tag) {
         AuthorGroup authorGroup = new AuthorGroup(name, desc, tag, UserUtils.getUserId());
         User user = UserUtils.getUser();
-        UserUtils.setUserTitleAndRank(user);
+        UserUtils.setUserTitleAndRankAndUpdateRole(user);
         if ("观测者".equals(user.getTitle()) || "观想者".equals(user.getTitle()) || "管理者".equals(user.getTitle()) || "追寻者".equals(user.getTitle())) {
             return creditOperateHandle.doCreditOperate(user, CreditConstant.INIT_AUTHOR_LIST, name, () -> mongoTemplate.save(authorGroup));
         } else {

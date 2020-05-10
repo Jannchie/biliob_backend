@@ -2,20 +2,19 @@ package com.jannchie.biliob.controller;
 
 import com.jannchie.biliob.constant.CreditConstant;
 import com.jannchie.biliob.constant.ResultEnum;
+import com.jannchie.biliob.constant.RoleEnum;
 import com.jannchie.biliob.credit.handle.CreditOperateHandle;
 import com.jannchie.biliob.form.AddCreditToUserForm;
 import com.jannchie.biliob.model.User;
 import com.jannchie.biliob.object.AuthorIntervalRecord;
 import com.jannchie.biliob.utils.Result;
+import com.jannchie.biliob.utils.UserUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Calendar;
 import java.util.HashMap;
@@ -54,6 +53,17 @@ public class ManagerController {
     public Result<?> setUserData(@RequestBody User user) {
         mongoTemplate.updateFirst(Query.query(Criteria.where("name").is(user.getName())),
                 Update.update("credit", user.getCredit()).set("exp", user.getExp()), User.class);
+        return new Result<>(ResultEnum.SUCCEED);
+    }
+
+    @RequestMapping(method = RequestMethod.POST, value = "/user/grand/{name}/{role}")
+    public Result<?> grandRole(@PathVariable("name") String name, @PathVariable("role") String role) {
+        User user = UserUtils.getFullInfo();
+        Integer level = RoleEnum.getLevelByName(user.getRole());
+        if (level < 8) {
+            return new Result<>(ResultEnum.PERMISSION_DENIED);
+        }
+        mongoTemplate.updateFirst(Query.query(Criteria.where("name").is(name)), Update.update("role", role), User.class);
         return new Result<>(ResultEnum.SUCCEED);
     }
 
