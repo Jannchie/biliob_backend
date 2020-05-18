@@ -47,7 +47,7 @@ public class IndexServiceImpl implements IndexService {
         jannchieIndex.setName(keyword);
         List<JannchieIndexData> data = mongoTemplate.aggregate(
                 Aggregation.newAggregation(
-                        Aggregation.match(Criteria.where("cJannchie").gt(10000)),
+                        Aggregation.match(Criteria.where("cJannchie").gt(1000000)),
                         Aggregation.match(criteria),
                         Aggregation.unwind("data"),
                         Aggregation.project()
@@ -88,7 +88,7 @@ public class IndexServiceImpl implements IndexService {
             return null;
         }
         visiting.add(keyword);
-        Criteria criteria = Criteria.where("keyword").is(keyword).and("cJannchie").gt(10000);
+        Criteria criteria = Criteria.where("keyword").is(keyword).and("cJannchie").gt(1000000);
         JannchieIndex jannchieIndex = new JannchieIndex();
         jannchieIndex.setName(keyword);
         List<JannchieIndexData> data = mongoTemplate.aggregate(
