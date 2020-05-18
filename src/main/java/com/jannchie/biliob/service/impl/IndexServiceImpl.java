@@ -88,12 +88,14 @@ public class IndexServiceImpl implements IndexService {
             return null;
         }
         visiting.add(keyword);
-        Criteria criteria = Criteria.where("keyword").is(keyword).and("cJannchie").gt(1000000);
+        Criteria criteria = Criteria.where("keyword").is(keyword);
         JannchieIndex jannchieIndex = new JannchieIndex();
         jannchieIndex.setName(keyword);
         List<JannchieIndexData> data = mongoTemplate.aggregate(
                 Aggregation.newAggregation(
                         Aggregation.match(criteria),
+                        Aggregation.sort(Sort.Direction.DESC, "cJannchie"),
+                        Aggregation.limit(36),
                         Aggregation.project()
 //                                .and("$data.jannchie").arrayElementAt(0).as("jannchie")
                                 .and("cJannchie").as("jannchie")
