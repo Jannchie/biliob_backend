@@ -310,7 +310,7 @@ class UserServiceImpl implements UserService {
                 mids.remove(i);
                 user.setFavoriteMid(mids);
                 userRepository.save(user);
-                UserServiceImpl.logger.info("删除{}关注的UP主：{}", user.getName(), mid);
+                UserServiceImpl.logger.info("删除[{}]关注的UP主：{}", user.getName(), mid);
                 return new ResponseEntity<>(new Result(ResultEnum.DELETE_SUCCEED), HttpStatus.OK);
             }
         }

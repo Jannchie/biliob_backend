@@ -261,7 +261,7 @@ public class VideoServiceImpl implements VideoService {
 
     private void addVideoVisit(Long aid) {
         String finalUserName = biliOBUtils.getUserName();
-        Map data = biliOBUtils.getVisitData(finalUserName, aid);
+        Map<?, ?> data = biliOBUtils.getVisitData(finalUserName, aid);
         VideoServiceImpl.logger.info("用户[{}]查询aid[{}]的详细数据", finalUserName, aid);
         mongoTemplate.insert(data, "video_visit");
     }

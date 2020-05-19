@@ -47,6 +47,8 @@ public class BiliobUtils {
             {
                 put("mid", mid);
                 put("name", userName);
+                put("ip", IpUtil.getIpAddress(request));
+                put("user-agent", request.getHeader("User-Agent"));
                 put("date", date);
             }
         };
