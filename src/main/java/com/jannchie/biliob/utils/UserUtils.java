@@ -108,7 +108,7 @@ public class UserUtils {
         }
         if (!roleEnum.getName().equals(user.getRole())) {
             Integer preLevel = RoleEnum.getLevelByName(user.getRole());
-            if (preLevel < roleEnum.getLevel()) {
+            if (preLevel < roleEnum.getLevel() || "普通用户".equals(user.getRole())) {
                 mongoTemplate.updateFirst(Query.query(Criteria.where("name").is(user.getName())), Update.update("role", roleEnum.getName()), User.class);
             }
         }

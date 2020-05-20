@@ -230,7 +230,7 @@ public class AdminServiceImpl implements AdminService {
     @Override
     public ResponseEntity cancelUserAdminRole(@Valid String userName) {
         mongoTemplate.updateFirst(
-                Query.query(Criteria.where("name").is(userName)), Update.update("role", "普通用户"), "user");
+                Query.query(Criteria.where("name").is(userName)), Update.update("role", "普通研究员"), "user");
         return new ResponseEntity<>(new Result(ResultEnum.SUCCEED), HttpStatus.OK);
     }
 
