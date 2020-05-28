@@ -52,7 +52,7 @@ public class GuessingService {
     public List<FansGuessingItem> listFansGuessing(Integer page) {
         Calendar tempC = Calendar.getInstance();
         tempC.add(Calendar.DATE, -7);
-        Query q = new Query(new Criteria().orOperator(Criteria.where("reachDate").is(null), Criteria.where("reachDate").gt(tempC.getTime()))).with(PageRequest.of(page, 10, Sort.by("state").descending()));
+        Query q = new Query(new Criteria().orOperator(Criteria.where("reachDate").is(null), Criteria.where("reachDate").gt(tempC.getTime()))).with(PageRequest.of(page, 30, Sort.by("state").descending()));
         List<FansGuessingItem> result = mongoTemplate.find(q, FansGuessingItem.class);
         result.forEach(fansGuessingItem -> {
             Double totalCredit = 0D;
