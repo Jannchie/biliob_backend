@@ -347,14 +347,16 @@ public class VideoServiceImpl implements VideoService {
         } else if (!Objects.equals(text, "")) {
             if (InputInspection.isId(text)) {
                 criteria = Criteria.where("aid").is(Long.valueOf(text));
-            }
-            VideoServiceImpl.logger.info(text);
-            // get text
-            String[] textArray = text.split(" ");
-            if (textArray.length != 1) {
-                criteria = Criteria.where("keyword").in(Arrays.asList(textArray));
             } else {
-                criteria = Criteria.where("keyword").is(text);
+                VideoServiceImpl.logger.info(text);
+                // get text
+                String[] textArray = text.split(" ");
+                if (textArray.length != 1) {
+                    criteria = Criteria.where("keyword").in(Arrays.asList(textArray));
+                } else {
+                    criteria = Criteria.where("keyword").is(text);
+                }
+                sortKey = "cJannchie";
             }
         } else {
             if (days >= 0 && days <= 30) {
