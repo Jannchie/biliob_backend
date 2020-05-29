@@ -356,7 +356,7 @@ public class VideoServiceImpl implements VideoService {
                 } else {
                     criteria = Criteria.where("keyword").is(text);
                 }
-                sortKey = "cJannchie";
+                sortKey = VideoSortEnum.JANNCHIE.getKey();
             }
         } else {
             if (days >= 0 && days <= 30) {

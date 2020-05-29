@@ -13,7 +13,8 @@ public enum VideoSortEnum {
     COIN(2, "cCoin"),
     DANMAKU(3, "cDanmaku"),
     FAVORITE(4, "cFavorite"),
-    SHARE(5, "cShare");
+    SHARE(5, "cShare"),
+    JANNCHIE(6, "cJannchie");
 
     private Integer flag;
     private String key;
@@ -38,7 +39,7 @@ public enum VideoSortEnum {
             case 5:
                 return SHARE.getKey();
             default:
-                return VIEW.getKey();
+                return JANNCHIE.getKey();
         }
     }
 
