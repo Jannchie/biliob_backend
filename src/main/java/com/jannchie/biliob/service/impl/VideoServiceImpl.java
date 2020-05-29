@@ -374,7 +374,7 @@ public class VideoServiceImpl implements VideoService {
         return new MySlice<>(
                 mongoTemplate.find(
                         Query.query(criteria)
-                                .maxTimeMsec(100000)
+                                .maxTimeMsec(10000)
                                 .with(PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, sortKey))),
                         Video.class));
     }
