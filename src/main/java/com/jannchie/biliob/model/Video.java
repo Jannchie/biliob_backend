@@ -30,7 +30,7 @@ public class Video {
     private Integer cFavorite;
     private Integer cDanmaku;
     private Integer cReply;
-    private Integer cJannchie;
+    private Long cJannchie;
     private Integer cCoin;
     private Integer cShare;
     private Integer cLike;
@@ -88,7 +88,7 @@ public class Video {
             case "cLike":
                 return getcLike();
             case "cJannchie":
-                return getcJannchie();
+                return Math.toIntExact(getcJannchie());
             case "cReply":
                 return getcReply();
             default:
@@ -256,11 +256,11 @@ public class Video {
         this.cDatetime = cDatetime;
     }
 
-    public Integer getcJannchie() {
+    public Long getcJannchie() {
         return cJannchie;
     }
 
-    public void setcJannchie(Integer cJannchie) {
+    public void setcJannchie(Long cJannchie) {
         this.cJannchie = cJannchie;
     }
 

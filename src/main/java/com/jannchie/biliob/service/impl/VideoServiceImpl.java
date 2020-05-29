@@ -340,46 +340,23 @@ public class VideoServiceImpl implements VideoService {
         if (pagesize > PageSizeEnum.BIG_SIZE.getValue()) {
             pagesize = PageSizeEnum.BIG_SIZE.getValue();
         }
-
+        Criteria criteria;
         if (aid != -1) {
             VideoServiceImpl.logger.info(aid);
-            return new MySlice<>(
-                    repository.searchByAid(
-                            aid, PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, sortKey))));
+            criteria = Criteria.where("aid").is(aid);
         } else if (!Objects.equals(text, "")) {
             if (InputInspection.isId(text)) {
-                return new MySlice<>(
-                        repository.searchByAid(
-                                Long.valueOf(text),
-                                PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, sortKey))));
+                criteria = Criteria.where("aid").is(Long.valueOf(text));
             }
             VideoServiceImpl.logger.info(text);
             // get text
             String[] textArray = text.split(" ");
-            MySlice<Video> mySlice;
             if (textArray.length != 1) {
-                mySlice =
-                        new MySlice<>(
-                                repository.findByKeywordContaining(
-                                        textArray,
-                                        PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, sortKey))));
+                criteria = Criteria.where("keyword").in(Arrays.asList(textArray));
             } else {
-                mySlice =
-                        new MySlice<>(
-                                repository.findByOneKeyword(
-                                        textArray[0],
-                                        PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, sortKey))));
+                criteria = Criteria.where("keyword").is(text);
             }
-            if (mySlice.getContent().isEmpty()) {
-                for (String eachText : textArray) {
-                    HashMap<String, String> map = new HashMap<>(1);
-                    map.put("aid", eachText);
-                    mongoTemplate.insert(map, "search_word");
-                }
-            }
-            return mySlice;
         } else {
-
             if (days >= 0 && days <= 30) {
                 VideoServiceImpl.logger.info("获取指定日期内的视频数据");
                 c.add(Calendar.DATE, -days);
@@ -394,6 +371,12 @@ public class VideoServiceImpl implements VideoService {
                                 PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, sortKey))));
             }
         }
+        return new MySlice<>(
+                mongoTemplate.find(
+                        Query.query(criteria)
+                                .maxTimeMsec(100000)
+                                .with(PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, sortKey))),
+                        Video.class));
     }
 
     @Override

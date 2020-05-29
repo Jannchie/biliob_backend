@@ -17,10 +17,13 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
 import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author Jannchie
@@ -91,21 +94,31 @@ public class IndexServiceImpl implements IndexService {
         Criteria criteria = Criteria.where("keyword").is(keyword).and("cJannchie").gt(100000);
         JannchieIndex jannchieIndex = new JannchieIndex();
         jannchieIndex.setName(keyword);
-        List<JannchieIndexData> data = mongoTemplate.aggregate(
-                Aggregation.newAggregation(
-                        Aggregation.match(criteria),
-                        Aggregation.sort(Sort.Direction.DESC, "cJannchie"),
-                        Aggregation.limit(64),
-                        Aggregation.project()
-//                                .and("$data.jannchie").arrayElementAt(0).as("jannchie")
-                                .and("cJannchie").as("jannchie")
-                                .and("datetime").dateAsFormattedString("%Y-%m-%d").as("datetime"),
-                        Aggregation.group("datetime").sum("jannchie").as("jannchie"),
-                        Aggregation.project("jannchie").and("_id").as("datetime"),
-                        Aggregation.match(Criteria.where("jannchie").ne(0)),
-                        Aggregation.sort(Sort.Direction.ASC, "datetime")
-                )
-                , Video.class, JannchieIndexData.class).getMappedResults();
+//        List<JannchieIndexData> data = mongoTemplate.aggregate(
+//                Aggregation.newAggregation(
+//                        Aggregation.match(criteria),
+//                        Aggregation.sort(Sort.Direction.DESC, "cJannchie"),
+//                        Aggregation.limit(64),
+//                        Aggregation.project()
+////                                .and("$data.jannchie").arrayElementAt(0).as("jannchie")
+//                                .and("cJannchie").as("jannchie")
+//                                .and("datetime").dateAsFormattedString("%Y-%m-%d").as("datetime"),
+//                        Aggregation.group("datetime").sum("jannchie").as("jannchie"),
+//                        Aggregation.project("jannchie").and("_id").as("datetime"),
+//                        Aggregation.match(Criteria.where("jannchie").ne(0)),
+//                        Aggregation.sort(Sort.Direction.ASC, "datetime")
+//                )
+//                , Video.class, JannchieIndexData.class).getMappedResults();
+        Query query = Query.query(criteria).with(Sort.by(Sort.Direction.DESC, "cJannchie")).limit(72);
+        query.fields().include("cJannchie").include("datetime");
+        List<Video> videos = mongoTemplate.find(query, Video.class);
+        SimpleDateFormat dateFm = new SimpleDateFormat("yyyy-MM-dd");
+        List<JannchieIndexData> data = videos.stream().map(v -> {
+            JannchieIndexData jannchieIndexData = new JannchieIndexData();
+            jannchieIndexData.setDatetime(dateFm.format(v.getDatetime()));
+            jannchieIndexData.setJannchie(v.getcJannchie());
+            return jannchieIndexData;
+        }).sorted(Comparator.comparing(JannchieIndexData::getDatetime)).collect(Collectors.toList());
         jannchieIndex.setData(data);
         // TODO: ADD Visit Record
         visiting.remove(keyword);
