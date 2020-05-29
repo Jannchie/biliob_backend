@@ -180,7 +180,7 @@ public class DamnYouServiceImpl implements DamnYouService {
         logger.info("查询番剧动画列表");
         return mongoTemplate.aggregate(
                 Aggregation.newAggregation(
-                        Aggregation.match(Criteria.where("name").regex(keyword)),
+                        Aggregation.match(Criteria.where("name").regex(keyword, "i")),
                         Aggregation.sort(Sort.Direction.DESC, "cView"),
                         Aggregation.skip((page - 1) * pageSize),
                         Aggregation.limit(pageSize)

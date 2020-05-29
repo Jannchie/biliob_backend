@@ -190,7 +190,7 @@ public class AuthorGroupServiceImpl implements AuthorGroupService {
     public List<AuthorGroup> listAuthorList(String keyword, Long page, Integer pageSize) {
         MatchOperation match;
         if (!"".equals(keyword)) {
-            match = Aggregation.match(new Criteria().orOperator(Criteria.where("name").regex(keyword), Criteria.where("desc").regex(keyword), Criteria.where("tagList").is(keyword)));
+            match = Aggregation.match(new Criteria().orOperator(Criteria.where("name").regex(keyword, "i"), Criteria.where("desc").regex(keyword, "i"), Criteria.where("tagList").is(keyword)));
         } else {
             match = Aggregation.match(new Criteria());
         }

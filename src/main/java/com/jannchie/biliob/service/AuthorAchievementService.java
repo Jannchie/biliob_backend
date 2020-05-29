@@ -39,9 +39,8 @@ public interface AuthorAchievementService {
      * Analyze daily achievement
      *
      * @param mid mid
-     * @return analyze result
      */
-    Result<?> analyzeDailyAchievement(Long mid);
+    void analyzeDailyAchievement(Long mid);
 
     /**
      * get Author Achievement By Level

@@ -240,7 +240,7 @@ public class AuthorAchievementServiceImpl implements AuthorAchievementService {
 
     @Override
     @Async
-    public Result<?> analyzeDailyAchievement(Long mid) {
+    public void analyzeDailyAchievement(Long mid) {
         List<AuthorDailyTrend> dailyTrends = mongoTemplate.find(Query.query(Criteria.where("mid").is(mid)), AuthorDailyTrend.class);
         if (dailyTrends.size() > 1) {
             AuthorDailyTrend pData = dailyTrends.get(0);
@@ -298,9 +298,9 @@ public class AuthorAchievementServiceImpl implements AuthorAchievementService {
                 pData = cData;
             }
 
-            return new Result<>(ResultEnum.SUCCEED);
+            new Result<>(ResultEnum.SUCCEED);
         } else {
-            return new Result<>(ResultEnum.EXECUTE_FAILURE);
+            new Result<>(ResultEnum.EXECUTE_FAILURE);
         }
     }
 

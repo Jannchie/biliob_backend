@@ -349,7 +349,7 @@ public class AdminServiceImpl implements AdminService {
 //        String regex = "^[-+]?[\\d]*$";
         Pattern pattern = Pattern.compile(regex);
         if (!regex.equals("")) {
-            aggregationList.add(Aggregation.match(Criteria.where("uri").regex(regex)));
+            aggregationList.add(Aggregation.match(Criteria.where("uri").regex(regex, "i")));
         }
         if (!groupBy.equals("")) {
             aggregationList.add(Aggregation.group(groupBy)
