@@ -373,11 +373,22 @@ public class VideoServiceImpl implements VideoService {
                                 PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, sortKey))));
             }
         }
+        Query q = Query.query(criteria)
+                .maxTimeMsec(10000)
+                .with(PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, sortKey)));
+        q.fields().include("pic")
+                .include("mid")
+                .include("aid")
+                .include("author")
+                .include("authorName")
+                .include("bvid")
+                .include("channel")
+                .include("focus")
+                .include("tag")
+                .include("title");
         return new MySlice<>(
                 mongoTemplate.find(
-                        Query.query(criteria)
-                                .maxTimeMsec(10000)
-                                .with(PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, sortKey))),
+                        q,
                         Video.class));
     }
 

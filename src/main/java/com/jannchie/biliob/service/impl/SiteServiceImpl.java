@@ -59,7 +59,7 @@ public class SiteServiceImpl implements SiteService {
     @Override
     public ResponseEntity listOnline(Integer days) {
         if (days > SiteServiceImpl.MAX_ONLINE_PLAY_RANGE) {
-            return new ResponseEntity<>(new Result(ResultEnum.OUT_OF_RANGE), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(new Result<>(ResultEnum.OUT_OF_RANGE), HttpStatus.BAD_REQUEST);
         }
         Integer limit = days * SiteServiceImpl.HOUR_IN_DAY;
         Query query = new Query();
