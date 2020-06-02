@@ -599,8 +599,8 @@ public class AuthorServiceImpl implements AuthorService {
         // 点击频率最高，每十分钟一次
         List<AuthorVisitRecord> authorList = this.listMostVisitAuthorId(1, 30);
         for (AuthorVisitRecord author : authorList) {
-            setIntervalMap(intervalMap, author.getMid(), SECOND_OF_MINUTES * 15);
-            this.upsertAuthorFreq(author.getMid(), SECOND_OF_MINUTES * 15);
+            setIntervalMap(intervalMap, author.getMid(), SECOND_OF_MINUTES * 60 * 3);
+            this.upsertAuthorFreq(author.getMid(), SECOND_OF_MINUTES * 60 * 3);
         }
     }
 
@@ -615,7 +615,7 @@ public class AuthorServiceImpl implements AuthorService {
                     Author.class, Author.class).getMappedResults();
             int idx = 0;
             for (Author author : authors) {
-                setIntervalMap(intervalMap, author.getMid(), (idx++ <= 3) ? SECOND_OF_MINUTES : SECOND_OF_MINUTES * 30);
+                setIntervalMap(intervalMap, author.getMid(), (idx++ <= 3) ? SECOND_OF_MINUTES * 5 : SECOND_OF_MINUTES * 60 * 6);
             }
         }
     }
@@ -629,7 +629,7 @@ public class AuthorServiceImpl implements AuthorService {
             List<Author> authors = mongoTemplate.find(q.limit(20), Author.class);
             int idx = 0;
             for (Author author : authors) {
-                setIntervalMap(intervalMap, author.getMid(), (idx++ <= 3) ? SECOND_OF_MINUTES : SECOND_OF_MINUTES * 15);
+                setIntervalMap(intervalMap, author.getMid(), (idx++ <= 3) ? SECOND_OF_MINUTES * 5 : SECOND_OF_MINUTES * 60 * 6);
             }
         }
     }
@@ -657,13 +657,13 @@ public class AuthorServiceImpl implements AuthorService {
         query.fields().include("mid");
         List<Author> forceFocusAuthors = mongoTemplate.find(query, Author.class);
         for (Author author : forceFocusAuthors) {
-            setIntervalMap(intervalMap, author.getMid(), SECOND_OF_MINUTES * 60 * 3);
+            setIntervalMap(intervalMap, author.getMid(), SECOND_OF_MINUTES * 60 * 6);
         }
 
         // 百万粉以上：高频观测
         authorList = this.getAuthorFansGt(1000000);
         for (Author author : authorList) {
-            setIntervalMap(intervalMap, author.getMid(), SECOND_OF_MINUTES * 60 * 6);
+            setIntervalMap(intervalMap, author.getMid(), SECOND_OF_MINUTES * 60 * 12);
         }
 
         logger.fatal("[START] 调整观测频率: 本次计划调整 {} 个UP主的频率", intervalMap.size());
