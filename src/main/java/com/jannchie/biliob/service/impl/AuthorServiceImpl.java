@@ -251,6 +251,9 @@ public class AuthorServiceImpl implements AuthorService {
     private void addAuthorVisit(Long mid) {
         String finalUserName = biliOBUtils.getUserName();
         Map data = biliOBUtils.getVisitData(finalUserName, mid);
+        if (mongoTemplate.exists(Query.query(Criteria.where("name").is(finalUserName)), "blacklist_user")) {
+            adminService.banItself("用户被禁用", true);
+        }
         AuthorServiceImpl.logger.info("用户[{}]查询mid[{}]的详细数据", finalUserName, mid);
         mongoTemplate.insert(data, "author_visit");
     }
@@ -258,10 +261,10 @@ public class AuthorServiceImpl implements AuthorService {
     @Override
     public void postAuthorByMid(Long mid)
             throws AuthorAlreadyFocusedException {
-        AuthorServiceImpl.logger.info(mid);
         if (respository.findByMid(mid) != null) {
             throw new AuthorAlreadyFocusedException(mid);
         }
+        AuthorServiceImpl.logger.info(mid);
         upsertAuthorFreq(mid, SECOND_OF_DAY);
         respository.save(new Author(mid));
     }
