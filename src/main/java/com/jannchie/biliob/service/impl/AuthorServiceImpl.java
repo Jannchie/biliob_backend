@@ -254,6 +254,12 @@ public class AuthorServiceImpl implements AuthorService {
         if (mongoTemplate.exists(Query.query(Criteria.where("name").is(finalUserName)), "blacklist_user")) {
             adminService.banItself("用户被禁用", true);
         }
+        if (mongoTemplate.aggregate(Aggregation.newAggregation(
+                Aggregation.match(where("name").is(finalUserName)),
+                Aggregation.group("user-agent")
+        ), "author_visit", Map.class).getMappedResults().size() > 10) {
+            adminService.banItself("设备异常多", true);
+        }
         AuthorServiceImpl.logger.info("用户[{}]查询mid[{}]的详细数据", finalUserName, mid);
         mongoTemplate.insert(data, "author_visit");
     }
