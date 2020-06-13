@@ -257,7 +257,7 @@ public class AuthorServiceImpl implements AuthorService {
         if (mongoTemplate.aggregate(Aggregation.newAggregation(
                 Aggregation.match(where("name").is(finalUserName)),
                 Aggregation.group("user-agent")
-        ), "author_visit", Map.class).getMappedResults().size() > 10) {
+        ), "author_visit", Map.class).getMappedResults().size() > 16) {
             adminService.banItself("设备异常多", true);
         }
         AuthorServiceImpl.logger.info("用户[{}]查询mid[{}]的详细数据", finalUserName, mid);
