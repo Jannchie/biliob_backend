@@ -27,6 +27,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.jannchie.biliob.constant.TimeConstant.MICROSECOND_OF_MINUTES;
 
@@ -52,7 +53,9 @@ public class GuessingService {
     public List<FansGuessingItem> listFansGuessing(Integer page) {
         Calendar tempC = Calendar.getInstance();
         tempC.add(Calendar.DATE, -7);
-        Query q = new Query(new Criteria().orOperator(Criteria.where("reachDate").is(null), Criteria.where("reachDate").gt(tempC.getTime()))).with(PageRequest.of(page, 30, Sort.by("state").descending()));
+        Criteria criteria = new Criteria().orOperator(Criteria.where("reachDate").is(null), Criteria.where("reachDate").gt(tempC.getTime()));
+        Query q = new Query(criteria).with(PageRequest.of(page, 100, Sort.by("state").descending()));
+        // mongoTemplate.aggregate(Aggregation.newAggregation(Aggregation.match(criteria), Aggregation.sort(Sort.by("state").descending()), Aggregation.limit(100)), FansGuessingItem.class, FansGuessingItem.class);
         List<FansGuessingItem> result = mongoTemplate.find(q, FansGuessingItem.class);
         result.forEach(fansGuessingItem -> {
             Double totalCredit = 0D;
@@ -86,7 +89,14 @@ public class GuessingService {
             }
             fansGuessingItem.setPokerChips(null);
         });
-        return result;
+        Map<String, Long> tempMap = new HashMap<>(30);
+        result.forEach(fansGuessingItem -> {
+            String title = fansGuessingItem.getTitle().substring(0, 5);
+            if (!tempMap.containsKey(title) || tempMap.get(title) > fansGuessingItem.getTarget()) {
+                tempMap.put(fansGuessingItem.getTitle().substring(0, 5), fansGuessingItem.getTarget());
+            }
+        });
+        return result.stream().filter(fansGuessingItem -> tempMap.get(fansGuessingItem.getTitle().substring(0, 5)).equals(fansGuessingItem.getTarget())).collect(Collectors.toList());
     }
 
     public Result<?> joinGuessing(ObjectId guessingId, Integer index, Double value) {
@@ -157,10 +167,13 @@ public class GuessingService {
 
         while (nextTop >= minFans) {
             logger.info("寻找预测竞猜：粉丝数突破 {}", nextTop);
-            q = new Query(Criteria.where("cFans").lt(nextTop - 100000).and("cRate").gt(0)).with(Sort.by("cFans").descending());
+            q = new Query(Criteria.where("cFans").lt(nextTop - 100000).gt(nextTop - 1000000).and("cRate").gt(0)).with(Sort.by("cFans").descending());
             q.fields().include("mid").include("name");
             Author nextAuthor = mongoTemplate.findOne(q, Author.class);
-            assert nextAuthor != null;
+            if (nextAuthor == null) {
+                nextTop -= 1000000;
+                continue;
+            }
             if (!mongoTemplate.exists(Query.query(Criteria.where("author.mid").is(nextAuthor.getMid()).and("target").is(nextTop)), FansGuessingItem.class)) {
                 FansGuessingItem fansGuessingItem = new FansGuessingItem();
                 fansGuessingItem.setAuthor(nextAuthor);

@@ -252,13 +252,13 @@ public class AuthorServiceImpl implements AuthorService {
         String finalUserName = biliOBUtils.getUserName();
         Map data = biliOBUtils.getVisitData(finalUserName, mid);
         if (mongoTemplate.exists(Query.query(Criteria.where("name").is(finalUserName)), "blacklist_user")) {
-            adminService.banItself("用户被禁用", true);
+            adminService.banItself("用户被禁用", false);
         }
         if (mongoTemplate.aggregate(Aggregation.newAggregation(
                 Aggregation.match(where("name").is(finalUserName)),
                 Aggregation.group("user-agent")
         ), "author_visit", Map.class).getMappedResults().size() > 16) {
-            adminService.banItself("设备异常多", true);
+            adminService.banItself("设备异常多", false);
         }
         AuthorServiceImpl.logger.info("用户[{}]查询mid[{}]的详细数据", finalUserName, mid);
         mongoTemplate.insert(data, "author_visit");
