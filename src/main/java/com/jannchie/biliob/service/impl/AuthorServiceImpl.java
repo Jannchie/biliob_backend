@@ -202,7 +202,6 @@ public class AuthorServiceImpl implements AuthorService {
     @Override
     public Author getAuthorDetails(Long mid) {
         addAuthorVisit(mid);
-        setFreq(mid);
         Author author = getAggregatedData(mid);
         if (author == null) {
             return null;
