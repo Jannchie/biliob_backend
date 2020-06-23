@@ -607,8 +607,8 @@ public class AuthorServiceImpl implements AuthorService {
         // 点击频率最高，每十分钟一次
         List<AuthorVisitRecord> authorList = this.listMostVisitAuthorId(1, 30);
         for (AuthorVisitRecord author : authorList) {
-            setIntervalMap(intervalMap, author.getMid(), SECOND_OF_MINUTES * 60 * 3);
-            this.upsertAuthorFreq(author.getMid(), SECOND_OF_MINUTES * 60 * 3);
+            setIntervalMap(intervalMap, author.getMid(), SECOND_OF_MINUTES * 60 * 6);
+            this.upsertAuthorFreq(author.getMid(), SECOND_OF_MINUTES * 60 * 6);
         }
     }
 
@@ -623,7 +623,7 @@ public class AuthorServiceImpl implements AuthorService {
                     Author.class, Author.class).getMappedResults();
             int idx = 0;
             for (Author author : authors) {
-                setIntervalMap(intervalMap, author.getMid(), (idx++ <= 3) ? SECOND_OF_MINUTES * 5 : SECOND_OF_MINUTES * 60 * 6);
+                setIntervalMap(intervalMap, author.getMid(), (idx++ <= 3) ? SECOND_OF_MINUTES * 15 : SECOND_OF_MINUTES * 60 * 6);
             }
         }
     }
@@ -665,7 +665,7 @@ public class AuthorServiceImpl implements AuthorService {
         query.fields().include("mid");
         List<Author> forceFocusAuthors = mongoTemplate.find(query, Author.class);
         for (Author author : forceFocusAuthors) {
-            setIntervalMap(intervalMap, author.getMid(), SECOND_OF_MINUTES * 60 * 6);
+            setIntervalMap(intervalMap, author.getMid(), SECOND_OF_MINUTES * 60 * 12);
         }
 
         // 百万粉以上：高频观测

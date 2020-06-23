@@ -58,7 +58,7 @@ public class ForceFocusCreditCalculator extends AbstractCreditCalculator {
 
         mongoTemplate.updateFirst(query(where("mid").is(id)), update("forceFocus", true), Author.class);
         super.setExecuted(objectId);
-        upsertAuthorFreq(id, SECOND_OF_MINUTES * 60);
+        upsertAuthorFreq(id, SECOND_OF_MINUTES * 60 * 12);
         return null;
     }
 
