@@ -22,7 +22,7 @@ public class AuthorAchievementController {
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/api/author/achievement")
-    public List<Author.Achievement> postAnalyzeRequest(@RequestParam(value = "lv", defaultValue = "5") Integer level) {
+    public List<Author.Achievement> getAuthorAchievementByLevel(@RequestParam(value = "lv", defaultValue = "5") Integer level) {
         return authorAchievementService.getAuthorAchievementByLevel(level);
     }
 }
