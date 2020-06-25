@@ -99,13 +99,12 @@ public class AuthorServiceImpl implements AuthorService {
         MatchOperation match = getAggregateMatch(days, mid);
         Aggregation a = Aggregation.newAggregation(
                 match,
-                Aggregation.project("fans", "archiveView", "articleView", "like", "attention", "datetime", "mid", "channels").and("datetime").dateAsFormattedString("%Y-%m-%d").as("date"),
+                Aggregation.project("fans", "archiveView", "articleView", "like", "attention", "datetime", "mid").and("datetime").dateAsFormattedString("%Y-%m-%d").as("date"),
                 Aggregation.group("date")
                         .first("datetime").as("datetime")
                         .first("fans").as("fans")
                         .first("archiveView").as("archiveView")
                         .first("articleView").as("articleView")
-                        .first("channels").as("channels")
                         .first("like").as("like")
                         .first("attention").as("attention")
                         .first("mid").as("mid"),
@@ -115,7 +114,6 @@ public class AuthorServiceImpl implements AuthorService {
                                 .append("fans", "$fans")
                                 .append("archiveView", "$archiveView")
                                 .append("articleView", "$articleView")
-                                .append("channels", "channels")
                                 .append("archive", "$archive")
                                 .append("article", "$article")
                                 .append("like", "$like")
