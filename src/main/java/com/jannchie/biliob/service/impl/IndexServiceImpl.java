@@ -109,7 +109,7 @@ public class IndexServiceImpl implements IndexService {
 //                        Aggregation.sort(Sort.Direction.ASC, "datetime")
 //                )
 //                , Video.class, JannchieIndexData.class).getMappedResults();
-        Query query = Query.query(criteria).with(Sort.by(Sort.Direction.DESC, "cJannchie")).limit(72);
+        Query query = Query.query(criteria).with(Sort.by(Sort.Direction.DESC, "cJannchie")).limit(100);
         query.fields().include("cJannchie").include("datetime");
         List<Video> videos = mongoTemplate.find(query, Video.class);
         SimpleDateFormat dateFm = new SimpleDateFormat("yyyy-MM-dd");

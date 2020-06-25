@@ -99,12 +99,13 @@ public class AuthorServiceImpl implements AuthorService {
         MatchOperation match = getAggregateMatch(days, mid);
         Aggregation a = Aggregation.newAggregation(
                 match,
-                Aggregation.project("fans", "archiveView", "articleView", "like", "attention", "datetime", "mid").and("datetime").dateAsFormattedString("%Y-%m-%d").as("date"),
+                Aggregation.project("fans", "archiveView", "articleView", "like", "attention", "datetime", "mid", "channels").and("datetime").dateAsFormattedString("%Y-%m-%d").as("date"),
                 Aggregation.group("date")
                         .first("datetime").as("datetime")
                         .first("fans").as("fans")
                         .first("archiveView").as("archiveView")
                         .first("articleView").as("articleView")
+                        .first("channels").as("channels")
                         .first("like").as("like")
                         .first("attention").as("attention")
                         .first("mid").as("mid"),
@@ -114,6 +115,7 @@ public class AuthorServiceImpl implements AuthorService {
                                 .append("fans", "$fans")
                                 .append("archiveView", "$archiveView")
                                 .append("articleView", "$articleView")
+                                .append("channels", "channels")
                                 .append("archive", "$archive")
                                 .append("article", "$article")
                                 .append("like", "$like")
@@ -613,7 +615,7 @@ public class AuthorServiceImpl implements AuthorService {
     }
 
     public void calculateTopClassIntervalData(HashMap<Long, Integer> intervalMap) {
-        // 各指标最高，前三名：每1分钟一次；前20名：每30分钟一次。
+        // 各指标最高，前三名：每15分钟一次；前20名：每360分钟一次。
         for (int i = 0; i <= 3; i++) {
             List<Author> authors = mongoTemplate.aggregate(
                     Aggregation.newAggregation(
@@ -629,7 +631,7 @@ public class AuthorServiceImpl implements AuthorService {
     }
 
     public void calculateFansRankIntervalData(HashMap<Long, Integer> intervalMap) {
-        // 涨掉粉榜，前三名：每1分钟一次；前20名：每15分钟一次。
+        // 涨掉粉榜，前三名：每5分钟一次；前20名：每360分钟一次。
         Sort.Direction[] d = {Sort.Direction.DESC, Sort.Direction.ASC};
         for (Sort.Direction direction : d) {
             Query q = new Query(Criteria.where("cRate").exists(true)).with(Sort.by(direction, "cRate"));
