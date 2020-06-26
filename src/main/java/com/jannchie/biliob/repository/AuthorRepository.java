@@ -113,7 +113,7 @@ public interface AuthorRepository
      * @param of page information
      * @return a Slice of top fans increase rate.
      */
-    @Query(value = "{cRate:{$ne:null}}", fields = "{ 'data': 0, 'fansRate': 0 }")
+    @Query(value = "{cRate:{$ne:null}}", fields = "{ 'data': 0, 'fansRate': 0, 'channels': 0, 'keyword': 0 }")
     Slice<Author> listTopIncreaseRate(PageRequest of);
 
     /**
