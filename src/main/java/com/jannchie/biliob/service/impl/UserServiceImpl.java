@@ -184,11 +184,11 @@ class UserServiceImpl implements UserService {
 
 
     @Override
-    public ResponseEntity addFavoriteAuthor(@Valid Long mid) {
+    public ResponseEntity<?> addFavoriteAuthor(@Valid Long mid) {
         User user = UserUtils.getFullInfo();
         if (user == null) {
             return new ResponseEntity<>(
-                    new Result(ResultEnum.HAS_NOT_LOGGED_IN), HttpStatus.UNAUTHORIZED);
+                    new Result<>(ResultEnum.HAS_NOT_LOGGED_IN), HttpStatus.UNAUTHORIZED);
         }
         ArrayList<Long> temp = new ArrayList<>();
         if (user.getFavoriteMid() != null) {
@@ -197,7 +197,7 @@ class UserServiceImpl implements UserService {
         if (temp.contains(mid)) {
             UserServiceImpl.logger.warn("用户：{} 试图重复关注{}", user.getName(), mid);
             return new ResponseEntity<>(
-                    new Result(ResultEnum.ALREADY_FAVORITE_AUTHOR), HttpStatus.ACCEPTED);
+                    new Result<>(ResultEnum.ALREADY_FAVORITE_AUTHOR), HttpStatus.ACCEPTED);
         }
         temp.add(mid);
         user.setFavoriteMid(new ArrayList<>(temp));

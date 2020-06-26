@@ -9,7 +9,6 @@ import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -25,7 +24,7 @@ public class Author {
     private String official;
     private Integer level;
     private ArrayList<Data> data;
-    private HashMap<String, Channel> channels;
+    private Object channels;
     private Rank rank;
     private Boolean focus;
     private Integer obInterval;
@@ -111,11 +110,11 @@ public class Author {
         this.forceFocus = forceFocus;
     }
 
-    public HashMap<String, Channel> getChannels() {
+    public Object getChannels() {
         return channels;
     }
 
-    public void setChannels(HashMap<String, Channel> channels) {
+    public void setChannels(Object channels) {
         this.channels = channels;
     }
 

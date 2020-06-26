@@ -103,7 +103,7 @@ public interface AuthorRepository
     @Query(
             value = "{$or:?0}",
             fields =
-                    "{ data:0, keyword:0}"
+                    "{ data:0, keyword:0, channels: 0}"
     )
     Slice<Author> getFavoriteAuthor(ArrayList<HashMap<String, Long>> mapsList, PageRequest of);
 
