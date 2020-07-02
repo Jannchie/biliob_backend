@@ -23,8 +23,17 @@ public class AuthorDailyTrendController {
     @RequestMapping(method = RequestMethod.GET, value = "/api/author/trend")
     public List<AuthorDailyTrend> listAuthorDailyTopTrend(
             @RequestParam(value = "date") @DateTimeFormat(pattern = "yyyy-MM-dd") Date date,
-            @RequestParam(value = "key") String key
+            @RequestParam(value = "key") String key,
+            @RequestParam(value = "days") Integer days
     ) {
-        return authorDailyTrendService.listAuthorDailyTopTrend(date, key);
+        return authorDailyTrendService.listAuthorDailyTopTrend(date, key, days);
+    }
+
+    @RequestMapping(method = RequestMethod.GET, value = "/api/author/trend/record")
+    public List<AuthorDailyTrend> listAuthorDailyTopRecord(
+            @RequestParam(value = "key") String key,
+            @RequestParam(value = "sort") Integer sort
+    ) {
+        return authorDailyTrendService.listHistoryDailyTopTrend(key, sort);
     }
 }

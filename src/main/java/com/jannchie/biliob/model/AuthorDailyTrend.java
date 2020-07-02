@@ -1,5 +1,6 @@
 package com.jannchie.biliob.model;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.Date;
@@ -8,6 +9,7 @@ import java.util.Date;
  * @author Jannchie
  */
 @Document("author_daily_trend")
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class AuthorDailyTrend {
     Author author;
     private Long mid;
