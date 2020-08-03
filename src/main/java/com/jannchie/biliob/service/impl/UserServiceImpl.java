@@ -705,7 +705,7 @@ class UserServiceImpl implements UserService {
         User user = UserUtils.getUser();
         if (user != null) {
             String userName = user.getName();
-            return mongoTemplate.find(Query.query(Criteria.where("userName").is(userName)).with(Sort.by("datetime").descending()).limit(100), UserRecord.class);
+            return mongoTemplate.find(Query.query(Criteria.where("userName").is(userName)).with(Sort.by("_id").descending()).limit(100), UserRecord.class);
         } else {
             return null;
         }
