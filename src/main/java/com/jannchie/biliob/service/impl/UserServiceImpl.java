@@ -699,4 +699,15 @@ class UserServiceImpl implements UserService {
     public long getUserCount() {
         return mongoTemplate.count(new Query(), "user");
     }
+
+    @Override
+    public List<UserRecord> getUserRecentRecord() {
+        User user = UserUtils.getUser();
+        if (user != null) {
+            String userName = user.getName();
+            return mongoTemplate.find(Query.query(Criteria.where("userName").is(userName)).with(Sort.by("datetime").descending()).limit(100), UserRecord.class);
+        } else {
+            return null;
+        }
+    }
 }

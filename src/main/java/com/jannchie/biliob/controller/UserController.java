@@ -209,8 +209,8 @@ public class UserController {
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/api/user/record")
-    public ResponseEntity userRecord() {
-        return new ResponseEntity<>(userService.getUserAllRecord(), HttpStatus.OK);
+    public ResponseEntity<?> userRecord() {
+        return new ResponseEntity<>(userService.getUserRecentRecord(), HttpStatus.OK);
     }
 
     @RequestMapping(method = RequestMethod.PUT, value = "/api/user/video/{aid}/danmaku")

@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import javax.validation.Valid;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -298,4 +299,11 @@ public interface UserService {
      */
     @Cacheable("user-count")
     long getUserCount();
+
+    /**
+     * Get user's all records.
+     *
+     * @return user record array list
+     */
+    List<UserRecord> getUserRecentRecord();
 }
