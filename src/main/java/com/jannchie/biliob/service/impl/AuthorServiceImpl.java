@@ -209,7 +209,13 @@ public class AuthorServiceImpl implements AuthorService {
         Integer fans = getTopFansRateAuthorFans();
         Query q = Query.query(Criteria.where("cFans").gte(fans)).with(Sort.by(Sort.Direction.ASC, "cFans")).limit(2);
         q.fields().exclude("data").exclude("keyword");
-        return mongoTemplate.find(q, Author.class).stream().sorted(Comparator.comparing(Author::getcFans).reversed()).collect(Collectors.toList());
+        List<Author> authors = mongoTemplate.find(q, Author.class).stream().sorted(Comparator.comparing(Author::getcFans).reversed()).collect(Collectors.toList());
+        if (authors.size() == 1) {
+            q = new Query().with(Sort.by("cRate").descending()).limit(2);
+            q.fields().exclude("data").exclude("keyword");
+            authors = mongoTemplate.find(q, Author.class);
+        }
+        return authors;
     }
 
 
