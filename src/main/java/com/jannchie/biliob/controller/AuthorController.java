@@ -130,17 +130,7 @@ public class AuthorController {
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/api/author/compare/top-fans")
-    public List<Author> compareAuthor(
-            @RequestParam(defaultValue = "0", value = "type") Integer type, @RequestParam(value = "count", defaultValue = "2") Integer limit
-    ) {
-        List<Long> midList = authorService.getTopFansAuthors(limit);
-        Stream<Author> authors = midList.stream().map((mid) -> {
-            if (type == 0) {
-                return authorService.getAuthorInfo(mid);
-            } else {
-                return authorService.getAuthorDetails(mid, 30);
-            }
-        });
-        return authors.collect(Collectors.toList());
+    public List<Author> compareAuthor() {
+        return authorService.getHomePageCompareAuthors();
     }
 }

@@ -198,6 +198,20 @@ public class AuthorServiceImpl implements AuthorService {
         return author;
     }
 
+    public Integer getTopFansRateAuthorFans() {
+        Query q = new Query().with(Sort.by(Sort.Direction.DESC, "cRate"));
+        q.fields().include("cFans");
+        return Objects.requireNonNull(mongoTemplate.findOne(q, Author.class)).getcFans();
+    }
+
+    @Override
+    public List<Author> getHomePageCompareAuthors() {
+        Integer fans = getTopFansRateAuthorFans();
+        Query q = Query.query(Criteria.where("cFans").gte(fans)).with(Sort.by(Sort.Direction.ASC, "cFans")).limit(2);
+        q.fields().exclude("data").exclude("keyword");
+        return mongoTemplate.find(q, Author.class);
+    }
+
 
     @Override
     public Author getAuthorDetails(Long mid) {

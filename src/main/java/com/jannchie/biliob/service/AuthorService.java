@@ -184,4 +184,11 @@ public interface AuthorService {
      * @return author data
      */
     Author getAuthorDetails(Long mid, int days);
+
+    /**
+     * Get home page compare authors
+     *
+     * @return author list
+     */
+    List<Author> getHomePageCompareAuthors();
 }
