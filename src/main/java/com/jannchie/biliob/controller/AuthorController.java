@@ -36,6 +36,13 @@ public class AuthorController {
         this.adminService = adminService;
     }
 
+    @RequestMapping(method = RequestMethod.GET, value = "/api/author/{mid}/history-data")
+    public List<Author.Data> getAuthorHistoryDetails(
+            @PathVariable("mid") Long mid) {
+        return authorService.getHistoryData(mid);
+    }
+
+
     @RequestMapping(method = RequestMethod.GET, value = "/api/author/{mid}")
     public Author getAuthorDetails(
             @PathVariable("mid") Long mid, @RequestParam(defaultValue = "1") Integer type) {

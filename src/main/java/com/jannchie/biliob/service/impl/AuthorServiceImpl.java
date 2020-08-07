@@ -218,6 +218,11 @@ public class AuthorServiceImpl implements AuthorService {
         return authors;
     }
 
+    @Override
+    public List<Author.Data> getHistoryData(Long mid) {
+        return mongoTemplate.find(Query.query(Criteria.where("mid").is(mid)).limit(100), Author.Data.class);
+    }
+
 
     @Override
     public Author getAuthorDetails(Long mid) {

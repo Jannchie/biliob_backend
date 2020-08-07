@@ -191,4 +191,13 @@ public interface AuthorService {
      * @return author list
      */
     List<Author> getHomePageCompareAuthors();
+
+
+    /**
+     * Get author history data
+     *
+     * @param mid author id
+     * @return author data list
+     */
+    List<Author.Data> getHistoryData(Long mid);
 }
