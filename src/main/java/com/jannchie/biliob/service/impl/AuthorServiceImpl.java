@@ -64,16 +64,18 @@ public class AuthorServiceImpl implements AuthorService {
     private AuthorUtil authorUtil;
     private BiliobUtils biliOBUtils;
     private AdminService adminService;
+    private AuthorService authorService;
 
 
     private AuthorAchievementService authorAchievementService;
 
     @Autowired
-    public AuthorServiceImpl(AuthorRepository respository,
+    public AuthorServiceImpl(AuthorRepository respository, AuthorService authorService,
                              MongoClient mongoClient, MongoTemplate mongoTemplate, InputInspection inputInspection,
                              AuthorUtil authorUtil, RealTimeFansRepository realTimeFansRepository,
                              RedisOps redisOps, BiliobUtils biliOBUtils, AdminService adminService, AuthorAchievementService authorAchievementService) {
         this.respository = respository;
+        this.authorService = authorService;
         this.mongoTemplate = mongoTemplate;
         this.mongoClient = mongoClient;
         this.authorUtil = authorUtil;
@@ -621,6 +623,7 @@ public class AuthorServiceImpl implements AuthorService {
     public void updateObserveFreqPerMinute() {
         HashMap<Long, Integer> intervalMap = new HashMap<>();
         calculateTopVisitIntervalData(intervalMap);
+        calculateHomePageAuthor(intervalMap);
         calculateTopClassIntervalData(intervalMap);
         calculateFansRankIntervalData(intervalMap);
         logger.fatal("[START] 调整观测频率: 本次计划调整 {} 个UP主的频率", intervalMap.size());
@@ -628,12 +631,19 @@ public class AuthorServiceImpl implements AuthorService {
         logger.fatal("[FINISH] 调整观测频率 完成");
     }
 
+    private void calculateHomePageAuthor(HashMap<Long, Integer> intervalMap) {
+        List<Author> authors = authorService.getHomePageCompareAuthors();
+        for (Author author : authors
+        ) {
+            setIntervalMap(intervalMap, author.getMid(), SECOND_OF_MINUTES);
+        }
+    }
+
     public void calculateTopVisitIntervalData(HashMap<Long, Integer> intervalMap) {
         // 点击频率最高，每十分钟一次
         List<AuthorVisitRecord> authorList = this.listMostVisitAuthorId(1, 30);
         for (AuthorVisitRecord author : authorList) {
             setIntervalMap(intervalMap, author.getMid(), SECOND_OF_MINUTES * 60 * 6);
-            this.upsertAuthorFreq(author.getMid(), SECOND_OF_MINUTES * 60 * 6);
         }
     }
 
