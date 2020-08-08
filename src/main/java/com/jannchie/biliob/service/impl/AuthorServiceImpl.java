@@ -64,18 +64,16 @@ public class AuthorServiceImpl implements AuthorService {
     private AuthorUtil authorUtil;
     private BiliobUtils biliOBUtils;
     private AdminService adminService;
-    private AuthorService authorService;
 
 
     private AuthorAchievementService authorAchievementService;
 
     @Autowired
-    public AuthorServiceImpl(AuthorRepository respository, AuthorService authorService,
+    public AuthorServiceImpl(AuthorRepository respository,
                              MongoClient mongoClient, MongoTemplate mongoTemplate, InputInspection inputInspection,
                              AuthorUtil authorUtil, RealTimeFansRepository realTimeFansRepository,
                              RedisOps redisOps, BiliobUtils biliOBUtils, AdminService adminService, AuthorAchievementService authorAchievementService) {
         this.respository = respository;
-        this.authorService = authorService;
         this.mongoTemplate = mongoTemplate;
         this.mongoClient = mongoClient;
         this.authorUtil = authorUtil;
@@ -632,7 +630,7 @@ public class AuthorServiceImpl implements AuthorService {
     }
 
     private void calculateHomePageAuthor(HashMap<Long, Integer> intervalMap) {
-        List<Author> authors = authorService.getHomePageCompareAuthors();
+        List<Author> authors = this.getHomePageCompareAuthors();
         for (Author author : authors
         ) {
             setIntervalMap(intervalMap, author.getMid(), SECOND_OF_MINUTES);

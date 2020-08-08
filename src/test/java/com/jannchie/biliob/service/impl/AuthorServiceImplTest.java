@@ -16,7 +16,7 @@ public class AuthorServiceImplTest {
 
     @Test
     public void upsertAuthorFreq() {
-        authorService.upsertAuthorFreq(1850091L, 20);
+        authorService.upsertAuthorFreq(1850091L, 60 * 60);
     }
 
     @Test
