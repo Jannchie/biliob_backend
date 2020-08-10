@@ -211,7 +211,7 @@ public class AuthorServiceImpl implements AuthorService {
         q.fields().exclude("data").exclude("keyword");
         List<Author> authors = mongoTemplate.find(q, Author.class).stream().sorted(Comparator.comparing(Author::getcFans).reversed()).collect(Collectors.toList());
         if (authors.size() == 1) {
-            q = new Query().with(Sort.by("cRate").descending()).limit(2);
+            q = new Query().with(Sort.by("cFans").descending()).limit(2);
             q.fields().exclude("data").exclude("keyword");
             authors = mongoTemplate.find(q, Author.class);
         }
