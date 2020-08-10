@@ -631,6 +631,11 @@ public class AuthorServiceImpl implements AuthorService {
 
     private void calculateHomePageAuthor(HashMap<Long, Integer> intervalMap) {
         List<Author> authors = this.getHomePageCompareAuthors();
+        List<AuthorIntervalRecord> authorIntervalRecords = mongoTemplate.find(Query.query(Criteria.where("interval").is(SECOND_OF_MINUTES)), AuthorIntervalRecord.class);
+        for (AuthorIntervalRecord authorIntervalRecord : authorIntervalRecords
+        ) {
+            setIntervalMap(intervalMap, authorIntervalRecord.getMid(), SECOND_OF_MINUTES * 60);
+        }
         for (Author author : authors
         ) {
             setIntervalMap(intervalMap, author.getMid(), SECOND_OF_MINUTES);
@@ -641,7 +646,7 @@ public class AuthorServiceImpl implements AuthorService {
         // 点击频率最高，每十分钟一次
         List<AuthorVisitRecord> authorList = this.listMostVisitAuthorId(1, 30);
         for (AuthorVisitRecord author : authorList) {
-            setIntervalMap(intervalMap, author.getMid(), SECOND_OF_MINUTES * 60 * 6);
+            setIntervalMap(intervalMap, author.getMid(), SECOND_OF_MINUTES * 60);
         }
     }
 
@@ -662,7 +667,7 @@ public class AuthorServiceImpl implements AuthorService {
     }
 
     public void calculateFansRankIntervalData(HashMap<Long, Integer> intervalMap) {
-        // 涨掉粉榜，前三名：每5分钟一次；前20名：每360分钟一次。
+        // 涨掉粉榜，前三名：每5分钟一次；前20名：每60分钟一次。
         Sort.Direction[] d = {Sort.Direction.DESC, Sort.Direction.ASC};
         for (Sort.Direction direction : d) {
             Query q = new Query(Criteria.where("cRate").exists(true)).with(Sort.by(direction, "cRate"));
@@ -670,7 +675,7 @@ public class AuthorServiceImpl implements AuthorService {
             List<Author> authors = mongoTemplate.find(q.limit(20), Author.class);
             int idx = 0;
             for (Author author : authors) {
-                setIntervalMap(intervalMap, author.getMid(), (idx++ <= 3) ? SECOND_OF_MINUTES * 5 : SECOND_OF_MINUTES * 60 * 6);
+                setIntervalMap(intervalMap, author.getMid(), (idx++ <= 3) ? SECOND_OF_MINUTES * 5 : SECOND_OF_MINUTES * 60);
             }
         }
     }
