@@ -266,7 +266,6 @@ public class GuessingService {
         HashMap<String, Long> sumTimeStamp = new HashMap<>();
         HashMap<String, Long> sumCreateTimeStamp = new HashMap<>();
         f.getPokerChips().forEach(pokerChip -> {
-
             Date cDate = pokerChip.getCreateTime();
             User user = pokerChip.getUser();
             String name = user.getName();
@@ -277,7 +276,7 @@ public class GuessingService {
             }
             Double credit = pokerChip.getCredit();
             // 积分数 = 筹码积分值 × ( 实际达成时间 - 平均发起预测时间 ) ÷ ( | 实际达成时间 - 平均预测达成时间 |)
-            Long deltaGuessingTime = finalReachDate.getTime() - cDate.getTime();
+            long deltaGuessingTime = finalReachDate.getTime() - cDate.getTime();
             Long score = credit.longValue() * ((deltaGuessingTime / 3600000 + 24 * 7) / (deltaTime / 3600000 + 6));
 
             if (sumCreditMap.containsKey(name)) {
@@ -329,22 +328,42 @@ public class GuessingService {
             r.setScore(score);
             resultList.add(r);
         });
+        resultList.sort(Comparator.comparingLong(UserGuessingResult::getScore).reversed());
+        int baseRate = 47;
         long sumScore = resultList.stream().map(UserGuessingResult::getScore).reduce(0L, Long::sum);
         long sumCredit = resultList.stream().map(UserGuessingResult::getCredit).reduce(0D, Double::sum).longValue();
-        if (sumScore == 0) {
-            return null;
-        }
-        Double rate = (double) sumCredit / (double) (sumScore);
+
+        double rate = (double) sumCredit / sumScore;
         resultList.forEach(userGuessingResult ->
         {
-            userGuessingResult.setRevenue(BigDecimal.valueOf(rate * userGuessingResult.getScore()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+            userGuessingResult.setRevenue(BigDecimal.valueOf(rate * (userGuessingResult.getScore() * (100 - baseRate)) / 100 + (double) baseRate * userGuessingResult.getCredit() / 100).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
         });
-        resultList.sort(Comparator.comparingLong(UserGuessingResult::getScore).reversed());
         return resultList;
+    }
+
+    public void printGuessingResult(String guessingId) {
+        FansGuessingItem fansGuessingItem = mongoTemplate.findOne(Query.query(Criteria.where("guessingId").is(guessingId)), FansGuessingItem.class);
+        assert fansGuessingItem != null;
+        ArrayList<UserGuessingResult> resultList = getUserGuessingResults(fansGuessingItem);
+        resultList.forEach(r -> System.out.printf("%s 收益为 %f，收益率为%.2f\n", r.getName(), r.getRevenue(), r.getRevenue() / r.getCredit()));
+        double sumR = 0;
+        double sumC = 0;
+        int winCount = 0;
+        for (UserGuessingResult r : resultList) {
+            sumR += r.getRevenue();
+            sumC += r.getCredit();
+            if (r.getRevenue() > r.getCredit()) {
+                winCount++;
+            }
+        }
+        System.out.printf("合计收益: %f\n合计积分: %f\n赚率：%d\n", sumR, sumC, winCount * 100 / resultList.size());
     }
 
     public Result<?> getGuessingResult(String guessingId) {
         FansGuessingItem fansGuessingItem = mongoTemplate.findOne(Query.query(Criteria.where("guessingId").is(guessingId)), FansGuessingItem.class);
+        if (fansGuessingItem == null) {
+            return null;
+        }
         ArrayList<UserGuessingResult> resultList = getUserGuessingResults(fansGuessingItem);
         return new Result<>(ResultEnum.SUCCEED, resultList);
     }
