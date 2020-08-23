@@ -265,43 +265,47 @@ public class GuessingService {
         HashMap<String, Double> sumCreditMap = new HashMap<>();
         HashMap<String, Long> sumTimeStamp = new HashMap<>();
         HashMap<String, Long> sumCreateTimeStamp = new HashMap<>();
-        f.getPokerChips().forEach(pokerChip -> {
-            Date cDate = pokerChip.getCreateTime();
-            User user = pokerChip.getUser();
-            String name = user.getName();
-            Date guessingDate = getCorrectGuessingTime(pokerChip);
-            long deltaTime = Math.abs(guessingDate.getTime() - finalReachDate.getTime());
-            if (deltaTime == 0) {
-                deltaTime = 1L;
-            }
-            Double credit = pokerChip.getCredit();
-            // 积分数 = 筹码积分值 × ( 实际达成时间 - 平均发起预测时间 ) ÷ ( | 实际达成时间 - 平均预测达成时间 |)
-            long deltaGuessingTime = finalReachDate.getTime() - cDate.getTime();
-            Long score = credit.longValue() * ((deltaGuessingTime / 3600000 + 24 * 7) / (deltaTime / 3600000 + 6));
+        if (f.getPokerChips() != null) {
 
-            if (sumCreditMap.containsKey(name)) {
-                sumCreditMap.put(name, sumCreditMap.get(name) + credit);
-            } else {
-                sumCreditMap.put(name, credit);
-            }
+            f.getPokerChips().forEach(pokerChip -> {
+                Date cDate = pokerChip.getCreateTime();
+                User user = pokerChip.getUser();
+                String name = user.getName();
+                Date guessingDate = getCorrectGuessingTime(pokerChip);
+                long deltaTime = Math.abs(guessingDate.getTime() - finalReachDate.getTime());
+                if (deltaTime == 0) {
+                    deltaTime = 1L;
+                }
+                Double credit = pokerChip.getCredit();
+                // 积分数 = 筹码积分值 × ( 实际达成时间 - 平均发起预测时间 ) ÷ ( | 实际达成时间 - 平均预测达成时间 |)
+                long deltaGuessingTime = finalReachDate.getTime() - cDate.getTime();
+                Long score = credit.longValue() * ((deltaGuessingTime / 3600000 + 24 * 7) / (deltaTime / 3600000 + 6));
 
-            if (sumTimeStamp.containsKey(name)) {
-                sumTimeStamp.put(name, sumTimeStamp.get(name) + guessingDate.getTime() * credit.longValue());
-            } else {
-                sumTimeStamp.put(name, guessingDate.getTime() * credit.longValue());
-            }
-            if (sumCreateTimeStamp.containsKey(name)) {
-                sumCreateTimeStamp.put(name, sumCreateTimeStamp.get(name) + cDate.getTime() * credit.longValue());
-            } else {
-                sumCreateTimeStamp.put(name, cDate.getTime() * credit.longValue());
-            }
+                if (sumCreditMap.containsKey(name)) {
+                    sumCreditMap.put(name, sumCreditMap.get(name) + credit);
+                } else {
+                    sumCreditMap.put(name, credit);
+                }
 
-            if (result.containsKey(name)) {
-                result.put(name, result.get(name) + score);
-            } else {
-                result.put(name, score);
-            }
-        });
+                if (sumTimeStamp.containsKey(name)) {
+                    sumTimeStamp.put(name, sumTimeStamp.get(name) + guessingDate.getTime() * credit.longValue());
+                } else {
+                    sumTimeStamp.put(name, guessingDate.getTime() * credit.longValue());
+                }
+                if (sumCreateTimeStamp.containsKey(name)) {
+                    sumCreateTimeStamp.put(name, sumCreateTimeStamp.get(name) + cDate.getTime() * credit.longValue());
+                } else {
+                    sumCreateTimeStamp.put(name, cDate.getTime() * credit.longValue());
+                }
+
+                if (result.containsKey(name)) {
+                    result.put(name, result.get(name) + score);
+                } else {
+                    result.put(name, score);
+                }
+            });
+        }
+
         ArrayList<UserGuessingResult> resultList = new ArrayList<>();
 
 
