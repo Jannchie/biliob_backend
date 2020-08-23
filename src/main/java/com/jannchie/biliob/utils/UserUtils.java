@@ -24,11 +24,21 @@ public class UserUtils {
     private static UserRepository userRepository;
     private static UserService userService;
 
+
     @Autowired
     public UserUtils(MongoTemplate mongoTemplate, UserRepository userRepository, UserService userService) {
         UserUtils.mongoTemplate = mongoTemplate;
         UserUtils.userRepository = userRepository;
         UserUtils.userService = userService;
+    }
+
+    public static Integer getUserRoleLevel(User user) {
+        return RoleEnum.getLevelByName(user.getRole());
+    }
+
+    public static Integer getUserRoleLevel() {
+        User user = getFullInfo();
+        return RoleEnum.getLevelByName(user.getRole());
     }
 
     public static User getUserByUsernameOrMail(String name) {
@@ -119,4 +129,5 @@ public class UserUtils {
         q.fields().exclude("favoriteAid").exclude("favoriteMid");
         return mongoTemplate.findOne(q, User.class);
     }
+
 }

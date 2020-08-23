@@ -1,5 +1,7 @@
 package com.jannchie.biliob.constant;
 
+import com.jannchie.biliob.utils.Result;
+
 /**
  * @author jannchie
  */
@@ -42,7 +44,9 @@ public enum ResultEnum {
     ALREADY_EXIST(-1, "已存在同名项目"),
     BANGUMI_NOT_FOUND(-1, "未找到番剧"),
     NOT_OBSERVING(-1, "未观测该UP主, 请先将其加入观测"),
-    DUMP_COMMENT(-1, "检测到重复观测记录"), ALREADY_FINISHED(-1, "已结束"), NOT_FOUND(-1, "未找到");
+    DUMP_COMMENT(-1, "检测到重复观测记录"),
+    ALREADY_FINISHED(-1, "已结束"),
+    NOT_FOUND(-1, "未找到");
 
     private int code;
     private String msg;
@@ -66,5 +70,9 @@ public enum ResultEnum {
 
     public void setMsg(String msg) {
         this.msg = msg;
+    }
+
+    public Result<?> getResult() {
+        return new Result<>(this);
     }
 }

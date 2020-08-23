@@ -1,6 +1,6 @@
 package com.jannchie.biliob.controller;
 
-import com.jannchie.biliob.service.VideoServiceV2;
+import com.jannchie.biliob.service.BankService;
 import com.jannchie.biliob.utils.Result;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -12,11 +12,11 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 public class BankController {
-    VideoServiceV2 videoService;
+    BankService bankService;
 
     @Autowired
-    public BankController(VideoServiceV2 videoService) {
-        this.videoService = videoService;
+    public BankController(BankService bankService) {
+        this.bankService = bankService;
     }
 
 

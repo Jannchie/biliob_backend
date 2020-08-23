@@ -1,5 +1,7 @@
 package com.jannchie.biliob.model;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.util.Date;
 
 /**
@@ -7,7 +9,10 @@ import java.util.Date;
  */
 public class Notice {
     private Date date;
+    @NotBlank
+    @NotNull
     private String msg;
+    @NotNull
     private Integer type;
 
     public Date getDate() {

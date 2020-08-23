@@ -5,6 +5,7 @@ import com.jannchie.biliob.constant.ResultEnum;
 import com.jannchie.biliob.model.User;
 import com.jannchie.biliob.model.UserRecord;
 import com.jannchie.biliob.utils.Result;
+import com.jannchie.biliob.utils.UserUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -43,6 +44,17 @@ public class CreditOperateHandle {
     }
 
 
+    public <T> Result<T> doCreditOperate(CreditConstant creditConstant, Execution<T> execution) {
+        User user = UserUtils.getFullInfo();
+        return doCreditOperate(user, creditConstant, execution);
+    }
+
+    public <T> Result<T> doCreditOperate(CreditConstant creditConstant, String param, Execution<T> execution) {
+        User user = UserUtils.getFullInfo();
+        return doCreditOperate(user, creditConstant, param, execution);
+    }
+
+
     public <T> Result<T> doCreditOperate(User user, CreditConstant creditConstant, Execution<T> execution) {
         UserRecord userRecord = getUserRecord(user, creditConstant);
         T data = execution.execute();
@@ -53,25 +65,25 @@ public class CreditOperateHandle {
         return result;
     }
 
-    public <T> Result<T> doCustomCreditOperate(User user, Double credit, CreditConstant creditConstant, String param, Execution<T> execution) {
-        UserRecord userRecord = getUserRecord(user, creditConstant, -credit);
+    public <T> Result<T> doCustomCreditOperate(User user, Double cost, CreditConstant creditConstant, String param, Execution<T> execution) {
+        UserRecord userRecord = getUserRecord(user, creditConstant, -cost);
         userRecord.setExecuted(true);
         T data = execution.execute();
         saveUserRecord(userRecord, creditConstant.getMsg(param));
-        Result<T> result = updateUserInfoWithOutExp(user, -credit);
+        Result<T> result = updateUserInfoWithOutExp(user, -cost);
         result.setData(data);
-        log(user.getName(), -credit, creditConstant.getMsg());
+        log(user.getName(), -cost, creditConstant.getMsg(param));
         return result;
     }
 
-    public <T> Result<T> doCustomCreditOperate(User user, Double credit, CreditConstant creditConstant, Execution<T> execution) {
-        UserRecord userRecord = getUserRecord(user, creditConstant, -credit);
+    public <T> Result<T> doCustomCreditOperate(User user, Double cost, CreditConstant creditConstant, Execution<T> execution) {
+        UserRecord userRecord = getUserRecord(user, creditConstant, -cost);
         userRecord.setExecuted(true);
         T data = execution.execute();
         saveUserRecord(userRecord, creditConstant.getMsg());
-        Result<T> result = updateUserInfoWithOutExp(user, -credit);
+        Result<T> result = updateUserInfoWithOutExp(user, -cost);
         result.setData(data);
-        log(user.getName(), -credit, creditConstant.getMsg());
+        log(user.getName(), -cost, creditConstant.getMsg());
         return result;
     }
 
@@ -93,7 +105,7 @@ public class CreditOperateHandle {
         saveUserRecord(userRecord, creditConstant.getMsg(param));
         Result<T> result = updateUserInfo(user, creditConstant.getValue());
         result.setData(data);
-        log(user.getName(), creditConstant.getValue(), creditConstant.getMsg());
+        log(user.getName(), creditConstant.getValue(), creditConstant.getMsg(param));
         return result;
     }
 

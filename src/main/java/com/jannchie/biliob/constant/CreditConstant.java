@@ -50,7 +50,9 @@ public enum CreditConstant {
     BE_STARED_AUTHOR_LIST(0.5D, "ID为 %s 的UP主群组被收藏"),
     JOIN_GUESSING(0D, "参加ID为 %s 的预测项目"),
     GIVE_CREDIT(0D, "赠礼：%s"),
-    GUESSING_REVENUE(0D, "获得ID为 %s 的预测项目赏金"), REFRESH_VIDEO_DATA_BY_BVID(-1D, "立即刷新 BV%s 的视频数据");
+    GUESSING_REVENUE(0D, "获得ID为 %s 的预测项目赏金"),
+    POST_AGENDA(-50D, "提出标题为 %s 的议题"),
+    REFRESH_VIDEO_DATA_BY_BVID(-1D, "立即刷新 BV%s 的视频数据");
 
     private Double value;
     private String msg;

@@ -10,7 +10,6 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
-import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -25,11 +24,9 @@ import java.util.ArrayList;
 @Component
 public class CreditOperateAspect {
     private static final Logger logger = LogManager.getLogger();
-    private final MongoTemplate mongoTemplate;
     private ArrayList<String> executing = new ArrayList<>();
 
-    public CreditOperateAspect(MongoTemplate mongoTemplate) {
-        this.mongoTemplate = mongoTemplate;
+    public CreditOperateAspect() {
     }
 
     @Pointcut(value = "execution(public * com.jannchie.biliob.credit.handle.CreditOperateHandle.*(com.jannchie.biliob.model.User,com.jannchie.biliob.constant.CreditConstant,..))")

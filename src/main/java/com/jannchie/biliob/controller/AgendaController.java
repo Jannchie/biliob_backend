@@ -25,18 +25,18 @@ import java.util.List;
  * @author Jannchie
  */
 @RestController
-public class ConferenceController {
+public class AgendaController {
     MongoTemplate mongoTemplate;
     CreditOperateHandle creditOperateHandle;
     private Logger logger = LogManager.getLogger();
 
     @Autowired
-    public ConferenceController(MongoTemplate mongoTemplate, CreditOperateHandle creditOperateHandle) {
+    public AgendaController(MongoTemplate mongoTemplate, CreditOperateHandle creditOperateHandle) {
         this.mongoTemplate = mongoTemplate;
         this.creditOperateHandle = creditOperateHandle;
     }
 
-    @RequestMapping(method = RequestMethod.GET, value = "/api/conference/agenda")
+    @RequestMapping(method = RequestMethod.GET, value = "/api/agenda")
     public List<Agenda> listAgenda(@RequestParam(value = "sort", defaultValue = "1") Integer sort, @RequestParam(value = "filter", defaultValue = "1") Integer filter, @RequestParam("p") Integer page) {
         Criteria c;
         if (filter == 1) {
@@ -56,7 +56,7 @@ public class ConferenceController {
         return null;
     }
 
-    @RequestMapping(method = RequestMethod.POST, value = "/api/conference/agenda")
+    @RequestMapping(method = RequestMethod.POST, value = "/api/agenda")
     public Result<?> postAgenda(@RequestBody @Validated Agenda agenda) {
         // 判断用户身份
         User user = UserUtils.getFullInfo();
@@ -79,7 +79,7 @@ public class ConferenceController {
         return new Result<>(ResultEnum.SUCCEED);
     }
 
-    @RequestMapping(method = RequestMethod.POST, value = "/api/conference/agenda")
+    @RequestMapping(method = RequestMethod.DELETE, value = "/api/agenda")
     public Result<?> deleteAgenda(@RequestBody @Validated String id) {
         ObjectId userId = UserUtils.getUserId();
         Agenda a = mongoTemplate.findOne(Query.query(Criteria.where("_id").is(id)), Agenda.class);
@@ -91,27 +91,27 @@ public class ConferenceController {
         return ResultEnum.EXECUTE_FAILURE.getResult();
     }
 
-    @RequestMapping(method = RequestMethod.POST, value = "/api/conference/agenda/support")
+    @RequestMapping(method = RequestMethod.POST, value = "/api/agenda/support")
     public Result<?> supportAgenda() {
         return null;
     }
 
-    @RequestMapping(method = RequestMethod.POST, value = "/api/conference/agenda/against")
+    @RequestMapping(method = RequestMethod.POST, value = "/api/agenda/against")
     public Result<?> againstAgenda() {
         return null;
     }
 
-    @RequestMapping(method = RequestMethod.POST, value = "/api/conference/agenda/abstain")
+    @RequestMapping(method = RequestMethod.POST, value = "/api/agenda/abstain")
     public Result<?> abstainAgenda() {
         return null;
     }
 
-    @RequestMapping(method = RequestMethod.POST, value = "/api/conference/agenda/done")
+    @RequestMapping(method = RequestMethod.POST, value = "/api/agenda/done")
     public Result<?> finishAgenda() {
         return null;
     }
 
-    @RequestMapping(method = RequestMethod.POST, value = "/api/conference/agenda/doing")
+    @RequestMapping(method = RequestMethod.POST, value = "/api/agenda/doing")
     public Result<?> startAgenda() {
         return null;
     }
