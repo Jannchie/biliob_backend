@@ -54,7 +54,6 @@ public class TracerScheduler {
         }
     }
 
-    @Scheduled(cron = "0 0/5 * * * ?")
     @Async
     public void checkDeadTask() {
         logger.info("检查死亡爬虫");
@@ -66,7 +65,6 @@ public class TracerScheduler {
                 TracerTask.class);
     }
 
-    @Scheduled(cron = "0 0/5 * * * ?")
     @Async
     public void addCustomCrawlTaskEvery5Min() {
         logger.info("执行每5分钟的爬虫任务");
@@ -75,7 +73,6 @@ public class TracerScheduler {
     }
 
 
-    @Scheduled(cron = "0 0 0/1 * * ?")
     @Async
     public void addCustomCrawlTaskEvery1Hour() {
         logger.info("执行每小时的爬虫任务");
@@ -83,7 +80,6 @@ public class TracerScheduler {
         postCustomAuthorCrawlSchedule(2);
     }
 
-    @Scheduled(cron = "0 0 0/6 * * ?")
     @Async
     public void addCustomCrawlTaskEvery6Hour() {
         logger.info("执行每6小时的爬虫任务");
