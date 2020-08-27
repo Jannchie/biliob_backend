@@ -75,4 +75,8 @@ public enum ResultEnum {
     public Result<?> getResult() {
         return new Result<>(this);
     }
+
+    public <T> Result<T> getResult(T data) {
+        return new Result<>(this, data);
+    }
 }
