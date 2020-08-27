@@ -55,7 +55,6 @@ public class GuessingService {
         tempC.add(Calendar.DATE, -7);
         Criteria criteria = new Criteria().orOperator(Criteria.where("reachDate").is(null), Criteria.where("reachDate").gt(tempC.getTime()));
         Query q = new Query(criteria).with(PageRequest.of(page, 100, Sort.by("state").descending()));
-        // mongoTemplate.aggregate(Aggregation.newAggregation(Aggregation.match(criteria), Aggregation.sort(Sort.by("state").descending()), Aggregation.limit(100)), FansGuessingItem.class, FansGuessingItem.class);
         List<FansGuessingItem> result = mongoTemplate.find(q, FansGuessingItem.class);
         result.forEach(fansGuessingItem -> {
             Double totalCredit = 0D;
@@ -107,7 +106,7 @@ public class GuessingService {
         return null;
     }
 
-    @Scheduled(fixedDelay = MICROSECOND_OF_MINUTES * 10)
+    @Scheduled(initialDelay = MICROSECOND_OF_MINUTES * 10, fixedDelay = MICROSECOND_OF_MINUTES * 10)
     @Async
     public Result<?> autoUpdateGuessing() {
         logger.info("查看竞猜是快要达成");
@@ -148,7 +147,7 @@ public class GuessingService {
         return new Result<>(ResultEnum.SUCCEED);
     }
 
-    @Scheduled(fixedDelay = MICROSECOND_OF_MINUTES * 60)
+    @Scheduled(initialDelay = MICROSECOND_OF_MINUTES * 10, fixedDelay = MICROSECOND_OF_MINUTES * 60)
     @Async
     public Result<?> autoPostAuthorFansGuessing() {
         logger.info("添加预测竞猜");
@@ -234,9 +233,6 @@ public class GuessingService {
         for (FansGuessingItem f : fansGuessingItems
         ) {
             ArrayList<UserGuessingResult> resultList = getUserGuessingResults(f);
-            if (resultList == null) {
-                continue;
-            }
             mongoTemplate.updateFirst(Query.query(Criteria.where("guessingId").is(f.getGuessingId())), Update.update("result", resultList).set("state", 4), FansGuessingItem.class);
             resultList.forEach(userGuessingResult -> {
                 User u = mongoTemplate.findOne(Query.query(Criteria.where("name").is(userGuessingResult.getName())), User.class);
@@ -259,7 +255,6 @@ public class GuessingService {
         Calendar c = Calendar.getInstance();
         c.setTime(reachDate);
         c.add(Calendar.HOUR, -8);
-
         Date finalReachDate = c.getTime();
         HashMap<String, Long> result = new HashMap<>();
         HashMap<String, Double> sumCreditMap = new HashMap<>();
@@ -280,13 +275,11 @@ public class GuessingService {
                 // 积分数 = 筹码积分值 × ( 实际达成时间 - 平均发起预测时间 ) ÷ ( | 实际达成时间 - 平均预测达成时间 |)
                 long deltaGuessingTime = finalReachDate.getTime() - cDate.getTime();
                 Long score = credit.longValue() * ((deltaGuessingTime / 3600000 + 24 * 7) / (deltaTime / 3600000 + 6));
-
                 if (sumCreditMap.containsKey(name)) {
                     sumCreditMap.put(name, sumCreditMap.get(name) + credit);
                 } else {
                     sumCreditMap.put(name, credit);
                 }
-
                 if (sumTimeStamp.containsKey(name)) {
                     sumTimeStamp.put(name, sumTimeStamp.get(name) + guessingDate.getTime() * credit.longValue());
                 } else {
@@ -297,7 +290,6 @@ public class GuessingService {
                 } else {
                     sumCreateTimeStamp.put(name, cDate.getTime() * credit.longValue());
                 }
-
                 if (result.containsKey(name)) {
                     result.put(name, result.get(name) + score);
                 } else {
@@ -339,9 +331,7 @@ public class GuessingService {
 
         double rate = (double) sumCredit / sumScore;
         resultList.forEach(userGuessingResult ->
-        {
-            userGuessingResult.setRevenue(BigDecimal.valueOf(rate * (userGuessingResult.getScore() * (100 - baseRate)) / 100 + (double) baseRate * userGuessingResult.getCredit() / 100).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
-        });
+                userGuessingResult.setRevenue(BigDecimal.valueOf(rate * (userGuessingResult.getScore() * (100 - baseRate)) / 100 + (double) baseRate * userGuessingResult.getCredit() / 100).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue()));
         return resultList;
     }
 
