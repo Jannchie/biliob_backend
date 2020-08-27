@@ -12,19 +12,19 @@ public enum AgendaState {
      * PENDING：正在处理此议题
      * DUPLICATE：该议题重复
      */
-    WAITING(0),
-    FINISHED(1),
-    CLOSED(2),
-    PENDING(3),
-    DUPLICATE(4);
+    WAITING((byte) 0),
+    FINISHED((byte) 1),
+    CLOSED((byte) 2),
+    PENDING((byte) 3),
+    DUPLICATE((byte) 4);
 
-    private final int value;
+    private final Byte value;
 
-    AgendaState(int i) {
+    AgendaState(Byte i) {
         this.value = i;
     }
 
-    public int getValue() {
+    public Byte getValue() {
         return value;
     }
 }

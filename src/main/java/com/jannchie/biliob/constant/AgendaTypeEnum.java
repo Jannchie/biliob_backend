@@ -11,21 +11,21 @@ public enum AgendaTypeEnum {
      * FIX: 修复错误
      * OTHER: 其他
      */
-    ENHANCE(1),
-    FEATURE(2),
-    FIX(3),
-    OTHER(4);
-    private Integer value;
+    ENHANCE((byte) 1),
+    FEATURE((byte) 2),
+    FIX((byte) 3),
+    OTHER((byte) 4);
+    private Byte value;
 
-    AgendaTypeEnum(Integer i) {
+    AgendaTypeEnum(Byte i) {
         this.value = i;
     }
 
-    public Integer getValue() {
+    public Byte getValue() {
         return value;
     }
 
-    public void setValue(Integer value) {
+    public void setValue(Byte value) {
         this.value = value;
     }
 }

@@ -25,9 +25,9 @@ public class Agenda {
     @Length(max = 233, min = 5)
     private String desc;
     @NotNull
-    private Integer type;
+    private Byte type;
 
-    private Integer state;
+    private Byte state;
     private Date createTime;
     private Date finishTime;
     private Date updateTime;
@@ -111,11 +111,11 @@ public class Agenda {
         this.desc = desc;
     }
 
-    public Integer getState() {
+    public Byte getState() {
         return state;
     }
 
-    public void setState(Integer state) {
+    public void setState(Byte state) {
         this.state = state;
     }
 
@@ -135,11 +135,11 @@ public class Agenda {
         this.finishTime = finishTime;
     }
 
-    public Integer getType() {
+    public Byte getType() {
         return type;
     }
 
-    public void setType(Integer type) {
+    public void setType(Byte type) {
         this.type = type;
     }
 

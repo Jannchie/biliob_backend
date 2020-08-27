@@ -1,9 +1,6 @@
 package com.jannchie.biliob.controller;
 
-import com.jannchie.biliob.constant.AgendaTypeEnum;
-import com.jannchie.biliob.constant.DbFields;
-import com.jannchie.biliob.constant.TestConstants;
-import com.jannchie.biliob.constant.UserOpinion;
+import com.jannchie.biliob.constant.*;
 import com.jannchie.biliob.model.Agenda;
 import com.jannchie.biliob.model.AgendaVote;
 import com.jannchie.biliob.model.User;
@@ -49,33 +46,20 @@ public class AgendaControllerTest {
     }
 
     @Test
+    @WithMockUser(username = TestConstants.TEST_USER_NAME)
     public void listAgenda() {
         agendaController.listAgenda(0, 0, 0);
     }
 
-    @Test()
+    @Test
     @WithMockUser(username = TestConstants.TEST_USER_NAME)
     public void postAgendaAndDeleteAgenda() {
         String agendaId = postAgendaAndGetAgendaId();
-        deleteAgenda(agendaId);
+        removeAgenda(agendaId);
     }
 
-    private void deleteAgenda(String agendaId) {
-        agendaController.deleteAgenda(agendaId);
-        long count = mongoTemplate.count(Query.query(Criteria.where(DbFields.ID).is(agendaId)), Agenda.class);
-        Assert.assertSame(0L, count);
-    }
 
-    private String postAgendaAndGetAgendaId() {
-        agendaController.postAgenda(getAgenda());
-        ObjectId uid = UserUtils.getUserId();
-        Assert.assertNotNull(uid);
-        List<Agenda> agendaList = mongoTemplate.find(Query.query(Criteria.where(DbFields.CREATOR_ID).is(uid)), Agenda.class);
-        Assert.assertSame(1, agendaList.size());
-        return agendaList.get(0).getId();
-    }
-
-    @Test()
+    @Test
     @WithMockUser(username = TestConstants.NORMAL_USER_NAME)
     public void postAgendaWithOutPermit() {
         logger.info("Test post agenda but has not permitted.");
@@ -142,7 +126,7 @@ public class AgendaControllerTest {
                 Assert.assertEquals(0, as.longValue());
                 break;
         }
-        deleteAgenda(agendaId);
+        removeAgenda(agendaId);
     }
 
     @Test
@@ -162,7 +146,8 @@ public class AgendaControllerTest {
     public void finishAgenda() {
         String id = postAgendaAndGetAgendaId();
         agendaController.finishAgenda(id);
-
+        Agenda a = agendaController.getAgenda(id);
+        Assert.assertEquals(a.getState().longValue(), AgendaState.FINISHED.getValue().longValue());
     }
 
     @Test
@@ -170,9 +155,12 @@ public class AgendaControllerTest {
     public void startAgenda() {
         String id = postAgendaAndGetAgendaId();
         agendaController.startAgenda(id);
+        Agenda a = agendaController.getAgenda(id);
+        Assert.assertEquals(a.getState().longValue(), AgendaState.PENDING.getValue().longValue());
     }
 
     @Test
+    @WithMockUser(username = TestConstants.TEST_USER_NAME)
     public void deleteAgenda() {
         logger.info("Test delete agenda");
         User user = mongoTemplate.findOne(Query.query(Criteria.where(DbFields.NAME).is(TestConstants.TEST_USER_NAME)), User.class);
@@ -185,6 +173,21 @@ public class AgendaControllerTest {
             a = mongoTemplate.findOne(Query.query(Criteria.where(DbFields.CREATOR_ID).is(user.getId())), Agenda.class);
             Assert.assertNull(a);
         }
+    }
+
+    private void removeAgenda(String agendaId) {
+        agendaController.deleteAgenda(agendaId);
+        long count = mongoTemplate.count(Query.query(Criteria.where(DbFields.ID).is(agendaId)), Agenda.class);
+        Assert.assertSame(0L, count);
+    }
+
+    private String postAgendaAndGetAgendaId() {
+        agendaController.postAgenda(getAgenda());
+        ObjectId uid = UserUtils.getUserId();
+        Assert.assertNotNull(uid);
+        List<Agenda> agendaList = mongoTemplate.find(Query.query(Criteria.where(DbFields.CREATOR_ID).is(uid)), Agenda.class);
+        Assert.assertSame(1, agendaList.size());
+        return agendaList.get(0).getId();
     }
 
     @After

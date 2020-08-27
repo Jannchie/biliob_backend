@@ -135,6 +135,7 @@ public class AgendaController {
                         .set(DbFields.AGAINST_SCORE, againstScore)
                         .set(DbFields.FAVOR_SCORE, favorScore)
                         .set(DbFields.FAVOR_COUNT, favorCount)
+                        .set(DbFields.UPDATE_TIME, Calendar.getInstance().getTime())
                 , Agenda.class);
     }
 
@@ -153,6 +154,25 @@ public class AgendaController {
         return ResultEnum.SUCCEED.getResult(ur);
     }
 
+    @RequestMapping(method = RequestMethod.GET, value = "/api/agenda/{id}")
+    public Agenda getAgenda(String id) {
+        return mongoTemplate.findOne(Query.query(Criteria.where(DbFields.ID).is(id)), Agenda.class);
+    }
+
+    @RequestMapping(method = RequestMethod.POST, value = "/api/agenda/{id}/close")
+    public Result<?> closeAgenda(@PathVariable("id") String id) {
+        UpdateResult ur = mongoTemplate.updateFirst(Query.query(Criteria.where(DbFields.ID).is(id)),
+                Update.update(DbFields.STATE, AgendaState.CLOSED.getValue()), Agenda.class);
+        return ResultEnum.SUCCEED.getResult(ur);
+    }
+
+    @RequestMapping(method = RequestMethod.POST, value = "/api/agenda/{id}/duplicate")
+    public Result<?> duplicateAgenda(@PathVariable("id") String id) {
+        UpdateResult ur = mongoTemplate.updateFirst(Query.query(Criteria.where(DbFields.ID).is(id)),
+                Update.update(DbFields.STATE, AgendaState.DUPLICATE.getValue()), Agenda.class);
+        return ResultEnum.SUCCEED.getResult(ur);
+    }
+
     private Result<?> getUserOperateResult(@PathVariable("id") String id, UserOpinion userOpinion) {
         ObjectId uid = UserUtils.getUserId();
         if (uid == null) {
@@ -164,5 +184,6 @@ public class AgendaController {
         updateAgendaData(id);
         return new Result<>(ResultEnum.SUCCEED, mongoTemplate.findOne(Query.query(Criteria.where(DbFields.ID).is(id)), Agenda.class));
     }
+
 
 }
