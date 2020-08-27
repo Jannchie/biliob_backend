@@ -64,7 +64,7 @@ public class UserCommentServiceImpl implements UserCommentService {
                         Aggregation.limit(pageSize),
                         Aggregation.lookup("user", "userId", "_id", "user"),
                         Aggregation.unwind("user"),
-                        Aggregation.project().andExpression("{ password: 0, favoriteMid: 0, favoriteAid: 0 }").as("user")
+                        Aggregation.project().andExpression("{password: 0, favoriteMid: 0, favoriteAid: 0, mail: 0, credit: 0, name: 0 }").as("user")
                 ), Comment.class, Comment.class);
         List<Comment> result = ar.getMappedResults();
         HashMap<String, User> userHashMap = new HashMap<>(20);
@@ -77,7 +77,7 @@ public class UserCommentServiceImpl implements UserCommentService {
                                     Aggregation.sort(Sort.by("date").descending()),
                                     Aggregation.lookup("user", "userId", "_id", "user"),
                                     Aggregation.unwind("user"),
-                                    Aggregation.project().andExpression("{ password: 0, favoriteMid: 0, favoriteAid: 0 }").as("user")
+                                    Aggregation.project().andExpression("{password: 0, favoriteMid: 0, favoriteAid: 0, mail: 0, credit: 0, name: 0 }").as("user")
                             )
                             , Comment.class, Comment.class).getMappedResults();
                     replies.forEach(r -> setUserMap(userHashMap, r));
