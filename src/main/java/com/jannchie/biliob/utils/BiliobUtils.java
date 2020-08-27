@@ -1,20 +1,25 @@
 package com.jannchie.biliob.utils;
 
+import com.jannchie.biliob.constant.DbFields;
 import com.jannchie.biliob.model.User;
+import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author Jannchie
  */
 @Component
 public class BiliobUtils {
+    @Autowired
+    MongoTemplate mongoTemplate;
     @Autowired
     private HttpServletRequest request;
 
@@ -29,10 +34,18 @@ public class BiliobUtils {
         return c;
     }
 
+    @Cacheable(value = "getNameToNickNameMap", key = "#userIdSet")
+    public Map<String, String> getNameToNickNameMap(Collection<ObjectId> userIdSet) {
+        Query qq = Query.query(Criteria.where(DbFields.ID).in(userIdSet));
+        qq.fields().include(DbFields.NICKNAME).include(DbFields.NAME);
+        Map<String, String> nameToNickNameMap = new HashMap<>(100);
+        mongoTemplate.find(qq, User.class).forEach(user -> nameToNickNameMap.put(user.getName(), user.getNickName()));
+        return nameToNickNameMap;
+    }
 
     public String getUserName() {
         User user = UserUtils.getUser();
-        String userName = "";
+        String userName;
         if (user != null) {
             userName = user.getName();
         } else {
@@ -41,9 +54,9 @@ public class BiliobUtils {
         return userName;
     }
 
-    public Map getVisitData(String userName, Long mid) {
+    public Map<?, ?> getVisitData(String userName, Long mid) {
         Date date = Calendar.getInstance().getTime();
-        Map data = new HashMap<String, Object>() {
+        return new HashMap<String, Object>(10) {
             {
                 put("mid", mid);
                 put("name", userName);
@@ -52,6 +65,5 @@ public class BiliobUtils {
                 put("date", date);
             }
         };
-        return data;
     }
 }

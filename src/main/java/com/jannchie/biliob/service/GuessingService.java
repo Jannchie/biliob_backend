@@ -8,12 +8,14 @@ import com.jannchie.biliob.model.FansGuessingItem;
 import com.jannchie.biliob.model.GuessingItem;
 import com.jannchie.biliob.model.User;
 import com.jannchie.biliob.object.UserGuessingResult;
+import com.jannchie.biliob.utils.BiliobUtils;
 import com.jannchie.biliob.utils.Result;
 import com.jannchie.biliob.utils.UserUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -38,9 +40,13 @@ import static com.jannchie.biliob.constant.TimeConstant.MICROSECOND_OF_MINUTES;
 public class GuessingService {
     private static final Logger logger = LogManager.getLogger();
     @Autowired
-    MongoTemplate mongoTemplate;
+    ApplicationContext appContext;
     @Autowired
-    CreditOperateHandle creditOperateHandle;
+    private MongoTemplate mongoTemplate;
+    @Autowired
+    private CreditOperateHandle creditOperateHandle;
+    @Autowired
+    private BiliobUtils biliobUtils;
 
     public Date getCorrectGuessingTime(FansGuessingItem.PokerChip pokerChip) {
         Calendar.getInstance().getTime();
@@ -56,6 +62,20 @@ public class GuessingService {
         Criteria criteria = new Criteria().orOperator(Criteria.where("reachDate").is(null), Criteria.where("reachDate").gt(tempC.getTime()));
         Query q = new Query(criteria).with(PageRequest.of(page, 100, Sort.by("state").descending()));
         List<FansGuessingItem> result = mongoTemplate.find(q, FansGuessingItem.class);
+
+        Set<ObjectId> userIdSet = new HashSet<>();
+        result.forEach(fgi -> {
+            if (fgi == null || fgi.getPokerChips() == null) {
+                return;
+            }
+            fgi.getPokerChips().forEach(pokerChip -> {
+                ObjectId id = pokerChip.getUser().getId();
+                userIdSet.add(id);
+            });
+            userIdSet.add(fgi.getCreator().getId());
+        });
+        Map<String, String> nameToNickNameMap = biliobUtils.getNameToNickNameMap(userIdSet);
+
         result.forEach(fansGuessingItem -> {
             Double totalCredit = 0D;
             if (fansGuessingItem.getPokerChips() != null) {
@@ -66,9 +86,7 @@ public class GuessingService {
             }
 
             fansGuessingItem.setTotalCredit(totalCredit);
-
             fansGuessingItem.setTotalUser(fansGuessingItem.getPokerChips() == null ? 0 : fansGuessingItem.getPokerChips().size());
-
             long totalTime = 0L;
             double totalCredit2 = 0D;
             if (fansGuessingItem.getPokerChips() != null) {
@@ -95,8 +113,22 @@ public class GuessingService {
                 tempMap.put(fansGuessingItem.getTitle().substring(0, 5), fansGuessingItem.getTarget());
             }
         });
-        return result.stream().filter(fansGuessingItem -> tempMap.get(fansGuessingItem.getTitle().substring(0, 5)).equals(fansGuessingItem.getTarget())).collect(Collectors.toList());
+        result = result.stream().filter(fansGuessingItem -> tempMap.get(fansGuessingItem.getTitle().substring(0, 5)).equals(fansGuessingItem.getTarget())).collect(Collectors.toList());
+
+
+        result.forEach(fgi -> {
+            if (fgi == null || fgi.getResult() == null) {
+                return;
+            }
+            fgi.getResult().forEach(userGuessingResult -> userGuessingResult.setName(nameToNickNameMap.get(userGuessingResult.getName())));
+            User u = new User();
+            u.setName(fgi.getCreator().getName());
+            u.setNickName(nameToNickNameMap.get(fgi.getCreator().getName()));
+            fgi.setCreator(u);
+        });
+        return result;
     }
+
 
     public Result<?> joinGuessing(ObjectId guessingId, Integer index, Double value) {
         return null;
@@ -261,7 +293,6 @@ public class GuessingService {
         HashMap<String, Long> sumTimeStamp = new HashMap<>();
         HashMap<String, Long> sumCreateTimeStamp = new HashMap<>();
         if (f.getPokerChips() != null) {
-
             f.getPokerChips().forEach(pokerChip -> {
                 Date cDate = pokerChip.getCreateTime();
                 User user = pokerChip.getUser();

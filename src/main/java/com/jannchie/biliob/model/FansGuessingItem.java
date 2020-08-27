@@ -1,5 +1,6 @@
 package com.jannchie.biliob.model;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.jannchie.biliob.object.UserGuessingResult;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -10,6 +11,7 @@ import java.util.List;
  * @author Jannchie
  */
 @Document("fans_guessing_item")
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class FansGuessingItem extends GuessingItem {
     Author author;
     Long target;

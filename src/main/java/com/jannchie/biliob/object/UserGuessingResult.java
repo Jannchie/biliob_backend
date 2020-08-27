@@ -1,10 +1,13 @@
 package com.jannchie.biliob.object;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 import java.util.Date;
 
 /**
  * @author Jannchie
  */
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class UserGuessingResult {
     private String guessingId;
     private String name;
