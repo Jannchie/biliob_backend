@@ -19,7 +19,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.Calendar;
 import java.util.List;
-import java.util.Map;
 
 import static com.jannchie.biliob.constant.TimeConstant.*;
 
@@ -100,10 +99,10 @@ public class SpiderScheduler {
 
     public void updateVideoData() {
         Calendar c = Calendar.getInstance();
-        List<Map> authorList = mongoTemplate.find(Query.query(Criteria.where("next").lt(c.getTime())), Map.class, "video_interval");
-        for (Map freqData : authorList) {
-            Long aid = (Long) freqData.get("aid");
-            c.add(Calendar.SECOND, (Integer) freqData.get("interval"));
+        List<VideoIntervalRecord> authorList = mongoTemplate.find(Query.query(Criteria.where("next").lt(c.getTime())), VideoIntervalRecord.class, "video_interval");
+        for (VideoIntervalRecord freqData : authorList) {
+            Long aid = freqData.getAid();
+            c.add(Calendar.SECOND, freqData.getInterval());
             mongoTemplate.updateFirst(Query.query(Criteria.where("mid").is(aid)), Update.update("next", c.getTime()), "video_interval");
             redisOps.postAuthorCrawlTask(aid);
         }
@@ -142,7 +141,7 @@ public class SpiderScheduler {
     }
 
     @Async
-    @Scheduled(fixedDelay = MICROSECOND_OF_MINUTES * 60)
+    @Scheduled(initialDelay = MICROSECOND_OF_MINUTES * 5, fixedDelay = MICROSECOND_OF_MINUTES * 60)
     public void updateVideoInterval() {
         logger.info("计算新视频爬取频率");
         keepMostViewVideoInterval();
