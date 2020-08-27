@@ -25,6 +25,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/api/user/**").hasAnyAuthority(
                 "普通用户", "管理员", "普通研究员", "管理研究员", "特权研究员", "系统测试员", "站长")
                 .antMatchers(HttpMethod.POST, "/api/agenda").hasAnyAuthority("管理研究员", "特权研究员", "系统测试员", "站长")
+                .antMatchers(HttpMethod.POST, "/api/agenda/{id}/close").hasAnyAuthority("系统测试员", "站长")
+                .antMatchers(HttpMethod.POST, "/api/agenda/{id}/duplicate").hasAnyAuthority("系统测试员", "站长")
+                .antMatchers(HttpMethod.POST, "/api/agenda/{id}/doing").hasAnyAuthority("系统测试员", "站长")
+                .antMatchers(HttpMethod.POST, "/api/agenda/{id}/done").hasAnyAuthority("系统测试员", "站长")
                 .antMatchers("/api/**").permitAll()
                 .anyRequest().authenticated()
                 .and().logout().permitAll();
