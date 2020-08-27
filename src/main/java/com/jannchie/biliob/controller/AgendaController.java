@@ -3,9 +3,11 @@ package com.jannchie.biliob.controller;
 import com.jannchie.biliob.constant.*;
 import com.jannchie.biliob.credit.handle.CreditOperateHandle;
 import com.jannchie.biliob.model.Agenda;
+import com.jannchie.biliob.model.AgendaVote;
 import com.jannchie.biliob.model.User;
 import com.jannchie.biliob.utils.Result;
 import com.jannchie.biliob.utils.UserUtils;
+import com.mongodb.client.result.UpdateResult;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.bson.types.ObjectId;
@@ -15,6 +17,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -40,9 +43,9 @@ public class AgendaController {
     public List<Agenda> listAgenda(@RequestParam(value = "sort", defaultValue = "1") Integer sort, @RequestParam(value = "filter", defaultValue = "1") Integer filter, @RequestParam("p") Integer page) {
         Criteria c;
         if (filter == 1) {
-            c = Criteria.where("state").in(AgendaState.WAITING, AgendaState.PENDING);
+            c = Criteria.where("state").in(AgendaState.WAITING.getValue(), AgendaState.PENDING.getValue());
         } else {
-            c = Criteria.where("state").in(AgendaState.CLOSED, AgendaState.DUPLICATE, AgendaState.FINISHED);
+            c = Criteria.where("state").in(AgendaState.CLOSED.getValue(), AgendaState.DUPLICATE.getValue(), AgendaState.FINISHED.getValue());
         }
 
         switch (sort) {
@@ -65,11 +68,11 @@ public class AgendaController {
             return new Result<>(ResultEnum.PERMISSION_DENIED);
         }
         agenda.setAgainstCount(0);
-        agenda.setAgainstScore(0);
+        agenda.setAgainstScore(0D);
         agenda.setCreateTime(Calendar.getInstance().getTime());
         agenda.setFavorCount(0);
-        agenda.setFavorScore(0);
-        agenda.setState(AgendaState.WAITING);
+        agenda.setFavorScore(0D);
+        agenda.setState(AgendaState.WAITING.getValue());
         agenda.setFinishTime(null);
         agenda.setScore(0);
         agenda.setVotes(null);
@@ -79,7 +82,7 @@ public class AgendaController {
         return new Result<>(ResultEnum.SUCCEED);
     }
 
-    @RequestMapping(method = RequestMethod.DELETE, value = "/api/agenda")
+    @RequestMapping(method = RequestMethod.DELETE, value = "/api/agenda/{id}")
     public Result<?> deleteAgenda(@RequestBody @Validated String id) {
         ObjectId userId = UserUtils.getUserId();
         Agenda a = mongoTemplate.findOne(Query.query(Criteria.where("_id").is(id)), Agenda.class);
@@ -91,29 +94,75 @@ public class AgendaController {
         return ResultEnum.EXECUTE_FAILURE.getResult();
     }
 
-    @RequestMapping(method = RequestMethod.POST, value = "/api/agenda/support")
-    public Result<?> supportAgenda() {
-        return null;
+    @RequestMapping(method = RequestMethod.POST, value = "/api/agenda/{id}/support")
+    public Result<?> supportAgenda(@PathVariable("id") String id) {
+        UserOpinion userOpinion = UserOpinion.IN_FAVOR;
+        return getUserOperateResult(id, userOpinion);
     }
 
-    @RequestMapping(method = RequestMethod.POST, value = "/api/agenda/against")
-    public Result<?> againstAgenda() {
-        return null;
+    @RequestMapping(method = RequestMethod.POST, value = "/api/agenda/{id}/against")
+    public Result<?> againstAgenda(@PathVariable("id") String id) {
+        UserOpinion userOpinion = UserOpinion.AGAINST;
+        return getUserOperateResult(id, userOpinion);
     }
 
-    @RequestMapping(method = RequestMethod.POST, value = "/api/agenda/abstain")
-    public Result<?> abstainAgenda() {
-        return null;
+
+    @RequestMapping(method = RequestMethod.POST, value = "/api/agenda/{id}/abstain")
+    public Result<?> abstentionAgenda(@PathVariable("id") String id) {
+        UserOpinion userOpinion = UserOpinion.ABSTENTION;
+        return getUserOperateResult(id, userOpinion);
     }
 
-    @RequestMapping(method = RequestMethod.POST, value = "/api/agenda/done")
-    public Result<?> finishAgenda() {
-        return null;
+    private void updateAgendaData(String agendaId) {
+        List<AgendaVote> agendaVoteList = mongoTemplate.find(Query.query(Criteria.where(DbFields.AGENDA_ID).is(agendaId)), AgendaVote.class);
+
+        Double againstScore = 0D, favorScore = 0D;
+        int againstCount = 0, favorCount = 0;
+
+        for (AgendaVote agendaVote : agendaVoteList
+        ) {
+            User user = UserUtils.getUserById(agendaVote.getUser().getId());
+            if (UserOpinion.IN_FAVOR.getValue().equals(agendaVote.getOpinion())) {
+                favorCount += 1;
+                favorScore += user.getExp();
+            } else if (UserOpinion.AGAINST.getValue().equals(agendaVote.getOpinion())) {
+                againstCount += 1;
+                againstScore += user.getExp();
+            }
+        }
+        mongoTemplate.updateFirst(Query.query(Criteria.where(DbFields.ID).is(agendaId)),
+                Update.update(DbFields.AGAINST_COUNT, againstCount)
+                        .set(DbFields.AGAINST_SCORE, againstScore)
+                        .set(DbFields.FAVOR_SCORE, favorScore)
+                        .set(DbFields.FAVOR_COUNT, favorCount)
+                , Agenda.class);
     }
 
-    @RequestMapping(method = RequestMethod.POST, value = "/api/agenda/doing")
-    public Result<?> startAgenda() {
-        return null;
+    @RequestMapping(method = RequestMethod.POST, value = "/api/agenda/{id}/done")
+    public Result<?> finishAgenda(@PathVariable("id") String id) {
+        UpdateResult ur = mongoTemplate.updateFirst(Query.query(Criteria.where(DbFields.ID).is(id)),
+                Update.update(DbFields.STATE, AgendaState.FINISHED.getValue())
+                        .set(DbFields.FINISH_TIME, Calendar.getInstance().getTime()), Agenda.class);
+        return ResultEnum.SUCCEED.getResult(ur);
+    }
+
+    @RequestMapping(method = RequestMethod.POST, value = "/api/agenda/{id}/doing")
+    public Result<?> startAgenda(@PathVariable("id") String id) {
+        UpdateResult ur = mongoTemplate.updateFirst(Query.query(Criteria.where(DbFields.ID).is(id)),
+                Update.update(DbFields.STATE, AgendaState.PENDING.getValue()), Agenda.class);
+        return ResultEnum.SUCCEED.getResult(ur);
+    }
+
+    private Result<?> getUserOperateResult(@PathVariable("id") String id, UserOpinion userOpinion) {
+        ObjectId uid = UserUtils.getUserId();
+        if (uid == null) {
+            return ResultEnum.HAS_NOT_LOGGED_IN.getResult();
+        }
+        mongoTemplate.upsert(Query.query(Criteria.where(DbFields.ID).is(id)),
+                Update.update(DbFields.OPINION, userOpinion.getValue()).set(DbFields.USER_ID, uid),
+                AgendaVote.class);
+        updateAgendaData(id);
+        return new Result<>(ResultEnum.SUCCEED, mongoTemplate.findOne(Query.query(Criteria.where(DbFields.ID).is(id)), Agenda.class));
     }
 
 }

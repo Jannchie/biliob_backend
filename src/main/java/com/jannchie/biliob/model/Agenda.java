@@ -1,10 +1,9 @@
 package com.jannchie.biliob.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.jannchie.biliob.constant.AgendaState;
-import com.jannchie.biliob.constant.AgendaTypeEnum;
 import org.hibernate.validator.constraints.Length;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 import javax.validation.constraints.NotNull;
 import java.util.Date;
@@ -13,6 +12,7 @@ import java.util.List;
 /**
  * @author jannchie
  */
+@Document
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Agenda {
     @Id
@@ -25,24 +25,33 @@ public class Agenda {
     @Length(max = 233, min = 5)
     private String desc;
     @NotNull
-    private AgendaTypeEnum type;
+    private Integer type;
 
-    private AgendaState state;
+    private Integer state;
     private Date createTime;
     private Date finishTime;
+    private Date updateTime;
     private Integer score;
     private Integer favorCount;
-    private Integer favorScore;
+    private Double favorScore;
     private Integer againstCount;
-    private Integer againstScore;
+    private Double againstScore;
     private List<AgendaVote> votes;
 
-    public List<AgendaVote> getVotes() {
-        return votes;
+    public Date getUpdateTime() {
+        return updateTime;
     }
 
-    public void setVotes(List<AgendaVote> votes) {
-        this.votes = votes;
+    public void setUpdateTime(Date updateTime) {
+        this.updateTime = updateTime;
+    }
+
+    public Integer getScore() {
+        return score;
+    }
+
+    public void setScore(Integer score) {
+        this.score = score;
     }
 
     public Integer getFavorCount() {
@@ -53,11 +62,11 @@ public class Agenda {
         this.favorCount = favorCount;
     }
 
-    public Integer getFavorScore() {
+    public Double getFavorScore() {
         return favorScore;
     }
 
-    public void setFavorScore(Integer favorScore) {
+    public void setFavorScore(Double favorScore) {
         this.favorScore = favorScore;
     }
 
@@ -69,13 +78,22 @@ public class Agenda {
         this.againstCount = againstCount;
     }
 
-    public Integer getAgainstScore() {
+    public Double getAgainstScore() {
         return againstScore;
     }
 
-    public void setAgainstScore(Integer againstScore) {
+    public void setAgainstScore(Double againstScore) {
         this.againstScore = againstScore;
     }
+
+    public List<AgendaVote> getVotes() {
+        return votes;
+    }
+
+    public void setVotes(List<AgendaVote> votes) {
+        this.votes = votes;
+    }
+
 
     public String getTitle() {
         return title;
@@ -93,11 +111,11 @@ public class Agenda {
         this.desc = desc;
     }
 
-    public AgendaState getState() {
+    public Integer getState() {
         return state;
     }
 
-    public void setState(AgendaState state) {
+    public void setState(Integer state) {
         this.state = state;
     }
 
@@ -117,20 +135,12 @@ public class Agenda {
         this.finishTime = finishTime;
     }
 
-    public AgendaTypeEnum getType() {
+    public Integer getType() {
         return type;
     }
 
-    public void setType(AgendaTypeEnum type) {
+    public void setType(Integer type) {
         this.type = type;
-    }
-
-    public Integer getScore() {
-        return score;
-    }
-
-    public void setScore(Integer score) {
-        this.score = score;
     }
 
 
