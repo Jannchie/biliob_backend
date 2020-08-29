@@ -12,9 +12,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
@@ -50,9 +50,21 @@ public class AgendaController {
 
         switch (sort) {
             case 1:
-                return mongoTemplate.find(new Query(c).with(PageRequest.of(page, PageSizeEnum.BIG_SIZE.getValue(), Sort.by("score").descending())), Agenda.class);
+                return mongoTemplate.aggregate(Aggregation.newAggregation(
+                        Aggregation.match(c),
+                        Aggregation.lookup(DbFields.USER, DbFields.CREATOR_ID, DbFields.ID, DbFields.CREATOR),
+                        Aggregation.sort(Sort.by("score").descending()),
+                        Aggregation.skip(page * PageSizeEnum.BIG_SIZE.getValue()),
+                        Aggregation.limit(PageSizeEnum.BIG_SIZE.getValue())
+                ), Agenda.class, Agenda.class).getMappedResults();
             case 2:
-                return mongoTemplate.find(new Query(c).with(PageRequest.of(page, PageSizeEnum.BIG_SIZE.getValue(), Sort.by("createTime").descending())), Agenda.class);
+                return mongoTemplate.aggregate(Aggregation.newAggregation(
+                        Aggregation.match(c),
+                        Aggregation.lookup(DbFields.USER, DbFields.CREATOR_ID, DbFields.ID, DbFields.CREATOR),
+                        Aggregation.sort(Sort.by("createTime").descending()),
+                        Aggregation.skip(page * PageSizeEnum.BIG_SIZE.getValue()),
+                        Aggregation.limit(PageSizeEnum.BIG_SIZE.getValue())
+                ), Agenda.class, Agenda.class).getMappedResults();
             default:
                 break;
         }
@@ -135,6 +147,7 @@ public class AgendaController {
                         .set(DbFields.AGAINST_SCORE, againstScore)
                         .set(DbFields.FAVOR_SCORE, favorScore)
                         .set(DbFields.FAVOR_COUNT, favorCount)
+                        .set(DbFields.SCORE, favorScore - againstScore)
                         .set(DbFields.UPDATE_TIME, Calendar.getInstance().getTime())
                 , Agenda.class);
     }

@@ -19,4 +19,7 @@ public class DbFields {
     public static final String FAVOR_SCORE = "favorScore";
     public static final String UPDATE_TIME = "updateTime";
     public static final String NICKNAME = "nickName";
+    public static final String USER = "user";
+    public static final String CREATOR = "creator";
+    public static final String SCORE = "score";
 }
