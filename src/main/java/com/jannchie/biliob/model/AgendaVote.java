@@ -12,9 +12,18 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class AgendaVote {
     @Id
+    ObjectId id;
     ObjectId agendaId;
     User user;
     Byte opinion;
+
+    public ObjectId getId() {
+        return id;
+    }
+
+    public void setId(ObjectId id) {
+        this.id = id;
+    }
 
     public ObjectId getAgendaId() {
         return agendaId;

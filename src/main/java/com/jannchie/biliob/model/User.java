@@ -20,22 +20,18 @@ import java.util.ArrayList;
 public class User {
     @Id
     private ObjectId id;
-
+    private String uid;
     @NotBlank(message = "用户ID不能为空")
     @Length(min = 2, max = 50, message = "账号最长为50位，最短为两位")
     private String name;
-
     @Length(min = 6, message = "密码至少为6位")
     private String password;
-
     private String role;
     private String title;
-
     private ArrayList<Long> favoriteAid;
     private ArrayList<Long> favoriteMid;
     private Double credit;
     private Double exp;
-
     private Integer rank;
     @NotBlank(message = "用户ID不能为空")
     @NotNull
@@ -60,6 +56,14 @@ public class User {
     }
 
     public User() {
+    }
+
+    public String getUid() {
+        return this.uid;
+    }
+
+    public void setUid(String uid) {
+        this.uid = id.toHexString();
     }
 
     public Integer getRank() {

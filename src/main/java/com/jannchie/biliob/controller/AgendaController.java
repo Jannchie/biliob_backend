@@ -42,27 +42,33 @@ public class AgendaController {
     @RequestMapping(method = RequestMethod.GET, value = "/api/agenda")
     public List<Agenda> listAgenda(@RequestParam(value = "sort", defaultValue = "1") Integer sort, @RequestParam(value = "filter", defaultValue = "1") Integer filter, @RequestParam("p") Integer page) {
         Criteria c;
-        if (filter == 1) {
-            c = Criteria.where("state").in(AgendaState.WAITING.getValue(), AgendaState.PENDING.getValue());
+        if (filter == 0) {
+            c = Criteria.where("state").in(AgendaState.WAITING.getValue());
+        } else if (filter == 1) {
+            c = Criteria.where("state").in(AgendaState.PENDING.getValue());
+        } else if (filter == 2) {
+            c = Criteria.where("state").in(AgendaState.FINISHED.getValue());
         } else {
-            c = Criteria.where("state").in(AgendaState.CLOSED.getValue(), AgendaState.DUPLICATE.getValue(), AgendaState.FINISHED.getValue());
+            c = Criteria.where("state").in(AgendaState.CLOSED.getValue(), AgendaState.DUPLICATE.getValue());
         }
 
         switch (sort) {
             case 1:
                 return mongoTemplate.aggregate(Aggregation.newAggregation(
                         Aggregation.match(c),
-                        Aggregation.lookup(DbFields.USER, DbFields.CREATOR_ID, DbFields.ID, DbFields.CREATOR),
                         Aggregation.sort(Sort.by("score").descending()),
                         Aggregation.skip(page * PageSizeEnum.BIG_SIZE.getValue()),
+                        Aggregation.lookup(DbFields.USER, DbFields.CREATOR_ID, DbFields.ID, DbFields.CREATOR),
+                        Aggregation.project().andExpression("{password: 0, favoriteMid: 0, favoriteAid: 0, mail: 0, credit: 0, id: 0 }").as(DbFields.CREATOR),
                         Aggregation.limit(PageSizeEnum.BIG_SIZE.getValue())
                 ), Agenda.class, Agenda.class).getMappedResults();
             case 2:
                 return mongoTemplate.aggregate(Aggregation.newAggregation(
                         Aggregation.match(c),
-                        Aggregation.lookup(DbFields.USER, DbFields.CREATOR_ID, DbFields.ID, DbFields.CREATOR),
                         Aggregation.sort(Sort.by("createTime").descending()),
                         Aggregation.skip(page * PageSizeEnum.BIG_SIZE.getValue()),
+                        Aggregation.lookup(DbFields.USER, DbFields.CREATOR_ID, DbFields.ID, DbFields.CREATOR),
+                        Aggregation.project().andExpression("{password: 0, favoriteMid: 0, favoriteAid: 0, mail: 0, credit: 0, id: 0 }").as(DbFields.CREATOR),
                         Aggregation.limit(PageSizeEnum.BIG_SIZE.getValue())
                 ), Agenda.class, Agenda.class).getMappedResults();
             default:
@@ -90,12 +96,12 @@ public class AgendaController {
         agenda.setVotes(null);
         agenda.setCreator(new User(user.getId()));
         // 装载Agenda
-        creditOperateHandle.doCreditOperate(CreditConstant.POST_AGENDA, agenda.getTitle(), () -> mongoTemplate.save(agenda));
-        return new Result<>(ResultEnum.SUCCEED);
+
+        return creditOperateHandle.doCreditOperate(CreditConstant.POST_AGENDA, agenda.getTitle(), () -> mongoTemplate.save(agenda));
     }
 
     @RequestMapping(method = RequestMethod.DELETE, value = "/api/agenda/{id}")
-    public Result<?> deleteAgenda(@RequestBody @Validated String id) {
+    public Result<?> deleteAgenda(@PathVariable("id") String id) {
         ObjectId userId = UserUtils.getUserId();
         Agenda a = mongoTemplate.findOne(Query.query(Criteria.where("_id").is(id)), Agenda.class);
         if (a != null && a.getCreator().getId().equals(userId)) {
@@ -191,12 +197,10 @@ public class AgendaController {
         if (uid == null) {
             return ResultEnum.HAS_NOT_LOGGED_IN.getResult();
         }
-        mongoTemplate.upsert(Query.query(Criteria.where(DbFields.ID).is(id)),
+        mongoTemplate.upsert(Query.query(Criteria.where(DbFields.AGENDA_ID).is(id).and(DbFields.USER_ID).is(uid)),
                 Update.update(DbFields.OPINION, userOpinion.getValue()).set(DbFields.USER_ID, uid),
                 AgendaVote.class);
         updateAgendaData(id);
         return new Result<>(ResultEnum.SUCCEED, mongoTemplate.findOne(Query.query(Criteria.where(DbFields.ID).is(id)), Agenda.class));
     }
-
-
 }
