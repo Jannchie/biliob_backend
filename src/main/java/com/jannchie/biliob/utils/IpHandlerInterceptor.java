@@ -86,8 +86,8 @@ public class IpHandlerInterceptor implements HandlerInterceptor {
             ), IpVisitRecord.class, IpAggregationInfo.class).getMappedResults();
             for (IpAggregationInfo info : ipAggregationInfoList
             ) {
-                // 如果某个API在十分钟内访问300次
-                if (info.getCount() > 300) {
+                // 如果某个API在十分钟内访问100次
+                if (info.getCount() > 100) {
                     addToBlackList(response, ip, String.format("访问频率过高 %s", info.getUri()));
                     return false;
                 }
@@ -117,7 +117,7 @@ public class IpHandlerInterceptor implements HandlerInterceptor {
         response.setCharacterEncoding("UTF-8");
         response.setContentType("application/json; charset=utf-8");
         try (PrintWriter writer = response.getWriter()) {
-            writer.print("{\"msg\":\"YOU HAVE BEEN CAUGHT.\"}");
+            writer.print("{\"msg\":\"触发风控策略\"}");
         } catch (IOException e) {
             logger.error("response error", e);
         }
