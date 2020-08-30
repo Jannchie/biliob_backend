@@ -97,7 +97,7 @@ public class AgendaController {
         agenda.setCreator(new User(user.getId()));
         // 装载Agenda
 
-        return creditOperateHandle.doCreditOperate(CreditConstant.POST_AGENDA, agenda.getTitle(), () -> mongoTemplate.save(agenda));
+        return creditOperateHandle.doCreditOperate(user, CreditConstant.POST_AGENDA, agenda.getTitle(), () -> mongoTemplate.save(agenda));
     }
 
     @RequestMapping(method = RequestMethod.DELETE, value = "/api/agenda/{id}")

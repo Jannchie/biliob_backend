@@ -46,6 +46,7 @@ public class CreditOperateHandle {
 
     public <T> Result<T> doCreditOperate(CreditConstant creditConstant, Execution<T> execution) {
         User user = UserUtils.getFullInfo();
+
         return doCreditOperate(user, creditConstant, execution);
     }
 
@@ -118,7 +119,7 @@ public class CreditOperateHandle {
     private UserRecord getUserRecord(User user, CreditConstant creditConstant, Double credit) {
         UserRecord userRecord = new UserRecord();
         userRecord.setUserName(user.getName());
-        userRecord.setExecuted(false);
+        userRecord.setExecuted(true);
         userRecord.setCredit(credit);
         userRecord.setDatetime(new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
         userRecord.setCreateTime(Calendar.getInstance().getTime());
