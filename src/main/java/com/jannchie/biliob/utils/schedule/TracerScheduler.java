@@ -34,7 +34,7 @@ public class TracerScheduler {
     }
 
 
-    @Scheduled(cron = "0 0/5 * * * ?")
+    @Scheduled(cron = "0 0/1 * * * ?")
     @Async
     public void recordSpiderQueueStatus() {
         try {
