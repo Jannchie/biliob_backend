@@ -1,5 +1,6 @@
 package com.jannchie.biliob.controller;
 
+import com.jannchie.biliob.constant.ResultEnum;
 import com.jannchie.biliob.exception.AuthorAlreadyFocusedException;
 import com.jannchie.biliob.exception.UserAlreadyFavoriteAuthorException;
 import com.jannchie.biliob.model.Author;
@@ -8,6 +9,7 @@ import com.jannchie.biliob.service.AuthorService;
 import com.jannchie.biliob.utils.IpUtil;
 import com.jannchie.biliob.utils.Message;
 import com.jannchie.biliob.utils.MySlice;
+import com.jannchie.biliob.utils.UserUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -50,8 +52,11 @@ public class AuthorController {
     }
 
     @RequestMapping(method = RequestMethod.POST, value = "/api/author")
-    public ResponseEntity<Message> postAuthorByMid(@RequestBody @Valid Long mid)
+    public ResponseEntity<?> postAuthorByMid(@RequestBody @Valid Long mid)
             throws UserAlreadyFavoriteAuthorException, AuthorAlreadyFocusedException {
+        if (UserUtils.getUser() == null) {
+            return new ResponseEntity<>(ResultEnum.HAS_NOT_LOGGED_IN.getResult(), HttpStatus.OK);
+        }
         authorService.postAuthorByMid(mid);
         return new ResponseEntity<>(new Message(200, "观测UP主成功"), HttpStatus.OK);
     }
