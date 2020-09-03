@@ -39,7 +39,6 @@ public class AgendaControllerTest {
     MongoTemplate mongoTemplate;
 
     @Before
-    @WithMockUser(username = TestConstants.TEST_USER_NAME)
     public void setUp() {
         ObjectId uid = UserUtils.getUserId();
         mongoTemplate.remove(Query.query(Criteria.where(DbFields.CREATOR_ID).is(uid)), Agenda.class);
@@ -157,6 +156,12 @@ public class AgendaControllerTest {
         agendaController.startAgenda(id);
         Agenda a = agendaController.getAgenda(id);
         Assert.assertEquals(a.getState().longValue(), AgendaState.PENDING.getValue().longValue());
+    }
+
+    @Test
+    @WithMockUser(username = TestConstants.TEST_USER_NAME)
+    public void getCount() {
+        agendaController.getStateCatalogCount();
     }
 
     @Test

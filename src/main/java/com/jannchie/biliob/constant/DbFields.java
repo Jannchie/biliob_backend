@@ -22,4 +22,6 @@ public class DbFields {
     public static final String USER = "user";
     public static final String CREATOR = "creator";
     public static final String SCORE = "score";
+    public static final String COUNT = "count";
+    public static final String AGENDA_STATE = "agendaState";
 }

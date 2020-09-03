@@ -2,7 +2,9 @@ package com.jannchie.biliob.controller;
 
 import com.jannchie.biliob.constant.*;
 import com.jannchie.biliob.credit.handle.CreditOperateHandle;
+import com.jannchie.biliob.form.AgendaCatalogCountResult;
 import com.jannchie.biliob.model.Agenda;
+import com.jannchie.biliob.model.AgendaStateCount;
 import com.jannchie.biliob.model.AgendaVote;
 import com.jannchie.biliob.model.User;
 import com.jannchie.biliob.utils.Result;
@@ -202,5 +204,31 @@ public class AgendaController {
                 AgendaVote.class);
         updateAgendaData(id);
         return new Result<>(ResultEnum.SUCCEED, mongoTemplate.findOne(Query.query(Criteria.where(DbFields.ID).is(id)), Agenda.class));
+    }
+
+    @RequestMapping(method = RequestMethod.GET, value = "/api/agenda/state")
+    public AgendaStateCount getStateCatalogCount() {
+
+        List<AgendaCatalogCountResult> data = mongoTemplate.aggregate(
+                Aggregation.newAggregation(
+                        Aggregation.group(DbFields.STATE).count().as(DbFields.COUNT),
+                        Aggregation.project(DbFields.COUNT).and(DbFields.ID).as(DbFields.AGENDA_STATE)
+                ), Agenda.class, AgendaCatalogCountResult.class
+        ).getMappedResults();
+
+        AgendaStateCount a = new AgendaStateCount();
+        for (AgendaCatalogCountResult m : data) {
+            byte state = m.getAgendaState();
+            if (state == AgendaState.WAITING.getValue()) {
+                a.setWaiting(m.getCount());
+            } else if (state == AgendaState.PENDING.getValue()) {
+                a.setPending(m.getCount());
+            } else if (state == AgendaState.FINISHED.getValue()) {
+                a.setFinished(m.getCount());
+            } else if (state == AgendaState.CLOSED.getValue()) {
+                a.setClosed(m.getCount());
+            }
+        }
+        return a;
     }
 }
