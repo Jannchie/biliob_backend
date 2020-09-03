@@ -49,6 +49,7 @@ public class AuthorAchievementServiceImpl implements AuthorAchievementService {
     @Async
     public Result<?> analyzeAuthorAchievement(Long mid) {
         logger.info("为 {} 计算唯一成就", mid);
+        //
         List<Author.Achievement> achievements = mongoTemplate.find(Query.query(Criteria.where("author.mid").is(mid)).with(Sort.by("date").ascending()), Author.Achievement.class);
         HashSet<Integer> hashSet = new HashSet<>();
         achievements.forEach(a -> {
@@ -188,7 +189,6 @@ public class AuthorAchievementServiceImpl implements AuthorAchievementService {
                 if (hashSet.contains(id)) {
                     continue;
                 }
-
                 checkValue(id, mid, dataList);
             }
         }

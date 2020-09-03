@@ -195,6 +195,17 @@ public class AgendaControllerTest {
         return agendaList.get(0).getId();
     }
 
+    @Test
+    @WithMockUser(username = TestConstants.TEST_USER_NAME)
+    public void updateAgendaState() {
+        Agenda a = getAgenda();
+        mongoTemplate.save(a);
+        agendaController.updateAgendaState(a.getId(), AgendaState.PENDING.getValue());
+        Agenda s = mongoTemplate.findOne(Query.query(Criteria.where(DbFields.ID).is(a.getId())), Agenda.class);
+        assert s != null;
+        assert s.getState().equals(AgendaState.PENDING.getValue());
+    }
+
     @After
     @WithMockUser(username = TestConstants.TEST_USER_NAME)
     public void after() {

@@ -187,6 +187,17 @@ public class AgendaController {
         return ResultEnum.SUCCEED.getResult(ur);
     }
 
+    @RequestMapping(method = RequestMethod.PUT, value = "/api/agenda/{id}/state/{state}")
+    public Result<?> updateAgendaState(@PathVariable("id") String id, @PathVariable("state") Byte state) {
+        if (UserUtils.getUserRoleLevel() < RoleEnum.TEST.getLevel()) {
+            return ResultEnum.PERMISSION_DENIED.getResult();
+        }
+        UpdateResult ur = mongoTemplate.updateFirst(Query.query(Criteria.where(DbFields.ID).is(id)),
+                Update.update(DbFields.STATE, state), Agenda.class);
+        return ResultEnum.SUCCEED.getResult(ur);
+    }
+
+
     @RequestMapping(method = RequestMethod.POST, value = "/api/agenda/{id}/duplicate")
     public Result<?> duplicateAgenda(@PathVariable("id") String id) {
         UpdateResult ur = mongoTemplate.updateFirst(Query.query(Criteria.where(DbFields.ID).is(id)),

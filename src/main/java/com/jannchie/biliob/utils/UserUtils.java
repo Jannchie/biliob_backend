@@ -38,6 +38,9 @@ public class UserUtils {
 
     public static Integer getUserRoleLevel() {
         User user = getFullInfo();
+        if (user == null) {
+            return RoleEnum.GUEST.getLevel();
+        }
         return RoleEnum.getLevelByName(user.getRole());
     }
 
