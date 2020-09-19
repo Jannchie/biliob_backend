@@ -462,7 +462,7 @@ class UserServiceImpl implements UserService {
                         authorService.upsertAuthorFreq(mid, 86400);
                     }
                     return mongoTemplate.updateFirst(q,
-                            new Update().addToSet("order", userRecord.getId()).set("next", Calendar.getInstance().getTime()), AuthorIntervalRecord.class);
+                            new Update().addToSet("order", userRecord.getId()).set("next", new Date(0)), AuthorIntervalRecord.class);
                 });
         return ResponseEntity.ok(result);
     }
@@ -473,7 +473,7 @@ class UserServiceImpl implements UserService {
         UserRecord userRecord = mongoTemplate.insert(new UserRecord(CreditConstant.REFRESH_VIDEO_DATA, String.valueOf(aid), u.getName()));
         Result<?> result = creditOperateHandle.doAsyncCreditOperate(u, CreditConstant.REFRESH_VIDEO_DATA,
                 () -> mongoTemplate.updateFirst(Query.query(Criteria.where("aid").is(aid)),
-                        new Update().addToSet("order", userRecord.getId()).set("next", Calendar.getInstance().getTime()), "video_interval"));
+                        new Update().addToSet("order", userRecord.getId()).set("next", new Date(0)), "video_interval"));
         return ResponseEntity.ok(result);
     }
 
