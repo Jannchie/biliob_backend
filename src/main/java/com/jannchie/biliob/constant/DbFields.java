@@ -24,4 +24,5 @@ public class DbFields {
     public static final String SCORE = "score";
     public static final String COUNT = "count";
     public static final String AGENDA_STATE = "agendaState";
+    public static final String TITLE = "title";
 }

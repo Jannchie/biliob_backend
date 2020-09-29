@@ -213,6 +213,7 @@ public class AgendaControllerTest {
         ObjectId userId = UserUtils.getUserId();
         mongoTemplate.remove(Query.query(Criteria.where(DbFields.CREATOR_ID).is(userId)), Agenda.class);
         mongoTemplate.remove(Query.query(Criteria.where(DbFields.USER_ID).is(userId)), AgendaVote.class);
+        mongoTemplate.remove(Query.query(Criteria.where(DbFields.TITLE).is("Test")), AgendaVote.class);
     }
 
 }
