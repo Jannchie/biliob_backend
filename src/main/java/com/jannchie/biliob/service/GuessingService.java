@@ -334,6 +334,7 @@ public class GuessingService {
 
         Calendar tempCal = Calendar.getInstance();
 
+        ArrayList<UserGuessingResult> finalResultList = resultList;
         result.keySet().forEach(key -> {
             UserGuessingResult r = new UserGuessingResult();
 
@@ -347,15 +348,42 @@ public class GuessingService {
             tempCal.setTimeInMillis(averageCreateTime);
             r.setAverageCreateTime(tempCal.getTime());
             // 积分数 = 筹码积分值 × ( 实际达成时间 - 平均发起预测时间 ) ÷ ( | 实际达成时间 - 平均预测达成时间 |)
-            long deltaGuessingTime = finalReachDate.getTime() - averageCreateTime;
-            long deltaTime = Math.abs(averageGuessingTime - finalReachDate.getTime());
+            long deltaGuessingTime = (finalReachDate.getTime() - averageCreateTime) / 3600000;
+            long deltaTime = (Math.abs(averageGuessingTime - finalReachDate.getTime())) / 3600000;
 
-            Long score = r.getCredit().longValue() * 10000 * ((deltaGuessingTime / 3600000 + 100) / (deltaTime / 3600000 + 10));
+            long score = 10L;
+            if (deltaGuessingTime > 120 * 24) {
+                score += 120 * 24L;
+            } else {
+                score += deltaGuessingTime;
+            }
+
+            if (deltaTime <= 1) {
+                score *= 3;
+            } else if (deltaTime <= 6) {
+                score *= 1.5;
+            } else if (deltaTime <= 12) {
+                score *= 1.2;
+            } else if (deltaTime <= 24) {
+                score *= 1.0;
+            } else if (deltaTime <= 24 * 3) {
+                score *= 0.9;
+            } else if (deltaTime <= 24 * 7) {
+                score *= 0.8;
+            } else {
+                score *= 0.7;
+            }
 
             r.setScore(score);
-            resultList.add(r);
+            finalResultList.add(r);
         });
+
         resultList.sort(Comparator.comparingLong(UserGuessingResult::getScore).reversed());
+        if (resultList.size() == 0) {
+            return resultList;
+        }
+        long maxScore = resultList.get(0).getScore();
+        resultList = resultList.stream().peek((m) -> m.setScore(m.getCredit().longValue() * (m.getScore()))).collect(Collectors.toCollection(ArrayList::new));
         int baseRate = 47;
         long sumScore = resultList.stream().map(UserGuessingResult::getScore).reduce(0L, Long::sum);
         long sumCredit = resultList.stream().map(UserGuessingResult::getCredit).reduce(0D, Double::sum).longValue();
