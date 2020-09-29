@@ -128,6 +128,7 @@ public class AuthorGroupServiceImpl implements AuthorGroupService {
             } else {
                 long stars = mongoTemplate.count(Query.query(Criteria.where(groupIdField).is(objectId).and("starring").is(true)), UserStarAuthorGroup.class);
                 mongoTemplate.updateFirst(Query.query(Criteria.where("_id").is(objectId)), Update.update("stars", stars + 1), AuthorGroup.class);
+                return new Result<>(ResultEnum.SUCCEED);
             }
         }
 
