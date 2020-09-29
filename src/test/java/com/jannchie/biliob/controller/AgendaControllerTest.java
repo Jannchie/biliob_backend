@@ -71,6 +71,7 @@ public class AgendaControllerTest {
         a.setDesc("Test");
         a.setTitle("Test");
         a.setType(AgendaTypeEnum.ENHANCE.getValue());
+        a.setCreator(UserUtils.getUser());
         return a;
     }
 

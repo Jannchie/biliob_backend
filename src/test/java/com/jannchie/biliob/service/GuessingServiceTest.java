@@ -18,6 +18,6 @@ public class GuessingServiceTest {
 
     @Test
     public void printGuessingResult() {
-        guessingService.printGuessingResult("5ec2819bbc9a844f180ade97");
+        guessingService.printGuessingResult("5f01767da3d20a7b1b6c0c80");
     }
 }
