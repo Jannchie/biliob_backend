@@ -10,6 +10,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class UserStarAuthorGroup {
     private ObjectId userId;
     private ObjectId groupId;
+    private Boolean starring;
 
     public UserStarAuthorGroup(ObjectId userId, ObjectId groupId) {
         this.userId = userId;
@@ -30,5 +31,16 @@ public class UserStarAuthorGroup {
 
     public void setGroupId(ObjectId groupId) {
         this.groupId = groupId;
+    }
+
+    public Boolean getStarring() {
+        if (starring == null) {
+            return true;
+        }
+        return starring;
+    }
+
+    public void setStarring(Boolean starring) {
+        this.starring = starring;
     }
 }

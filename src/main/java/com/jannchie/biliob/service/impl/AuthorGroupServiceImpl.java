@@ -121,14 +121,20 @@ public class AuthorGroupServiceImpl implements AuthorGroupService {
 
         String groupIdField = "groupId";
         String userIdField = "userId";
-        if (mongoTemplate.exists(Query.query(Criteria.where(groupIdField).is(new ObjectId(objectId)).and(userIdField).is(user.getId())), UserStarAuthorGroup.class)) {
-            return new Result<>(ResultEnum.ALREADY_LIKE);
+        UserStarAuthorGroup data = mongoTemplate.findOne(Query.query(Criteria.where(groupIdField).is(new ObjectId(objectId)).and(userIdField).is(user.getId())), UserStarAuthorGroup.class);
+        if (data != null) {
+            if (data.getStarring()) {
+                return new Result<>(ResultEnum.ALREADY_LIKE);
+            } else {
+                long stars = mongoTemplate.count(Query.query(Criteria.where(groupIdField).is(objectId).and("starring").is(true)), UserStarAuthorGroup.class);
+                mongoTemplate.updateFirst(Query.query(Criteria.where("_id").is(objectId)), Update.update("stars", stars + 1), AuthorGroup.class);
+            }
         }
 
         return creditOperateHandle.doCreditOperate(
                 user, CreditConstant.STAR_AUTHOR_LIST, () -> {
                     creditOperateHandle.doCreditOperate(UserUtils.getUserById(authorGroup.getMaintainer().getId()), CreditConstant.BE_STARED_AUTHOR_LIST, authorGroup.getId(), () -> null);
-                    long stars = mongoTemplate.count(Query.query(Criteria.where(groupIdField).is(objectId)), UserStarAuthorGroup.class);
+                    long stars = mongoTemplate.count(Query.query(Criteria.where(groupIdField).is(objectId).and("starring").is(true)), UserStarAuthorGroup.class);
                     mongoTemplate.updateFirst(Query.query(Criteria.where("_id").is(objectId)), Update.update("stars", stars + 1), AuthorGroup.class);
                     return mongoTemplate.save(new UserStarAuthorGroup(user.getId(), new ObjectId(objectId)));
                 }
@@ -201,7 +207,7 @@ public class AuthorGroupServiceImpl implements AuthorGroupService {
     private void setIsStared(ObjectId userId, AuthorGroup authorGroup) {
         authorGroup.setStared(false);
         for (UserStarAuthorGroup u : authorGroup.getStarList()) {
-            if (u.getUserId().equals(userId)) {
+            if (u.getUserId().equals(userId) && u.getStarring()) {
                 authorGroup.setStared(true);
                 break;
             }
@@ -257,7 +263,7 @@ public class AuthorGroupServiceImpl implements AuthorGroupService {
         if (userId == null) {
             return new Result<>(ResultEnum.HAS_NOT_LOGGED_IN);
         }
-        mongoTemplate.remove(Query.query(Criteria.where("groupId").is(new ObjectId(objectId)).and("userId").is(userId)), UserStarAuthorGroup.class);
+        mongoTemplate.updateFirst(Query.query(Criteria.where("groupId").is(new ObjectId(objectId)).and("userId").is(userId)), Update.update("starring", false), UserStarAuthorGroup.class);
         long stars = mongoTemplate.count(Query.query(Criteria.where("groupId").is(objectId)), UserStarAuthorGroup.class);
         mongoTemplate.updateFirst(Query.query(Criteria.where("_id").is(objectId)), Update.update("stars", stars), AuthorGroup.class);
         return new Result<>(ResultEnum.SUCCEED);
