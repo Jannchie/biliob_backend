@@ -29,7 +29,7 @@ public class ConfigService {
             public void addCorsMappings(CorsRegistry registry) {
                 registry
                         .addMapping("/**")
-                        .allowedOrigins("https://*.biliob.com")
+                        .allowedOrigins("*")
                         .allowedMethods("*")
                         .allowedHeaders("*")
                         .allowCredentials(true)
