@@ -327,28 +327,42 @@ public class GuessingService {
     private Long getScore(Long lossHour, Long foreHour) {
         long score = 0L;
         if (lossHour <= 3) {
-            score = 160L;
-        } else if (lossHour <= 12) {
+            score = 100L;
+        } else if (lossHour <= 6) {
             score = 80L;
+        } else if (lossHour <= 12) {
+            score = 60L;
         } else if (lossHour <= 24) {
-            score = 50L;
-        } else if (lossHour <= 128) {
+            score = 40L;
+        } else if (lossHour <= 24 * 2) {
             score = 30L;
-        } else if (lossHour <= 256) {
+        } else if (lossHour <= 24 * 3) {
+            score = 25L;
+        } else if (lossHour <= 128) {
             score = 20L;
+        } else if (lossHour <= 256) {
+            score = 16L;
         } else if (lossHour <= 512) {
-            score = 10L;
+            score = 8L;
+        } else if (lossHour <= 1024) {
+            score = 6L;
         } else {
             score = 5L;
         }
         if (foreHour > 180 * 24) {
             score *= 10;
+        } else if (foreHour > 150 * 24) {
+            score *= 9;
+        } else if (foreHour > 120 * 24) {
+            score *= 8;
         } else if (foreHour > 90 * 24) {
-            score *= 2;
+            score *= 6;
         } else if (foreHour > 30 * 24) {
-            score *= 1.5;
-        } else if (foreHour < 7 * 24) {
+            score *= 3;
+        } else if (foreHour <= 7 * 24) {
             score *= 0.8;
+        } else if (foreHour <= 14 * 24) {
+            score *= 0.9;
         }
         return score;
     }

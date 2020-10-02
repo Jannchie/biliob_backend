@@ -21,7 +21,7 @@ public class GuessingServiceTest {
     @Test
     public void printGuessingResult() {
         Calendar c = Calendar.getInstance();
-        c.add(Calendar.DATE, 8);
+        c.add(Calendar.DATE, 7);
         guessingService.printGuessingResult("5e84bbc0b2dfc1a238c8ec9e", c.getTime());
     }
 }
