@@ -16,6 +16,24 @@ public class UserGuessingResult {
     private Long score;
     private Date averageCreateTime;
     private Double revenue;
+    private Long lossHour;
+    private Long foreHour;
+
+    public Long getLossHour() {
+        return lossHour;
+    }
+
+    public void setLossHour(Long lossHour) {
+        this.lossHour = lossHour;
+    }
+
+    public Long getForeHour() {
+        return foreHour;
+    }
+
+    public void setForeHour(Long foreHour) {
+        this.foreHour = foreHour;
+    }
 
     public String getGuessingId() {
         return guessingId;

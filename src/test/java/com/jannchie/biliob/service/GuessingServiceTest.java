@@ -7,6 +7,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 
+import java.util.Calendar;
+
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @WebAppConfiguration
@@ -18,6 +20,8 @@ public class GuessingServiceTest {
 
     @Test
     public void printGuessingResult() {
-        guessingService.printGuessingResult("5f01767da3d20a7b1b6c0c80");
+        Calendar c = Calendar.getInstance();
+        c.add(Calendar.DATE, 8);
+        guessingService.printGuessingResult("5e84bbc0b2dfc1a238c8ec9e", c.getTime());
     }
 }

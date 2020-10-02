@@ -48,7 +48,6 @@ public class ManagerController {
         return creditOperateHandle.doCustomCreditOperate(u, -form.getCredit(), CreditConstant.GIVE_CREDIT, form.getMsg(), () -> null);
     }
 
-
     @RequestMapping(method = RequestMethod.POST, value = "/user/data")
     public Result<?> setUserData(@RequestBody User user) {
         mongoTemplate.updateFirst(Query.query(Criteria.where("name").is(user.getName())),
