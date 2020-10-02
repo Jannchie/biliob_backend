@@ -6,11 +6,13 @@ import com.jannchie.biliob.constant.ResultEnum;
 import com.jannchie.biliob.exception.BusinessException;
 import com.jannchie.biliob.model.User;
 import com.jannchie.biliob.model.UserRecord;
+import com.jannchie.biliob.utils.IpUtil;
 import com.jannchie.biliob.utils.Result;
 import com.jannchie.biliob.utils.UserUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.bson.types.ObjectId;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
@@ -32,6 +34,8 @@ public abstract class AbstractCreditCalculator<T> {
 
     private static final Logger logger = LogManager.getLogger(AbstractCreditCalculator.class);
     private final MongoTemplate mongoTemplate;
+    @Autowired
+    IpUtil ipUtil;
     private T data;
     private CreditConstant creditConstant;
 
@@ -115,10 +119,12 @@ public abstract class AbstractCreditCalculator<T> {
     }
 
     private void updateUserInfo(Double credit, Double exp, String userName) {
+
         Query query = new Query(where("name").is(userName));
         Update update = new Update();
         update.set("credit", new BigDecimal(credit).setScale(2, BigDecimal.ROUND_HALF_DOWN).doubleValue());
         update.set("exp", new BigDecimal(exp).setScale(2, BigDecimal.ROUND_HALF_DOWN).doubleValue());
+        update.set("ip", ipUtil.getIpAddress());
         mongoTemplate.updateFirst(query, update, User.class);
     }
 

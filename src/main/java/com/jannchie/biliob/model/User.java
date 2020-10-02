@@ -20,6 +20,7 @@ import java.util.ArrayList;
 public class User {
     @Id
     private ObjectId id;
+    private String ip;
     private String uid;
     @NotBlank(message = "用户ID不能为空")
     @Length(min = 2, max = 50, message = "账号最长为50位，最短为两位")
@@ -41,7 +42,6 @@ public class User {
     @Email(message = "邮箱格式错误")
     @NotBlank(message = "邮箱不能为空")
     private String mail;
-
     public User(String name, String password, String role) {
         this.name = name;
         this.password = password;
@@ -50,12 +50,19 @@ public class User {
         this.exp = 0D;
         this.title = "";
     }
-
     public User(ObjectId id) {
         this.id = id;
     }
 
     public User() {
+    }
+
+    public String getIp() {
+        return ip;
+    }
+
+    public void setIp(String ip) {
+        this.ip = ip;
     }
 
     public String getUid() {
