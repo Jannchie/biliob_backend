@@ -125,7 +125,7 @@ class UserServiceImpl implements UserService {
     @Override
     public ResponseEntity<Result<?>> createUser(
             String username, String password, String mail, String activationCode) {
-        User user = new User(username, password, RoleEnum.NORMAL_USER.getName());
+        User user = new User(username, password, RoleEnum.LEVEL_1.getName());
         if (!mailUtil.checkActivationCode(mail, activationCode)) {
             return new ResponseEntity<>(
                     new Result<>(ResultEnum.ACTIVATION_CODE_UNMATCHED), HttpStatus.BAD_REQUEST);

@@ -12,11 +12,12 @@ public enum RoleEnum {
      * <p>ADMIN: The user who has the highest authority of this site.
      */
     GUEST(-1, "无权限游客"),
-    NORMAL_USER(0, "普通研究员"),
-    OBSERVER(5, "管理研究员"),
-    ADMIN(7, "特权研究员"),
-    TEST(8, "系统测试员"),
-    JANNCHIE(9, "站长");
+    LEVEL_1(0, "普通研究员"),
+    LEVEL_2(4, "高级研究员"),
+    LEVEL_3(5, "管理研究员"),
+    LEVEL_4(7, "特权研究员"),
+    LEVEL_5(8, "系统测试员"),
+    LEVEL_6(9, "站长");
 
     private Integer level;
     private String name;

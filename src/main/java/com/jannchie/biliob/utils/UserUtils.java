@@ -99,16 +99,17 @@ public class UserUtils {
 
     public static void setUserTitleAndRankAndUpdateRole(User user) {
         long rank = mongoTemplate.count(Query.query(Criteria.where("exp").gte(user.getExp())), "user");
-        RoleEnum roleEnum = RoleEnum.NORMAL_USER;
+        RoleEnum roleEnum = RoleEnum.LEVEL_1;
         user.setRank(Math.toIntExact(rank));
         if (rank <= 3) {
             user.setTitle("管理者");
-            roleEnum = RoleEnum.ADMIN;
+            roleEnum = RoleEnum.LEVEL_4;
         } else if (rank <= 3 + 16) {
             user.setTitle("观测者");
-            roleEnum = RoleEnum.OBSERVER;
+            roleEnum = RoleEnum.LEVEL_3;
         } else if (rank <= 3 + 16 + 50) {
             user.setTitle("观想者");
+            roleEnum = RoleEnum.LEVEL_2;
         } else if (user.getExp() <= 100) {
             user.setTitle("初心者");
         } else {
