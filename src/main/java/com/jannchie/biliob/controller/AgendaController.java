@@ -84,7 +84,7 @@ public class AgendaController {
         // 判断用户身份
         User user = UserUtils.getFullInfo();
         Integer level = UserUtils.getUserRoleLevel(user);
-        if (level < RoleEnum.OBSERVER.getLevel()) {
+        if (level < RoleEnum.LEVEL_2.getLevel()) {
             return new Result<>(ResultEnum.PERMISSION_DENIED);
         }
         agenda.setAgainstCount(0);
@@ -189,7 +189,7 @@ public class AgendaController {
 
     @RequestMapping(method = RequestMethod.PUT, value = "/api/agenda/{id}/state/{state}")
     public Result<?> updateAgendaState(@PathVariable("id") String id, @PathVariable("state") Byte state) {
-        if (UserUtils.getUserRoleLevel() < RoleEnum.TEST.getLevel()) {
+        if (UserUtils.getUserRoleLevel() < RoleEnum.LEVEL_5.getLevel()) {
             return ResultEnum.PERMISSION_DENIED.getResult();
         }
         UpdateResult ur = mongoTemplate.updateFirst(Query.query(Criteria.where(DbFields.ID).is(id)),
