@@ -61,7 +61,7 @@ public class AgendaController {
                         Aggregation.sort(Sort.by("score").descending()),
                         Aggregation.skip(page * PageSizeEnum.BIG_SIZE.getValue()),
                         Aggregation.lookup(DbFields.USER, DbFields.CREATOR_ID, DbFields.ID, DbFields.CREATOR),
-                        Aggregation.project().andExpression("{password: 0, favoriteMid: 0, favoriteAid: 0, mail: 0, credit: 0}").as(DbFields.CREATOR),
+                        Aggregation.project().andExpression("{password: 0, ip: 0,  favoriteMid: 0, favoriteAid: 0, mail: 0, credit: 0}").as(DbFields.CREATOR),
                         Aggregation.limit(PageSizeEnum.BIG_SIZE.getValue())
                 ), Agenda.class, Agenda.class).getMappedResults();
             case 2:
@@ -70,7 +70,7 @@ public class AgendaController {
                         Aggregation.sort(Sort.by("createTime").descending()),
                         Aggregation.skip(page * PageSizeEnum.BIG_SIZE.getValue()),
                         Aggregation.lookup(DbFields.USER, DbFields.CREATOR_ID, DbFields.ID, DbFields.CREATOR),
-                        Aggregation.project().andExpression("{password: 0, favoriteMid: 0, favoriteAid: 0, mail: 0, credit: 0 }").as(DbFields.CREATOR),
+                        Aggregation.project().andExpression("{password: 0, ip: 0,  favoriteMid: 0, favoriteAid: 0, mail: 0, credit: 0 }").as(DbFields.CREATOR),
                         Aggregation.limit(PageSizeEnum.BIG_SIZE.getValue())
                 ), Agenda.class, Agenda.class).getMappedResults();
             default:
