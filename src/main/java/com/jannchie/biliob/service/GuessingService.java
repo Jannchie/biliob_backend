@@ -27,6 +27,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -256,7 +257,7 @@ public class GuessingService {
         });
     }
 
-    @Scheduled(fixedDelay = MICROSECOND_OF_MINUTES * 60 * 24)
+    @Scheduled(initialDelay = MICROSECOND_OF_MINUTES * 60, fixedDelay = MICROSECOND_OF_MINUTES * 60 * 24)
     @Async
     public Result<?> judgeFinishedFansGuessing() {
         Integer finishedState = 3;
@@ -291,11 +292,26 @@ public class GuessingService {
         ArrayList<UserGuessingResult> results = new ArrayList<>();
         Set<String> nameSet = new HashSet<>();
         Double rate = 0.47;
-        for (GuessingItem.PokerChip p : pokerChipList) {
+        for (int i = 0; i < pokerChipList.size(); i++) {
+            GuessingItem.PokerChip p = pokerChipList.get(i);
+            int range = 10;
+            int l = Math.max(i - range, 0);
+            int r = Math.min(i + range, pokerChipList.size());
+
+            long averageLossHour = 0L;
+            for (int j = l; j < r; j++) {
+                GuessingItem.PokerChip t = pokerChipList.get(j);
+                Date guessingDate = getCorrectGuessingTime(t);
+                Long lossHour = Math.abs((finalReachDate.getTime() - guessingDate.getTime()) / 3600000);
+                averageLossHour += lossHour;
+            }
+            averageLossHour /= (l - r);
+
             String userName = p.getUser().getName();
             Date guessingDate = getCorrectGuessingTime(p);
             Double credit = p.getCredit();
             Date createTime = p.getCreateTime();
+
             Long lossHour = Math.abs((finalReachDate.getTime() - guessingDate.getTime()) / 3600000);
             Long foreHour = (finalReachDate.getTime() - createTime.getTime()) / 3600000;
 
@@ -303,7 +319,7 @@ public class GuessingService {
             result = new UserGuessingResult();
             result.setForeHour(foreHour);
             result.setLossHour(lossHour);
-            Long score = getScore(lossHour, foreHour);
+            Long score = getScore(lossHour, foreHour, averageLossHour);
             result.setScore((long) (score * rate * credit));
             result.setCredit(credit);
             result.setAverageDate(guessingDate);
@@ -318,51 +334,38 @@ public class GuessingService {
         Double useCredit = sumCredit * rate;
         Double scoreCredit = useCredit / sumScore;
         results.forEach(r -> {
-            r.setRevenue(r.getCredit() * (1 - rate) + r.getScore() * scoreCredit);
+            double revenue = r.getCredit() * (1 - rate) + r.getScore() * scoreCredit;
+            r.setRevenue(new BigDecimal(revenue).setScale(2, BigDecimal.ROUND_HALF_DOWN).doubleValue());
         });
         return results;
     }
 
 
-    private Long getScore(Long lossHour, Long foreHour) {
-        long score = 0L;
-        if (lossHour <= 3) {
-            score = 100L;
-        } else if (lossHour <= 6) {
-            score = 80L;
-        } else if (lossHour <= 12) {
-            score = 60L;
-        } else if (lossHour <= 24) {
-            score = 40L;
-        } else if (lossHour <= 24 * 2) {
-            score = 30L;
-        } else if (lossHour <= 24 * 3) {
-            score = 25L;
-        } else if (lossHour <= 128) {
-            score = 20L;
-        } else if (lossHour <= 256) {
-            score = 16L;
-        } else if (lossHour <= 512) {
-            score = 8L;
-        } else if (lossHour <= 1024) {
-            score = 6L;
-        } else {
-            score = 5L;
+    private Long getScore(Long lossHour, Long foreHour, long averageLossHour) {
+        double error = lossHour.doubleValue() / foreHour.doubleValue();
+        if (error > 1) {
+            error = 1;
         }
-        if (foreHour > 180 * 24) {
+        long lossBetter = lossHour - averageLossHour;
+        if (lossBetter > 100) {
+            lossBetter = 100;
+        }
+        long score = 100;
+        score += lossBetter;
+        score += foreHour / 480;
+        score -= 100 * error;
+        if (lossHour < 24 && foreHour > 30 * 24 || lossHour < 24 * 7 && foreHour > 90 * 24 || lossHour < 24 * 14 && foreHour > 120 * 24) {
+            score *= 15;
+        } else if (lossHour < 48 && foreHour > 30 * 24 || lossHour < 24 * 14 && foreHour > 90 * 24 || lossHour < 24 * 21 && foreHour > 120 * 24) {
             score *= 10;
-        } else if (foreHour > 150 * 24) {
-            score *= 9;
-        } else if (foreHour > 120 * 24) {
-            score *= 8;
-        } else if (foreHour > 90 * 24) {
-            score *= 6;
-        } else if (foreHour > 30 * 24) {
-            score *= 3;
-        } else if (foreHour <= 7 * 24) {
-            score *= 0.8;
-        } else if (foreHour <= 14 * 24) {
-            score *= 0.9;
+        } else if (lossHour < 24 * 3 && foreHour > 30 * 24 || lossHour < 24 * 21 && foreHour > 90 * 24 || lossHour < 24 * 28 && foreHour > 120 * 24) {
+            score *= 5;
+        } else if (lossHour < 3 && foreHour > 3 * 24) {
+            score *= 2;
+        } else if (lossHour < 6 && foreHour > 3 * 24) {
+            score *= 1.5;
+        } else if (lossHour < 12 && foreHour > 3 * 24) {
+            score *= 1.2;
         }
         return score;
     }
@@ -469,19 +472,8 @@ public class GuessingService {
     public void printGuessingResult(String guessingId) {
         FansGuessingItem fansGuessingItem = mongoTemplate.findOne(Query.query(Criteria.where("guessingId").is(guessingId)), FansGuessingItem.class);
         assert fansGuessingItem != null;
-        ArrayList<UserGuessingResult> resultList = getUserGuessingResults(fansGuessingItem);
-        resultList.forEach(r -> System.out.printf("%s 收益为 %f，收益率为%.2f\n", r.getName(), r.getRevenue(), r.getRevenue() / r.getCredit()));
-        double sumR = 0;
-        double sumC = 0;
-        int winCount = 0;
-        for (UserGuessingResult r : resultList) {
-            sumR += r.getRevenue();
-            sumC += r.getCredit();
-            if (r.getRevenue() > r.getCredit()) {
-                winCount++;
-            }
-        }
-        System.out.printf("合计收益: %f\n合计积分: %f\n赚率：%d\n", sumR, sumC, winCount * 100 / resultList.size());
+        printGuessingResult(guessingId, getFinalReachDate(fansGuessingItem));
+
     }
 
     public void printGuessingResult(String guessingId, Date finalReachDate) {
