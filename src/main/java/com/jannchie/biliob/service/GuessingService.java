@@ -70,6 +70,7 @@ public class GuessingService {
             }
             fgi.getPokerChips().forEach(pokerChip -> {
                 ObjectId id = pokerChip.getUser().getId();
+                pokerChip.setCredit(BigDecimal.valueOf(pokerChip.getCredit()).setScale(2, BigDecimal.ROUND_HALF_DOWN).doubleValue());
                 userIdSet.add(id);
             });
             userIdSet.add(fgi.getCreator().getId());
@@ -369,6 +370,7 @@ public class GuessingService {
             res.setAverageDate(new Date(avgD.get(res.getName()) / c.get(res.getName())));
             res.setForeHour(avgF.get(res.getName()) / c.get(res.getName()));
             res.setLossHour(avgP.get(res.getName()) / c.get(res.getName()));
+            res.setRevenue(BigDecimal.valueOf(res.getRevenue()).setScale(2, BigDecimal.ROUND_HALF_DOWN).doubleValue());
         });
         results = new ArrayList<>(r.values());
         return results;
