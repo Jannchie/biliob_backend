@@ -122,7 +122,7 @@ public class GuessingService {
             }
             fgi.getResult().forEach(userGuessingResult -> {
                 userGuessingResult.setName(nameToNickNameMap.get(userGuessingResult.getName()));
-                userGuessingResult.setCredit(BigDecimal.valueOf(userGuessingResult.getCredit()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+                userGuessingResult.setRevenue(BigDecimal.valueOf(userGuessingResult.getRevenue()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
             });
             User u = new User();
             u.setName(fgi.getCreator().getName());
