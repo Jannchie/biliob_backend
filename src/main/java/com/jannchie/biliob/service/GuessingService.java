@@ -70,7 +70,6 @@ public class GuessingService {
             }
             fgi.getPokerChips().forEach(pokerChip -> {
                 ObjectId id = pokerChip.getUser().getId();
-                pokerChip.setCredit(BigDecimal.valueOf(pokerChip.getCredit()).setScale(2, BigDecimal.ROUND_HALF_DOWN).doubleValue());
                 userIdSet.add(id);
             });
             userIdSet.add(fgi.getCreator().getId());
@@ -121,7 +120,10 @@ public class GuessingService {
             if (fgi == null || fgi.getResult() == null) {
                 return;
             }
-            fgi.getResult().forEach(userGuessingResult -> userGuessingResult.setName(nameToNickNameMap.get(userGuessingResult.getName())));
+            fgi.getResult().forEach(userGuessingResult -> {
+                userGuessingResult.setName(nameToNickNameMap.get(userGuessingResult.getName()));
+                userGuessingResult.setCredit(BigDecimal.valueOf(userGuessingResult.getCredit()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+            });
             User u = new User();
             u.setName(fgi.getCreator().getName());
             u.setNickName(nameToNickNameMap.get(fgi.getCreator().getName()));
