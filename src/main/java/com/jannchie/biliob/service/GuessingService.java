@@ -257,7 +257,7 @@ public class GuessingService {
         });
     }
 
-    @Scheduled(initialDelay = MICROSECOND_OF_MINUTES * 60, fixedDelay = MICROSECOND_OF_MINUTES * 60 * 24)
+    @Scheduled(initialDelay = MICROSECOND_OF_MINUTES * 5, fixedDelay = MICROSECOND_OF_MINUTES * 60 * 24)
     @Async
     public Result<?> judgeFinishedFansGuessing() {
         Integer finishedState = 3;
@@ -337,6 +337,40 @@ public class GuessingService {
             double revenue = r.getCredit() * (1 - rate) + r.getScore() * scoreCredit;
             r.setRevenue(new BigDecimal(revenue).setScale(2, BigDecimal.ROUND_HALF_DOWN).doubleValue());
         });
+        Map<String, UserGuessingResult> r = new HashMap<>(100);
+        Map<String, Integer> c = new HashMap<>(100);
+        Map<String, Long> avgC = new HashMap<>(100);
+        Map<String, Long> avgF = new HashMap<>(100);
+        Map<String, Long> avgP = new HashMap<>(100);
+        Map<String, Long> avgD = new HashMap<>(100);
+        for (UserGuessingResult res : results
+        ) {
+            if (r.containsKey(res.getName())) {
+                UserGuessingResult tmp = r.get(res.getName());
+                tmp.setScore(tmp.getScore() + res.getScore());
+                tmp.setRevenue(tmp.getRevenue() + res.getRevenue());
+                tmp.setCredit(tmp.getCredit() + res.getCredit());
+                avgC.put(res.getName(), avgC.get(res.getName()) + res.getAverageCreateTime().getTime());
+                avgF.put(res.getName(), avgF.get(res.getName()) + res.getForeHour());
+                avgP.put(res.getName(), avgP.get(res.getName()) + res.getLossHour());
+                avgD.put(res.getName(), avgD.get(res.getName()) + res.getAverageDate().getTime());
+                c.put(tmp.getName(), c.get(tmp.getName()) + 1);
+            } else {
+                avgC.put(res.getName(), res.getAverageCreateTime().getTime());
+                avgD.put(res.getName(), res.getAverageDate().getTime());
+                avgF.put(res.getName(), res.getForeHour());
+                avgP.put(res.getName(), res.getLossHour());
+                r.put(res.getName(), res);
+                c.put(res.getName(), 1);
+            }
+        }
+        r.values().forEach((res) -> {
+            res.setAverageCreateTime(new Date(avgC.get(res.getName()) / c.get(res.getName())));
+            res.setAverageDate(new Date(avgD.get(res.getName()) / c.get(res.getName())));
+            res.setForeHour(avgF.get(res.getName()) / c.get(res.getName()));
+            res.setLossHour(avgP.get(res.getName()) / c.get(res.getName()));
+        });
+        results = new ArrayList<>(r.values());
         return results;
     }
 
@@ -346,25 +380,28 @@ public class GuessingService {
         if (error > 1) {
             error = 1;
         }
-        long lossBetter = lossHour - averageLossHour;
-        if (lossBetter > 100) {
-            lossBetter = 100;
+        long lossBetter = averageLossHour - lossHour;
+        if (lossBetter > 147) {
+            lossBetter = 147;
         }
-        long score = 100;
+        if (lossBetter < -47) {
+            lossBetter = -47;
+        }
+        long score = 147;
         score += lossBetter;
-        score += foreHour / 480;
+        score += foreHour / 720;
         score -= 100 * error;
         if (lossHour < 24 && foreHour > 30 * 24 || lossHour < 24 * 7 && foreHour > 90 * 24 || lossHour < 24 * 14 && foreHour > 120 * 24) {
-            score *= 15;
+            score *= 4;
         } else if (lossHour < 48 && foreHour > 30 * 24 || lossHour < 24 * 14 && foreHour > 90 * 24 || lossHour < 24 * 21 && foreHour > 120 * 24) {
-            score *= 10;
-        } else if (lossHour < 24 * 3 && foreHour > 30 * 24 || lossHour < 24 * 21 && foreHour > 90 * 24 || lossHour < 24 * 28 && foreHour > 120 * 24) {
-            score *= 5;
-        } else if (lossHour < 3 && foreHour > 3 * 24) {
+            score *= 3;
+        } else if (lossHour < 24 * 3 && foreHour > 14 * 24 || lossHour < 24 * 21 && foreHour > 90 * 24 || lossHour < 24 * 28 && foreHour > 120 * 24) {
             score *= 2;
-        } else if (lossHour < 6 && foreHour > 3 * 24) {
+        } else if (lossHour < 3 && foreHour > 7 * 24) {
+            score *= 1.8;
+        } else if (lossHour < 6 && foreHour > 5 * 24) {
             score *= 1.5;
-        } else if (lossHour < 12 && foreHour > 3 * 24) {
+        } else if (lossHour < 12) {
             score *= 1.2;
         }
         return score;
