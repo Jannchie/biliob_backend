@@ -21,14 +21,14 @@ public class VideoServiceTest {
     @Test
     public void getAuthorOtherVideo() {
         MySlice<Video> videoSlice = videoService.getAuthorOtherVideo(62428913L, 1850091L, 0, 20);
-        Assert.assertNotNull(videoSlice);
+        Assert.assertEquals(5, (int) videoSlice.getSize());
     }
 
     @Test
     public void getAuthorTopVideo() {
         MySlice<Video> videoSlice1 = videoService.getAuthorTopVideo(1850091L, 0, 5, 1);
         MySlice<Video> videoSlice2 = videoService.getAuthorTopVideo(1850091L, 0, 5, 0);
-        Assert.assertNotNull(videoSlice1);
-        Assert.assertNotNull(videoSlice2);
+        Assert.assertEquals(5, (int) videoSlice1.getSize());
+        Assert.assertEquals(5, (int) videoSlice2.getSize());
     }
 }
