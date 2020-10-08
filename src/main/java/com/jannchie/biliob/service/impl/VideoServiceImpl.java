@@ -20,7 +20,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
@@ -399,9 +398,10 @@ public class VideoServiceImpl implements VideoService {
             pagesize = PageSizeEnum.SMALL_SIZE.getValue();
         }
         VideoServiceImpl.logger.info("获取作者其他数据");
-        return new MySlice<>(
-                repository.findAuthorOtherVideo(
-                        aid, mid, PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, "cView"))));
+        Query q = Query.query(Criteria.where("mid").is(mid).and("aid").ne(aid));
+        q.fields().include("title").include("mid").include("aid").include("pic").include("channel").include("datetime");
+        q.with(Sort.by(Sort.Direction.DESC, "datetime")).limit(20).withHint("mid_1");
+        return new MySlice<>(mongoTemplate.find(q, Video.class));
     }
 
     /**
@@ -427,11 +427,11 @@ public class VideoServiceImpl implements VideoService {
         } else {
             return null;
         }
-
-        Slice<Video> video =
-                repository.findAuthorTopVideo(mid, PageRequest.of(page, pagesize, videoSort));
+        Query q = Query.query(Criteria.where("mid").is(mid).and("aid"));
+        q.fields().include("title").include("mid").include("aid").include("pic").include("channel").include("datetime");
+        q.with(Sort.by(Sort.Direction.DESC, "cView")).limit(20).withHint("mid_1");
         VideoServiceImpl.logger.info("获取mid:{} 播放最多的视频", mid);
-        return new MySlice<>(video);
+        return new MySlice<>(mongoTemplate.find(q, Video.class));
     }
 
     /**
