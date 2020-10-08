@@ -1,5 +1,6 @@
 package com.jannchie.biliob.config;
 
+import com.mongodb.MongoClientOptions;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import org.springframework.context.EnvironmentAware;
@@ -19,6 +20,17 @@ class MongoConfig implements EnvironmentAware {
         return new MongoTransactionManager(dbFactory);
     }
 
+    @Bean
+    public MongoClientOptions mongoOptions() {
+        return MongoClientOptions.builder()
+                .maxConnectionIdleTime(30000)
+                .serverSelectionTimeout(3000)
+                .maxConnectionLifeTime(600000)
+                .connectTimeout(10000)
+                .maxWaitTime(5000)
+                .socketTimeout(10000)
+                .build();
+    }
 
     /**
      * Use the Reactive Streams Mongo Client API to create a
