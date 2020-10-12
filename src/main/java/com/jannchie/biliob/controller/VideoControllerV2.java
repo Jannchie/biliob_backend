@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 public class VideoControllerV2 {
-    VideoServiceV2 videoService = new VideoServiceV2();
+    VideoServiceV2 videoService;
 
     @Autowired
     public VideoControllerV2(VideoServiceV2 videoService) {

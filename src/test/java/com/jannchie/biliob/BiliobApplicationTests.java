@@ -1,6 +1,7 @@
 package com.jannchie.biliob;
 
 import com.jannchie.biliob.controller.AgendaControllerTest;
+import com.jannchie.biliob.controller.VideoControllerV3;
 import com.jannchie.biliob.service.VideoServiceTest;
 import com.jannchie.biliob.service.impl.AuthorServiceImplTest;
 import com.jannchie.biliob.service.impl.UserServiceImplTest;
@@ -23,6 +24,7 @@ import org.springframework.test.context.web.WebAppConfiguration;
         AuthorServiceImplTest.class,
         VideoServiceImplTest.class,
         VideoServiceTest.class,
+        VideoControllerV3.class,
         UserServiceImplTest.class
 })
 @TestPropertySource(properties = "app.scheduling.enable=false")

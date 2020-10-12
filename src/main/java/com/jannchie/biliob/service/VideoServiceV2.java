@@ -36,6 +36,7 @@ public class VideoServiceV2 {
     @Autowired
     BiliobUtils biliobUtils;
 
+
     public Video getVideoDetailByAid(Long aid) {
         Criteria c = Criteria.where("aid").is(aid);
         addVideoVisit(aid);
@@ -78,7 +79,7 @@ public class VideoServiceV2 {
 
     private void addVideoVisit(Long aid) {
         String finalUserName = biliobUtils.getUserName();
-        logger.info("用户[{}]查询aid[{}]的详细数据", finalUserName, aid);
+        logger.info("V2：用户[{}]查询aid[{}]的详细数据", finalUserName, aid);
         VideoVisit vv = new VideoVisit();
         vv.setAid(aid);
         vv.setDate(Calendar.getInstance().getTime());
@@ -88,7 +89,7 @@ public class VideoServiceV2 {
 
     private void addVideoVisit(String bvid) {
         String finalUserName = biliobUtils.getUserName();
-        logger.info("用户[{}]查询bvid[{}]的详细数据", finalUserName, bvid);
+        logger.info("V2：用户[{}]查询bvid[{}]的详细数据", finalUserName, bvid);
         VideoVisit vv = new VideoVisit();
         vv.setBvid(bvid);
         vv.setDate(Calendar.getInstance().getTime());
