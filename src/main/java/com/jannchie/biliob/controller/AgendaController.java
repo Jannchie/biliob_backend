@@ -59,7 +59,7 @@ public class AgendaController {
                 return mongoTemplate.aggregate(Aggregation.newAggregation(
                         Aggregation.match(c),
                         Aggregation.sort(Sort.by("score").descending()),
-                        Aggregation.skip(page * PageSizeEnum.BIG_SIZE.getValue()),
+                        Aggregation.skip(page * PageSizeEnum.BIG_SIZE.getValue().longValue()),
                         Aggregation.lookup(DbFields.USER, DbFields.CREATOR_ID, DbFields.ID, DbFields.CREATOR),
                         Aggregation.project().andExpression("{password: 0, ip: 0,  favoriteMid: 0, favoriteAid: 0, mail: 0, credit: 0}").as(DbFields.CREATOR),
                         Aggregation.limit(PageSizeEnum.BIG_SIZE.getValue())
@@ -68,7 +68,7 @@ public class AgendaController {
                 return mongoTemplate.aggregate(Aggregation.newAggregation(
                         Aggregation.match(c),
                         Aggregation.sort(Sort.by("createTime").descending()),
-                        Aggregation.skip(page * PageSizeEnum.BIG_SIZE.getValue()),
+                        Aggregation.skip(page * PageSizeEnum.BIG_SIZE.getValue().longValue()),
                         Aggregation.lookup(DbFields.USER, DbFields.CREATOR_ID, DbFields.ID, DbFields.CREATOR),
                         Aggregation.project().andExpression("{password: 0, ip: 0,  favoriteMid: 0, favoriteAid: 0, mail: 0, credit: 0 }").as(DbFields.CREATOR),
                         Aggregation.limit(PageSizeEnum.BIG_SIZE.getValue())
