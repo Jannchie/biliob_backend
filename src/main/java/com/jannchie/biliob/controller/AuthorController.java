@@ -82,28 +82,28 @@ public class AuthorController {
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/api/rank/fans-increase-rate")
-    public ResponseEntity listFansIncreaseRate() {
+    public ResponseEntity<?> listFansIncreaseRate() {
         return authorService.listFansIncreaseRate();
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/api/rank/fans-decrease-rate")
-    public ResponseEntity listFansDecreaseRate() {
+    public ResponseEntity<?> listFansDecreaseRate() {
         return authorService.listFansDecreaseRate();
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/api/author/real-time")
-    public ResponseEntity listRealTime(
+    public ResponseEntity<?> listRealTime(
             @RequestParam(defaultValue = "0") Long aMid, @RequestParam(defaultValue = "0") Long bMid) {
         return authorService.getRealTimeData(aMid, bMid);
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/api/author/top")
-    public ResponseEntity getTopAuthor() {
+    public ResponseEntity<?> getTopAuthor() {
         return authorService.getTopAuthor();
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/api/author/top/refresh")
-    public ResponseEntity getLatestTopAuthorData() {
+    public ResponseEntity<?> getLatestTopAuthorData() {
         return authorService.getLatestTopAuthorData();
     }
 

@@ -26,7 +26,7 @@ public class SiteController {
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/api/site")
-    public ResponseEntity listOnline(@RequestParam(defaultValue = "1") Integer days) {
+    public ResponseEntity<?> listOnline(@RequestParam(defaultValue = "1") Integer days) {
         return siteService.listOnline(days);
     }
 
@@ -57,14 +57,14 @@ public class SiteController {
     }
 
     @RequestMapping(method = RequestMethod.POST, value = "/api/site/alert")
-    public ResponseEntity postAlert() {
+    public ResponseEntity<?> postAlert() {
         return siteService.postAlert();
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/api/site/sponsor")
-    public ResponseEntity listSponsor(@RequestParam(value = "sort", defaultValue = "0") Integer sort,
-                                      @RequestParam(value = "p", defaultValue = "1") Integer page,
-                                      @RequestParam(value = "ps", defaultValue = "20") Long pageSize
+    public ResponseEntity<?> listSponsor(@RequestParam(value = "sort", defaultValue = "0") Integer sort,
+                                         @RequestParam(value = "p", defaultValue = "1") Integer page,
+                                         @RequestParam(value = "ps", defaultValue = "20") Long pageSize
 
     ) {
         return ResponseEntity.ok(siteService.listSponsor(page, pageSize, sort));

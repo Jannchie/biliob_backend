@@ -49,7 +49,7 @@ public class MailUtil {
         return checkStatus;
     }
 
-    public ResponseEntity sendActivationCode(String receiver) {
+    public ResponseEntity<?> sendActivationCode(String receiver) {
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper;
 //        if (mongoTemplate.exists(Query.query(Criteria.where("mail").is(receiver)), "user")) {

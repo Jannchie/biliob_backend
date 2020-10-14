@@ -24,7 +24,7 @@ public class DonghuaController {
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/api/donghua")
-    public ResponseEntity listOnline(
+    public ResponseEntity<?> listOnline(
             @RequestParam(defaultValue = "0") Integer page,
             @RequestParam(defaultValue = "20") Integer pagesize) {
         return donghuaService.listDonghua(page, pagesize);

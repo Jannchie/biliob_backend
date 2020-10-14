@@ -453,7 +453,7 @@ public class VideoServiceImpl implements VideoService {
      * @return top online video response.
      */
     @Override
-    public ResponseEntity listOnlineVideo() {
+    public ResponseEntity<?> listOnlineVideo() {
         Calendar todayStart = Calendar.getInstance();
         todayStart.add(Calendar.DATE, -1);
         Aggregation aggregation =

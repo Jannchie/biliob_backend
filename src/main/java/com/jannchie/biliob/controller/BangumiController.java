@@ -24,7 +24,7 @@ public class BangumiController {
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/api/bangumi")
-    public ResponseEntity listOnline(
+    public ResponseEntity<?> listOnline(
             @RequestParam(defaultValue = "0") Integer page,
             @RequestParam(defaultValue = "20") Integer pagesize) {
         return bangumiService.listBangumi(page, pagesize);

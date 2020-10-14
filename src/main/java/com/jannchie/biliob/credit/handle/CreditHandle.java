@@ -30,11 +30,11 @@ public class CreditHandle {
     }
 
 
-    public ResponseEntity deleteAuthorList(User user, CreditConstant creditConstant, ObjectId id) {
+    public ResponseEntity<?> deleteAuthorList(User user, CreditConstant creditConstant, ObjectId id) {
         return ResponseEntity.ok(null);
     }
 
-    public ResponseEntity alwaysFail(User user, CreditConstant creditConstant) {
+    public ResponseEntity<?> alwaysFail(User user, CreditConstant creditConstant) {
         return null;
     }
 

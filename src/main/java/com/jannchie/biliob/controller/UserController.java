@@ -49,12 +49,12 @@ public class UserController {
     }
 
     @RequestMapping(method = RequestMethod.POST, value = "/api/user/activation-code")
-    public ResponseEntity getActivationCode(@RequestParam @Valid String mail) {
+    public ResponseEntity<?> getActivationCode(@RequestParam @Valid String mail) {
         return userService.sendActivationCode(mail);
     }
 
     @RequestMapping(method = RequestMethod.POST, value = "/api/user")
-    public ResponseEntity createUser(@RequestBody @Valid Map<String, String> requestMap) {
+    public ResponseEntity<?> createUser(@RequestBody @Valid Map<String, String> requestMap) {
         return userService.createUser(
                 requestMap.get("name"),
                 requestMap.get("password"),
@@ -63,26 +63,26 @@ public class UserController {
     }
 
     @RequestMapping(method = RequestMethod.PUT, value = "/api/user/mail")
-    public ResponseEntity bindMail(@RequestBody @Valid Map<String, String> requestMap) {
+    public ResponseEntity<?> bindMail(@RequestBody @Valid Map<String, String> requestMap) {
         return userService.bindMail(
                 requestMap.get("mail"),
                 requestMap.get("activationCode"));
     }
 
     @RequestMapping(method = RequestMethod.POST, value = "/api/user/author")
-    public ResponseEntity addFavoriteAuthor(@RequestBody @Valid Long mid)
+    public ResponseEntity<?> addFavoriteAuthor(@RequestBody @Valid Long mid)
             throws UserAlreadyFavoriteAuthorException {
         return userService.addFavoriteAuthor(mid);
     }
 
     @RequestMapping(method = RequestMethod.POST, value = "/api/user/video")
-    public ResponseEntity addFavoriteVideo(@RequestBody @Valid Long aid)
+    public ResponseEntity<?> addFavoriteVideo(@RequestBody @Valid Long aid)
             throws UserAlreadyFavoriteVideoException {
         return userService.addFavoriteVideo(aid);
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/api/user")
-    public ResponseEntity getUserInfo() {
+    public ResponseEntity<?> getUserInfo() {
         return userService.getUserInfo();
     }
 
@@ -138,44 +138,44 @@ public class UserController {
     }
 
     @RequestMapping(method = RequestMethod.DELETE, value = "/api/user/video/{aid}")
-    public ResponseEntity deleteFavoriteVideo(@PathVariable("aid") @Valid Long aid) {
+    public ResponseEntity<?> deleteFavoriteVideo(@PathVariable("aid") @Valid Long aid) {
         return userService.deleteFavoriteVideoByAid(aid);
     }
 
     @RequestMapping(method = RequestMethod.DELETE, value = "/api/user/author/{mid}")
-    public ResponseEntity deleteFavoriteAuthor(@PathVariable("mid") @Valid Long mid) {
+    public ResponseEntity<?> deleteFavoriteAuthor(@PathVariable("mid") @Valid Long mid) {
         return userService.deleteFavoriteAuthorByMid(mid);
     }
 
     @RequestMapping(method = RequestMethod.POST, value = "/api/user/check-in")
-    public ResponseEntity postCheckIn() {
+    public ResponseEntity<?> postCheckIn() {
         return userService.postCheckIn();
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/api/user/check-in")
-    public ResponseEntity getCheckIn() {
+    public ResponseEntity<?> getCheckIn() {
         return userService.getCheckIn();
     }
 
     @RequestMapping(method = RequestMethod.PUT, value = "/api/user/author/{mid}/status")
-    public ResponseEntity forceFocus(
+    public ResponseEntity<?> forceFocus(
             @RequestParam(defaultValue = "false") @Valid Boolean forceFocus,
             @PathVariable("mid") @Valid Long mid) {
         return userService.forceFocus(mid, forceFocus);
     }
 
     @RequestMapping(method = RequestMethod.POST, value = "/api/user/question")
-    public ResponseEntity postQuestion(@RequestBody @Valid Question question) {
+    public ResponseEntity<?> postQuestion(@RequestBody @Valid Question question) {
         return userService.postQuestion(question.getQuestion());
     }
 
     @RequestMapping(method = RequestMethod.PUT, value = "/api/user/author/{mid}/data")
-    public ResponseEntity refreshAuthor(@PathVariable("mid") @Valid Long mid) {
+    public ResponseEntity<?> refreshAuthor(@PathVariable("mid") @Valid Long mid) {
         return userService.refreshAuthor(mid);
     }
 
     @RequestMapping(method = RequestMethod.PUT, value = "/api/user/name")
-    public ResponseEntity modifyUserName(@RequestParam(defaultValue = "", value = "name") @Valid String name) {
+    public ResponseEntity<?> modifyUserName(@RequestParam(defaultValue = "", value = "name") @Valid String name) {
         return userService.modifyUserName(name);
     }
 
@@ -191,7 +191,7 @@ public class UserController {
 
 
     @RequestMapping(method = RequestMethod.PUT, value = "/api/user/video/data")
-    public ResponseEntity refreshVideo(@RequestBody Video video) {
+    public ResponseEntity<?> refreshVideo(@RequestBody Video video) {
         if (video.getBvid() != null) {
             return userService.refreshVideo(video.getBvid());
         }
@@ -202,7 +202,7 @@ public class UserController {
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/api/rank/user")
-    public ResponseEntity userRank(
+    public ResponseEntity<?> userRank(
             @RequestParam(defaultValue = "0") Integer page,
             @RequestParam(defaultValue = "100") Integer pagesize) {
         return new ResponseEntity<>(userService.sliceUserRank(page, pagesize), HttpStatus.OK);
@@ -214,19 +214,19 @@ public class UserController {
     }
 
     @RequestMapping(method = RequestMethod.PUT, value = "/api/user/video/{aid}/danmaku")
-    public ResponseEntity danmakuAggregate(@PathVariable("aid") @Valid Long aid) {
+    public ResponseEntity<?> danmakuAggregate(@PathVariable("aid") @Valid Long aid) {
         return userService.danmakuAggregate(aid);
     }
 
     @RequestMapping(method = RequestMethod.POST, value = "/api/user/video/{aid}/data")
-    public ResponseEntity videoObserveAlterFrequency(
+    public ResponseEntity<?> videoObserveAlterFrequency(
             @PathVariable("aid") @Valid Long aid,
             @RequestParam(defaultValue = "1") @Valid Integer timeDurationFlag) {
         return userService.videoObserveAlterFrequency(aid, timeDurationFlag);
     }
 
     @RequestMapping(method = RequestMethod.POST, value = "/api/user/author/{mid}/data")
-    public ResponseEntity authorObserveAlterFrequency(
+    public ResponseEntity<?> authorObserveAlterFrequency(
             @PathVariable("mid") @Valid Long mid,
             @RequestParam(defaultValue = "1") @Valid Integer typeFlag) {
         return userService.authorObserveAlterFrequency(mid, typeFlag);

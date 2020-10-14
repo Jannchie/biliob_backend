@@ -23,14 +23,14 @@ public class EventController {
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/api/event")
-    public ResponseEntity pageEvent(@RequestParam(defaultValue = "0") Integer page,
-                                    @RequestParam(defaultValue = "20") Integer pagesize) {
+    public ResponseEntity<?> pageEvent(@RequestParam(defaultValue = "0") Integer page,
+                                       @RequestParam(defaultValue = "20") Integer pagesize) {
         return new ResponseEntity<>(eventService.pageEvent(page, pagesize), HttpStatus.OK);
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/api/event/fans-variation")
-    public ResponseEntity listFansVariation(@RequestParam(defaultValue = "0") Integer page,
-                                            @RequestParam(defaultValue = "20") Integer pagesize) {
+    public ResponseEntity<?> listFansVariation(@RequestParam(defaultValue = "0") Integer page,
+                                               @RequestParam(defaultValue = "20") Integer pagesize) {
         return new ResponseEntity<>(eventService.listFansVariation(page, pagesize), HttpStatus.OK);
     }
 }

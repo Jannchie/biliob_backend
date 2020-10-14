@@ -31,7 +31,7 @@ public class DonghuaServiceImpl implements DonghuaService {
      * @return Online number.
      */
     @Override
-    public ResponseEntity listDonghua(Integer page, Integer pagesize) {
+    public ResponseEntity<?> listDonghua(Integer page, Integer pagesize) {
         if (pagesize > MAX_PAGE_SIZE) {
             pagesize = MAX_PAGE_SIZE;
         }

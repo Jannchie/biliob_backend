@@ -80,7 +80,7 @@ public class VideoController {
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/api/video/online")
-    public ResponseEntity listOnlineVideo() {
+    public ResponseEntity<?> listOnlineVideo() {
         return videoService.listOnlineVideo();
     }
 

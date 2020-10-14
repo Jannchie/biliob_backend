@@ -49,7 +49,7 @@ public class SiteServiceImpl implements SiteService {
      * @return Online number result.
      */
     @Override
-    public ResponseEntity listOnline(Integer days) {
+    public ResponseEntity<?> listOnline(Integer days) {
         if (days > SiteServiceImpl.MAX_ONLINE_PLAY_RANGE) {
             return new ResponseEntity<>(new Result<>(ResultEnum.OUT_OF_RANGE), HttpStatus.BAD_REQUEST);
         }
@@ -131,7 +131,7 @@ public class SiteServiceImpl implements SiteService {
     }
 
     @Override
-    public ResponseEntity postAlert() {
+    public ResponseEntity<?> postAlert() {
         return ResponseEntity.ok("");
 //        return mongoTemplate.upsert();
     }

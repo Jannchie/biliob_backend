@@ -28,7 +28,7 @@ public class BangumiServiceImpl implements BangumiService {
      * @return Online number.
      */
     @Override
-    public ResponseEntity listBangumi(Integer page, Integer pagesize) {
+    public ResponseEntity<?> listBangumi(Integer page, Integer pagesize) {
         if (pagesize > MAX_PAGE_SIZE) {
             pagesize = MAX_PAGE_SIZE;
         }

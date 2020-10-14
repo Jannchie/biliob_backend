@@ -215,7 +215,7 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    public ResponseEntity grantUserAdminRole(@Valid String userName) {
+    public ResponseEntity<?> grantUserAdminRole(@Valid String userName) {
         mongoTemplate.updateFirst(
                 Query.query(Criteria.where("name").is(userName)), Update.update("role", "管理员"), "user");
         return new ResponseEntity<>(new Result<>(ResultEnum.SUCCEED), HttpStatus.OK);
@@ -228,14 +228,14 @@ public class AdminServiceImpl implements AdminService {
      * @return 处理反馈
      */
     @Override
-    public ResponseEntity cancelUserAdminRole(@Valid String userName) {
+    public ResponseEntity<?> cancelUserAdminRole(@Valid String userName) {
         mongoTemplate.updateFirst(
                 Query.query(Criteria.where("name").is(userName)), Update.update("role", "普通研究员"), "user");
         return new ResponseEntity<>(new Result<>(ResultEnum.SUCCEED), HttpStatus.OK);
     }
 
     @Override
-    public ResponseEntity saveSearchMethod(SearchMethod searchMethod) {
+    public ResponseEntity<?> saveSearchMethod(SearchMethod searchMethod) {
         User user = UserUtils.getUser();
         if (user != null) {
             searchMethod.setOwner(user.getName());
@@ -252,7 +252,7 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    public ResponseEntity delSearchMethod(String type, String name, String owner) {
+    public ResponseEntity<?> delSearchMethod(String type, String name, String owner) {
         mongoTemplate.remove(
                 Query.query(Criteria.where("type").is(type).and("name").is(name).and("owner").is(owner)),
                 "search_method");
@@ -266,7 +266,7 @@ public class AdminServiceImpl implements AdminService {
      * @return 上传结果
      */
     @Override
-    public ResponseEntity postUploadSchedule(ScheduleItem item) {
+    public ResponseEntity<?> postUploadSchedule(ScheduleItem item) {
         User user = UserUtils.getUser();
         if (user == null) {
             return new ResponseEntity<>(new Result<>(ResultEnum.HAS_NOT_LOGGED_IN), HttpStatus.FORBIDDEN);
@@ -295,7 +295,7 @@ public class AdminServiceImpl implements AdminService {
      * @return 删除结果
      */
     @Override
-    public ResponseEntity deleteCustomSchedule(String type, String name, String owner) {
+    public ResponseEntity<?> deleteCustomSchedule(String type, String name, String owner) {
         mongoTemplate.findAndRemove(
                 Query.query(Criteria.where("type").is(type).and("name").is(name).and("owner").is(owner)),
                 ScheduleItem.class,
@@ -310,7 +310,7 @@ public class AdminServiceImpl implements AdminService {
      * @return 提交反馈
      */
     @Override
-    public ResponseEntity postAuthorCrawlList(Map authorListData) {
+    public ResponseEntity<?> postAuthorCrawlList(Map authorListData) {
 
         Date publishDate = Calendar.getInstance().getTime();
         String owner = (String) authorListData.get("owner");

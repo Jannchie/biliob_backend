@@ -51,7 +51,7 @@ public class TracerServiceImpl implements TracerService {
      * @return The authors' queue status.
      */
     @Override
-    public ResponseEntity getAuthorQueueStatus() {
+    public ResponseEntity<?> getAuthorQueueStatus() {
         Map<String, Long> result = new HashMap<>(1);
         Long authorCrawlTasksQueueLength = redisOps.getAuthorQueueLength();
         result.put("length", authorCrawlTasksQueueLength);
@@ -64,7 +64,7 @@ public class TracerServiceImpl implements TracerService {
      * @return The videos' queue status.
      */
     @Override
-    public ResponseEntity getVideoQueueStatus() {
+    public ResponseEntity<?> getVideoQueueStatus() {
         Map<String, Long> result = new HashMap<>(1);
         Long videoCrawlTasksQueueLength = redisOps.getVideoQueueLength();
         result.put("length", videoCrawlTasksQueueLength);
@@ -81,7 +81,7 @@ public class TracerServiceImpl implements TracerService {
      * @return tTe slice of exists task of the system.
      */
     @Override
-    public ResponseEntity sliceExistsTask(Integer page, Integer pagesize) {
+    public ResponseEntity<?> sliceExistsTask(Integer page, Integer pagesize) {
         return new ResponseEntity<>(
                 tracerRepository.findTracerByClassNameOrderByUpdateTimeDesc(
                         "ExistsTask", PageRequest.of(page, pagesize)),
@@ -98,7 +98,7 @@ public class TracerServiceImpl implements TracerService {
      * @return tTe slice of exists task of the system.
      */
     @Override
-    public ResponseEntity sliceProgressTask(Integer page, Integer pagesize) {
+    public ResponseEntity<?> sliceProgressTask(Integer page, Integer pagesize) {
         return new ResponseEntity<>(
                 tracerRepository.findTracerByClassNameOrderByUpdateTimeDesc(
                         "ProgressTask", PageRequest.of(page, pagesize)),
@@ -106,7 +106,7 @@ public class TracerServiceImpl implements TracerService {
     }
 
     @Override
-    public ResponseEntity sliceSpiderTask(Integer page, Integer pagesize, Integer type) {
+    public ResponseEntity<?> sliceSpiderTask(Integer page, Integer pagesize, Integer type) {
         if (type.equals(GET_ALL.value)) {
             return new ResponseEntity<>(
                     tracerRepository.findTracerByClassName("SpiderTask", PageRequest.of(page, pagesize)),
@@ -128,7 +128,7 @@ public class TracerServiceImpl implements TracerService {
      * @return tTe slice of exists task of the system.
      */
     @Override
-    public ResponseEntity getDashboardData() {
+    public ResponseEntity<?> getDashboardData() {
         Map<String, Object> resultMap = new HashMap<>(10);
 
         getCrawlCountAggregationData(resultMap);
@@ -144,7 +144,7 @@ public class TracerServiceImpl implements TracerService {
     }
 
     @Override
-    public ResponseEntity getLatestProgressTaskResponse() {
+    public ResponseEntity<?> getLatestProgressTaskResponse() {
         Map<String, Object> resultMap = new HashMap<>(2);
         getLatestProgressTask(resultMap);
         return new ResponseEntity<>(resultMap, HttpStatus.OK);
@@ -156,14 +156,14 @@ public class TracerServiceImpl implements TracerService {
      * @return response entity of latest spider task.
      */
     @Override
-    public ResponseEntity getLatestSpiderTaskResponse() {
+    public ResponseEntity<?> getLatestSpiderTaskResponse() {
         Map<String, Object> resultMap = new HashMap<>(2);
         getLatestSpiderTask(resultMap);
         return new ResponseEntity<>(resultMap, HttpStatus.OK);
     }
 
     @Override
-    public ResponseEntity getHistoryQueueStatus() {
+    public ResponseEntity<?> getHistoryQueueStatus() {
         List data = mongoTemplate.find(new Query().with(Sort.by(Sort.Direction.DESC, "date")).limit(100), Map.class, "spider_queue_status");
         Collections.reverse(data);
         return ResponseEntity.ok(data);
@@ -286,7 +286,7 @@ public class TracerServiceImpl implements TracerService {
     }
 
     @Override
-    public ResponseEntity listAuthorVisitRecord(Integer limit) {
+    public ResponseEntity<?> listAuthorVisitRecord(Integer limit) {
         List data = mongoTemplate.aggregate(Aggregation.newAggregation(
                 Aggregation.project().and("date").dateAsFormattedString("%Y-%m-%d").as("date"),
                 Aggregation.group("date").count().as("count"),
@@ -298,7 +298,7 @@ public class TracerServiceImpl implements TracerService {
     }
 
     @Override
-    public ResponseEntity listVideoVisitRecord(Integer limit) {
+    public ResponseEntity<?> listVideoVisitRecord(Integer limit) {
         List data = mongoTemplate.aggregate(Aggregation.newAggregation(
                 Aggregation.project().and("date").dateAsFormattedString("%Y-%m-%d").as("date"),
                 Aggregation.group("date").count().as("count"),

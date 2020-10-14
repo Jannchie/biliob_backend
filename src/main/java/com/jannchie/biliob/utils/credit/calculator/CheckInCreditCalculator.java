@@ -34,7 +34,7 @@ public class CheckInCreditCalculator extends AbstractCreditCalculator {
     }
 
     @Override
-    public ResponseEntity execute(User user, ObjectId objectId) {
+    public ResponseEntity<?> execute(User user, ObjectId objectId) {
         Boolean isCheckedIn =
                 mongoTemplate.exists(new Query(where("name").is(user.getName())), "check_in");
         String userName = user.getName();

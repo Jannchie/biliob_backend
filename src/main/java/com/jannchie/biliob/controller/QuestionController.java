@@ -22,14 +22,14 @@ public class QuestionController {
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/api/question/handled")
-    public ResponseEntity getHandledQuestion(
+    public ResponseEntity<?> getHandledQuestion(
             @RequestParam(defaultValue = "0") Integer page,
             @RequestParam(defaultValue = "20") Integer pagesize) {
         return questionService.getHandledQuestion(page, pagesize);
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/api/question/pending")
-    public ResponseEntity getPendingQuestion(
+    public ResponseEntity<?> getPendingQuestion(
             @RequestParam(defaultValue = "0") Integer page,
             @RequestParam(defaultValue = "20") Integer pagesize) {
         return questionService.getPendingQuestion(page, pagesize);

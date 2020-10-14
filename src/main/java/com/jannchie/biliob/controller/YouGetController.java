@@ -22,7 +22,7 @@ public class YouGetController {
     private static final Logger logger = LogManager.getLogger();
 
     @RequestMapping(method = RequestMethod.GET, value = "/api/video/download/{aid}/{page}", produces = "application/json")
-    public ResponseEntity pageEvent(@PathVariable("aid") Long aid, @PathVariable("page") Integer page) throws IOException, InterruptedException {
+    public ResponseEntity<?> pageEvent(@PathVariable("aid") Long aid, @PathVariable("page") Integer page) throws IOException, InterruptedException {
         Process p = Runtime.getRuntime().exec(String.format("you-get https://www.bilibili.com/video/av%d?p=%d --json", aid, page));
         InputStream is = p.getInputStream();
         BufferedReader reader = new BufferedReader(new InputStreamReader(is));

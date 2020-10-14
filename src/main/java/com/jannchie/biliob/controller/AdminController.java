@@ -41,22 +41,22 @@ public class AdminController {
 
 
     @RequestMapping(method = RequestMethod.PUT, value = "/admin/user/grant")
-    public ResponseEntity grantUserAdminRole(@RequestParam @Valid String userName) {
+    public ResponseEntity<?> grantUserAdminRole(@RequestParam @Valid String userName) {
         return adminService.grantUserAdminRole(userName);
     }
 
     @RequestMapping(method = RequestMethod.PUT, value = "/admin/user/cancel")
-    public ResponseEntity cancelUserAdminRole(@RequestParam @Valid String userName) {
+    public ResponseEntity<?> cancelUserAdminRole(@RequestParam @Valid String userName) {
         return adminService.cancelUserAdminRole(userName);
     }
 
     @RequestMapping(method = RequestMethod.POST, value = "/author-list")
-    public ResponseEntity postAuthorCrawlList(@RequestBody Map authorListData) {
+    public ResponseEntity<?> postAuthorCrawlList(@RequestBody Map authorListData) {
         return adminService.postAuthorCrawlList(authorListData);
     }
 
     @RequestMapping(method = RequestMethod.POST, value = "/{type}/search-method")
-    public ResponseEntity saveSearchMethod(
+    public ResponseEntity<?> saveSearchMethod(
             @RequestBody SearchMethod searchMethod, @PathVariable("type") String type) {
         searchMethod.setType(type);
         return adminService.saveSearchMethod(searchMethod);
@@ -69,13 +69,13 @@ public class AdminController {
 
 
     @RequestMapping(method = RequestMethod.DELETE, value = "/{type}/search-method")
-    public ResponseEntity deleteSearchMethod(
+    public ResponseEntity<?> deleteSearchMethod(
             @PathVariable("type") String type, @RequestParam String name, @RequestParam String owner) {
         return adminService.delSearchMethod(type, name, owner);
     }
 
     @RequestMapping(method = RequestMethod.DELETE, value = "/schedule/{type}")
-    public ResponseEntity deleteCustomSchedule(
+    public ResponseEntity<?> deleteCustomSchedule(
             @PathVariable("type") String type, @RequestParam String name, @RequestParam String owner) {
         return adminService.deleteCustomSchedule(type, name, owner);
     }
@@ -99,7 +99,7 @@ public class AdminController {
     }
 
     @RequestMapping(method = RequestMethod.POST, value = "/upload/schedule")
-    public ResponseEntity postUploadSchedule(@RequestBody ScheduleItem item) {
+    public ResponseEntity<?> postUploadSchedule(@RequestBody ScheduleItem item) {
         return adminService.postUploadSchedule(item);
     }
 

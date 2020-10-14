@@ -349,7 +349,7 @@ public class AuthorServiceImpl implements AuthorService {
      * @return list of author rate of fans increase.
      */
     @Override
-    public ResponseEntity listFansIncreaseRate() {
+    public ResponseEntity<?> listFansIncreaseRate() {
         Slice<Author> slice = respository
                 .listTopIncreaseRate(PageRequest.of(0, 20, new Sort(Sort.Direction.DESC, "cRate")));
         AuthorServiceImpl.logger.info("获得涨粉榜");
@@ -362,7 +362,7 @@ public class AuthorServiceImpl implements AuthorService {
      * @return list of author rate of fans decrease.
      */
     @Override
-    public ResponseEntity listFansDecreaseRate() {
+    public ResponseEntity<?> listFansDecreaseRate() {
         Slice<Author> slice = respository
                 .listTopIncreaseRate(PageRequest.of(0, 20, new Sort(Sort.Direction.ASC, "cRate")));
         AuthorServiceImpl.logger.info("获得掉粉榜");
@@ -370,7 +370,7 @@ public class AuthorServiceImpl implements AuthorService {
     }
 
     @Override
-    public ResponseEntity getTopAuthor() {
+    public ResponseEntity<?> getTopAuthor() {
         Calendar c = Calendar.getInstance();
         c.setTimeZone(TimeZone.getTimeZone("CTT"));
         c.add(Calendar.HOUR, 7);
@@ -395,7 +395,7 @@ public class AuthorServiceImpl implements AuthorService {
     }
 
     @Override
-    public ResponseEntity getLatestTopAuthorData() {
+    public ResponseEntity<?> getLatestTopAuthorData() {
         AggregateIterable<Document> r = mongoClient.getDatabase("biliob").getCollection("author")
                 .aggregate(Arrays.asList(sort(descending("cFans")), limit(2),
                         project(Projections.fields(Projections.excludeId(),
@@ -431,7 +431,7 @@ public class AuthorServiceImpl implements AuthorService {
      * @return Real time fans responseEntity
      */
     @Override
-    public ResponseEntity getRealTimeData(Long aMid, Long bMid) {
+    public ResponseEntity<?> getRealTimeData(Long aMid, Long bMid) {
         Calendar c = Calendar.getInstance();
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         format.setTimeZone(TimeZone.getTimeZone("GMT+:00:00"));

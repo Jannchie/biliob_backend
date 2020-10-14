@@ -80,7 +80,7 @@ public abstract class AbstractCreditCalculator<T> {
      * @return The response of user's request.
      */
 
-    public ResponseEntity executeAndGetResponse(CreditConstant creditConstant, Long id) {
+    public ResponseEntity<?> executeAndGetResponse(CreditConstant creditConstant, Long id) {
         this.creditConstant = creditConstant;
         User user = UserUtils.getUser();
         Double value = creditConstant.getValue();
@@ -135,7 +135,7 @@ public abstract class AbstractCreditCalculator<T> {
      * @return The response of user's request.
      */
 
-    public ResponseEntity executeAndGetResponse(CreditConstant creditConstant) {
+    public ResponseEntity<?> executeAndGetResponse(CreditConstant creditConstant) {
         this.creditConstant = creditConstant;
 
         User user = UserUtils.getUser();
@@ -176,7 +176,7 @@ public abstract class AbstractCreditCalculator<T> {
      * @return The response of user's request.
      */
 
-    public ResponseEntity executeAndGetResponse(T data) {
+    public ResponseEntity<?> executeAndGetResponse(T data) {
 
         User user = UserUtils.getUser();
         Double value = this.creditConstant.getValue();

@@ -170,7 +170,7 @@ class UserServiceImpl implements UserService {
     }
 
     @Override
-    public ResponseEntity getUserInfo() {
+    public ResponseEntity<?> getUserInfo() {
         User user = UserUtils.getUser();
         if (user == null) {
             return new ResponseEntity<>(
@@ -207,7 +207,7 @@ class UserServiceImpl implements UserService {
     }
 
     @Override
-    public ResponseEntity addFavoriteVideo(@Valid Long aid) {
+    public ResponseEntity<?> addFavoriteVideo(@Valid Long aid) {
         User user = UserUtils.getFullInfo();
         if (user == null) {
             return new ResponseEntity<>(
@@ -298,7 +298,7 @@ class UserServiceImpl implements UserService {
      * @return response with message
      */
     @Override
-    public ResponseEntity deleteFavoriteAuthorByMid(Long mid) {
+    public ResponseEntity<?> deleteFavoriteAuthorByMid(Long mid) {
         User user = UserUtils.getFullInfo();
         if (user == null) {
             return new ResponseEntity<>(
@@ -325,7 +325,7 @@ class UserServiceImpl implements UserService {
      * @return response with message
      */
     @Override
-    public ResponseEntity deleteFavoriteVideoByAid(Long aid) {
+    public ResponseEntity<?> deleteFavoriteVideoByAid(Long aid) {
         User user = UserUtils.getFullInfo();
         if (user == null) {
             return new ResponseEntity<>(
@@ -346,7 +346,7 @@ class UserServiceImpl implements UserService {
     }
 
     @Override
-    public ResponseEntity login(String name, String passwd) {
+    public ResponseEntity<?> login(String name, String passwd) {
         User user =
                 mongoTemplate.findOne(
                         Query.query(
@@ -385,7 +385,7 @@ class UserServiceImpl implements UserService {
      * @return check in response
      */
     @Override
-    public ResponseEntity postCheckIn() {
+    public ResponseEntity<?> postCheckIn() {
         return checkInCreditCalculator.executeAndGetResponse(CreditConstant.CHECK_IN);
     }
 
@@ -395,7 +395,7 @@ class UserServiceImpl implements UserService {
      * @return check in status
      */
     @Override
-    public ResponseEntity getCheckIn() {
+    public ResponseEntity<?> getCheckIn() {
         User user = UserUtils.getUser();
         if (user == null) {
             return new ResponseEntity<>(
@@ -417,7 +417,7 @@ class UserServiceImpl implements UserService {
      * @return Force observation or cancel the force observation feedback.
      */
     @Override
-    public ResponseEntity forceFocus(Long mid, @Valid Boolean forceFocus) {
+    public ResponseEntity<?> forceFocus(Long mid, @Valid Boolean forceFocus) {
         return forceFocusCreditCalculator.executeAndGetResponse(CreditConstant.SET_FORCE_OBSERVE, mid);
     }
 
@@ -428,7 +428,7 @@ class UserServiceImpl implements UserService {
      * @return the post result.
      */
     @Override
-    public ResponseEntity postQuestion(String question) {
+    public ResponseEntity<?> postQuestion(String question) {
         User user = UserUtils.getUser();
         if (user == null) {
             return new ResponseEntity<>(
@@ -518,7 +518,7 @@ class UserServiceImpl implements UserService {
      * @return the response
      */
     @Override
-    public ResponseEntity danmakuAggregate(@Valid Long aid) {
+    public ResponseEntity<?> danmakuAggregate(@Valid Long aid) {
         return danmakuAggregateCreditCalculator.executeAndGetResponse(
                 CreditConstant.DANMAKU_AGGREGATE, aid);
     }
@@ -569,7 +569,7 @@ class UserServiceImpl implements UserService {
      * @return operation result
      */
     @Override
-    public ResponseEntity videoObserveAlterFrequency(@Valid Long aid, @Valid Integer typeFlag) {
+    public ResponseEntity<?> videoObserveAlterFrequency(@Valid Long aid, @Valid Integer typeFlag) {
         return null;
     }
 
@@ -581,7 +581,7 @@ class UserServiceImpl implements UserService {
      * @return operation result
      */
     @Override
-    public ResponseEntity authorObserveAlterFrequency(@Valid Long mid, @Valid Integer typeFlag) {
+    public ResponseEntity<?> authorObserveAlterFrequency(@Valid Long mid, @Valid Integer typeFlag) {
         return null;
     }
 
@@ -603,7 +603,7 @@ class UserServiceImpl implements UserService {
      * @return operation result
      */
     @Override
-    public ResponseEntity sendActivationCode(@Valid String mail) {
+    public ResponseEntity<?> sendActivationCode(@Valid String mail) {
         return mailUtil.sendActivationCode(mail);
     }
 
@@ -634,7 +634,7 @@ class UserServiceImpl implements UserService {
 
 
     @Override
-    public ResponseEntity bindMail(String mail, String activationCode) {
+    public ResponseEntity<?> bindMail(String mail, String activationCode) {
         User user = UserUtils.getUser();
         if (user == null) {
             return new ResponseEntity<>(
