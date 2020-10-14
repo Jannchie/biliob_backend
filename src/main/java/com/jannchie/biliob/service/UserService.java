@@ -33,7 +33,7 @@ public interface UserService {
      * @param activationCode activation code
      * @return 创建结果
      */
-    ResponseEntity createUser(String userName, String password, String mail, String activationCode);
+    ResponseEntity<?> createUser(String userName, String password, String mail, String activationCode);
 
     /**
      * 获取密码
@@ -57,7 +57,7 @@ public interface UserService {
      *
      * @return 用户信息
      */
-    ResponseEntity getUserInfo();
+    ResponseEntity<?> getUserInfo();
 
     /**
      * 添加作者关注
@@ -66,7 +66,7 @@ public interface UserService {
      * @return 用户
      * @throws UserAlreadyFavoriteAuthorException 用户已关注作者异常
      */
-    ResponseEntity addFavoriteAuthor(@Valid Long mid) throws UserAlreadyFavoriteAuthorException;
+    ResponseEntity<?> addFavoriteAuthor(@Valid Long mid) throws UserAlreadyFavoriteAuthorException;
 
     /**
      * 添加视频关注
@@ -75,7 +75,7 @@ public interface UserService {
      * @return 用户
      * @throws UserAlreadyFavoriteVideoException 用户已关注视频异常
      */
-    ResponseEntity addFavoriteVideo(@Valid Long aid) throws UserAlreadyFavoriteVideoException;
+    ResponseEntity<?> addFavoriteVideo(@Valid Long aid) throws UserAlreadyFavoriteVideoException;
 
     /**
      * Get user's favorite video page
@@ -84,7 +84,7 @@ public interface UserService {
      * @param pageSize page size
      * @return favorite video page
      */
-    Slice getFavoriteVideo(Integer page, Integer pageSize);
+    Slice<?> getFavoriteVideo(Integer page, Integer pageSize);
 
     /**
      * Get user's favorite author page
@@ -93,7 +93,7 @@ public interface UserService {
      * @param pageSize page size
      * @return favorite author page
      */
-    Slice getFavoriteAuthor(Integer page, Integer pageSize);
+    Slice<?> getFavoriteAuthor(Integer page, Integer pageSize);
 
     /**
      * delete user's favorite author by author id
@@ -101,7 +101,7 @@ public interface UserService {
      * @param mid author's id
      * @return response with message
      */
-    ResponseEntity deleteFavoriteAuthorByMid(Long mid);
+    ResponseEntity<?> deleteFavoriteAuthorByMid(Long mid);
 
     /**
      * delete user's favorite video by video id
@@ -109,7 +109,7 @@ public interface UserService {
      * @param aid video's id
      * @return response with message
      */
-    ResponseEntity deleteFavoriteVideoByAid(Long aid);
+    ResponseEntity<?> deleteFavoriteVideoByAid(Long aid);
 
     /**
      * login
@@ -118,21 +118,21 @@ public interface UserService {
      * @param passwd user password
      * @return login response
      */
-    ResponseEntity login(String name, String passwd);
+    ResponseEntity<?> login(String name, String passwd);
 
     /**
      * user can check in and get credit every eight hour.
      *
      * @return check in response
      */
-    ResponseEntity postCheckIn();
+    ResponseEntity<?> postCheckIn();
 
     /**
      * to know whether user is checked in
      *
      * @return check in status
      */
-    ResponseEntity getCheckIn();
+    ResponseEntity<?> getCheckIn();
 
     /**
      * Force Focus a Author or Not.
@@ -141,7 +141,7 @@ public interface UserService {
      * @param forceFocus force focus status
      * @return Force observation or cancel the force observation feedback.
      */
-    ResponseEntity forceFocus(Long mid, @Valid Boolean forceFocus);
+    ResponseEntity<?> forceFocus(Long mid, @Valid Boolean forceFocus);
 
     /**
      * post a question
@@ -149,7 +149,7 @@ public interface UserService {
      * @param question the question text
      * @return the post result.
      */
-    ResponseEntity postQuestion(String question);
+    ResponseEntity<?> postQuestion(String question);
 
     /**
      * Refresh author data immediately.
@@ -190,7 +190,7 @@ public interface UserService {
      * @param aid the video id being aggregated
      * @return the response
      */
-    ResponseEntity danmakuAggregate(@Valid Long aid);
+    ResponseEntity<?> danmakuAggregate(@Valid Long aid);
 
     /**
      * slice the user record
@@ -215,7 +215,7 @@ public interface UserService {
      * @param typeFlag type flag
      * @return operation result
      */
-    ResponseEntity videoObserveAlterFrequency(@Valid Long aid, @Valid Integer typeFlag);
+    ResponseEntity<?> videoObserveAlterFrequency(@Valid Long aid, @Valid Integer typeFlag);
 
     /**
      * author observe frequency alter
@@ -224,7 +224,7 @@ public interface UserService {
      * @param typeFlag type flag
      * @return operation result
      */
-    ResponseEntity authorObserveAlterFrequency(@Valid Long mid, @Valid Integer typeFlag);
+    ResponseEntity<?> authorObserveAlterFrequency(@Valid Long mid, @Valid Integer typeFlag);
 
     /**
      * modify user's name
@@ -232,7 +232,7 @@ public interface UserService {
      * @param newUserName new user name
      * @return operation result
      */
-    ResponseEntity modifyUserName(@Valid String newUserName);
+    ResponseEntity<?> modifyUserName(@Valid String newUserName);
 
     /**
      * Get activation code
@@ -240,14 +240,14 @@ public interface UserService {
      * @param mail user's email
      * @return operation result
      */
-    ResponseEntity sendActivationCode(@Valid String mail);
+    ResponseEntity<?> sendActivationCode(@Valid String mail);
 
     /**
      * get user's prefer keywords
      *
      * @return map of user's prefer keywords
      */
-    Map getUserPreferKeyword();
+    Map<?, ?> getUserPreferKeyword();
 
     /**
      * get user prefer video by user favorite videos
@@ -256,7 +256,7 @@ public interface UserService {
      * @param pagesize page size
      * @return video list
      */
-    ArrayList getUserPreferVideoByFavoriteVideo(Integer page, Integer pagesize);
+    ArrayList<?> getUserPreferVideoByFavoriteVideo(Integer page, Integer pagesize);
 
     /**
      * Bind new e-mail
@@ -265,7 +265,7 @@ public interface UserService {
      * @param activationCode activation code
      * @return bind result
      */
-    ResponseEntity bindMail(String mail, String activationCode);
+    ResponseEntity<?> bindMail(String mail, String activationCode);
 
     /**
      * Change user nickname

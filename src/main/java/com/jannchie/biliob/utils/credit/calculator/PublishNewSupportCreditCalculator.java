@@ -39,11 +39,11 @@ public class PublishNewSupportCreditCalculator extends AbstractCreditCalculator 
                 mongoTemplate.findOne(Query.query(Criteria.where("mid").is(id)), Author.class, "author");
         if (author == null) {
             mongoTemplate.remove(Query.query(Criteria.where("_id").is(objectId)), "user_record");
-            return new ResponseEntity<>(new Result(ResultEnum.AUTHOR_NOT_FOUND), HttpStatus.ACCEPTED);
+            return new ResponseEntity<>(new Result<>(ResultEnum.AUTHOR_NOT_FOUND), HttpStatus.ACCEPTED);
         } else if (author.getForceFocus() != null && author.getForceFocus()) {
             mongoTemplate.remove(Query.query(Criteria.where("_id").is(objectId)), "user_record");
             return new ResponseEntity<>(
-                    new Result(ResultEnum.AUTHOR_ALREADY_SUPPORTED), HttpStatus.ACCEPTED);
+                    new Result<>(ResultEnum.AUTHOR_ALREADY_SUPPORTED), HttpStatus.ACCEPTED);
         }
         mongoTemplate.updateFirst(
                 query(where("mid").is(id)), update("supporter", new HashMap(1)), "support");

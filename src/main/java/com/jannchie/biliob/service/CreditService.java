@@ -17,11 +17,21 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Service
 public class CreditService {
-    @Autowired
     private MongoTemplate mongoTemplate;
+
+    @Autowired
+    public CreditService(MongoTemplate mongoTemplate) {
+        this.mongoTemplate = mongoTemplate;
+    }
+
 
     @Transactional(rollbackFor = Exception.class)
     public Result<User> doCreditOperation(CreditConstant creditConstant, String message) {
+        return this.doCreditOperation(creditConstant, message, true);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public Result<User> doCreditOperation(CreditConstant creditConstant, String message, Boolean isExecuted) {
         User user = UserUtils.getUser();
         Double credit = creditConstant.getValue();
         user.setCredit(user.getCredit() + credit);
@@ -29,7 +39,7 @@ public class CreditService {
             user.setExp(user.getExp() - credit);
         }
         mongoTemplate.update(User.class).apply(Update.update("credit", user.getCredit()).set("exp", user.getExp()));
-        mongoTemplate.insert(UserRecord.class).one(new UserRecord(user, creditConstant, message));
+        mongoTemplate.insert(UserRecord.class).one(new UserRecord(user, creditConstant, message, isExecuted));
         return ResultEnum.SUCCEED.getResult(user);
     }
 }

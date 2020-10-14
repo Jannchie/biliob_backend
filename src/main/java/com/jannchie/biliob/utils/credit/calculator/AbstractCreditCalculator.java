@@ -55,7 +55,7 @@ public abstract class AbstractCreditCalculator<T> {
         data = new HashMap<>(2);
         data.put("exp", exp);
         data.put("credit", credit);
-        r = new ResponseEntity<>(new Result(ResultEnum.SUCCEED, data), HttpStatus.OK);
+        r = new ResponseEntity<>(new Result<>(ResultEnum.SUCCEED, data), HttpStatus.OK);
 
         return r;
     }
@@ -63,10 +63,10 @@ public abstract class AbstractCreditCalculator<T> {
     private ResponseEntity<Result> checkCredit(User user, Double value) {
         if (user == null) {
             return new ResponseEntity<>(
-                    new Result(ResultEnum.HAS_NOT_LOGGED_IN), HttpStatus.UNAUTHORIZED);
+                    new Result<>(ResultEnum.HAS_NOT_LOGGED_IN), HttpStatus.UNAUTHORIZED);
         } else if (value < 0 && user.getCredit() < (-value)) {
             AbstractCreditCalculator.logger.info("用户：{},积分不足,当前积分：{}", user.getName(), user.getCredit());
-            return new ResponseEntity<>(new Result(ResultEnum.CREDIT_NOT_ENOUGH), HttpStatus.ACCEPTED);
+            return new ResponseEntity<>(new Result<>(ResultEnum.CREDIT_NOT_ENOUGH), HttpStatus.ACCEPTED);
         } else {
             return null;
         }
@@ -222,7 +222,7 @@ public abstract class AbstractCreditCalculator<T> {
     }
 
     ResponseEntity getResponseEntity(HashMap data) {
-        return new ResponseEntity<>(new Result(ResultEnum.SUCCEED, data), HttpStatus.OK);
+        return new ResponseEntity<>(new Result<>(ResultEnum.SUCCEED, data), HttpStatus.OK);
     }
 
     /**

@@ -218,7 +218,7 @@ public class AdminServiceImpl implements AdminService {
     public ResponseEntity grantUserAdminRole(@Valid String userName) {
         mongoTemplate.updateFirst(
                 Query.query(Criteria.where("name").is(userName)), Update.update("role", "管理员"), "user");
-        return new ResponseEntity<>(new Result(ResultEnum.SUCCEED), HttpStatus.OK);
+        return new ResponseEntity<>(new Result<>(ResultEnum.SUCCEED), HttpStatus.OK);
     }
 
     /**
@@ -231,7 +231,7 @@ public class AdminServiceImpl implements AdminService {
     public ResponseEntity cancelUserAdminRole(@Valid String userName) {
         mongoTemplate.updateFirst(
                 Query.query(Criteria.where("name").is(userName)), Update.update("role", "普通研究员"), "user");
-        return new ResponseEntity<>(new Result(ResultEnum.SUCCEED), HttpStatus.OK);
+        return new ResponseEntity<>(new Result<>(ResultEnum.SUCCEED), HttpStatus.OK);
     }
 
     @Override
@@ -240,9 +240,9 @@ public class AdminServiceImpl implements AdminService {
         if (user != null) {
             searchMethod.setOwner(user.getName());
             mongoTemplate.insert(searchMethod, "search_method");
-            return new ResponseEntity<>(new Result(ResultEnum.SUCCEED), HttpStatus.OK);
+            return new ResponseEntity<>(new Result<>(ResultEnum.SUCCEED), HttpStatus.OK);
         }
-        return new ResponseEntity<>(new Result(ResultEnum.HAS_NOT_LOGGED_IN), HttpStatus.FORBIDDEN);
+        return new ResponseEntity<>(new Result<>(ResultEnum.HAS_NOT_LOGGED_IN), HttpStatus.FORBIDDEN);
     }
 
     @Override
@@ -256,7 +256,7 @@ public class AdminServiceImpl implements AdminService {
         mongoTemplate.remove(
                 Query.query(Criteria.where("type").is(type).and("name").is(name).and("owner").is(owner)),
                 "search_method");
-        return new ResponseEntity<>(new Result(ResultEnum.SUCCEED), HttpStatus.OK);
+        return new ResponseEntity<>(new Result<>(ResultEnum.SUCCEED), HttpStatus.OK);
     }
 
     /**
@@ -269,11 +269,11 @@ public class AdminServiceImpl implements AdminService {
     public ResponseEntity postUploadSchedule(ScheduleItem item) {
         User user = UserUtils.getUser();
         if (user == null) {
-            return new ResponseEntity<>(new Result(ResultEnum.HAS_NOT_LOGGED_IN), HttpStatus.FORBIDDEN);
+            return new ResponseEntity<>(new Result<>(ResultEnum.HAS_NOT_LOGGED_IN), HttpStatus.FORBIDDEN);
         }
         item.setOwner(user.getName());
         mongoTemplate.insert(item, "crawl_schedule");
-        return new ResponseEntity<>(new Result(ResultEnum.SUCCEED), HttpStatus.OK);
+        return new ResponseEntity<>(new Result<>(ResultEnum.SUCCEED), HttpStatus.OK);
     }
 
     /**
@@ -300,7 +300,7 @@ public class AdminServiceImpl implements AdminService {
                 Query.query(Criteria.where("type").is(type).and("name").is(name).and("owner").is(owner)),
                 ScheduleItem.class,
                 "crawl_schedule");
-        return new ResponseEntity<>(new Result(ResultEnum.SUCCEED), HttpStatus.OK);
+        return new ResponseEntity<>(new Result<>(ResultEnum.SUCCEED), HttpStatus.OK);
     }
 
     /**
@@ -322,7 +322,7 @@ public class AdminServiceImpl implements AdminService {
         result.put("frequency", frequency);
         result.put("publishDate", publishDate);
         mongoTemplate.insert(result, "author_crawl_list");
-        return new ResponseEntity<>(new Result(ResultEnum.SUCCEED), HttpStatus.OK);
+        return new ResponseEntity<>(new Result<>(ResultEnum.SUCCEED), HttpStatus.OK);
     }
 
     @Override

@@ -56,6 +56,6 @@ public class CheckInCreditCalculator extends AbstractCreditCalculator {
 
     @Override
     ResponseEntity getResponseEntity(HashMap data) {
-        return new ResponseEntity<>(new Result(ResultEnum.SIGN_SUCCEED, data), HttpStatus.OK);
+        return new ResponseEntity<>(new Result<>(ResultEnum.SIGN_SUCCEED, data), HttpStatus.OK);
     }
 }

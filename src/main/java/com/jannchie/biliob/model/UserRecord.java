@@ -75,12 +75,17 @@ public class UserRecord {
     }
 
     public UserRecord(User user, CreditConstant creditConstant, String message) {
+        this(user, creditConstant, message, true);
+    }
+
+    public UserRecord(User user, CreditConstant creditConstant, String message, Boolean isExecuted) {
         this.credit = creditConstant.getValue();
         this.message = message;
         Date d = Calendar.getInstance().getTime();
         this.datetime = d.toString();
         this.createTime = d;
         this.userName = user.getName();
+        this.isExecuted = isExecuted;
     }
 
     public Date getCreateTime() {

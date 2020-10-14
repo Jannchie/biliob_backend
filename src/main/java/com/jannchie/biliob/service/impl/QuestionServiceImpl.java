@@ -40,7 +40,7 @@ public class QuestionServiceImpl implements QuestionService {
     @Override
     public ResponseEntity getHandledQuestion(Integer page, Integer pagesize) {
         if (pagesize > PageSizeEnum.BIG_SIZE.getValue()) {
-            return new ResponseEntity<>(new Result(PARAM_ERROR), HttpStatus.FORBIDDEN);
+            return new ResponseEntity<>(new Result<>(PARAM_ERROR), HttpStatus.FORBIDDEN);
         }
         Slice<Question> questions =
                 questionRepository.getHandledQuestions(PageRequest.of(page, pagesize));
@@ -58,7 +58,7 @@ public class QuestionServiceImpl implements QuestionService {
     @Override
     public ResponseEntity getPendingQuestion(Integer page, Integer pagesize) {
         if (pagesize > PageSizeEnum.BIG_SIZE.getValue()) {
-            return new ResponseEntity<>(new Result(PARAM_ERROR), HttpStatus.FORBIDDEN);
+            return new ResponseEntity<>(new Result<>(PARAM_ERROR), HttpStatus.FORBIDDEN);
         }
         Slice<Question> questions =
                 questionRepository.getPendingQuestions(PageRequest.of(page, pagesize));

@@ -174,7 +174,7 @@ class UserServiceImpl implements UserService {
         User user = UserUtils.getUser();
         if (user == null) {
             return new ResponseEntity<>(
-                    new Result(ResultEnum.HAS_NOT_LOGGED_IN), HttpStatus.UNAUTHORIZED);
+                    new Result<>(ResultEnum.HAS_NOT_LOGGED_IN), HttpStatus.UNAUTHORIZED);
         }
 
         UserUtils.setUserTitleAndRankAndUpdateRole(user);
@@ -203,7 +203,7 @@ class UserServiceImpl implements UserService {
         user.setFavoriteMid(new ArrayList<>(temp));
         userRepository.save(user);
         UserServiceImpl.logger.info("用户：{} 关注了{}", user.getName(), mid);
-        return new ResponseEntity<>(new Result(ResultEnum.ADD_FAVORITE_AUTHOR_SUCCEED), HttpStatus.OK);
+        return new ResponseEntity<>(new Result<>(ResultEnum.ADD_FAVORITE_AUTHOR_SUCCEED), HttpStatus.OK);
     }
 
     @Override
@@ -211,7 +211,7 @@ class UserServiceImpl implements UserService {
         User user = UserUtils.getFullInfo();
         if (user == null) {
             return new ResponseEntity<>(
-                    new Result(ResultEnum.HAS_NOT_LOGGED_IN), HttpStatus.UNAUTHORIZED);
+                    new Result<>(ResultEnum.HAS_NOT_LOGGED_IN), HttpStatus.UNAUTHORIZED);
         }
         ArrayList<Long> temp = new ArrayList<>();
         if (user.getFavoriteAid() != null) {
@@ -220,13 +220,13 @@ class UserServiceImpl implements UserService {
         if (temp.contains(aid)) {
             UserServiceImpl.logger.warn("用户：{} 试图重复收藏{}", user.getName(), aid);
             return new ResponseEntity<>(
-                    new Result(ResultEnum.ALREADY_FAVORITE_VIDEO), HttpStatus.ACCEPTED);
+                    new Result<>(ResultEnum.ALREADY_FAVORITE_VIDEO), HttpStatus.ACCEPTED);
         }
         temp.add(aid);
         user.setFavoriteAid(new ArrayList<>(temp));
         userRepository.save(user);
         UserServiceImpl.logger.info("用户：{} 关注了{}", user.getName(), aid);
-        return new ResponseEntity<>(new Result(ResultEnum.ADD_FAVORITE_VIDEO_SUCCEED), HttpStatus.OK);
+        return new ResponseEntity<>(new Result<>(ResultEnum.ADD_FAVORITE_VIDEO_SUCCEED), HttpStatus.OK);
     }
 
     /**
@@ -302,7 +302,7 @@ class UserServiceImpl implements UserService {
         User user = UserUtils.getFullInfo();
         if (user == null) {
             return new ResponseEntity<>(
-                    new Result(ResultEnum.HAS_NOT_LOGGED_IN), HttpStatus.UNAUTHORIZED);
+                    new Result<>(ResultEnum.HAS_NOT_LOGGED_IN), HttpStatus.UNAUTHORIZED);
         }
         ArrayList<Long> mids = user.getFavoriteMid();
         for (int i = 0; i < mids.size(); i++) {
@@ -311,11 +311,11 @@ class UserServiceImpl implements UserService {
                 user.setFavoriteMid(mids);
                 userRepository.save(user);
                 UserServiceImpl.logger.info("删除[{}]关注的UP主：{}", user.getName(), mid);
-                return new ResponseEntity<>(new Result(ResultEnum.DELETE_SUCCEED), HttpStatus.OK);
+                return new ResponseEntity<>(new Result<>(ResultEnum.DELETE_SUCCEED), HttpStatus.OK);
             }
         }
         UserServiceImpl.logger.warn("用户：{} 试图删除一个不存在的UP主", user.getName());
-        return new ResponseEntity<>(new Result(ResultEnum.AUTHOR_NOT_FOUND), HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(new Result<>(ResultEnum.AUTHOR_NOT_FOUND), HttpStatus.NOT_FOUND);
     }
 
     /**
@@ -329,7 +329,7 @@ class UserServiceImpl implements UserService {
         User user = UserUtils.getFullInfo();
         if (user == null) {
             return new ResponseEntity<>(
-                    new Result(ResultEnum.HAS_NOT_LOGGED_IN), HttpStatus.UNAUTHORIZED);
+                    new Result<>(ResultEnum.HAS_NOT_LOGGED_IN), HttpStatus.UNAUTHORIZED);
         }
         ArrayList<Long> aids = user.getFavoriteAid();
         for (int i = 0; i < aids.size(); i++) {
@@ -338,11 +338,11 @@ class UserServiceImpl implements UserService {
                 user.setFavoriteAid(aids);
                 userRepository.save(user);
                 UserServiceImpl.logger.info("用户：{} 删除了收藏的视频，aid：{}", user.getName(), aid);
-                return new ResponseEntity<>(new Result(ResultEnum.DELETE_SUCCEED), HttpStatus.OK);
+                return new ResponseEntity<>(new Result<>(ResultEnum.DELETE_SUCCEED), HttpStatus.OK);
             }
         }
         UserServiceImpl.logger.warn("用户：{} 试图删除一个不存在的视频", user.getName());
-        return new ResponseEntity<>(new Result(ResultEnum.AUTHOR_NOT_FOUND), HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(new Result<>(ResultEnum.AUTHOR_NOT_FOUND), HttpStatus.NOT_FOUND);
     }
 
     @Override
@@ -363,7 +363,7 @@ class UserServiceImpl implements UserService {
 
         User tempUser = userRepository.findByName(inputName);
         if (tempUser == null) {
-            return new ResponseEntity<>(new Result(ResultEnum.LOGIN_FAILED), HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity<>(new Result<>(ResultEnum.LOGIN_FAILED), HttpStatus.UNAUTHORIZED);
         }
 
         if (tempUser.getPassword() == null) {
@@ -376,7 +376,7 @@ class UserServiceImpl implements UserService {
         subject.login(token);
         String role = getRole(inputName);
         UserServiceImpl.logger.info("{}：{} 登录成功", role, inputName);
-        return new ResponseEntity<>(new Result(ResultEnum.LOGIN_SUCCEED, getUserInfo()), HttpStatus.OK);
+        return new ResponseEntity<>(new Result<>(ResultEnum.LOGIN_SUCCEED, getUserInfo()), HttpStatus.OK);
     }
 
     /**
@@ -432,16 +432,16 @@ class UserServiceImpl implements UserService {
         User user = UserUtils.getUser();
         if (user == null) {
             return new ResponseEntity<>(
-                    new Result(ResultEnum.HAS_NOT_LOGGED_IN), HttpStatus.UNAUTHORIZED);
+                    new Result<>(ResultEnum.HAS_NOT_LOGGED_IN), HttpStatus.UNAUTHORIZED);
         }
         String userName = user.getName();
         HashMap<String, Double> data = creditUtil.calculateCredit(user, CreditConstant.ASK_QUESTION);
         if (data.get(FieldConstant.CREDIT.getValue()) != -1) {
             questionRepository.save(new Question(question, userName));
             UserServiceImpl.logger.info("用户：{} 提出了一个问题：{}", user.getName(), question);
-            return new ResponseEntity<>(new Result(ResultEnum.SUCCEED, data), HttpStatus.OK);
+            return new ResponseEntity<>(new Result<>(ResultEnum.SUCCEED, data), HttpStatus.OK);
         } else {
-            return new ResponseEntity<>(new Result(ResultEnum.CREDIT_NOT_ENOUGH), HttpStatus.ACCEPTED);
+            return new ResponseEntity<>(new Result<>(ResultEnum.CREDIT_NOT_ENOUGH), HttpStatus.ACCEPTED);
         }
     }
 
@@ -638,11 +638,11 @@ class UserServiceImpl implements UserService {
         User user = UserUtils.getUser();
         if (user == null) {
             return new ResponseEntity<>(
-                    new Result(ResultEnum.HAS_NOT_LOGGED_IN), HttpStatus.UNAUTHORIZED);
+                    new Result<>(ResultEnum.HAS_NOT_LOGGED_IN), HttpStatus.UNAUTHORIZED);
         }
         if (!mailUtil.checkActivationCode(mail, activationCode)) {
             return new ResponseEntity<>(
-                    new Result(ResultEnum.ACTIVATION_CODE_UNMATCHED), HttpStatus.BAD_REQUEST);
+                    new Result<>(ResultEnum.ACTIVATION_CODE_UNMATCHED), HttpStatus.BAD_REQUEST);
         }
         if (mongoTemplate.exists(Query.query(Criteria.where("mail").is(mail)), User.class)) {
             return new ResponseEntity<>(
