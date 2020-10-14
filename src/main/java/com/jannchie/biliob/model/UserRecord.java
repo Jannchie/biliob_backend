@@ -47,6 +47,22 @@ public class UserRecord {
         this.userName = userName;
         this.isExecuted = false;
         this.createTime = d;
+        this.executeTime = d;
+        this.isExecuted = true;
+    }
+
+    public UserRecord(CreditConstant creditConstant, String param, String userName, Boolean isExecuted) {
+        Date d = Calendar.getInstance().getTime();
+        this.datetime = d.toString();
+        this.message = creditConstant.getMsg(param);
+        this.credit = creditConstant.getValue();
+        this.userName = userName;
+        this.isExecuted = false;
+        this.createTime = d;
+        this.isExecuted = isExecuted;
+        if (isExecuted) {
+            this.executeTime = d;
+        }
     }
 
     public UserRecord(
@@ -56,6 +72,15 @@ public class UserRecord {
         this.credit = credit;
         this.userName = userName;
         this.isExecuted = isExecuted;
+    }
+
+    public UserRecord(User user, CreditConstant creditConstant, String message) {
+        this.credit = creditConstant.getValue();
+        this.message = message;
+        Date d = Calendar.getInstance().getTime();
+        this.datetime = d.toString();
+        this.createTime = d;
+        this.userName = user.getName();
     }
 
     public Date getCreateTime() {

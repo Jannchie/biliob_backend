@@ -1,5 +1,6 @@
 package com.jannchie.biliob.constant;
 
+import com.jannchie.biliob.model.User;
 import com.jannchie.biliob.utils.Result;
 
 /**
@@ -74,6 +75,10 @@ public enum ResultEnum {
 
     public Result<?> getResult() {
         return new Result<>(this);
+    }
+
+    public Result<User> getResult(User user) {
+        return new Result<>(this, user);
     }
 
     public <T> Result<T> getResult(T data) {

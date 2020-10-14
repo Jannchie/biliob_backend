@@ -26,6 +26,12 @@ public class Result<T> {
         this.data = data;
     }
 
+    public Result(ResultEnum resultEnum, User user) {
+        this.code = resultEnum.getCode();
+        this.msg = resultEnum.getMsg();
+        this.setUser(new User(user.getCredit(), user.getExp()));
+    }
+
     public Result(ResultEnum resultEnum, double credit, double exp) {
         this.code = resultEnum.getCode();
         this.msg = resultEnum.getMsg();
