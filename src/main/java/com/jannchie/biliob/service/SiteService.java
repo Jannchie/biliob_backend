@@ -21,13 +21,6 @@ public interface SiteService {
     ResponseEntity listOnline(Integer days);
 
     /**
-     * Get grouped data of bilibili
-     *
-     * @return Online grouped data.
-     */
-    ResponseEntity<List> getGroupedOnlineData();
-
-    /**
      * Get the data of the number of video and author being observed. Get number of observers.
      *
      * @return The data of the number of video and author being observed and get the number of
@@ -69,12 +62,6 @@ public interface SiteService {
      * @return result
      */
     ResponseEntity postAlert();
-
-    /**
-     * @param days
-     * @return
-     */
-    List<?> groupOnline(Integer days);
 
     List<?> listSponsor(Integer page, Long pageSize, Integer sort);
 }

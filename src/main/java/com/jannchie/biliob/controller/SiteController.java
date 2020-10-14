@@ -30,15 +30,6 @@ public class SiteController {
         return siteService.listOnline(days);
     }
 
-    @RequestMapping(method = RequestMethod.GET, value = "/api/site/history-play")
-    public ResponseEntity<?> groupOnline(@RequestParam(defaultValue = "360") Integer days) {
-        return ResponseEntity.ok(siteService.groupOnline(days));
-    }
-
-    @RequestMapping(method = RequestMethod.GET, value = "/api/site/group")
-    public ResponseEntity getGroupedOnlineData() {
-        return siteService.getGroupedOnlineData();
-    }
 
     @RequestMapping(method = RequestMethod.GET, value = "/api/site/count")
     public Map getBiliOBCount() {

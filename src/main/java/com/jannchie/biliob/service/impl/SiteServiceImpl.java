@@ -3,14 +3,11 @@ package com.jannchie.biliob.service.impl;
 import com.jannchie.biliob.constant.ResultEnum;
 import com.jannchie.biliob.model.Site;
 import com.jannchie.biliob.model.Sponsor;
-import com.jannchie.biliob.object.StockData;
 import com.jannchie.biliob.service.SiteService;
 import com.jannchie.biliob.utils.Result;
-import com.mongodb.Block;
 import com.mongodb.client.MongoClient;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Sort;
@@ -24,11 +21,6 @@ import org.springframework.stereotype.Service;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
-
-import static com.mongodb.client.model.Accumulators.max;
-import static com.mongodb.client.model.Aggregates.*;
-import static com.mongodb.client.model.Filters.eq;
-import static com.mongodb.client.model.Sorts.descending;
 
 /**
  * @author jannchie
@@ -71,19 +63,6 @@ public class SiteServiceImpl implements SiteService {
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
-    @Override
-    public ResponseEntity<List> getGroupedOnlineData() {
-        List<Map<String, Object>> group = new ArrayList<>();
-        Block<Document> printBlock = m -> {
-            Map<String, Object> map = new HashMap<>(m);
-            group.add(map);
-        };
-        mongoClient.getDatabase("biliob").
-                getCollection("site_info").
-                aggregate(Arrays.asList(group(eq("$month", "$datetime"), max("datetime", "$datetime"), max("play_online", "$play_online"), max("web_online", "$web_online"), max("all_count", "$all_count")), sort(descending("datetime")), limit(12))).forEach(printBlock);
-
-        return new ResponseEntity<>(group, HttpStatus.OK);
-    }
 
     @Override
     @Cacheable(value = "biliob_counter")
@@ -155,32 +134,6 @@ public class SiteServiceImpl implements SiteService {
     public ResponseEntity postAlert() {
         return ResponseEntity.ok("");
 //        return mongoTemplate.upsert();
-    }
-
-    @Override
-    public List<?> groupOnline(Integer days) {
-        days = days > 365 ? 365 : days;
-        Calendar c = Calendar.getInstance();
-        c.add(Calendar.DATE, -days);
-        return mongoTemplate.aggregate(
-                Aggregation.newAggregation(
-                        Aggregation.match(Criteria.where("datetime").gt(c.getTime())),
-                        Aggregation.project()
-                                .and("datetime").dateAsFormattedString("%Y-%m-%d").as("date")
-                                .and("play_online").as("value")
-                                .andExpression("week($datetime)").as("week"),
-                        Aggregation.group("date")
-                                .max("value").as("value").first("week").as("week"),
-                        Aggregation.project("value", "week").and("_id").as("date"),
-                        Aggregation.sort(Sort.Direction.ASC, "date"),
-                        Aggregation.group("week")
-                                .last("date").as("date")
-                                .max("value").as("max")
-                                .min("value").as("min")
-                                .first("value").as("first")
-                                .last("value").as("last")
-                ), "site_info", StockData.class
-        ).getMappedResults();
     }
 
     @Override
