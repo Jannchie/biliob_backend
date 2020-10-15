@@ -42,8 +42,8 @@ public class Result<T> {
     public Result(ResultEnum resultEnum, T data, User user) {
         this.code = resultEnum.getCode();
         this.msg = resultEnum.getMsg();
-        this.setUser(new UserData(user.getCredit(), user.getExp()));
-        this.setData(data);
+        this.user = new UserData(user.getCredit(), user.getExp());
+        this.data = data;
     }
 
     public Integer getCode() {

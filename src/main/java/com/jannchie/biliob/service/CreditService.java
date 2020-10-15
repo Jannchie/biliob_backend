@@ -58,7 +58,7 @@ public class CreditService {
         if (credit < 0) {
             user.setExp(user.getExp() - credit);
         }
-        mongoTemplate.update(User.class).matching(Query.query(Criteria.where(DbFields.ID).is(user.getId()))).apply(Update.update("credit", user.getCredit()).set("exp", user.getExp()));
+        mongoTemplate.update(User.class).matching(Query.query(Criteria.where(DbFields.ID).is(user.getId()))).apply(Update.update("credit", user.getCredit()).set("exp", user.getExp())).first();
         UserRecord ur = mongoTemplate.save(new UserRecord(user, creditConstant, message, isExecuted));
         if (!isExecuted) {
             return ResultEnum.ACCEPTED.getResult(ur, user);

@@ -435,7 +435,7 @@ class UserServiceImpl implements UserService {
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
             return ResultEnum.ALREADY_FORCE_FOCUS.getResult();
         }
-        mongoTemplate.update(Author.class).matching(q).apply(Update.update(FORCE_FOCUS, forceFocus));
+        mongoTemplate.update(Author.class).matching(q).apply(Update.update(FORCE_FOCUS, forceFocus)).first();
         return r;
     }
 

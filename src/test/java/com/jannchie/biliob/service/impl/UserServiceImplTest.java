@@ -55,6 +55,7 @@ public class UserServiceImplTest {
         r = userService.forceFocus(-404L, true);
         Assert.assertEquals(r.getMsg(), ResultEnum.AUTHOR_NOT_FOUND.getMsg());
         r = userService.forceFocus(58402261L, true);
+        r = userService.forceFocus(58402261L, true);
         Assert.assertEquals(r.getMsg(), ResultEnum.SUCCEED.getMsg());
         u = UserUtils.getUser();
         assert u != null;
