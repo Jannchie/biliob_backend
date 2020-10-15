@@ -1,6 +1,7 @@
 package com.jannchie.biliob.service;
 
 import com.jannchie.biliob.constant.CreditConstant;
+import com.jannchie.biliob.constant.DbFields;
 import com.jannchie.biliob.constant.ResultEnum;
 import com.jannchie.biliob.model.User;
 import com.jannchie.biliob.model.UserRecord;
@@ -10,6 +11,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -55,7 +58,7 @@ public class CreditService {
         if (credit < 0) {
             user.setExp(user.getExp() - credit);
         }
-        mongoTemplate.update(User.class).apply(Update.update("credit", user.getCredit()).set("exp", user.getExp()));
+        mongoTemplate.update(User.class).matching(Query.query(Criteria.where(DbFields.ID).is(user.getId()))).apply(Update.update("credit", user.getCredit()).set("exp", user.getExp()));
         UserRecord ur = mongoTemplate.save(new UserRecord(user, creditConstant, message, isExecuted));
         if (!isExecuted) {
             return ResultEnum.ACCEPTED.getResult(ur, user);
