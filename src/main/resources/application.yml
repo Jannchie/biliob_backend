@@ -1,7 +1,4 @@
 spring:
-  session:
-    store-type: mongodb
-    timeout: 2592000
   servlet:
     multipart:
       enabled: true
