@@ -38,7 +38,7 @@ public class DonghuaServiceImpl implements DonghuaService {
         logger.info("获得国创列表");
         return new ResponseEntity<>(
                 donghuaRepository.sliceDonghua(
-                        PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, "currentPts"))),
+                        PageRequest.of(page, pagesize, Sort.by(Sort.Direction.DESC, "currentPts"))),
                 HttpStatus.OK);
     }
 }

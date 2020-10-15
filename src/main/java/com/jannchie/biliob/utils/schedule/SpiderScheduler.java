@@ -13,7 +13,6 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -26,7 +25,6 @@ import static com.jannchie.biliob.constant.TimeConstant.*;
  * @author Pan Jianqi
  */
 @Component
-@EnableAsync
 public class SpiderScheduler {
 
     private static final Logger logger = LogManager.getLogger();

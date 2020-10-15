@@ -55,7 +55,7 @@ public class SiteServiceImpl implements SiteService {
         }
         Integer limit = days * SiteServiceImpl.HOUR_IN_DAY;
         Query query = new Query();
-        query.limit(limit).with(new Sort(Sort.Direction.DESC, "datetime"));
+        query.limit(limit).with(Sort.by(Sort.Direction.DESC, "datetime"));
         List<Site> result = mongoTemplate.find(query, Site.class, "site_info");
 
 

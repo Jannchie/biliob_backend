@@ -48,7 +48,7 @@ public class EventServiceImpl implements EventService {
         }
         Slice<Event> e =
                 eventRepository.findAll(
-                        PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, "datetime")));
+                        PageRequest.of(page, pagesize, Sort.by(Sort.Direction.DESC, "datetime")));
         logger.info("获取事件");
         return new MySlice<>(e);
     }
@@ -67,6 +67,6 @@ public class EventServiceImpl implements EventService {
         }
         logger.info("获取事件");
         return fansVariationRepository.findAll(
-                PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, "datetime")));
+                PageRequest.of(page, pagesize, Sort.by(Sort.Direction.DESC, "datetime")));
     }
 }

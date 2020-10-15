@@ -67,7 +67,11 @@ public class UserUtils {
     }
 
     public static String getUsername() {
-        return SecurityContextHolder.getContext().getAuthentication().getName();
+        try {
+            return SecurityContextHolder.getContext().getAuthentication().getName();
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     public static User getPasswdAndRole(String name) {

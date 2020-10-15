@@ -23,5 +23,5 @@ public interface DonghuaRepository
      * @return a slice
      */
     @Query(value = "{}", fields = "{'data':0}")
-    Slice sliceDonghua(PageRequest of);
+    Slice<?> sliceDonghua(PageRequest of);
 }

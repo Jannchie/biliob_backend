@@ -9,6 +9,7 @@ public class DbFields {
     public static final String USER_ID = "user._id";
     public static final String ID = "_id";
     public static final String VOTES = "votes";
+    public static final String FORCE_FOCUS = "forceFocus";
     public static final String OPINION = "opinion";
     public static final String AGENDA_ID = "agendaId";
     public static final String AGAINST_COUNT = "againstCount";
@@ -25,4 +26,5 @@ public class DbFields {
     public static final String COUNT = "count";
     public static final String AGENDA_STATE = "agendaState";
     public static final String TITLE = "title";
+    public static final String MID = "mid";
 }

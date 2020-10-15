@@ -1,5 +1,7 @@
 package com.jannchie.biliob.constant;
 
+import com.jannchie.biliob.exception.BusinessException;
+
 /**
  * @author jannchie
  */
@@ -10,7 +12,9 @@ public enum ExceptionEnum {
      */
     ALREADY_SIGNED(-1, "已经签过到了"),
     OUT_OF_RANGE(-1, "参数超出范围"),
-    EXECUTE_FAILURE(-1, "执行失败");
+    NOT_LOGIN(-1, "未登录"),
+    EXECUTE_FAILURE(-1, "执行失败"),
+    CREDIT_NOT_ENOUGH(-1, "积分不足");
 
     private Integer code;
     private String msg;
@@ -34,5 +38,9 @@ public enum ExceptionEnum {
 
     public void setMsg(String msg) {
         this.msg = msg;
+    }
+
+    public BusinessException getException() {
+        return new BusinessException(this);
     }
 }

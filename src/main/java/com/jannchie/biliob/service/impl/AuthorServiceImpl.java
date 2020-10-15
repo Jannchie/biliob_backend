@@ -311,19 +311,19 @@ public class AuthorServiceImpl implements AuthorService {
         if (mid != -1) {
             AuthorServiceImpl.logger.info(mid);
             result = new MySlice<>(respository.searchByMid(mid,
-                    PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, sortKey))));
+                    PageRequest.of(page, pagesize, Sort.by(Sort.Direction.DESC, sortKey))));
         } else if (!Objects.equals(text, "")) {
             AuthorServiceImpl.logger.info(text);
             if (InputInspection.isId(text)) {
                 // get a mid
                 result = new MySlice<>(respository.searchByMid(Long.valueOf(text),
-                        PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, sortKey))));
+                        PageRequest.of(page, pagesize, Sort.by(Sort.Direction.DESC, sortKey))));
             } else {
 
                 // get text
                 String[] textArray = text.split(" ");
                 result = new MySlice<>(respository.findByKeywordContaining(textArray,
-                        PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, sortKey))));
+                        PageRequest.of(page, pagesize, Sort.by(Sort.Direction.DESC, sortKey))));
                 if (result.getContent().isEmpty()) {
                     for (String eachText : textArray) {
                         HashMap<String, String> map = new HashMap<>(1);
@@ -332,11 +332,10 @@ public class AuthorServiceImpl implements AuthorService {
                     }
                 }
             }
-
         } else {
             AuthorServiceImpl.logger.info("查看所有UP主列表");
             result = new MySlice<>(respository.listAll(
-                    PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, sortKey))));
+                    PageRequest.of(page, pagesize, Sort.by(Sort.Direction.DESC, sortKey))));
         }
 
         authorUtil.getInterval(result.getContent());
@@ -351,7 +350,7 @@ public class AuthorServiceImpl implements AuthorService {
     @Override
     public ResponseEntity<?> listFansIncreaseRate() {
         Slice<Author> slice = respository
-                .listTopIncreaseRate(PageRequest.of(0, 20, new Sort(Sort.Direction.DESC, "cRate")));
+                .listTopIncreaseRate(PageRequest.of(0, 20, Sort.by(Sort.Direction.DESC, "cRate")));
         AuthorServiceImpl.logger.info("获得涨粉榜");
         return new ResponseEntity<>(slice, HttpStatus.OK);
     }
@@ -364,7 +363,7 @@ public class AuthorServiceImpl implements AuthorService {
     @Override
     public ResponseEntity<?> listFansDecreaseRate() {
         Slice<Author> slice = respository
-                .listTopIncreaseRate(PageRequest.of(0, 20, new Sort(Sort.Direction.ASC, "cRate")));
+                .listTopIncreaseRate(PageRequest.of(0, 20, Sort.by(Sort.Direction.ASC, "cRate")));
         AuthorServiceImpl.logger.info("获得掉粉榜");
         return new ResponseEntity<>(slice, HttpStatus.OK);
     }

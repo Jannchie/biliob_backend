@@ -98,7 +98,7 @@ public interface AuthorRepository
      *
      * @param mapsList author id map
      * @param of       page information
-     * @return a Slice of user favorite authors
+     * @return a Slice<?> of user favorite authors
      */
     @Query(
             value = "{$or:?0}",
@@ -111,7 +111,7 @@ public interface AuthorRepository
      * listTopIncreaseRate
      *
      * @param of page information
-     * @return a Slice of top fans increase rate.
+     * @return a Slice<?> of top fans increase rate.
      */
     @Query(value = "{cRate:{$ne:null}}", fields = "{ 'data': 0, 'fansRate': 0, 'channels': 0, 'keyword': 0 }")
     Slice<Author> listTopIncreaseRate(PageRequest of);

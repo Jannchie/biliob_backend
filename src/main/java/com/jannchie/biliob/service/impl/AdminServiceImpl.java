@@ -55,7 +55,7 @@ public class AdminServiceImpl implements AdminService {
      * list User
      *
      * @param page     page
-     * @param pagesize pageszie
+     * @param pagesize page size
      * @param sort     sort
      * @param text     text
      * @param day      @return user list
@@ -84,7 +84,7 @@ public class AdminServiceImpl implements AdminService {
      * @return list of result
      */
     @Override
-    public List aggregateUser(List<Map<String, Object>> ops) {
+    public List<?> aggregateUser(List<Map<String, Object>> ops) {
         String command = "db.user.aggregate([{$group:{_id:'$name',count:{$sum:'$EXP'}}}])";
         BasicDBObject bson = new BasicDBObject();
         bson.put("$eval", command);
@@ -95,7 +95,7 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    public List aggregateUser(
+    public List<?> aggregateUser(
             Integer page,
             Integer pagesize,
             Integer day,
@@ -343,15 +343,15 @@ public class AdminServiceImpl implements AdminService {
         c.add(Calendar.DATE, -day);
         ArrayList<AggregationOperation> aggregationList = new ArrayList<>();
         aggregationList.add(Aggregation.match(Criteria.where("datetime").gt(c.getTime())));
-        if (!text.equals("")) {
+        if (!"".equals(text)) {
             aggregationList.add(Aggregation.match(Criteria.where("ip").is(text)));
         }
 //        String regex = "^[-+]?[\\d]*$";
         Pattern pattern = Pattern.compile(regex);
-        if (!regex.equals("")) {
+        if (!"".equals(regex)) {
             aggregationList.add(Aggregation.match(Criteria.where("uri").regex(regex, "i")));
         }
-        if (!groupBy.equals("")) {
+        if (!"".equals(groupBy)) {
             aggregationList.add(Aggregation.group(groupBy)
                     .count().as("count")
                     .last("uri").as("lastUri")

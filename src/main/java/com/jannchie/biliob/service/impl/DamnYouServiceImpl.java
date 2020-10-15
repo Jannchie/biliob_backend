@@ -18,7 +18,6 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -33,7 +32,6 @@ import java.util.zip.ZipInputStream;
 /**
  * @author Jannchie
  */
-@EnableAsync
 @Service
 public class DamnYouServiceImpl implements DamnYouService {
     private static final Logger logger = LogManager.getLogger();

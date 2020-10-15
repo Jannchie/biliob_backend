@@ -81,6 +81,10 @@ public enum ResultEnum {
         return new Result<>(this, user);
     }
 
+    public <T> Result<T> getResult(T data, User user) {
+        return new Result<>(this, data, user);
+    }
+
     public <T> Result<T> getResult(T data) {
         return new Result<>(this, data);
     }

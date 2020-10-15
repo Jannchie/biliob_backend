@@ -1,14 +1,14 @@
 package com.jannchie.biliob.config;
 
-import com.mongodb.MongoClientOptions;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import org.springframework.context.EnvironmentAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
-import org.springframework.data.mongodb.MongoDbFactory;
+import org.springframework.data.mongodb.MongoDatabaseFactory;
 import org.springframework.data.mongodb.MongoTransactionManager;
+import org.springframework.data.mongodb.core.MongoTemplate;
 
 @Configuration
 class MongoConfig implements EnvironmentAware {
@@ -16,20 +16,8 @@ class MongoConfig implements EnvironmentAware {
     private static String BILIOB_MONGO_URL;
 
     @Bean
-    MongoTransactionManager transactionManager(MongoDbFactory dbFactory) {
+    MongoTransactionManager transactionManager(MongoDatabaseFactory dbFactory) {
         return new MongoTransactionManager(dbFactory);
-    }
-
-    @Bean
-    public MongoClientOptions mongoOptions() {
-        return MongoClientOptions.builder()
-                .maxConnectionIdleTime(30000)
-                .serverSelectionTimeout(3000)
-                .maxConnectionLifeTime(600000)
-                .connectTimeout(10000)
-                .maxWaitTime(5000)
-                .socketTimeout(10000)
-                .build();
     }
 
     /**
@@ -39,6 +27,11 @@ class MongoConfig implements EnvironmentAware {
     public @Bean
     MongoClient reactiveMongoClient() {
         return MongoClients.create(MongoConfig.BILIOB_MONGO_URL);
+    }
+
+    public @Bean
+    MongoTemplate mongoTemplate(MongoDatabaseFactory mongoDatabaseFactory) {
+        return new MongoTemplate(mongoDatabaseFactory);
     }
 
     /**

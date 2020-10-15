@@ -17,7 +17,6 @@ import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -28,7 +27,6 @@ import java.util.List;
  * @author Jannchie
  */
 @Service
-@EnableAsync
 public class AuthorAchievementServiceImpl implements AuthorAchievementService {
     private static final org.apache.logging.log4j.Logger logger = LogManager.getLogger();
     private MongoTemplate mongoTemplate;

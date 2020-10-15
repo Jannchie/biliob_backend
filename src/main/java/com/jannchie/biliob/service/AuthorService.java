@@ -125,6 +125,13 @@ public interface AuthorService {
      */
     void upsertAuthorFreq(Long mid, Integer interval);
 
+    /**
+     * upsert author frequency
+     *
+     * @param mid      author id
+     * @param interval interval of every crawl
+     * @param delay    delay
+     */
     void upsertAuthorFreq(Long mid, Integer interval, Integer delay);
 
     /**

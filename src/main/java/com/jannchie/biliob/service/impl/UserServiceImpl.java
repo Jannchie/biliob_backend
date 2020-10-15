@@ -1,20 +1,19 @@
 package com.jannchie.biliob.service.impl;
 
 import com.jannchie.biliob.constant.CreditConstant;
-import com.jannchie.biliob.constant.FieldConstant;
+import com.jannchie.biliob.constant.DbFields;
 import com.jannchie.biliob.constant.ResultEnum;
 import com.jannchie.biliob.constant.RoleEnum;
 import com.jannchie.biliob.credit.handle.CreditHandle;
 import com.jannchie.biliob.credit.handle.CreditOperateHandle;
 import com.jannchie.biliob.exception.UserNotExistException;
 import com.jannchie.biliob.form.ChangePasswordForm;
-import com.jannchie.biliob.model.Author;
-import com.jannchie.biliob.model.Question;
-import com.jannchie.biliob.model.User;
-import com.jannchie.biliob.model.UserRecord;
+import com.jannchie.biliob.model.*;
 import com.jannchie.biliob.object.AuthorIntervalRecord;
+import com.jannchie.biliob.object.VideoIntervalRecord;
 import com.jannchie.biliob.repository.*;
 import com.jannchie.biliob.service.AuthorService;
+import com.jannchie.biliob.service.CreditService;
 import com.jannchie.biliob.service.UserService;
 import com.jannchie.biliob.utils.*;
 import com.jannchie.biliob.utils.credit.calculator.*;
@@ -37,10 +36,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
 import javax.validation.Valid;
 import java.util.*;
 
+import static com.jannchie.biliob.constant.DbFields.FORCE_FOCUS;
 import static com.jannchie.biliob.constant.PageSizeEnum.BIG_SIZE;
 import static com.jannchie.biliob.constant.PageSizeEnum.USER_RANK_SIZE;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
@@ -51,8 +53,6 @@ import static org.springframework.data.mongodb.core.query.Criteria.where;
 @Service
 class UserServiceImpl implements UserService {
     private static final Logger logger = LogManager.getLogger(UserServiceImpl.class);
-
-    private final CreditUtil creditUtil;
 
     private final UserRepository userRepository;
 
@@ -66,15 +66,10 @@ class UserServiceImpl implements UserService {
 
     private final MongoTemplate mongoTemplate;
 
-    private final RefreshAuthorCreditCalculator refreshAuthorCreditCalculator;
-
-    private final RefreshVideoCreditCalculator refreshVideoCreditCalculator;
+    private final CreditService creditService;
 
     private final DanmakuAggregateCreditCalculator danmakuAggregateCreditCalculator;
 
-    private final CheckInCreditCalculator checkInCreditCalculator;
-
-    private final ForceFocusCreditCalculator forceFocusCreditCalculator;
     private final AuthorService authorService;
 
     private final MailUtil mailUtil;
@@ -82,7 +77,6 @@ class UserServiceImpl implements UserService {
     private CreditHandle creditHandle;
     private BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
     private AuthorUtil authorUtil;
-    private CreditOperateHandle creditOperateHandle;
 
     @Autowired
     public UserServiceImpl(
@@ -95,31 +89,26 @@ class UserServiceImpl implements UserService {
             MongoTemplate mongoTemplate,
             RefreshAuthorCreditCalculator refreshAuthorCreditCalculator,
             RefreshVideoCreditCalculator refreshVideoCreditCalculator,
-            ForceFocusCreditCalculator forceFocusCreditCalculator,
+            CreditService creditService, ForceFocusCreditCalculator forceFocusCreditCalculator,
             DanmakuAggregateCreditCalculator danmakuAggregateCreditCalculator,
             CheckInCreditCalculator checkInCreditCalculator,
             ModifyNickNameCreditCalculator modifyNickNameCreditCalculator,
             AuthorService authorService, CreditHandle creditHandle,
             MailUtil mailUtil,
             RecommendVideo recommendVideo, AuthorUtil authorUtil, CreditOperateHandle creditOperateHandle) {
-        this.creditUtil = creditUtil;
         this.userRepository = userRepository;
         this.videoRepository = videoRepository;
         this.authorRepository = authorRepository;
         this.questionRepository = questionRepository;
         this.userRecordRepository = userRecordRepository;
         this.mongoTemplate = mongoTemplate;
+        this.creditService = creditService;
         this.authorService = authorService;
         this.creditHandle = creditHandle;
-        this.refreshAuthorCreditCalculator = refreshAuthorCreditCalculator;
-        this.forceFocusCreditCalculator = forceFocusCreditCalculator;
-        this.refreshVideoCreditCalculator = refreshVideoCreditCalculator;
         this.danmakuAggregateCreditCalculator = danmakuAggregateCreditCalculator;
-        this.checkInCreditCalculator = checkInCreditCalculator;
         this.mailUtil = mailUtil;
         this.recommendVideo = recommendVideo;
         this.authorUtil = authorUtil;
-        this.creditOperateHandle = creditOperateHandle;
     }
 
     @Override
@@ -237,7 +226,7 @@ class UserServiceImpl implements UserService {
      * @return favorite video page
      */
     @Override
-    public Slice getFavoriteVideo(Integer page, Integer pageSize) {
+    public Slice<?> getFavoriteVideo(Integer page, Integer pageSize) {
         if (pageSize > BIG_SIZE.getValue()) {
             pageSize = BIG_SIZE.getValue();
         }
@@ -385,8 +374,18 @@ class UserServiceImpl implements UserService {
      * @return check in response
      */
     @Override
-    public ResponseEntity<?> postCheckIn() {
-        return checkInCreditCalculator.executeAndGetResponse(CreditConstant.CHECK_IN);
+    @Transactional(rollbackFor = Exception.class)
+    public Result<?> postCheckIn() {
+        String name = UserUtils.getUsername();
+        if (name == null) {
+            return ResultEnum.HAS_NOT_LOGGED_IN.getResult();
+        }
+        if (mongoTemplate.exists(Query.query(Criteria.where("name").is(name)), CheckIn.class)) {
+            return ResultEnum.ALREADY_SIGNED.getResult();
+        }
+        CheckIn checkIn = new CheckIn(name);
+        mongoTemplate.insert(checkIn);
+        return creditService.doCreditOperation(CreditConstant.CHECK_IN);
     }
 
     /**
@@ -417,8 +416,26 @@ class UserServiceImpl implements UserService {
      * @return Force observation or cancel the force observation feedback.
      */
     @Override
-    public ResponseEntity<?> forceFocus(Long mid, @Valid Boolean forceFocus) {
-        return forceFocusCreditCalculator.executeAndGetResponse(CreditConstant.SET_FORCE_OBSERVE, mid);
+    @Transactional(rollbackFor = Exception.class)
+    public Result<?> forceFocus(Long mid, @Valid Boolean forceFocus) {
+        String msg = CreditConstant.SET_AUTHOR_FORCE_OBSERVE.getMsg(mid);
+        Result<?> r = creditService.doCreditOperation(CreditConstant.SET_AUTHOR_FORCE_OBSERVE, msg);
+        Query q = Query.query(Criteria.where(DbFields.MID).is(mid));
+        Author a = mongoTemplate.findOne(q, Author.class);
+
+        if (a == null) {
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+            return ResultEnum.AUTHOR_NOT_FOUND.getResult();
+        }
+        if (a.getForceFocus() == null) {
+            a.setForceFocus(false);
+        }
+        if (a.getForceFocus().equals(forceFocus)) {
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+            return ResultEnum.ALREADY_FORCE_FOCUS.getResult();
+        }
+        mongoTemplate.update(Author.class).matching(q).apply(Update.update(FORCE_FOCUS, forceFocus));
+        return r;
     }
 
     /**
@@ -428,21 +445,11 @@ class UserServiceImpl implements UserService {
      * @return the post result.
      */
     @Override
-    public ResponseEntity<?> postQuestion(String question) {
-        User user = UserUtils.getUser();
-        if (user == null) {
-            return new ResponseEntity<>(
-                    new Result<>(ResultEnum.HAS_NOT_LOGGED_IN), HttpStatus.UNAUTHORIZED);
-        }
-        String userName = user.getName();
-        HashMap<String, Double> data = creditUtil.calculateCredit(user, CreditConstant.ASK_QUESTION);
-        if (data.get(FieldConstant.CREDIT.getValue()) != -1) {
-            questionRepository.save(new Question(question, userName));
-            UserServiceImpl.logger.info("用户：{} 提出了一个问题：{}", user.getName(), question);
-            return new ResponseEntity<>(new Result<>(ResultEnum.SUCCEED, data), HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(new Result<>(ResultEnum.CREDIT_NOT_ENOUGH), HttpStatus.ACCEPTED);
-        }
+    @Transactional(rollbackFor = Exception.class)
+    public Result<?> postQuestion(String question) {
+        String msg = CreditConstant.SET_AUTHOR_FORCE_OBSERVE.getMsg();
+        questionRepository.save(new Question(question, UserUtils.getUsername()));
+        return creditService.doCreditOperation(CreditConstant.SET_AUTHOR_FORCE_OBSERVE, msg);
     }
 
     /**
@@ -452,40 +459,43 @@ class UserServiceImpl implements UserService {
      * @return response
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public ResponseEntity<?> refreshAuthor(@Valid Long mid) {
-        User u = UserUtils.getUser();
-        UserRecord userRecord = mongoTemplate.insert(new UserRecord(CreditConstant.REFRESH_AUTHOR_DATA, String.valueOf(mid), u.getName()));
-        Result<?> result = creditOperateHandle.doAsyncCreditOperate(u, CreditConstant.REFRESH_AUTHOR_DATA,
-                () -> {
-                    Query q = Query.query(Criteria.where("mid").is(mid));
-                    if (!mongoTemplate.exists(q, AuthorIntervalRecord.class)) {
-                        authorService.upsertAuthorFreq(mid, 86400);
-                    }
-                    return mongoTemplate.updateFirst(q,
-                            new Update().addToSet("order", userRecord.getId()).set("next", new Date(0)), AuthorIntervalRecord.class);
-                });
+        String msg = CreditConstant.REFRESH_AUTHOR_DATA.getMsg(mid);
+        Result<UserRecord> result = creditService.doCreditOperation(CreditConstant.REFRESH_AUTHOR_DATA, msg, false);
+        UserRecord ur = result.getData();
+        Query q = Query.query(Criteria.where("mid").is(mid));
+        if (!mongoTemplate.exists(q, AuthorIntervalRecord.class)) {
+            authorService.upsertAuthorFreq(mid, 86400);
+        }
+        mongoTemplate.updateFirst(q, new Update().addToSet("order", ur.getId()).set("next", new Date(0)), AuthorIntervalRecord.class);
+        result.setData(null);
         return ResponseEntity.ok(result);
     }
 
     @Override
-    public ResponseEntity<?> refreshVideo(@Valid Long aid) {
-        User u = UserUtils.getUser();
-        UserRecord userRecord = mongoTemplate.insert(new UserRecord(CreditConstant.REFRESH_VIDEO_DATA, String.valueOf(aid), u.getName()));
-        Result<?> result = creditOperateHandle.doAsyncCreditOperate(u, CreditConstant.REFRESH_VIDEO_DATA,
-                () -> mongoTemplate.updateFirst(Query.query(Criteria.where("aid").is(aid)),
-                        new Update().addToSet("order", userRecord.getId()).set("next", new Date(0)), "video_interval"));
-        return ResponseEntity.ok(result);
+    public Result<?> refreshVideo(@Valid Long aid) {
+        Query q = Query.query(Criteria.where("aid").is(aid));
+        String msg = CreditConstant.REFRESH_VIDEO_DATA.getMsg(aid);
+        return refreshVideo(q, msg);
     }
 
     @Override
-    public ResponseEntity<?> refreshVideo(@Valid String bvid) {
-        User u = UserUtils.getUser();
-        UserRecord userRecord = mongoTemplate.insert(new UserRecord(CreditConstant.REFRESH_VIDEO_DATA, bvid, u.getName()));
-        Result<?> result = creditOperateHandle.doAsyncCreditOperate(u, CreditConstant.REFRESH_VIDEO_DATA,
-                () -> mongoTemplate.updateFirst(Query.query(Criteria.where("bvid").is(bvid)),
-                        new Update().addToSet("order", userRecord.getId()), "video_interval"));
-        return ResponseEntity.ok(result);
+    public Result<?> refreshVideo(@Valid String bvid) {
+        Query q = Query.query(Criteria.where("bvid").is(bvid));
+        String msg = CreditConstant.REFRESH_VIDEO_DATA.getMsg(bvid);
+        return refreshVideo(q, msg);
     }
+
+    @Transactional(rollbackFor = Exception.class)
+    private Result<?> refreshVideo(Query q, String msg) {
+        Result<UserRecord> result = creditService.doCreditOperation(CreditConstant.REFRESH_VIDEO_DATA, msg, false);
+        UserRecord ur = result.getData();
+        mongoTemplate.updateFirst(q, new Update().addToSet("order", ur.getId()).set("next", new Date(0)), VideoIntervalRecord.class);
+        result.setData(null);
+        return result;
+    }
+
 
     /**
      * Rank of user, order by exp

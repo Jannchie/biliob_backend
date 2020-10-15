@@ -2,6 +2,7 @@ package com.jannchie.biliob.utils;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.jannchie.biliob.constant.ResultEnum;
+import com.jannchie.biliob.model.User;
 
 /**
  * @author jannchie
@@ -12,7 +13,7 @@ public class Result<T> {
     private Integer code;
     private String msg;
     private T data;
-    private User user;
+    private UserData user;
 
 
     public Result(ResultEnum resultEnum) {
@@ -29,13 +30,20 @@ public class Result<T> {
     public Result(ResultEnum resultEnum, User user) {
         this.code = resultEnum.getCode();
         this.msg = resultEnum.getMsg();
-        this.setUser(new User(user.getCredit(), user.getExp()));
+        this.setUser(new UserData(user.getCredit(), user.getExp()));
     }
 
     public Result(ResultEnum resultEnum, double credit, double exp) {
         this.code = resultEnum.getCode();
         this.msg = resultEnum.getMsg();
-        this.setUser(new User(credit, exp));
+        this.setUser(new UserData(credit, exp));
+    }
+
+    public Result(ResultEnum resultEnum, T data, User user) {
+        this.code = resultEnum.getCode();
+        this.msg = resultEnum.getMsg();
+        this.setUser(new UserData(user.getCredit(), user.getExp()));
+        this.setData(data);
     }
 
     public Integer getCode() {
@@ -62,27 +70,27 @@ public class Result<T> {
         this.data = data;
     }
 
-    public User getUser() {
+    public UserData getUser() {
         return user;
     }
 
-    public void setUser(User user) {
+    public void setUser(UserData user) {
         this.user = user;
     }
 
-    class User {
-        private double credit;
-        private double exp;
+    public static class UserData {
+        private Double credit;
+        private Double exp;
 
-        public User() {
+        public UserData() {
         }
 
-        public User(double credit, double exp) {
+        public UserData(double credit, double exp) {
             this.credit = credit;
             this.exp = exp;
         }
 
-        public double getCredit() {
+        public Double getCredit() {
             return credit;
         }
 
@@ -90,7 +98,7 @@ public class Result<T> {
             this.credit = credit;
         }
 
-        public double getExp() {
+        public Double getExp() {
             return exp;
         }
 

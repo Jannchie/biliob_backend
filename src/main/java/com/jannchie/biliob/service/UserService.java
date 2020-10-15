@@ -125,7 +125,7 @@ public interface UserService {
      *
      * @return check in response
      */
-    ResponseEntity<?> postCheckIn();
+    Result<?> postCheckIn();
 
     /**
      * to know whether user is checked in
@@ -141,7 +141,7 @@ public interface UserService {
      * @param forceFocus force focus status
      * @return Force observation or cancel the force observation feedback.
      */
-    ResponseEntity<?> forceFocus(Long mid, @Valid Boolean forceFocus);
+    Result<?> forceFocus(Long mid, @Valid Boolean forceFocus);
 
     /**
      * post a question
@@ -149,7 +149,7 @@ public interface UserService {
      * @param question the question text
      * @return the post result.
      */
-    ResponseEntity<?> postQuestion(String question);
+    Result<?> postQuestion(String question);
 
     /**
      * Refresh author data immediately.
@@ -165,7 +165,7 @@ public interface UserService {
      * @param aid video id
      * @return response
      */
-    ResponseEntity<?> refreshVideo(Long aid);
+    Result<?> refreshVideo(Long aid);
 
     /**
      * Refresh video data immediately.
@@ -173,7 +173,7 @@ public interface UserService {
      * @param bvid video id
      * @return response
      */
-    ResponseEntity<?> refreshVideo(String bvid);
+    Result<?> refreshVideo(String bvid);
 
     /**
      * Rank of user, order by exp

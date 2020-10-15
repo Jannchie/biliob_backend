@@ -175,5 +175,5 @@ public interface VideoRepository
             fields =
                     "{ 'pic' : 1, 'mid' : 1, 'author' : 1, 'authorName' : 1, 'bvid': 1, 'channel' : 1, 'title' : 1, 'aid' : 1, 'focus': 1, 'tag': 1}"
     )
-    Slice getFavoriteVideo(ArrayList<HashMap<String, Long>> aids, PageRequest of);
+    Slice<?> getFavoriteVideo(ArrayList<HashMap<String, Long>> aids, PageRequest of);
 }

@@ -364,17 +364,17 @@ public class VideoServiceImpl implements VideoService {
                 Date date = c.getTime();
                 return new MySlice<>(
                         repository.findAllByDatetimeGreaterThan(
-                                date, PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, sortKey))));
+                                date, PageRequest.of(page, pagesize, Sort.by(Sort.Direction.DESC, sortKey))));
             } else {
                 VideoServiceImpl.logger.info("获取全部视频数据");
                 return new MySlice<>(
                         repository.findVideoBy(
-                                PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, sortKey))));
+                                PageRequest.of(page, pagesize, Sort.by(Sort.Direction.DESC, sortKey))));
             }
         }
         Query q = Query.query(criteria)
                 .maxTimeMsec(10000)
-                .with(PageRequest.of(page, pagesize, new Sort(Sort.Direction.DESC, sortKey)));
+                .with(PageRequest.of(page, pagesize, Sort.by(Sort.Direction.DESC, sortKey)));
         q.fields().include("pic")
                 .include("mid")
                 .include("aid")
@@ -421,9 +421,9 @@ public class VideoServiceImpl implements VideoService {
         }
         Sort videoSort;
         if (Objects.equals(sort, VIEW_COUNT.getValue())) {
-            videoSort = new Sort(Sort.Direction.DESC, "cView");
+            videoSort = Sort.by(Sort.Direction.DESC, "cView");
         } else if (Objects.equals(sort, PUBLISH_TIME.getValue())) {
-            videoSort = new Sort(Sort.Direction.DESC, "datetime");
+            videoSort = Sort.by(Sort.Direction.DESC, "datetime");
         } else {
             return null;
         }
@@ -440,7 +440,7 @@ public class VideoServiceImpl implements VideoService {
      */
     @Override
     public Video getMyVideo() {
-        Query q = new Query(where("mid").is(1850091)).with(new Sort(Sort.Direction.DESC, "datetime"));
+        Query q = new Query(where("mid").is(1850091)).with(Sort.by(Sort.Direction.DESC, "datetime"));
         q.fields().exclude("data");
         Video video = mongoTemplate.findOne(q, Video.class);
         VideoServiceImpl.logger.info("获取广告");

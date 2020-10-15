@@ -148,7 +148,7 @@ public class UserController {
     }
 
     @RequestMapping(method = RequestMethod.POST, value = "/api/user/check-in")
-    public ResponseEntity<?> postCheckIn() {
+    public Result<?> postCheckIn() {
         return userService.postCheckIn();
     }
 
@@ -158,14 +158,14 @@ public class UserController {
     }
 
     @RequestMapping(method = RequestMethod.PUT, value = "/api/user/author/{mid}/status")
-    public ResponseEntity<?> forceFocus(
+    public Result<?> forceFocus(
             @RequestParam(defaultValue = "false") @Valid Boolean forceFocus,
             @PathVariable("mid") @Valid Long mid) {
         return userService.forceFocus(mid, forceFocus);
     }
 
     @RequestMapping(method = RequestMethod.POST, value = "/api/user/question")
-    public ResponseEntity<?> postQuestion(@RequestBody @Valid Question question) {
+    public Result<?> postQuestion(@RequestBody @Valid Question question) {
         return userService.postQuestion(question.getQuestion());
     }
 
@@ -180,18 +180,18 @@ public class UserController {
     }
 
     @RequestMapping(method = RequestMethod.PUT, value = "/api/user/video/AV{aid}/data")
-    public ResponseEntity<?> refreshVideo(@PathVariable("aid") @Valid Long aid) {
+    public Result<?> refreshVideo(@PathVariable("aid") @Valid Long aid) {
         return userService.refreshVideo(aid);
     }
 
     @RequestMapping(method = RequestMethod.PUT, value = "/api/user/video/BV{bvid}/data")
-    public ResponseEntity<?> refreshVideo(@PathVariable("bvid") @Valid String bvid) {
+    public Result<?> refreshVideo(@PathVariable("bvid") @Valid String bvid) {
         return userService.refreshVideo(bvid);
     }
 
 
     @RequestMapping(method = RequestMethod.PUT, value = "/api/user/video/data")
-    public ResponseEntity<?> refreshVideo(@RequestBody Video video) {
+    public Result<?> refreshVideo(@RequestBody Video video) {
         if (video.getBvid() != null) {
             return userService.refreshVideo(video.getBvid());
         }

@@ -29,13 +29,14 @@ public enum CreditConstant {
     CHECK_IN(10D, "签到"),
     WATCH_AD(10D, "点击广告"),
     MODIFY_NAME(-50D, "改名为 %s"),
-    SET_FORCE_OBSERVE(-200D, "设置强制追踪"),
+    SET_AUTHOR_FORCE_OBSERVE(-200D, "设置 mid:%s 强制追踪"),
+    SET_VIDEO_FORCE_OBSERVE(-200D, "设置 BV%s 强制追踪"),
     SET_STRONG_OBSERVE(-150D, "设置高频率追踪一周"),
     SET_KICHIKU_OBSERVE(-300D, "设置鬼畜级频率追踪一周"),
     ASK_QUESTION(-30D, "提出问题"),
     DONATE(100D, "试图捐款"),
     REFRESH_AUTHOR_DATA(-5D, "立即刷新ID为 %s 的UP主数据"),
-    REFRESH_VIDEO_DATA(-1D, "立即刷新 av%s 的视频数据"),
+    REFRESH_VIDEO_DATA(-1D, "立即刷新ID为 %s 的视频数据"),
     DANMAKU_AGGREGATE(-10D, "对 av%s 进行弹幕分析"),
     ALWAYS_FAIL(-999999999D, "不可能完成的任务"),
     LIKE_COMMENT(-0.1D, "喜欢编号为 %s 的观测记录"),
@@ -67,8 +68,13 @@ public enum CreditConstant {
         this.value = value;
     }
 
-    public String getMsg(Long d) {
-        return String.format(msg, d);
+
+    public <T, U> String getMsg(T d, U e) {
+        return String.format(msg, d, e);
+    }
+
+    public <T, U, V> String getMsg(T d, U e, V f) {
+        return String.format(msg, d, e, f);
     }
 
     public String getMsg() {
