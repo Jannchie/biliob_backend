@@ -623,9 +623,9 @@ public class AuthorServiceImpl implements AuthorService {
         calculateHomePageAuthor(intervalMap);
         calculateTopClassIntervalData(intervalMap);
         calculateFansRankIntervalData(intervalMap);
-        logger.fatal("[START] 调整观测频率: 本次计划调整 {} 个UP主的频率", intervalMap.size());
+        logger.info("[START] 调整观测频率: 本次计划调整 {} 个UP主的频率", intervalMap.size());
         intervalMap.forEach(this::upsertAuthorFreq);
-        logger.fatal("[FINISH] 调整观测频率 完成");
+        logger.info("[FINISH] 调整观测频率 完成");
     }
 
     private void calculateHomePageAuthor(HashMap<Long, Integer> intervalMap) {
@@ -711,9 +711,9 @@ public class AuthorServiceImpl implements AuthorService {
             setIntervalMap(intervalMap, author.getMid(), SECOND_OF_MINUTES * 60 * 12);
         }
 
-        logger.fatal("[START] 调整观测频率: 本次计划调整 {} 个UP主的频率", intervalMap.size());
+        logger.info("[START] 调整观测频率: 本次计划调整 {} 个UP主的频率", intervalMap.size());
         intervalMap.forEach(this::upsertAuthorFreq);
-        logger.fatal("[FINISH] 调整观测频率 完成");
+        logger.info("[FINISH] 调整观测频率 完成");
 
     }
 

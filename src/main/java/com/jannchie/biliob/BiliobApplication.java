@@ -14,9 +14,7 @@ import org.springframework.session.data.mongo.config.annotation.web.http.EnableM
 @EnableScheduling
 @EnableMongoHttpSession(maxInactiveIntervalInSeconds = 2592000)
 @SpringBootApplication
-@ConditionalOnProperty(
-        value = "app.scheduling.enable", havingValue = "true", matchIfMissing = true
-)
+@ConditionalOnProperty(value = "app.scheduling.enable", havingValue = "true", matchIfMissing = true)
 public class BiliobApplication {
     public static void main(String[] args) {
         SpringApplication.run(BiliobApplication.class, args);

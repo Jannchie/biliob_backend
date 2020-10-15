@@ -7,6 +7,7 @@ import com.jannchie.biliob.form.ChangeMailForm;
 import com.jannchie.biliob.form.ChangePasswordForm;
 import com.jannchie.biliob.model.Question;
 import com.jannchie.biliob.model.User;
+import com.jannchie.biliob.model.UserRecord;
 import com.jannchie.biliob.model.Video;
 import com.jannchie.biliob.object.LoginForm;
 import com.jannchie.biliob.object.NickNameForm;
@@ -170,7 +171,7 @@ public class UserController {
     }
 
     @RequestMapping(method = RequestMethod.PUT, value = "/api/user/author/{mid}/data")
-    public ResponseEntity<?> refreshAuthor(@PathVariable("mid") @Valid Long mid) {
+    public Result<UserRecord> refreshAuthor(@PathVariable("mid") @Valid Long mid) {
         return userService.refreshAuthor(mid);
     }
 

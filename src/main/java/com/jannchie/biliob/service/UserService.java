@@ -157,7 +157,7 @@ public interface UserService {
      * @param mid author id
      * @return response
      */
-    ResponseEntity<?> refreshAuthor(@Valid Long mid);
+    Result<UserRecord> refreshAuthor(@Valid Long mid);
 
     /**
      * Refresh video data immediately.

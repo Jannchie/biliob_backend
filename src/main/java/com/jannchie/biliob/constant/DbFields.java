@@ -27,4 +27,6 @@ public class DbFields {
     public static final String AGENDA_STATE = "agendaState";
     public static final String TITLE = "title";
     public static final String MID = "mid";
+    public static final String DATE = "date";
+    public static final String DATETIME = "datetime";
 }

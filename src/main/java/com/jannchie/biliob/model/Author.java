@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.jannchie.biliob.constant.AuthorAchievementEnum;
 import com.jannchie.biliob.constant.AuthorUniqueAchievementEnum;
+import org.bson.types.ObjectId;
+import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
@@ -301,6 +303,8 @@ public class Author {
 
     @Document(value = "author_data")
     public static class Data {
+        @Id
+        private ObjectId id;
         private Long mid;
         private Long fans;
         private Integer attention;
@@ -382,6 +386,14 @@ public class Author {
 
         public void setDatetime(Date datetime) {
             this.datetime = datetime;
+        }
+
+        public ObjectId getId() {
+            return id;
+        }
+
+        public void setId(ObjectId id) {
+            this.id = id;
         }
     }
 

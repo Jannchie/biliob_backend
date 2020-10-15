@@ -65,18 +65,37 @@ public class UserServiceImplTest {
     }
 
     @Test
+    @Transactional
+    @WithMockUser(username = TestConstants.NORMAL_USER_NAME)
+    public void testCreditNotEnough() {
+        Result<?> r = userService.forceFocus(58402261L, true);
+        Assert.assertEquals(r.getMsg(), ResultEnum.CREDIT_NOT_ENOUGH.getMsg());
+    }
+
+    @Test
     public void testPostQuestion() {
     }
 
     @Test
+    @Transactional
+    @WithMockUser(username = TestConstants.NORMAL_USER_NAME)
     public void testRefreshAuthor() {
+        Result<?> r = userService.refreshAuthor(1850091L);
+        Assert.assertEquals(r.getMsg(), ResultEnum.ACCEPTED.getMsg());
     }
 
     @Test
+    @Transactional
+    @WithMockUser(username = TestConstants.NORMAL_USER_NAME)
     public void testRefreshVideo() {
+        Result<?> r = userService.refreshVideo(7L);
+        Assert.assertEquals(r.getMsg(), ResultEnum.ACCEPTED.getMsg());
     }
 
     @Test
-    public void testRefreshVideo1() {
+    @Transactional
+    @WithMockUser(username = TestConstants.NORMAL_USER_NAME)
+    public void testRefreshAuthorNotExists() {
+        Result<?> r = userService.refreshAuthor(-404L);
     }
 }

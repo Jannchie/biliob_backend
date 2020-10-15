@@ -47,6 +47,7 @@ public enum ResultEnum {
     NOT_OBSERVING(-1, "未观测该UP主, 请先将其加入观测"),
     DUMP_COMMENT(-1, "检测到重复观测记录"),
     ALREADY_FINISHED(-1, "已结束"),
+    VIDEO_NOT_FOUND(-1, "未找到视频"),
     NOT_FOUND(-1, "未找到");
 
     private int code;
@@ -87,5 +88,9 @@ public enum ResultEnum {
 
     public <T> Result<T> getResult(T data) {
         return new Result<>(this, data);
+    }
+
+    public <T> Result<T> getCreditResult() {
+        return new Result<>(this);
     }
 }

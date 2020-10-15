@@ -460,7 +460,7 @@ class UserServiceImpl implements UserService {
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public ResponseEntity<?> refreshAuthor(@Valid Long mid) {
+    public Result<UserRecord> refreshAuthor(@Valid Long mid) {
         String msg = CreditConstant.REFRESH_AUTHOR_DATA.getMsg(mid);
         Result<UserRecord> result = creditService.doCreditOperation(CreditConstant.REFRESH_AUTHOR_DATA, msg, false);
         UserRecord ur = result.getData();
@@ -470,7 +470,7 @@ class UserServiceImpl implements UserService {
         }
         mongoTemplate.updateFirst(q, new Update().addToSet("order", ur.getId()).set("next", new Date(0)), AuthorIntervalRecord.class);
         result.setData(null);
-        return ResponseEntity.ok(result);
+        return result;
     }
 
     @Override

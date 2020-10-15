@@ -1,7 +1,6 @@
 package com.jannchie.biliob.service;
 
 import com.jannchie.biliob.constant.CreditConstant;
-import com.jannchie.biliob.constant.ExceptionEnum;
 import com.jannchie.biliob.constant.ResultEnum;
 import com.jannchie.biliob.model.User;
 import com.jannchie.biliob.model.UserRecord;
@@ -14,6 +13,7 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
 /**
  * @author Jannchie
@@ -42,13 +42,15 @@ public class CreditService {
     public Result<UserRecord> doCreditOperation(CreditConstant creditConstant, String message, Boolean isExecuted) {
         User user = UserUtils.getUser();
         if (user == null) {
-            throw ExceptionEnum.NOT_LOGIN.getException();
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+            return ResultEnum.HAS_NOT_LOGGED_IN.getCreditResult();
         }
         Double credit = creditConstant.getValue();
         if (user.getCredit() < -credit) {
-            throw ExceptionEnum.CREDIT_NOT_ENOUGH.getException();
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+            return ResultEnum.CREDIT_NOT_ENOUGH.getCreditResult();
         }
-        logger.info("观测者 [{}]: {}", user.getName(), message);
+        logger.info("观测者[{}]: {}", user.getName(), message);
         user.setCredit(user.getCredit() + credit);
         if (credit < 0) {
             user.setExp(user.getExp() - credit);
