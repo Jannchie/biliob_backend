@@ -167,6 +167,7 @@ class UserServiceImpl implements UserService {
         }
 
         UserUtils.setUserTitleAndRankAndUpdateRole(user);
+        user.setIp(null);
         UserServiceImpl.logger.info(user.getName());
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
