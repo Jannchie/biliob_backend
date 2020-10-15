@@ -1,11 +1,20 @@
 package com.jannchie.biliob.service.impl;
 
+import com.jannchie.biliob.constant.CreditConstant;
+import com.jannchie.biliob.constant.ResultEnum;
+import com.jannchie.biliob.constant.TestConstants;
+import com.jannchie.biliob.model.User;
+import com.jannchie.biliob.utils.Result;
+import com.jannchie.biliob.utils.UserUtils;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
+import org.springframework.transaction.annotation.Transactional;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -15,99 +24,59 @@ public class UserServiceImplTest {
     @Autowired
     private UserServiceImpl userService;
 
+
     @Test
-    public void createUser() throws Exception {
+    @Transactional
+    @WithMockUser(username = TestConstants.TEST_USER_NAME)
+    public void testPostCheckIn() {
+        Result<?> r = userService.postCheckIn();
+        assert r.getMsg().equals(ResultEnum.SUCCEED.getMsg());
+        r = userService.postCheckIn();
+        assert r.getMsg().equals(ResultEnum.ALREADY_SIGNED.getMsg());
     }
 
     @Test
-    public void getPassword() throws Exception {
+    @Transactional
+    public void testPostCheckInWithOutLogin() {
+        Result<?> r = userService.postCheckIn();
+        assert r.getMsg().equals(ResultEnum.HAS_NOT_LOGGED_IN.getMsg());
     }
 
     @Test
-    public void getRole() throws Exception {
+    @Transactional
+    @WithMockUser(username = TestConstants.TEST_USER_NAME)
+    public void testForceFocus() {
+        Result<?> r;
+        User u = UserUtils.getUser();
+        assert u != null;
+        Double credit = u.getCredit();
+        r = userService.forceFocus(1850091L, true);
+        Assert.assertEquals(r.getMsg(), ResultEnum.ALREADY_FORCE_FOCUS.getMsg());
+        r = userService.forceFocus(-404L, true);
+        Assert.assertEquals(r.getMsg(), ResultEnum.AUTHOR_NOT_FOUND.getMsg());
+        r = userService.forceFocus(58402261L, true);
+        Assert.assertEquals(r.getMsg(), ResultEnum.SUCCEED.getMsg());
+        u = UserUtils.getUser();
+        assert u != null;
+        Result.UserData ud = r.getUser();
+        assert ud != null;
+        Double d = u.getCredit() + CreditConstant.SET_AUTHOR_FORCE_OBSERVE.getValue();
+        Assert.assertEquals(d, ud.getCredit());
     }
 
     @Test
-    public void getUserInfo() throws Exception {
+    public void testPostQuestion() {
     }
 
     @Test
-    public void addFavoriteAuthor() throws Exception {
+    public void testRefreshAuthor() {
     }
 
     @Test
-    public void addFavoriteVideo() throws Exception {
+    public void testRefreshVideo() {
     }
 
     @Test
-    public void getFavoriteVideo() throws Exception {
-    }
-
-    @Test
-    public void getFavoriteAuthor() throws Exception {
-    }
-
-    @Test
-    public void deleteFavoriteAuthorByMid() throws Exception {
-    }
-
-    @Test
-    public void deleteFavoriteVideoByAid() throws Exception {
-    }
-
-    @Test
-    public void login() throws Exception {
-    }
-
-    @Test
-    public void postCheckIn() throws Exception {
-    }
-
-    @Test
-    public void getCheckIn() throws Exception {
-    }
-
-    @Test
-    public void forceFocus() throws Exception {
-    }
-
-    @Test
-    public void postQuestion() throws Exception {
-    }
-
-    @Test
-    public void refreshAuthor() throws Exception {
-    }
-
-    @Test
-    public void refreshVideo() throws Exception {
-    }
-
-    @Test
-    public void sliceUserRank() throws Exception {
-    }
-
-    @Test
-    public void danmakuAggregate() throws Exception {
-    }
-
-    @Test
-    public void sliceUserRecord() throws Exception {
-    }
-
-    @Test
-    public void getUserAllRecord() throws Exception {
-    }
-
-    @Test
-    public void videoObserveAlterFrequency() throws Exception {
-    }
-
-    @Test
-    public void authorObserveAlterFrequency() throws Exception {
-    }
-
-    @Test
-    public void modifyUserName() throws Exception {
+    public void testRefreshVideo1() {
     }
 }
