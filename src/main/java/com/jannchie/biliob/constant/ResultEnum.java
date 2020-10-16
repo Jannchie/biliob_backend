@@ -78,7 +78,7 @@ public enum ResultEnum {
         return new Result<>(this);
     }
 
-    public Result<User> getResult(User user) {
+    public <T> Result<T> getResult(User user) {
         return new Result<>(this, user);
     }
 

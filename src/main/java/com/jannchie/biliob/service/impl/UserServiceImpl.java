@@ -4,8 +4,6 @@ import com.jannchie.biliob.constant.CreditConstant;
 import com.jannchie.biliob.constant.DbFields;
 import com.jannchie.biliob.constant.ResultEnum;
 import com.jannchie.biliob.constant.RoleEnum;
-import com.jannchie.biliob.credit.handle.CreditHandle;
-import com.jannchie.biliob.credit.handle.CreditOperateHandle;
 import com.jannchie.biliob.exception.UserNotExistException;
 import com.jannchie.biliob.form.ChangePasswordForm;
 import com.jannchie.biliob.model.*;
@@ -16,7 +14,6 @@ import com.jannchie.biliob.service.AuthorService;
 import com.jannchie.biliob.service.CreditService;
 import com.jannchie.biliob.service.UserService;
 import com.jannchie.biliob.utils.*;
-import com.jannchie.biliob.utils.credit.calculator.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.shiro.SecurityUtils;
@@ -55,47 +52,30 @@ class UserServiceImpl implements UserService {
     private static final Logger logger = LogManager.getLogger(UserServiceImpl.class);
 
     private final UserRepository userRepository;
-
     private final VideoRepository videoRepository;
-
     private final AuthorRepository authorRepository;
-
     private final UserRecordRepository userRecordRepository;
-
     private final QuestionRepository questionRepository;
-
     private final MongoTemplate mongoTemplate;
-
     private final CreditService creditService;
-
-    private final DanmakuAggregateCreditCalculator danmakuAggregateCreditCalculator;
-
     private final AuthorService authorService;
-
     private final MailUtil mailUtil;
     private final RecommendVideo recommendVideo;
-    private CreditHandle creditHandle;
     private BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
     private AuthorUtil authorUtil;
 
     @Autowired
     public UserServiceImpl(
-            CreditUtil creditUtil,
             UserRepository userRepository,
             VideoRepository videoRepository,
             AuthorRepository authorRepository,
             QuestionRepository questionRepository,
             UserRecordRepository userRecordRepository,
             MongoTemplate mongoTemplate,
-            RefreshAuthorCreditCalculator refreshAuthorCreditCalculator,
-            RefreshVideoCreditCalculator refreshVideoCreditCalculator,
-            CreditService creditService, ForceFocusCreditCalculator forceFocusCreditCalculator,
-            DanmakuAggregateCreditCalculator danmakuAggregateCreditCalculator,
-            CheckInCreditCalculator checkInCreditCalculator,
-            ModifyNickNameCreditCalculator modifyNickNameCreditCalculator,
-            AuthorService authorService, CreditHandle creditHandle,
+            CreditService creditService,
+            AuthorService authorService,
             MailUtil mailUtil,
-            RecommendVideo recommendVideo, AuthorUtil authorUtil, CreditOperateHandle creditOperateHandle) {
+            RecommendVideo recommendVideo, AuthorUtil authorUtil) {
         this.userRepository = userRepository;
         this.videoRepository = videoRepository;
         this.authorRepository = authorRepository;
@@ -104,8 +84,6 @@ class UserServiceImpl implements UserService {
         this.mongoTemplate = mongoTemplate;
         this.creditService = creditService;
         this.authorService = authorService;
-        this.creditHandle = creditHandle;
-        this.danmakuAggregateCreditCalculator = danmakuAggregateCreditCalculator;
         this.mailUtil = mailUtil;
         this.recommendVideo = recommendVideo;
         this.authorUtil = authorUtil;
@@ -461,10 +439,10 @@ class UserServiceImpl implements UserService {
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Result<UserRecord> refreshAuthor(@Valid Long mid) {
+    public Result<?> refreshAuthor(@Valid Long mid) {
         String msg = CreditConstant.REFRESH_AUTHOR_DATA.getMsg(mid);
-        Result<UserRecord> result = creditService.doCreditOperation(CreditConstant.REFRESH_AUTHOR_DATA, msg, false);
-        UserRecord ur = result.getData();
+        Result<?> result = creditService.doCreditOperation(CreditConstant.REFRESH_AUTHOR_DATA, msg, false);
+        UserRecord ur = result.getUserRecord();
         Query q = Query.query(Criteria.where("mid").is(mid));
         if (!mongoTemplate.exists(q, AuthorIntervalRecord.class)) {
             authorService.upsertAuthorFreq(mid, 86400);
@@ -475,6 +453,7 @@ class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public Result<?> refreshVideo(@Valid Long aid) {
         Query q = Query.query(Criteria.where("aid").is(aid));
         String msg = CreditConstant.REFRESH_VIDEO_DATA.getMsg(aid);
@@ -482,6 +461,7 @@ class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public Result<?> refreshVideo(@Valid String bvid) {
         Query q = Query.query(Criteria.where("bvid").is(bvid));
         String msg = CreditConstant.REFRESH_VIDEO_DATA.getMsg(bvid);
@@ -490,8 +470,8 @@ class UserServiceImpl implements UserService {
 
     @Transactional(rollbackFor = Exception.class)
     private Result<?> refreshVideo(Query q, String msg) {
-        Result<UserRecord> result = creditService.doCreditOperation(CreditConstant.REFRESH_VIDEO_DATA, msg, false);
-        UserRecord ur = result.getData();
+        Result<?> result = creditService.doCreditOperation(CreditConstant.REFRESH_VIDEO_DATA, msg, false);
+        UserRecord ur = result.getUserRecord();
         mongoTemplate.updateFirst(q, new Update().addToSet("order", ur.getId()).set("next", new Date(0)), VideoIntervalRecord.class);
         result.setData(null);
         return result;
@@ -530,8 +510,7 @@ class UserServiceImpl implements UserService {
      */
     @Override
     public ResponseEntity<?> danmakuAggregate(@Valid Long aid) {
-        return danmakuAggregateCreditCalculator.executeAndGetResponse(
-                CreditConstant.DANMAKU_AGGREGATE, aid);
+        return null;
     }
 
     /**
@@ -596,16 +575,6 @@ class UserServiceImpl implements UserService {
         return null;
     }
 
-    /**
-     * modify user's name
-     *
-     * @param newUserName new user name
-     * @return operation result
-     */
-    @Override
-    public ResponseEntity<Result<String>> modifyUserName(@Valid String newUserName) {
-        return creditHandle.modifyUserName(UserUtils.getUser(), CreditConstant.MODIFY_NAME, newUserName);
-    }
 
     /**
      * Get activation code
@@ -638,57 +607,73 @@ class UserServiceImpl implements UserService {
      * @return video list
      */
     @Override
-    public ArrayList getUserPreferVideoByFavoriteVideo(Integer page, Integer pagesize) {
+    public ArrayList<?> getUserPreferVideoByFavoriteVideo(Integer page, Integer pagesize) {
         return recommendVideo.getRecommendVideoByTagCountMap(
                 this.getUserPreferKeyword(), page, pagesize);
     }
 
 
     @Override
-    public ResponseEntity<?> bindMail(String mail, String activationCode) {
+    @Transactional(rollbackFor = Exception.class)
+    public Result<?> bindMail(String mail, String activationCode) {
         User user = UserUtils.getUser();
         if (user == null) {
-            return new ResponseEntity<>(
-                    new Result<>(ResultEnum.HAS_NOT_LOGGED_IN), HttpStatus.UNAUTHORIZED);
+            return new Result<>(ResultEnum.HAS_NOT_LOGGED_IN);
         }
         if (!mailUtil.checkActivationCode(mail, activationCode)) {
-            return new ResponseEntity<>(
-                    new Result<>(ResultEnum.ACTIVATION_CODE_UNMATCHED), HttpStatus.BAD_REQUEST);
+            return new Result<>(ResultEnum.ACTIVATION_CODE_UNMATCHED);
         }
         if (mongoTemplate.exists(Query.query(Criteria.where("mail").is(mail)), User.class)) {
-            return new ResponseEntity<>(
-                    new Result<>(ResultEnum.MAIL_HAD_BEEN_REGISTERED), HttpStatus.UNAUTHORIZED);
+            return new Result<>(ResultEnum.MAIL_HAD_BEEN_REGISTERED);
         }
+        mongoTemplate.updateFirst(
+                Query.query(Criteria.where("_id").is(user.getId())),
+                Update.update("mail", mail),
+                User.class);
+        return creditService.doCreditOperation(CreditConstant.MODIFY_MAIL, CreditConstant.MODIFY_MAIL.getMsg(mail));
+    }
 
-        return creditHandle.modifyMail(UserUtils.getUser(), CreditConstant.MODIFY_MAIL, mail);
+    /**
+     * modify user's name
+     *
+     * @param newUserName new user name
+     * @return operation result
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Result<?> modifyUserName(@Valid String newUserName) {
+        User user = UserUtils.getUser();
+        if (user == null) {
+            return new Result<>(ResultEnum.HAS_NOT_LOGGED_IN);
+        }
+        if (newUserName.length() > 20) {
+            return new Result<>(ResultEnum.OUT_OF_RANGE);
+        }
+        mongoTemplate.updateFirst(
+                Query.query(Criteria.where("_id").is(user.getId())),
+                Update.update("nickName", newUserName),
+                "user");
+        return creditService.doCreditOperation(CreditConstant.MODIFY_NAME, CreditConstant.MODIFY_NAME.getMsg(newUserName));
     }
 
     @Override
-    public ResponseEntity<Result<String>> changeNickName(String newNickname) {
-        User user = UserUtils.getUser();
-        if (user == null) {
-            return new ResponseEntity<>(
-                    new Result<>(ResultEnum.HAS_NOT_LOGGED_IN), HttpStatus.UNAUTHORIZED);
-        }
-        if (newNickname.length() > 20) {
-            return new ResponseEntity<>(new Result<>(ResultEnum.OUT_OF_RANGE), HttpStatus.BAD_REQUEST);
-        }
-        return creditHandle.modifyUserName(UserUtils.getUser(), CreditConstant.MODIFY_NAME, newNickname);
+    @Transactional(rollbackFor = Exception.class)
+    public Result<?> changeNickName(String newNickname) {
+        return this.modifyUserName(newNickname);
     }
 
     @Override
-    public ResponseEntity<Result<String>> changeMail(String newMail) {
+    @Transactional(rollbackFor = Exception.class)
+    public Result<?> changeMail(String newMail) {
         User user = UserUtils.getUser();
         if (user == null) {
-            return new ResponseEntity<>(
-                    new Result<>(ResultEnum.HAS_NOT_LOGGED_IN), HttpStatus.UNAUTHORIZED);
+            return new Result<>(ResultEnum.HAS_NOT_LOGGED_IN);
         }
         if (mongoTemplate.exists(Query.query(Criteria.where("mail").is(newMail)), User.class)) {
-            return new ResponseEntity<>(
-                    new Result<>(ResultEnum.MAIL_HAD_BEEN_REGISTERED), HttpStatus.UNAUTHORIZED);
+            return new Result<>(ResultEnum.MAIL_HAD_BEEN_REGISTERED);
         }
-        user.setMail(newMail);
-        return creditHandle.modifyMail(UserUtils.getUser(), CreditConstant.MODIFY_MAIL, newMail);
+        mongoTemplate.update(User.class).matching(Criteria.where(DbFields.ID).is(user.getId())).apply(Update.update("mail", newMail)).first();
+        return creditService.doCreditOperation(CreditConstant.MODIFY_MAIL, CreditConstant.MODIFY_MAIL.getMsg(newMail));
     }
 
     @Override

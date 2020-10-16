@@ -32,39 +32,72 @@ public class CreditService {
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public Result<UserRecord> doCreditOperation(CreditConstant creditConstant) {
+    public <T> Result<T> doCreditOperationWithoutExp(CreditConstant creditConstant, String message, Double credit) {
+        return doCreditOperation(UserUtils.getUser(), creditConstant, message, true, false, credit);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public <T> Result<T> doCreditOperationFansGuessing(CreditConstant creditConstant, String message, Double credit) {
+        return doCreditOperation(UserUtils.getUser(), creditConstant, message, true, false, credit);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public <T> Result<T> doCreditOperation(CreditConstant creditConstant) {
         return this.doCreditOperation(creditConstant, creditConstant.getMsg(), true);
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public Result<UserRecord> doCreditOperation(CreditConstant creditConstant, String message) {
+    public <T> Result<T> doCreditOperation(CreditConstant creditConstant, String message) {
         return this.doCreditOperation(creditConstant, message, true);
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public Result<UserRecord> doCreditOperation(CreditConstant creditConstant, String message, Boolean isExecuted) {
+    public <T> Result<T> doCreditOperation(CreditConstant creditConstant, String message, Boolean isExecuted) {
         User user = UserUtils.getUser();
+        return doCreditOperation(user, creditConstant, message, isExecuted);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public <T> Result<T> doCreditOperation(User user, CreditConstant creditConstant, String message) {
+        return doCreditOperation(user, creditConstant, message, true);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public <T> Result<T> doCreditOperation(User user, CreditConstant creditConstant, String message, Boolean isExecuted) {
+        return doCreditOperation(user, creditConstant, message, isExecuted, true);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public <T> Result<T> doCreditOperation(User user, CreditConstant creditConstant, String message, Boolean isExecuted, Boolean withExp) {
+        return doCreditOperation(user, creditConstant, message, isExecuted, withExp, creditConstant.getValue());
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public <T> Result<T> doCreditOperation(User user, CreditConstant creditConstant, String message, Boolean isExecuted, Boolean withExp, Double credit) {
         if (user == null) {
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
             return ResultEnum.HAS_NOT_LOGGED_IN.getCreditResult();
         }
-        Double credit = creditConstant.getValue();
         if (user.getCredit() < -credit) {
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
             return ResultEnum.CREDIT_NOT_ENOUGH.getCreditResult();
         }
         logger.info("观测者[{}]: {}", user.getName(), message);
         user.setCredit(user.getCredit() + credit);
-        if (credit < 0) {
-            user.setExp(user.getExp() - credit);
-        } else {
-            user.setExp(user.getExp() + credit);
+        if (withExp) {
+            if (credit < 0) {
+                user.setExp(user.getExp() - credit);
+            } else {
+                user.setExp(user.getExp() + credit);
+            }
         }
         mongoTemplate.update(User.class).matching(Query.query(Criteria.where(DbFields.ID).is(user.getId()))).apply(Update.update("credit", user.getCredit()).set("exp", user.getExp())).first();
         UserRecord ur = mongoTemplate.save(new UserRecord(user, creditConstant, message, isExecuted));
         if (!isExecuted) {
-            return ResultEnum.ACCEPTED.getResult(ur, user);
+            Result<T> r = ResultEnum.ACCEPTED.getResult(user);
+            r.setUserRecord(ur);
+            return r;
         }
-        return ResultEnum.SUCCEED.getResult(null, user);
+        return ResultEnum.SUCCEED.getResult(user);
     }
 }

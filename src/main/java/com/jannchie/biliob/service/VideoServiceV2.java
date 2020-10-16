@@ -1,15 +1,11 @@
 package com.jannchie.biliob.service;
 
-import com.jannchie.biliob.constant.CreditConstant;
 import com.jannchie.biliob.constant.ResultEnum;
-import com.jannchie.biliob.credit.handle.CreditOperateHandle;
-import com.jannchie.biliob.model.User;
 import com.jannchie.biliob.model.Video;
 import com.jannchie.biliob.model.VideoVisit;
 import com.jannchie.biliob.object.VideoIntervalRecord;
 import com.jannchie.biliob.utils.BiliobUtils;
 import com.jannchie.biliob.utils.Result;
-import com.jannchie.biliob.utils.UserUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +13,6 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 
 import java.util.Calendar;
@@ -31,8 +26,6 @@ public class VideoServiceV2 {
     private static Logger logger = LogManager.getLogger();
     @Autowired
     MongoTemplate mongoTemplate;
-    @Autowired
-    CreditOperateHandle creditOperateHandle;
     @Autowired
     BiliobUtils biliobUtils;
 
@@ -114,12 +107,5 @@ public class VideoServiceV2 {
         v.setAuthorList(null);
         v.setKeyword(null);
         return v;
-    }
-
-    public Result<?> refreshVideoInterval(String bvid) {
-        User u = UserUtils.getUser();
-        return creditOperateHandle.doCreditOperate(u, CreditConstant.REFRESH_VIDEO_DATA_BY_BVID, () -> {
-            return mongoTemplate.updateFirst(Query.query(Criteria.where("bvid").is(bvid)), Update.update("next", Calendar.getInstance().getTime()).addToSet("order", u.getId()), VideoIntervalRecord.class);
-        });
     }
 }

@@ -7,7 +7,6 @@ import com.jannchie.biliob.form.ChangeMailForm;
 import com.jannchie.biliob.form.ChangePasswordForm;
 import com.jannchie.biliob.model.Question;
 import com.jannchie.biliob.model.User;
-import com.jannchie.biliob.model.UserRecord;
 import com.jannchie.biliob.model.Video;
 import com.jannchie.biliob.object.LoginForm;
 import com.jannchie.biliob.object.NickNameForm;
@@ -64,7 +63,7 @@ public class UserController {
     }
 
     @RequestMapping(method = RequestMethod.PUT, value = "/api/user/mail")
-    public ResponseEntity<?> bindMail(@RequestBody @Valid Map<String, String> requestMap) {
+    public Result<?> bindMail(@RequestBody @Valid Map<String, String> requestMap) {
         return userService.bindMail(
                 requestMap.get("mail"),
                 requestMap.get("activationCode"));
@@ -171,12 +170,12 @@ public class UserController {
     }
 
     @RequestMapping(method = RequestMethod.PUT, value = "/api/user/author/{mid}/data")
-    public Result<UserRecord> refreshAuthor(@PathVariable("mid") @Valid Long mid) {
+    public Result<?> refreshAuthor(@PathVariable("mid") @Valid Long mid) {
         return userService.refreshAuthor(mid);
     }
 
     @RequestMapping(method = RequestMethod.PUT, value = "/api/user/name")
-    public ResponseEntity<?> modifyUserName(@RequestParam(defaultValue = "", value = "name") @Valid String name) {
+    public Result<?> modifyUserName(@RequestParam(defaultValue = "", value = "name") String name) {
         return userService.modifyUserName(name);
     }
 
@@ -234,24 +233,24 @@ public class UserController {
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/api/user/video/keyword")
-    public Map getUserPreferKeyWord() {
+    public Map<?, ?> getUserPreferKeyWord() {
         return userService.getUserPreferKeyword();
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/api/user/video/recommend")
-    public ArrayList getUserPreferVideoByFavoriteVideo(
+    public ArrayList<?> getUserPreferVideoByFavoriteVideo(
             @RequestParam(defaultValue = "0") Integer page,
             @RequestParam(defaultValue = "20") Integer pagesize) {
         return userService.getUserPreferVideoByFavoriteVideo(page, pagesize);
     }
 
     @RequestMapping(method = RequestMethod.POST, value = "/api/user/nickname")
-    public ResponseEntity<Result<String>> changeNickName(@RequestBody @Valid NickNameForm user) {
+    public Result<?> changeNickName(@RequestBody @Valid NickNameForm user) {
         return userService.changeNickName(user.getNickName());
     }
 
     @RequestMapping(method = RequestMethod.POST, value = "/api/user/mail")
-    public ResponseEntity<Result<String>> changeMail(@RequestBody @Valid ChangeMailForm changeMailForm) {
+    public Result<?> changeMail(@RequestBody @Valid ChangeMailForm changeMailForm) {
         return userService.changeMail(changeMailForm.getMail());
     }
 

@@ -68,6 +68,9 @@ public enum CreditConstant {
         this.value = value;
     }
 
+    public <T> String getMsg(T d) {
+        return String.format(msg, d);
+    }
 
     public <T, U> String getMsg(T d, U e) {
         return String.format(msg, d, e);
@@ -93,7 +96,4 @@ public enum CreditConstant {
         this.value = value;
     }
 
-    public <T> String getMsg(T data) {
-        return String.format(msg, data);
-    }
 }

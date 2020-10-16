@@ -39,7 +39,7 @@ public class UserCommentController {
     }
 
     @RequestMapping(method = RequestMethod.PUT, value = "/api/user/comment/{commentId}/like")
-    public ResponseEntity<Result<String>> likeComment(@PathVariable("commentId") String commentId) {
+    public Result<?> likeComment(@PathVariable("commentId") String commentId) {
         return userCommentService.likeComment(commentId);
     }
 

@@ -3,6 +3,7 @@ package com.jannchie.biliob.utils;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.jannchie.biliob.constant.ResultEnum;
 import com.jannchie.biliob.model.User;
+import com.jannchie.biliob.model.UserRecord;
 
 /**
  * @author jannchie
@@ -14,7 +15,7 @@ public class Result<T> {
     private String msg;
     private T data;
     private UserData user;
-
+    private UserRecord userRecord;
 
     public Result(ResultEnum resultEnum) {
         this.code = resultEnum.getCode();
@@ -76,6 +77,14 @@ public class Result<T> {
 
     public void setUser(UserData user) {
         this.user = user;
+    }
+
+    public UserRecord getUserRecord() {
+        return this.userRecord;
+    }
+
+    public void setUserRecord(UserRecord userRecord) {
+        this.userRecord = userRecord;
     }
 
     public static class UserData {

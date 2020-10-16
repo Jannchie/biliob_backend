@@ -3,10 +3,10 @@ package com.jannchie.biliob.controller;
 import com.jannchie.biliob.constant.CreditConstant;
 import com.jannchie.biliob.constant.ResultEnum;
 import com.jannchie.biliob.constant.RoleEnum;
-import com.jannchie.biliob.credit.handle.CreditOperateHandle;
 import com.jannchie.biliob.form.AddCreditToUserForm;
 import com.jannchie.biliob.model.User;
 import com.jannchie.biliob.object.AuthorIntervalRecord;
+import com.jannchie.biliob.service.CreditService;
 import com.jannchie.biliob.utils.Result;
 import com.jannchie.biliob.utils.UserUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +29,7 @@ public class ManagerController {
     @Autowired
     MongoTemplate mongoTemplate;
     @Autowired
-    CreditOperateHandle creditOperateHandle;
+    CreditService creditService;
 
     @RequestMapping(method = RequestMethod.GET, value = "/data/queue")
     public HashMap<String, Long> getQueueCount() {
@@ -45,7 +45,7 @@ public class ManagerController {
     @RequestMapping(method = RequestMethod.POST, value = "/user/credit")
     public Result<?> giveCredit(@RequestBody AddCreditToUserForm form) {
         User u = mongoTemplate.findOne(Query.query(Criteria.where("name").is(form.getName())), User.class);
-        return creditOperateHandle.doCustomCreditOperate(u, -form.getCredit(), CreditConstant.GIVE_CREDIT, form.getMsg(), () -> null);
+        return creditService.doCreditOperationWithoutExp(CreditConstant.GIVE_CREDIT, CreditConstant.GIVE_CREDIT.getMsg(form.getMsg()), form.getCredit());
     }
 
     @RequestMapping(method = RequestMethod.POST, value = "/user/data")

@@ -2,15 +2,14 @@ package com.jannchie.biliob.service.impl;
 
 import com.jannchie.biliob.constant.CreditConstant;
 import com.jannchie.biliob.constant.ResultEnum;
-import com.jannchie.biliob.credit.handle.CreditOperateHandle;
 import com.jannchie.biliob.model.*;
 import com.jannchie.biliob.service.AuthorGroupService;
 import com.jannchie.biliob.service.AuthorService;
+import com.jannchie.biliob.service.CreditService;
 import com.jannchie.biliob.utils.AuthorUtil;
 import com.jannchie.biliob.utils.Result;
 import com.jannchie.biliob.utils.UserUtils;
 import com.mongodb.client.result.DeleteResult;
-import com.mongodb.client.result.UpdateResult;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.bson.types.ObjectId;
@@ -23,6 +22,8 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
 import java.util.Calendar;
 import java.util.List;
@@ -36,26 +37,30 @@ public class AuthorGroupServiceImpl implements AuthorGroupService {
 
     final Logger logger = LogManager.getLogger();
     final MongoTemplate mongoTemplate;
-    final CreditOperateHandle creditOperateHandle;
     final AuthorService authorService;
     final AuthorUtil authorUtil;
+    final private CreditService creditService;
 
     @Autowired
-    public AuthorGroupServiceImpl(MongoTemplate mongoTemplate, CreditOperateHandle creditOperateHandle, AuthorService authorService, AuthorUtil authorUtil) {
+    public AuthorGroupServiceImpl(MongoTemplate mongoTemplate, AuthorService authorService, AuthorUtil authorUtil, CreditService creditService) {
         this.mongoTemplate = mongoTemplate;
-        this.creditOperateHandle = creditOperateHandle;
         this.authorService = authorService;
         this.authorUtil = authorUtil;
+        this.creditService = creditService;
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public Result<AuthorGroup> initAuthorList(String name, String desc, List<String> tag) {
         AuthorGroup authorGroup = new AuthorGroup(name, desc, tag, UserUtils.getUserId());
         User user = UserUtils.getUser();
         UserUtils.setUserTitleAndRankAndUpdateRole(user);
         if ("观测者".equals(user.getTitle()) || "观想者".equals(user.getTitle()) || "管理者".equals(user.getTitle()) || "追寻者".equals(user.getTitle())) {
-            return creditOperateHandle.doCreditOperate(user, CreditConstant.INIT_AUTHOR_LIST, name, () -> mongoTemplate.save(authorGroup));
+            Result<?> r = creditService.doCreditOperation(CreditConstant.INIT_AUTHOR_LIST, CreditConstant.INIT_AUTHOR_LIST.getMsg(name));
+            AuthorGroup a = mongoTemplate.save(authorGroup);
+            return ResultEnum.SUCCEED.getResult(a, UserUtils.getUser());
         } else {
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
             return new Result<>(ResultEnum.PERMISSION_DENIED);
         }
     }
@@ -79,13 +84,13 @@ public class AuthorGroupServiceImpl implements AuthorGroupService {
     }
 
     @Override
-    public Result<UpdateResult> setAuthorListInfo(String id, String name, String desc, List<String> tag) {
-        return creditOperateHandle.doCreditOperate(
-                UserUtils.getUser(), CreditConstant.MODIFY_AUTHOR_LIST_INFO, id, () ->
-                        mongoTemplate.updateFirst(
-                                Query.query(Criteria.where("_id").is(id)),
-                                Update.update("name", name).currentDate("updateTime").set("desc", desc).set("tag", tag),
-                                AuthorGroup.class));
+    @Transactional(rollbackFor = Exception.class)
+    public Result<?> setAuthorListInfo(String id, String name, String desc, List<String> tag) {
+        mongoTemplate.updateFirst(
+                Query.query(Criteria.where("_id").is(id)),
+                Update.update("name", name).currentDate("updateTime").set("desc", desc).set("tag", tag),
+                AuthorGroup.class);
+        return creditService.doCreditOperation(CreditConstant.MODIFY_AUTHOR_LIST_INFO, CreditConstant.MODIFY_AUTHOR_LIST_INFO.getMsg(id));
     }
 
     @Override
@@ -107,18 +112,16 @@ public class AuthorGroupServiceImpl implements AuthorGroupService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public Result<?> starAuthorList(String objectId) {
         User user = UserUtils.getUser();
-
         AuthorGroup authorGroup = this.getAuthorList(objectId);
-
         if (user == null) {
             return new Result<>(ResultEnum.USER_NOT_EXIST);
         }
         if (authorGroup == null) {
             return new Result<>(ResultEnum.LIST_NOT_FOUND);
         }
-
         String groupIdField = "groupId";
         String userIdField = "userId";
         UserStarAuthorGroup data = mongoTemplate.findOne(Query.query(Criteria.where(groupIdField).is(new ObjectId(objectId)).and(userIdField).is(user.getId())), UserStarAuthorGroup.class);
@@ -132,33 +135,34 @@ public class AuthorGroupServiceImpl implements AuthorGroupService {
             }
         }
 
-        return creditOperateHandle.doCreditOperate(
-                user, CreditConstant.STAR_AUTHOR_LIST, () -> {
-                    creditOperateHandle.doCreditOperate(UserUtils.getUserById(authorGroup.getMaintainer().getId()), CreditConstant.BE_STARED_AUTHOR_LIST, authorGroup.getId(), () -> null);
-                    long stars = mongoTemplate.count(Query.query(Criteria.where(groupIdField).is(objectId).and("starring").is(true)), UserStarAuthorGroup.class);
-                    mongoTemplate.updateFirst(Query.query(Criteria.where("_id").is(objectId)), Update.update("stars", stars + 1), AuthorGroup.class);
-                    return mongoTemplate.save(new UserStarAuthorGroup(user.getId(), new ObjectId(objectId)));
-                }
-        );
+
+        Result<?> r = creditService.doCreditOperation(CreditConstant.STAR_AUTHOR_LIST, CreditConstant.STAR_AUTHOR_LIST.getMsg(objectId));
+        long stars = mongoTemplate.count(Query.query(Criteria.where(groupIdField).is(objectId).and("starring").is(true)), UserStarAuthorGroup.class);
+        mongoTemplate.updateFirst(Query.query(Criteria.where("_id").is(objectId)), Update.update("stars", stars + 1), AuthorGroup.class);
+        UserStarAuthorGroup d = mongoTemplate.save(new UserStarAuthorGroup(user.getId(), new ObjectId(objectId)));
+        User u = UserUtils.getUserById(authorGroup.getMaintainer().getId());
+        Result<?> res = creditService.doCreditOperation(u, CreditConstant.BE_STARED_AUTHOR_LIST, CreditConstant.BE_STARED_AUTHOR_LIST.getMsg(objectId));
+        return r;
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public Result<?> forkAuthorList(String objectId) {
         AuthorGroup authorGroup = this.getAuthorList(objectId);
         if (authorGroup == null) {
             return new Result<>(ResultEnum.LIST_NOT_FOUND);
         }
-        User user = UserUtils.getUser();
-        return creditOperateHandle.doCreditOperate(user, CreditConstant.FORK_AUTHOR_LIST, () -> {
-            creditOperateHandle.doCreditOperate(UserUtils.getUserById(authorGroup.getMaintainer().getId()), CreditConstant.BE_FORKED_AUTHOR_LIST, authorGroup.getId(), () -> null);
-            authorGroup.setMaintainer(user);
-            authorGroup.setForkTime(Calendar.getInstance().getTime());
-            return null;
-        });
+        User u = UserUtils.getUser();
+        Result<?> res1 = creditService.doCreditOperation(CreditConstant.FORK_AUTHOR_LIST, CreditConstant.FORK_AUTHOR_LIST.getMsg(objectId));
+        Result<?> res2 = creditService.doCreditOperation(UserUtils.getUserById(authorGroup.getMaintainer().getId()), CreditConstant.BE_FORKED_AUTHOR_LIST, CreditConstant.BE_FORKED_AUTHOR_LIST.getMsg(objectId));
+        authorGroup.setMaintainer(u);
+        authorGroup.setId(null);
+        authorGroup.setForkTime(Calendar.getInstance().getTime());
+        mongoTemplate.save(authorGroup);
+        return res1;
     }
 
     public List<AuthorGroup> listAuthorList(MatchOperation match, Long page, Integer pageSize) {
-
         List<AuthorGroup> a = mongoTemplate.aggregate(
                 Aggregation.newAggregation(
                         match,

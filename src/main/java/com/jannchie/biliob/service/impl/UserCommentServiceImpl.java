@@ -3,10 +3,9 @@ package com.jannchie.biliob.service.impl;
 import com.jannchie.biliob.constant.CreditConstant;
 import com.jannchie.biliob.constant.ResultEnum;
 import com.jannchie.biliob.constant.RoleEnum;
-import com.jannchie.biliob.credit.handle.CreditHandle;
-import com.jannchie.biliob.credit.handle.CreditOperateHandle;
 import com.jannchie.biliob.model.Comment;
 import com.jannchie.biliob.model.User;
+import com.jannchie.biliob.service.CreditService;
 import com.jannchie.biliob.service.UserCommentService;
 import com.jannchie.biliob.utils.Result;
 import com.jannchie.biliob.utils.UserUtils;
@@ -24,6 +23,7 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -37,14 +37,12 @@ import java.util.List;
 public class UserCommentServiceImpl implements UserCommentService {
     private static final Logger logger = LogManager.getLogger(UserCommentServiceImpl.class);
     private static MongoTemplate mongoTemplate;
-    private CreditHandle creditHandle;
-    private CreditOperateHandle creditOperateHandle;
+    private final CreditService creditService;
 
     @Autowired
-    public UserCommentServiceImpl(MongoTemplate mongoTemplate, CreditHandle creditHandle, CreditOperateHandle creditOperateHandle) {
+    public UserCommentServiceImpl(MongoTemplate mongoTemplate, CreditService creditService) {
         UserCommentServiceImpl.mongoTemplate = mongoTemplate;
-        this.creditHandle = creditHandle;
-        this.creditOperateHandle = creditOperateHandle;
+        this.creditService = creditService;
     }
 
 
@@ -133,33 +131,30 @@ public class UserCommentServiceImpl implements UserCommentService {
         comment.setLikeList(new ArrayList<>());
         comment.setDisLikeList(new ArrayList<>());
         comment.setUserId(user.getId());
-        Result<Comment> c = creditOperateHandle.doCreditOperate(user, CreditConstant.POST_COMMENT, comment.getPath(), () -> {
-            mongoTemplate.save(comment);
-            return comment;
-        });
+        Result<Comment> c = ResultEnum.SUCCEED.getResult(mongoTemplate.save(comment));
+        creditService.doCreditOperation(CreditConstant.POST_COMMENT, CreditConstant.POST_COMMENT.getMsg(comment.getPath()));
         return ResponseEntity.ok(c);
     }
 
     @Override
-    public ResponseEntity<Result<String>> likeComment(String commentId) {
+    @Transactional(rollbackFor = Exception.class)
+    public Result<?> likeComment(String commentId) {
 
         User user = UserUtils.getUser();
         if (mongoTemplate.exists(Query.query(Criteria.where("likeList").is(user.getId()).and("_id").is(commentId)), Comment.class)) {
-            return ResponseEntity.badRequest().body(new Result<>(ResultEnum.ALREADY_LIKE));
+            return new Result<>(ResultEnum.ALREADY_LIKE);
         }
         Comment comment = mongoTemplate.findOne(Query.query(Criteria.where("_id").is(commentId)), Comment.class);
         if (comment == null) {
-            return ResponseEntity.badRequest().body(new Result<>(ResultEnum.EXECUTE_FAILURE));
+            return new Result<>(ResultEnum.EXECUTE_FAILURE);
         }
         ObjectId commentPublisherId = comment.getUserId();
 
         User publisher = mongoTemplate.findOne(Query.query(Criteria.where("_id").is(commentPublisherId)), User.class);
-        return creditHandle.doCreditOperation(user, CreditConstant.LIKE_COMMENT, () -> {
-            mongoTemplate.updateFirst(Query.query(Criteria.where("_id").is(commentId)), new Update().addToSet("likeList", user.getId()).inc("like", 1), Comment.class);
-            creditHandle.doCreditOperation(publisher, CreditConstant.BE_LIKE_COMMENT, () -> commentId);
-            return commentId;
-        });
 
+        mongoTemplate.updateFirst(Query.query(Criteria.where("_id").is(commentId)), new Update().addToSet("likeList", user.getId()).inc("like", 1), Comment.class);
+        creditService.doCreditOperation(publisher, CreditConstant.BE_LIKE_COMMENT, CreditConstant.BE_LIKE_COMMENT.getMsg(commentId));
+        return creditService.doCreditOperation(user, CreditConstant.LIKE_COMMENT, CreditConstant.LIKE_COMMENT.getMsg(commentId));
     }
 
     @Override

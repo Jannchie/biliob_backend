@@ -157,7 +157,7 @@ public interface UserService {
      * @param mid author id
      * @return response
      */
-    Result<UserRecord> refreshAuthor(@Valid Long mid);
+    Result<?> refreshAuthor(@Valid Long mid);
 
     /**
      * Refresh video data immediately.
@@ -232,7 +232,7 @@ public interface UserService {
      * @param newUserName new user name
      * @return operation result
      */
-    ResponseEntity<?> modifyUserName(@Valid String newUserName);
+    Result<?> modifyUserName(@Valid String newUserName);
 
     /**
      * Get activation code
@@ -265,7 +265,7 @@ public interface UserService {
      * @param activationCode activation code
      * @return bind result
      */
-    ResponseEntity<?> bindMail(String mail, String activationCode);
+    Result<?> bindMail(String mail, String activationCode);
 
     /**
      * Change user nickname
@@ -274,7 +274,7 @@ public interface UserService {
      * @param newNickname New nickname
      * @return user current data
      */
-    ResponseEntity<Result<String>> changeNickName(String newNickname);
+    Result<?> changeNickName(String newNickname);
 
     /**
      * change mail
@@ -282,7 +282,7 @@ public interface UserService {
      * @param newMail new mail
      * @return result
      */
-    ResponseEntity<Result<String>> changeMail(String newMail);
+    Result<?> changeMail(String newMail);
 
     /**
      * change password

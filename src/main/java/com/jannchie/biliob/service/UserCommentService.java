@@ -38,7 +38,7 @@ public interface UserCommentService {
      * @param commentId operate comment id
      * @return operate result
      */
-    ResponseEntity<Result<String>> likeComment(String commentId);
+    Result<?> likeComment(String commentId);
 
     /**
      * dislike

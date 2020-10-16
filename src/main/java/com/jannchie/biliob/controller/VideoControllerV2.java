@@ -1,6 +1,7 @@
 package com.jannchie.biliob.controller;
 
 import com.jannchie.biliob.model.Video;
+import com.jannchie.biliob.service.UserService;
 import com.jannchie.biliob.service.VideoServiceV2;
 import com.jannchie.biliob.utils.Result;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class VideoControllerV2 {
     VideoServiceV2 videoService;
+    UserService userService;
 
     @Autowired
     public VideoControllerV2(VideoServiceV2 videoService) {
@@ -48,6 +50,6 @@ public class VideoControllerV2 {
     @RequestMapping(method = RequestMethod.PUT, value = "/api/video/v2/BV{bvid}")
     public Result<?> refreshVideoInterval(
             @PathVariable("bvid") String bvid) {
-        return videoService.refreshVideoInterval(bvid);
+        return userService.refreshVideo(bvid);
     }
 }

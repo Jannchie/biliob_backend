@@ -3,7 +3,6 @@ package com.jannchie.biliob.service;
 import com.jannchie.biliob.model.AuthorGroup;
 import com.jannchie.biliob.model.GroupUpdateRecord;
 import com.jannchie.biliob.utils.Result;
-import com.mongodb.client.result.UpdateResult;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -33,7 +32,7 @@ public interface AuthorGroupService {
      * @param tag  list tag
      * @return result with list
      */
-    Result<UpdateResult> setAuthorListInfo(String id, String name, String desc, List<String> tag);
+    Result<?> setAuthorListInfo(String id, String name, String desc, List<String> tag);
 
     /**
      * Delete author list

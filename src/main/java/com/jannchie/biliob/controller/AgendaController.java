@@ -1,12 +1,12 @@
 package com.jannchie.biliob.controller;
 
 import com.jannchie.biliob.constant.*;
-import com.jannchie.biliob.credit.handle.CreditOperateHandle;
 import com.jannchie.biliob.form.AgendaCatalogCountResult;
 import com.jannchie.biliob.model.Agenda;
 import com.jannchie.biliob.model.AgendaStateCount;
 import com.jannchie.biliob.model.AgendaVote;
 import com.jannchie.biliob.model.User;
+import com.jannchie.biliob.service.CreditService;
 import com.jannchie.biliob.utils.Result;
 import com.jannchie.biliob.utils.UserUtils;
 import com.mongodb.client.result.UpdateResult;
@@ -20,6 +20,7 @@ import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -32,13 +33,12 @@ import java.util.List;
 @RestController
 public class AgendaController {
     MongoTemplate mongoTemplate;
-    CreditOperateHandle creditOperateHandle;
+    CreditService creditService;
     private Logger logger = LogManager.getLogger();
 
     @Autowired
-    public AgendaController(MongoTemplate mongoTemplate, CreditOperateHandle creditOperateHandle) {
+    public AgendaController(MongoTemplate mongoTemplate) {
         this.mongoTemplate = mongoTemplate;
-        this.creditOperateHandle = creditOperateHandle;
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/api/agenda")
@@ -79,6 +79,7 @@ public class AgendaController {
         return null;
     }
 
+    @Transactional(rollbackFor = Exception.class)
     @RequestMapping(method = RequestMethod.POST, value = "/api/agenda")
     public Result<?> postAgenda(@RequestBody @Validated Agenda agenda) {
         // 判断用户身份
@@ -98,8 +99,9 @@ public class AgendaController {
         agenda.setVotes(null);
         agenda.setCreator(new User(user.getId()));
         // 装载Agenda
-
-        return creditOperateHandle.doCreditOperate(user, CreditConstant.POST_AGENDA, agenda.getTitle(), () -> mongoTemplate.save(agenda));
+        mongoTemplate.save(agenda);
+        CreditConstant c = CreditConstant.POST_AGENDA;
+        return creditService.doCreditOperation(c, String.format(c.getMsg(), agenda.getTitle()), true);
     }
 
     @RequestMapping(method = RequestMethod.DELETE, value = "/api/agenda/{id}")

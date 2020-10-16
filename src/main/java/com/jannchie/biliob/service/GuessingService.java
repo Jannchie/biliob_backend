@@ -2,7 +2,6 @@ package com.jannchie.biliob.service;
 
 import com.jannchie.biliob.constant.CreditConstant;
 import com.jannchie.biliob.constant.ResultEnum;
-import com.jannchie.biliob.credit.handle.CreditOperateHandle;
 import com.jannchie.biliob.model.Author;
 import com.jannchie.biliob.model.FansGuessingItem;
 import com.jannchie.biliob.model.GuessingItem;
@@ -26,6 +25,7 @@ import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.*;
@@ -44,9 +44,9 @@ public class GuessingService {
     @Autowired
     private MongoTemplate mongoTemplate;
     @Autowired
-    private CreditOperateHandle creditOperateHandle;
-    @Autowired
     private BiliobUtils biliobUtils;
+    @Autowired
+    private CreditService creditService;
 
     public Date getCorrectGuessingTime(FansGuessingItem.PokerChip pokerChip) {
         Calendar.getInstance().getTime();
@@ -224,6 +224,7 @@ public class GuessingService {
         return new Result<>(ResultEnum.SUCCEED);
     }
 
+    @Transactional(rollbackFor = Exception.class)
     public Result<?> joinFansGuessing(String guessingId, FansGuessingItem.PokerChip pokerChip) {
         Calendar guessingCal = Calendar.getInstance();
         guessingCal.setTime(pokerChip.getGuessingDate());
@@ -246,22 +247,21 @@ public class GuessingService {
             return new Result<>(ResultEnum.ALREADY_FINISHED);
         }
         User user = UserUtils.getUser();
-        return creditOperateHandle.doCustomCreditOperate(user, pokerChip.getCredit(), CreditConstant.JOIN_GUESSING, guessingId, () -> {
-            User userInfo = new User();
-            userInfo.setId(user.getId());
-            userInfo.setName(user.getName());
-            pokerChip.setCreateTime(Calendar.getInstance().getTime());
-            pokerChip.setUser(userInfo);
-            mongoTemplate.updateFirst(
-                    Query.query(Criteria.where("guessingId").is(guessingId)),
-                    new Update().push("pokerChips", pokerChip),
-                    FansGuessingItem.class);
-            return null;
-        });
+        User userInfo = new User();
+        userInfo.setId(user.getId());
+        userInfo.setName(user.getName());
+        pokerChip.setCreateTime(Calendar.getInstance().getTime());
+        pokerChip.setUser(userInfo);
+        mongoTemplate.updateFirst(
+                Query.query(Criteria.where("guessingId").is(guessingId)),
+                new Update().push("pokerChips", pokerChip),
+                FansGuessingItem.class);
+        return creditService.doCreditOperationFansGuessing(CreditConstant.JOIN_GUESSING, CreditConstant.JOIN_GUESSING.getMsg(guessingId), pokerChip.getCredit());
     }
 
     @Scheduled(initialDelay = MICROSECOND_OF_MINUTES * 5, fixedDelay = MICROSECOND_OF_MINUTES * 60 * 24)
     @Async
+    @Transactional(rollbackFor = Exception.class)
     public Result<?> judgeFinishedFansGuessing() {
         Integer finishedState = 3;
         List<FansGuessingItem> fansGuessingItems = mongoTemplate.find(Query.query(Criteria.where("state").is(finishedState)), FansGuessingItem.class);
@@ -274,10 +274,9 @@ public class GuessingService {
                 if (u == null) {
                     return;
                 }
-
                 if (!mongoTemplate.exists(Query.query(Criteria.where("name").is(userGuessingResult.getName()).and("guessingId").is(f.getGuessingId())), UserGuessingResult.class, "cashed_user_guessing")) {
                     userGuessingResult.setGuessingId(f.getGuessingId());
-                    creditOperateHandle.doCustomCreditOperate(u, -userGuessingResult.getRevenue(), CreditConstant.GUESSING_REVENUE, f.getGuessingId(), () -> null);
+                    creditService.doCreditOperationFansGuessing(CreditConstant.GUESSING_REVENUE, CreditConstant.GUESSING_REVENUE.getMsg(f.getGuessingId()), userGuessingResult.getRevenue());
                     mongoTemplate.save(userGuessingResult, "cashed_user_guessing");
                 }
             });
