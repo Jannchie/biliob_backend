@@ -22,12 +22,14 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @WebAppConfiguration
+@Transactional
 public class AgendaControllerTest {
 
     private static final Logger logger = LogManager.getLogger();

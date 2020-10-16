@@ -110,11 +110,11 @@ public class UserCommentServiceImpl implements UserCommentService {
     }
 
     @Override
-    public ResponseEntity<Result<Comment>> postComment(Comment comment) {
+    public Result<Comment> postComment(Comment comment) {
         User user = UserUtils.getUser();
         Integer need = 100;
         if (user.getExp() < need) {
-            return ResponseEntity.badRequest().body(new Result<>(ResultEnum.EXP_NOT_ENOUGH));
+            return new Result<>(ResultEnum.EXP_NOT_ENOUGH);
         }
         if (mongoTemplate.exists(Query.query(
                 Criteria
@@ -124,16 +124,17 @@ public class UserCommentServiceImpl implements UserCommentService {
                         .and("content").is(comment.getContent())
                 ), Comment.class
         )) {
-            return ResponseEntity.badRequest().body(new Result<>(ResultEnum.DUMP_COMMENT));
+            return new Result<>(ResultEnum.DUMP_COMMENT);
         }
 
         comment.setDate(Calendar.getInstance().getTime());
         comment.setLikeList(new ArrayList<>());
         comment.setDisLikeList(new ArrayList<>());
         comment.setUserId(user.getId());
-        Result<Comment> c = ResultEnum.SUCCEED.getResult(mongoTemplate.save(comment));
-        creditService.doCreditOperation(CreditConstant.POST_COMMENT, CreditConstant.POST_COMMENT.getMsg(comment.getPath()));
-        return ResponseEntity.ok(c);
+        Comment c = mongoTemplate.save(comment);
+        Result<Comment> r = creditService.doCreditOperation(CreditConstant.POST_COMMENT, CreditConstant.POST_COMMENT.getMsg(comment.getPath()));
+        r.setData(c);
+        return r;
     }
 
     @Override

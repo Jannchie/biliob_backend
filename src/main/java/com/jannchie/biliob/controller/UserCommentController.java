@@ -34,7 +34,7 @@ public class UserCommentController {
     }
 
     @RequestMapping(method = RequestMethod.POST, value = "/api/user/comment")
-    public ResponseEntity<Result<Comment>> postComment(@RequestBody @Valid Comment comment) {
+    public Result<Comment> postComment(@RequestBody @Valid Comment comment) {
         return userCommentService.postComment(comment);
     }
 

@@ -8,6 +8,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
+import org.springframework.transaction.annotation.Transactional;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -18,6 +19,7 @@ public class MonitorControllerTest {
 
     @Test
     @WithMockUser(username = TestConstants.NORMAL_USER_NAME)
+    @Transactional
     public void getVideoInfo() {
         monitorController.getCrawlRateAuthor();
     }

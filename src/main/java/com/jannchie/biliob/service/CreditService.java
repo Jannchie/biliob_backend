@@ -18,6 +18,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
+import java.math.BigDecimal;
+
 /**
  * @author Jannchie
  */
@@ -85,9 +87,9 @@ public class CreditService {
         user.setCredit(user.getCredit() + credit);
         if (withExp) {
             if (credit < 0) {
-                user.setExp(user.getExp() - credit);
+                user.setExp(BigDecimal.valueOf(user.getExp() - credit).setScale(2, BigDecimal.ROUND_FLOOR).doubleValue());
             } else {
-                user.setExp(user.getExp() + credit);
+                user.setExp(BigDecimal.valueOf(user.getExp() + credit).setScale(2, BigDecimal.ROUND_FLOOR).doubleValue());
             }
         }
         mongoTemplate.update(User.class).matching(Query.query(Criteria.where(DbFields.ID).is(user.getId()))).apply(Update.update("credit", user.getCredit()).set("exp", user.getExp())).first();
