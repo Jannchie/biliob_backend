@@ -130,8 +130,8 @@ public class AuthorServiceImpl implements AuthorService {
         Author data = mongoTemplate.aggregate(a, Author.Data.class, Author.class).getUniqueMappedResult();
         long deltaTime = Calendar.getInstance().getTimeInMillis() - timer.getTimeInMillis();
         // 太慢，则精简数据
-        logger.info(deltaTime);
-        if (deltaTime > 7000) {
+        if (deltaTime > 3000) {
+            logger.info("获取速度太慢，需要精简数据。消耗时间：{}ms", deltaTime);
             adminService.reduceByMid(mid);
         }
         return data;
@@ -284,7 +284,6 @@ public class AuthorServiceImpl implements AuthorService {
         ), "author_visit", Map.class).getMappedResults().size() > 16) {
             adminService.banItself("设备异常多", false);
         }
-        AuthorServiceImpl.logger.info("用户[{}]查询mid[{}]的详细数据", finalUserName, mid);
         mongoTemplate.insert(data, "author_visit");
     }
 
@@ -294,7 +293,6 @@ public class AuthorServiceImpl implements AuthorService {
         if (respository.findByMid(mid) != null) {
             throw new AuthorAlreadyFocusedException(mid);
         }
-        AuthorServiceImpl.logger.info(mid);
         upsertAuthorFreq(mid, SECOND_OF_DAY);
         respository.save(new Author(mid));
     }
@@ -309,11 +307,9 @@ public class AuthorServiceImpl implements AuthorService {
         MySlice<Author> result;
         String sortKey = AuthorSortEnum.getKeyByFlag(sort);
         if (mid != -1) {
-            AuthorServiceImpl.logger.info(mid);
             result = new MySlice<>(respository.searchByMid(mid,
                     PageRequest.of(page, pagesize, Sort.by(Sort.Direction.DESC, sortKey))));
         } else if (!Objects.equals(text, "")) {
-            AuthorServiceImpl.logger.info(text);
             if (InputInspection.isId(text)) {
                 // get a mid
                 result = new MySlice<>(respository.searchByMid(Long.valueOf(text),
@@ -333,7 +329,6 @@ public class AuthorServiceImpl implements AuthorService {
                 }
             }
         } else {
-            AuthorServiceImpl.logger.info("查看所有UP主列表");
             result = new MySlice<>(respository.listAll(
                     PageRequest.of(page, pagesize, Sort.by(Sort.Direction.DESC, sortKey))));
         }
@@ -351,7 +346,6 @@ public class AuthorServiceImpl implements AuthorService {
     public ResponseEntity<?> listFansIncreaseRate() {
         Slice<Author> slice = respository
                 .listTopIncreaseRate(PageRequest.of(0, 20, Sort.by(Sort.Direction.DESC, "cRate")));
-        AuthorServiceImpl.logger.info("获得涨粉榜");
         return new ResponseEntity<>(slice, HttpStatus.OK);
     }
 
@@ -364,7 +358,6 @@ public class AuthorServiceImpl implements AuthorService {
     public ResponseEntity<?> listFansDecreaseRate() {
         Slice<Author> slice = respository
                 .listTopIncreaseRate(PageRequest.of(0, 20, Sort.by(Sort.Direction.ASC, "cRate")));
-        AuthorServiceImpl.logger.info("获得掉粉榜");
         return new ResponseEntity<>(slice, HttpStatus.OK);
     }
 
