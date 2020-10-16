@@ -21,6 +21,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/api/user/activation-code").permitAll()
                 .antMatchers("/api/user/password").permitAll()
                 .antMatchers("/api/user").permitAll()
+                .antMatchers("/api/user/check-in").permitAll()
                 .antMatchers("/api/monitor/**").permitAll()
                 .antMatchers("/api/admin/**").hasAnyAuthority("管理员", "站长", "系统测试员")
                 .antMatchers("/api/user/**").hasAnyAuthority(

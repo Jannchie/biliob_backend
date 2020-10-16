@@ -292,40 +292,42 @@ public class GuessingService {
         List<GuessingItem.PokerChip> pokerChipList = f.getPokerChips();
         ArrayList<UserGuessingResult> results = new ArrayList<>();
         Double rate = 0.47;
-        for (int i = 0; i < pokerChipList.size(); i++) {
-            GuessingItem.PokerChip p = pokerChipList.get(i);
-            int range = 10;
-            int l = Math.max(i - range, 0);
-            int r = Math.min(i + range, pokerChipList.size());
+        if (pokerChipList != null) {
+            for (int i = 0; i < pokerChipList.size(); i++) {
+                GuessingItem.PokerChip p = pokerChipList.get(i);
+                int range = 10;
+                int l = Math.max(i - range, 0);
+                int r = Math.min(i + range, pokerChipList.size());
 
-            long averageLossHour = 0L;
-            for (int j = l; j < r; j++) {
-                GuessingItem.PokerChip t = pokerChipList.get(j);
-                Date guessingDate = getCorrectGuessingTime(t);
+                long averageLossHour = 0L;
+                for (int j = l; j < r; j++) {
+                    GuessingItem.PokerChip t = pokerChipList.get(j);
+                    Date guessingDate = getCorrectGuessingTime(t);
+                    Long lossHour = Math.abs((finalReachDate.getTime() - guessingDate.getTime()) / 3600000);
+                    averageLossHour += lossHour;
+                }
+                averageLossHour /= (l - r);
+
+                String userName = p.getUser().getName();
+                Date guessingDate = getCorrectGuessingTime(p);
+                Double credit = p.getCredit();
+                Date createTime = p.getCreateTime();
+
                 Long lossHour = Math.abs((finalReachDate.getTime() - guessingDate.getTime()) / 3600000);
-                averageLossHour += lossHour;
+                Long foreHour = (finalReachDate.getTime() - createTime.getTime()) / 3600000;
+
+                UserGuessingResult result;
+                result = new UserGuessingResult();
+                result.setForeHour(foreHour);
+                result.setLossHour(lossHour);
+                Long score = getScore(lossHour, foreHour, averageLossHour);
+                result.setScore((long) (score * rate * credit));
+                result.setCredit(credit);
+                result.setAverageDate(guessingDate);
+                result.setAverageCreateTime(createTime);
+                result.setName(userName);
+                results.add(result);
             }
-            averageLossHour /= (l - r);
-
-            String userName = p.getUser().getName();
-            Date guessingDate = getCorrectGuessingTime(p);
-            Double credit = p.getCredit();
-            Date createTime = p.getCreateTime();
-
-            Long lossHour = Math.abs((finalReachDate.getTime() - guessingDate.getTime()) / 3600000);
-            Long foreHour = (finalReachDate.getTime() - createTime.getTime()) / 3600000;
-
-            UserGuessingResult result;
-            result = new UserGuessingResult();
-            result.setForeHour(foreHour);
-            result.setLossHour(lossHour);
-            Long score = getScore(lossHour, foreHour, averageLossHour);
-            result.setScore((long) (score * rate * credit));
-            result.setCredit(credit);
-            result.setAverageDate(guessingDate);
-            result.setAverageCreateTime(createTime);
-            result.setName(userName);
-            results.add(result);
         }
 
         Long sumScore = results.stream().map(UserGuessingResult::getScore).reduce(0L, Long::sum);
