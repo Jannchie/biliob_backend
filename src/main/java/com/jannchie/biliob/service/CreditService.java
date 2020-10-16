@@ -57,6 +57,8 @@ public class CreditService {
         user.setCredit(user.getCredit() + credit);
         if (credit < 0) {
             user.setExp(user.getExp() - credit);
+        } else {
+            user.setExp(user.getExp() + credit);
         }
         mongoTemplate.update(User.class).matching(Query.query(Criteria.where(DbFields.ID).is(user.getId()))).apply(Update.update("credit", user.getCredit()).set("exp", user.getExp())).first();
         UserRecord ur = mongoTemplate.save(new UserRecord(user, creditConstant, message, isExecuted));
