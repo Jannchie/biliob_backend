@@ -168,7 +168,6 @@ class UserServiceImpl implements UserService {
         temp.add(mid);
         user.setFavoriteMid(new ArrayList<>(temp));
         userRepository.save(user);
-        UserServiceImpl.logger.info("用户：{} 关注了{}", user.getName(), mid);
         return new ResponseEntity<>(new Result<>(ResultEnum.ADD_FAVORITE_AUTHOR_SUCCEED), HttpStatus.OK);
     }
 
@@ -191,7 +190,6 @@ class UserServiceImpl implements UserService {
         temp.add(aid);
         user.setFavoriteAid(new ArrayList<>(temp));
         userRepository.save(user);
-        UserServiceImpl.logger.info("用户：{} 关注了{}", user.getName(), aid);
         return new ResponseEntity<>(new Result<>(ResultEnum.ADD_FAVORITE_VIDEO_SUCCEED), HttpStatus.OK);
     }
 
@@ -274,7 +272,6 @@ class UserServiceImpl implements UserService {
                 mids.remove(i);
                 user.setFavoriteMid(mids);
                 userRepository.save(user);
-                UserServiceImpl.logger.info("删除[{}]关注的UP主：{}", user.getName(), mid);
                 return new ResponseEntity<>(new Result<>(ResultEnum.DELETE_SUCCEED), HttpStatus.OK);
             }
         }
@@ -301,7 +298,6 @@ class UserServiceImpl implements UserService {
                 aids.remove(i);
                 user.setFavoriteAid(aids);
                 userRepository.save(user);
-                UserServiceImpl.logger.info("用户：{} 删除了收藏的视频，aid：{}", user.getName(), aid);
                 return new ResponseEntity<>(new Result<>(ResultEnum.DELETE_SUCCEED), HttpStatus.OK);
             }
         }

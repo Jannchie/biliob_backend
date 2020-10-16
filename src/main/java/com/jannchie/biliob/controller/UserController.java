@@ -69,7 +69,7 @@ public class UserController {
 
     @RequestMapping(method = RequestMethod.PUT, value = "/api/user/mail")
     public Result<?> bindMail(@RequestBody @Valid Map<String, String> requestMap) {
-        logger.info("创建观测者账号，名为[{}]", requestMap.get("name"));
+        logger.info("绑定邮箱[{}]", requestMap.get("name"));
         return userService.bindMail(
                 requestMap.get("mail"),
                 requestMap.get("activationCode"));
@@ -78,17 +78,20 @@ public class UserController {
     @RequestMapping(method = RequestMethod.POST, value = "/api/user/author")
     public ResponseEntity<?> addFavoriteAuthor(@RequestBody @Valid Long mid)
             throws UserAlreadyFavoriteAuthorException {
+        logger.info("添加喜欢的作者，mid: [{}]", mid);
         return userService.addFavoriteAuthor(mid);
     }
 
     @RequestMapping(method = RequestMethod.POST, value = "/api/user/video")
     public ResponseEntity<?> addFavoriteVideo(@RequestBody @Valid Long aid)
             throws UserAlreadyFavoriteVideoException {
+        logger.info("添加喜欢的视频，aid: [{}]", aid);
         return userService.addFavoriteVideo(aid);
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/api/user")
     public ResponseEntity<?> getUserInfo() {
+        logger.info("获取观测者自身信息");
         return userService.getUserInfo();
     }
 
@@ -96,6 +99,7 @@ public class UserController {
     public Slice<?> getFavoriteVideo(
             @RequestParam(defaultValue = "0") Integer page,
             @RequestParam(defaultValue = "20") Integer pageSize) {
+        logger.info("获得喜欢的视频分片，页{}，页大小{}", page, pageSize);
         return userService.getFavoriteVideo(page, pageSize);
     }
 
@@ -103,6 +107,7 @@ public class UserController {
     public Slice<?> getFavoriteAuthor(
             @RequestParam(defaultValue = "0") Integer page,
             @RequestParam(defaultValue = "20") Integer pageSize) {
+        logger.info("获得喜欢的作者分片，页{}，页大小{}", page, pageSize);
         return userService.getFavoriteAuthor(page, pageSize);
     }
 
@@ -128,9 +133,10 @@ public class UserController {
     public ResponseEntity<Result<User>> login(@Valid @RequestBody LoginForm data) {
         try {
             User user = getSignedUser(data);
-            logger.info("用户[{}]登录成功", user.getName());
+            logger.info("观测者[{}]登录成功", user.getName());
             return ResponseEntity.ok(new Result<>(ResultEnum.LOGIN_SUCCEED, user));
         } catch (AuthenticationException e) {
+            logger.info("观测者登录失败");
             return ResponseEntity.badRequest().body(new Result<>(ResultEnum.LOGIN_FAILED));
         }
     }
@@ -144,22 +150,26 @@ public class UserController {
     }
 
     @RequestMapping(method = RequestMethod.DELETE, value = "/api/user/video/{aid}")
-    public ResponseEntity<?> deleteFavoriteVideo(@PathVariable("aid") @Valid Long aid) {
+    public ResponseEntity<?> deleteFavoriteVideo(@PathVariable("aid") Long aid) {
+        logger.info("移除喜欢的视频，aid: [{}]", aid);
         return userService.deleteFavoriteVideoByAid(aid);
     }
 
     @RequestMapping(method = RequestMethod.DELETE, value = "/api/user/author/{mid}")
-    public ResponseEntity<?> deleteFavoriteAuthor(@PathVariable("mid") @Valid Long mid) {
+    public ResponseEntity<?> deleteFavoriteAuthor(@PathVariable("mid") Long mid) {
+        logger.info("移除喜欢的UP主，mid: [{}]", mid);
         return userService.deleteFavoriteAuthorByMid(mid);
     }
 
     @RequestMapping(method = RequestMethod.POST, value = "/api/user/check-in")
     public Result<?> postCheckIn() {
+        logger.info("签到");
         return userService.postCheckIn();
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/api/user/check-in")
     public ResponseEntity<?> getCheckIn() {
+        logger.info("获取签到状态");
         return userService.getCheckIn();
     }
 
@@ -167,37 +177,44 @@ public class UserController {
     public Result<?> forceFocus(
             @RequestParam(defaultValue = "false") @Valid Boolean forceFocus,
             @PathVariable("mid") @Valid Long mid) {
+        logger.info("锁定mid: [{}]的更新频率", mid);
         return userService.forceFocus(mid, forceFocus);
     }
 
     @RequestMapping(method = RequestMethod.POST, value = "/api/user/question")
     public Result<?> postQuestion(@RequestBody @Valid Question question) {
+        logger.info("提出问题：[{}]", question.getQuestion());
         return userService.postQuestion(question.getQuestion());
     }
 
     @RequestMapping(method = RequestMethod.PUT, value = "/api/user/author/{mid}/data")
     public Result<?> refreshAuthor(@PathVariable("mid") @Valid Long mid) {
+        logger.info("刷新作者数据，mid[{}]", mid);
         return userService.refreshAuthor(mid);
     }
 
     @RequestMapping(method = RequestMethod.PUT, value = "/api/user/name")
     public Result<?> modifyUserName(@RequestParam(defaultValue = "", value = "name") String name) {
+        logger.info("修改用户名，改为[{}]", name);
         return userService.modifyUserName(name);
     }
 
     @RequestMapping(method = RequestMethod.PUT, value = "/api/user/video/AV{aid}/data")
     public Result<?> refreshVideo(@PathVariable("aid") @Valid Long aid) {
+        logger.info("刷新视频数据，aid: [{}]", aid);
         return userService.refreshVideo(aid);
     }
 
     @RequestMapping(method = RequestMethod.PUT, value = "/api/user/video/BV{bvid}/data")
     public Result<?> refreshVideo(@PathVariable("bvid") @Valid String bvid) {
+        logger.info("刷新视频数据，bvid: [{}]", bvid);
         return userService.refreshVideo(bvid);
     }
 
 
     @RequestMapping(method = RequestMethod.PUT, value = "/api/user/video/data")
     public Result<?> refreshVideo(@RequestBody Video video) {
+        logger.info("刷新视频数据（通用接口）");
         if (video.getBvid() != null) {
             return userService.refreshVideo(video.getBvid());
         }
@@ -211,16 +228,19 @@ public class UserController {
     public ResponseEntity<?> userRank(
             @RequestParam(defaultValue = "0") Integer page,
             @RequestParam(defaultValue = "100") Integer pagesize) {
+        logger.info("列出观测者的排名");
         return new ResponseEntity<>(userService.sliceUserRank(page, pagesize), HttpStatus.OK);
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/api/user/record")
     public ResponseEntity<?> userRecord() {
+        logger.info("列出观测者的操作记录");
         return new ResponseEntity<>(userService.getUserRecentRecord(), HttpStatus.OK);
     }
 
     @RequestMapping(method = RequestMethod.PUT, value = "/api/user/video/{aid}/danmaku")
     public ResponseEntity<?> danmakuAggregate(@PathVariable("aid") @Valid Long aid) {
+        logger.info("发起弹幕分析，aid: [{}]", aid);
         return userService.danmakuAggregate(aid);
     }
 
@@ -228,6 +248,7 @@ public class UserController {
     public ResponseEntity<?> videoObserveAlterFrequency(
             @PathVariable("aid") @Valid Long aid,
             @RequestParam(defaultValue = "1") @Valid Integer timeDurationFlag) {
+        logger.info("修改观测频率aid: [{}], flag: [{}]", aid, timeDurationFlag);
         return userService.videoObserveAlterFrequency(aid, timeDurationFlag);
     }
 
@@ -235,11 +256,13 @@ public class UserController {
     public ResponseEntity<?> authorObserveAlterFrequency(
             @PathVariable("mid") @Valid Long mid,
             @RequestParam(defaultValue = "1") @Valid Integer typeFlag) {
+        logger.info("修改观测频率mid: [{}], flag: [{}]", mid, typeFlag);
         return userService.authorObserveAlterFrequency(mid, typeFlag);
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/api/user/video/keyword")
     public Map<?, ?> getUserPreferKeyWord() {
+        logger.info("获取观测者自身喜欢的关键词");
         return userService.getUserPreferKeyword();
     }
 
@@ -247,21 +270,25 @@ public class UserController {
     public ArrayList<?> getUserPreferVideoByFavoriteVideo(
             @RequestParam(defaultValue = "0") Integer page,
             @RequestParam(defaultValue = "20") Integer pagesize) {
+        logger.info("根据观测者收藏的视频，获取观测者喜欢的视频");
         return userService.getUserPreferVideoByFavoriteVideo(page, pagesize);
     }
 
     @RequestMapping(method = RequestMethod.POST, value = "/api/user/nickname")
     public Result<?> changeNickName(@RequestBody @Valid NickNameForm user) {
+        logger.info("修改昵称为[{}]", user.getNickName());
         return userService.changeNickName(user.getNickName());
     }
 
     @RequestMapping(method = RequestMethod.POST, value = "/api/user/mail")
     public Result<?> changeMail(@RequestBody @Valid ChangeMailForm changeMailForm) {
+        logger.info("修改邮箱为[{}]", changeMailForm.getMail());
         return userService.changeMail(changeMailForm.getMail());
     }
 
     @RequestMapping(method = RequestMethod.PUT, value = "/api/user/password")
     public ResponseEntity<Result<String>> changeMail(@RequestBody @Valid ChangePasswordForm changePasswordForm) {
+        logger.info("修改密码");
         return userService.changePassword(changePasswordForm);
     }
 
