@@ -371,7 +371,7 @@ class UserServiceImpl implements UserService {
                     new Result<>(ResultEnum.HAS_NOT_LOGGED_IN), HttpStatus.OK);
         }
         Boolean isCheckedIn =
-                mongoTemplate.exists(new Query(where("name").is(user.getName())), "check_in");
+                mongoTemplate.exists(new Query(where("name").in(user.getName(), user.getMail())), "check_in");
         HashMap<String, Boolean> statusHashMap = new HashMap<>(1);
         statusHashMap.put("status", isCheckedIn);
         return new ResponseEntity<>(statusHashMap, HttpStatus.OK);
