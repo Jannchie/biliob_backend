@@ -7,6 +7,7 @@ import com.jannchie.biliob.model.WhiteList;
 import com.jannchie.biliob.object.IpAggregationInfo;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
@@ -40,6 +41,7 @@ public class IpHandlerInterceptor implements HandlerInterceptor {
     private static final Double CHECK_RATE = 0.05D;
     private final MongoTemplate mongoTemplate;
 
+
     /**
      * controller 执行之前调用
      */
@@ -55,11 +57,11 @@ public class IpHandlerInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
-
         String ip = IpUtil.getIpAddress(request);
         String userAgent = request.getHeader("user-agent");
         String uri = replaceDigital(request.getRequestURI());
-
+        MDC.put("ip", ip);
+        MDC.put("user", UserUtils.getUsername());
         // 在白名单中直接放过
         if (mongoTemplate.exists(query(where(IP).is(ip)), WhiteList.class)) {
             return true;

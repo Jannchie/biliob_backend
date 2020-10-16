@@ -116,7 +116,6 @@ class UserServiceImpl implements UserService {
         user.setExp(0D);
         user.setRole("普通用户");
         userRepository.save(user);
-        UserServiceImpl.logger.info(user.getName());
         // 不要返回密码
         user.setPassword(null);
         return new ResponseEntity<>(new Result<>(ResultEnum.SUCCEED, user), HttpStatus.OK);
@@ -146,7 +145,6 @@ class UserServiceImpl implements UserService {
 
         UserUtils.setUserTitleAndRankAndUpdateRole(user);
         user.setIp(null);
-        UserServiceImpl.logger.info(user.getName());
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
@@ -223,7 +221,6 @@ class UserServiceImpl implements UserService {
             temp.put("aid", aid);
             mapsList.add(temp);
         }
-        UserServiceImpl.logger.info(user.getName());
         return videoRepository.getFavoriteVideo(mapsList, PageRequest.of(page, pageSize));
     }
 
@@ -253,7 +250,6 @@ class UserServiceImpl implements UserService {
             temp.put("mid", mid);
             mapsList.add(temp);
         }
-        UserServiceImpl.logger.info(user.getName());
         Slice<Author> authors = authorRepository.getFavoriteAuthor(mapsList, PageRequest.of(page, pageSize));
         authorUtil.getInterval(authors.getContent());
         return authors;
@@ -343,7 +339,6 @@ class UserServiceImpl implements UserService {
         token.setRememberMe(true);
         subject.login(token);
         String role = getRole(inputName);
-        UserServiceImpl.logger.info("{}：{} 登录成功", role, inputName);
         return new ResponseEntity<>(new Result<>(ResultEnum.LOGIN_SUCCEED, getUserInfo()), HttpStatus.OK);
     }
 
@@ -383,7 +378,6 @@ class UserServiceImpl implements UserService {
                 mongoTemplate.exists(new Query(where("name").is(user.getName())), "check_in");
         HashMap<String, Boolean> statusHashMap = new HashMap<>(1);
         statusHashMap.put("status", isCheckedIn);
-        UserServiceImpl.logger.info("用户：{},签到状态为{}", user.getName(), isCheckedIn);
         return new ResponseEntity<>(statusHashMap, HttpStatus.OK);
     }
 

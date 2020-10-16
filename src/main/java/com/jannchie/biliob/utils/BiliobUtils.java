@@ -44,11 +44,8 @@ public class BiliobUtils {
     }
 
     public String getUserName() {
-        User user = UserUtils.getUser();
-        String userName;
-        if (user != null) {
-            userName = user.getName();
-        } else {
+        String userName = UserUtils.getUsername();
+        if (userName == null) {
             userName = IpUtil.getIpAddress(this.request);
         }
         return userName;

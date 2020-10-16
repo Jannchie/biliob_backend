@@ -12,6 +12,7 @@ import com.jannchie.biliob.object.LoginForm;
 import com.jannchie.biliob.object.NickNameForm;
 import com.jannchie.biliob.security.UserAuthenticationProvider;
 import com.jannchie.biliob.service.UserService;
+import com.jannchie.biliob.utils.BiliobUtils;
 import com.jannchie.biliob.utils.Message;
 import com.jannchie.biliob.utils.Result;
 import com.jannchie.biliob.utils.UserUtils;
@@ -40,6 +41,8 @@ import java.util.Map;
 public class UserController {
     private static final Logger logger = LogManager.getLogger(UserController.class);
     private final UserService userService;
+    @Autowired
+    BiliobUtils biliobUtils;
     private UserAuthenticationProvider userAuthenticationProvider;
 
     @Autowired
@@ -50,11 +53,13 @@ public class UserController {
 
     @RequestMapping(method = RequestMethod.POST, value = "/api/user/activation-code")
     public ResponseEntity<?> getActivationCode(@RequestParam @Valid String mail) {
+        logger.info("[{}]: 向邮箱[{}]发送验证码", biliobUtils.getUserName(), mail);
         return userService.sendActivationCode(mail);
     }
 
     @RequestMapping(method = RequestMethod.POST, value = "/api/user")
     public ResponseEntity<?> createUser(@RequestBody @Valid Map<String, String> requestMap) {
+        logger.info("创建观测者账号，名为[{}]", requestMap.get("name"));
         return userService.createUser(
                 requestMap.get("name"),
                 requestMap.get("password"),
@@ -64,6 +69,7 @@ public class UserController {
 
     @RequestMapping(method = RequestMethod.PUT, value = "/api/user/mail")
     public Result<?> bindMail(@RequestBody @Valid Map<String, String> requestMap) {
+        logger.info("创建观测者账号，名为[{}]", requestMap.get("name"));
         return userService.bindMail(
                 requestMap.get("mail"),
                 requestMap.get("activationCode"));
