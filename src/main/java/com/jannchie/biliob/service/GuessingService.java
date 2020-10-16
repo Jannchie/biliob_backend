@@ -132,11 +132,6 @@ public class GuessingService {
         return result;
     }
 
-
-    public Result<?> joinGuessing(ObjectId guessingId, Integer index, Double value) {
-        return null;
-    }
-
     public Result<?> announceResult(ObjectId guessingId, Integer index) {
         return null;
     }
@@ -233,6 +228,9 @@ public class GuessingService {
         if (correctGuessingTime.before(calendar.getTime())) {
             return new Result<>(ResultEnum.EXECUTE_FAILURE);
         }
+        if (pokerChip.getCredit() <= 0 || pokerChip.getCredit() > 100) {
+            return new Result<>(ResultEnum.EXECUTE_FAILURE);
+        }
         calendar.add(Calendar.YEAR, 1);
         if (correctGuessingTime.after(calendar.getTime())) {
             return new Result<>(ResultEnum.EXECUTE_FAILURE);
@@ -256,7 +254,7 @@ public class GuessingService {
                 Query.query(Criteria.where("guessingId").is(guessingId)),
                 new Update().push("pokerChips", pokerChip),
                 FansGuessingItem.class);
-        return creditService.doCreditOperationFansGuessing(CreditConstant.JOIN_GUESSING, CreditConstant.JOIN_GUESSING.getMsg(guessingId), pokerChip.getCredit());
+        return creditService.doCreditOperationFansGuessing(CreditConstant.JOIN_GUESSING, CreditConstant.JOIN_GUESSING.getMsg(guessingId), -pokerChip.getCredit());
     }
 
     @Scheduled(initialDelay = MICROSECOND_OF_MINUTES * 5, fixedDelay = MICROSECOND_OF_MINUTES * 60 * 24)

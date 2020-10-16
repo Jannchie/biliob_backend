@@ -82,7 +82,6 @@ public class CreditService {
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
             return ResultEnum.CREDIT_NOT_ENOUGH.getCreditResult();
         }
-        logger.info("观测者[{}]: {}", user.getName(), message);
         user.setCredit(user.getCredit() + credit);
         if (withExp) {
             if (credit < 0) {
@@ -98,6 +97,7 @@ public class CreditService {
             r.setUserRecord(ur);
             return r;
         }
+        logger.info("观测者[{}]: {} [exp:{}(+{}), cre:{}({})]", user.getName(), message, user.getExp(), withExp ? credit : 0, user.getCredit(), credit);
         return ResultEnum.SUCCEED.getResult(user);
     }
 }

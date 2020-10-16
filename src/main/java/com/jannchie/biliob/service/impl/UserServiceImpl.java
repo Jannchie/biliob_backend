@@ -398,7 +398,7 @@ class UserServiceImpl implements UserService {
     @Transactional(rollbackFor = Exception.class)
     public Result<?> forceFocus(Long mid, @Valid Boolean forceFocus) {
         String msg = CreditConstant.SET_AUTHOR_FORCE_OBSERVE.getMsg(mid);
-        Result<?> r = creditService.doCreditOperation(CreditConstant.SET_AUTHOR_FORCE_OBSERVE, msg);
+
         Query q = Query.query(Criteria.where(DbFields.MID).is(mid));
         Author a = mongoTemplate.findOne(q, Author.class);
 
@@ -414,7 +414,7 @@ class UserServiceImpl implements UserService {
             return ResultEnum.ALREADY_FORCE_FOCUS.getResult();
         }
         mongoTemplate.update(Author.class).matching(q).apply(Update.update(FORCE_FOCUS, forceFocus)).first();
-        return r;
+        return creditService.doCreditOperation(CreditConstant.SET_AUTHOR_FORCE_OBSERVE, msg);
     }
 
     /**

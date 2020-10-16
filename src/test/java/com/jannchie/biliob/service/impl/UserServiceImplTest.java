@@ -3,6 +3,7 @@ package com.jannchie.biliob.service.impl;
 import com.jannchie.biliob.constant.CreditConstant;
 import com.jannchie.biliob.constant.ResultEnum;
 import com.jannchie.biliob.constant.TestConstants;
+import com.jannchie.biliob.model.CheckIn;
 import com.jannchie.biliob.model.User;
 import com.jannchie.biliob.utils.Result;
 import com.jannchie.biliob.utils.UserUtils;
@@ -11,6 +12,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
@@ -23,14 +27,18 @@ public class UserServiceImplTest {
 
     @Autowired
     private UserServiceImpl userService;
-
+    @Autowired
+    private MongoTemplate mongoTemplate;
 
     @Test
     @Transactional
     @WithMockUser(username = TestConstants.TEST_USER_NAME)
     public void testPostCheckIn() {
+        mongoTemplate.remove(Query.query(Criteria.where("name").is(TestConstants.TEST_USER_NAME)), CheckIn.class);
         Result<?> r = userService.postCheckIn();
         assert r.getMsg().equals(ResultEnum.SUCCEED.getMsg());
+        User u = UserUtils.getUser();
+        Assert.assertEquals(u.getCredit(), r.getUser().getCredit());
         r = userService.postCheckIn();
         assert r.getMsg().equals(ResultEnum.ALREADY_SIGNED.getMsg());
     }
@@ -55,14 +63,12 @@ public class UserServiceImplTest {
         r = userService.forceFocus(-404L, true);
         Assert.assertEquals(r.getMsg(), ResultEnum.AUTHOR_NOT_FOUND.getMsg());
         r = userService.forceFocus(58402261L, true);
-        r = userService.forceFocus(58402261L, true);
         Assert.assertEquals(r.getMsg(), ResultEnum.SUCCEED.getMsg());
+        Double d = u.getCredit() + CreditConstant.SET_AUTHOR_FORCE_OBSERVE.getValue();
+        r = userService.forceFocus(58402261L, true);
+        Assert.assertEquals(r.getMsg(), ResultEnum.ALREADY_FORCE_FOCUS.getMsg());
         u = UserUtils.getUser();
         assert u != null;
-        Result.UserData ud = r.getUser();
-        assert ud != null;
-        Double d = u.getCredit() + CreditConstant.SET_AUTHOR_FORCE_OBSERVE.getValue();
-        Assert.assertEquals(d, ud.getCredit());
     }
 
     @Test
