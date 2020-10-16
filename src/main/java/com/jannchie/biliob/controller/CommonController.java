@@ -2,7 +2,6 @@ package com.jannchie.biliob.controller;
 
 import com.jannchie.biliob.constant.ResultEnum;
 import com.jannchie.biliob.model.Notice;
-import com.jannchie.biliob.utils.BiliobUtils;
 import com.jannchie.biliob.utils.Result;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -27,8 +26,6 @@ public class CommonController {
 
     @Autowired
     MongoTemplate mongoTemplate;
-    @Autowired
-    BiliobUtils biliobUtils;
     private Logger logger = LogManager.getLogger();
 
     @RequestMapping(method = RequestMethod.GET, value = "/api/common/notice")
