@@ -33,13 +33,13 @@ public class CommonController {
 
     @RequestMapping(method = RequestMethod.GET, value = "/api/common/notice")
     public Notice getNotice() {
-        logger.debug("[{}] 获取通知", biliobUtils.getUserName());
+        logger.debug("获取通知");
         return mongoTemplate.findOne(new Query().with(Sort.by("date").descending()), Notice.class);
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/api/common/notices")
     public List<Notice> listNotices() {
-        logger.debug("[{}] 获取最近通知", biliobUtils.getUserName());
+        logger.debug("获取最近通知列表");
         return mongoTemplate.find(new Query().with(Sort.by("date").descending()).limit(4), Notice.class);
     }
 
