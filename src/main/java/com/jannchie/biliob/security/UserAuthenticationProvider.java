@@ -3,6 +3,8 @@ package com.jannchie.biliob.security;
 import com.jannchie.biliob.constant.ResultEnum;
 import com.jannchie.biliob.model.User;
 import com.jannchie.biliob.utils.UserUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.shiro.crypto.hash.Md5Hash;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -28,6 +30,7 @@ import java.util.Collection;
 public class UserAuthenticationProvider implements AuthenticationProvider {
 
 
+    private static final Logger logger = LogManager.getLogger();
     private final MongoTemplate mongoTemplate;
     private final BCryptPasswordEncoder bcryptPasswordEncoder;
 
@@ -43,6 +46,10 @@ public class UserAuthenticationProvider implements AuthenticationProvider {
         String password = authentication.getCredentials().toString();
 
         User user = UserUtils.getPasswdAndRole(name);
+        if (user == null) {
+            logger.error("凭证过期");
+            throw new BadCredentialsException(ResultEnum.LOGIN_FAILED.getMsg());
+        }
         String encodedPassword = new Md5Hash(password, user.getName()).toHex();
         if (encodedPassword.equals(user.getPassword())) {
             mongoTemplate.updateFirst(Query.query(

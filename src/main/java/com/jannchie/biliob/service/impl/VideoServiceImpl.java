@@ -429,7 +429,7 @@ public class VideoServiceImpl implements VideoService {
         }
         Query q = Query.query(Criteria.where("mid").is(mid)).with(videoSort).limit(pagesize).withHint("{mid: 1}");
         q.fields().include("title").include("mid").include("aid").include("pic").include("channel").include("datetime");
-        VideoServiceImpl.logger.info("获取mid:{} 播放最多的视频", mid);
+        VideoServiceImpl.logger.info("获取mid: [{}] 播放最多的视频", mid);
         return new MySlice<>(mongoTemplate.find(q, Video.class));
     }
 

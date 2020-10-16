@@ -205,7 +205,6 @@ public class AuthorGroupServiceImpl implements AuthorGroupService {
         } else {
             match = Aggregation.match(new Criteria());
         }
-        logger.info("{} {}", keyword, page);
         return this.listAuthorList(match, page, pageSize);
     }
 

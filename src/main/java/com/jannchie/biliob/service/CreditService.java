@@ -84,12 +84,12 @@ public class CreditService {
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
             return ResultEnum.CREDIT_NOT_ENOUGH.getCreditResult();
         }
-        user.setCredit(user.getCredit() + credit);
+        user.setCredit(BigDecimal.valueOf(user.getCredit()).add(BigDecimal.valueOf(credit)).setScale(2, BigDecimal.ROUND_HALF_DOWN).doubleValue());
         if (withExp) {
             if (credit < 0) {
-                user.setExp(BigDecimal.valueOf(user.getExp() - credit).setScale(2, BigDecimal.ROUND_FLOOR).doubleValue());
+                user.setExp(BigDecimal.valueOf(user.getExp()).subtract(BigDecimal.valueOf(credit)).setScale(2, BigDecimal.ROUND_HALF_DOWN).doubleValue());
             } else {
-                user.setExp(BigDecimal.valueOf(user.getExp() + credit).setScale(2, BigDecimal.ROUND_FLOOR).doubleValue());
+                user.setExp(BigDecimal.valueOf(user.getExp()).add(BigDecimal.valueOf(credit)).setScale(2, BigDecimal.ROUND_HALF_DOWN).doubleValue());
             }
         }
         mongoTemplate.update(User.class).matching(Query.query(Criteria.where(DbFields.ID).is(user.getId()))).apply(Update.update("credit", user.getCredit()).set("exp", user.getExp())).first();
