@@ -52,7 +52,6 @@ public class GuessingServiceTest {
     public void join() {
         FansGuessingItem f = mongoTemplate.findOne(Query.query(Criteria.where("state").is(1)), FansGuessingItem.class);
         assert f != null;
-
         GuessingItem.PokerChip gp = new GuessingItem.PokerChip();
         gp.setCredit(16.2D);
         Calendar c = Calendar.getInstance();

@@ -138,6 +138,7 @@ public class GuessingService {
 
     @Scheduled(initialDelay = MICROSECOND_OF_MINUTES * 10, fixedDelay = MICROSECOND_OF_MINUTES * 10)
     @Async
+    @Transactional(rollbackFor = Exception.class)
     public Result<?> autoUpdateGuessing() {
         logger.info("查看竞猜是快要达成");
         Query q = new Query(Criteria.where("state").is(1));
