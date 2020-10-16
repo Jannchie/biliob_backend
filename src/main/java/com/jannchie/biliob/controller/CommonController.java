@@ -45,7 +45,7 @@ public class CommonController {
     public Result<?> modifyNotice(@RequestBody @Validated Notice notice) {
         notice.setDate(Calendar.getInstance().getTime());
         mongoTemplate.insert(notice);
-        logger.info("[{}] 发布通知", biliobUtils.getUserName());
+        logger.info("发布通知");
         return new Result<>(ResultEnum.SUCCEED);
     }
 }

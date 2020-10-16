@@ -290,7 +290,6 @@ public class GuessingService {
     private ArrayList<UserGuessingResult> getUserGuessingResults(FansGuessingItem f, Date finalReachDate) {
         List<GuessingItem.PokerChip> pokerChipList = f.getPokerChips();
         ArrayList<UserGuessingResult> results = new ArrayList<>();
-        Set<String> nameSet = new HashSet<>();
         Double rate = 0.47;
         for (int i = 0; i < pokerChipList.size(); i++) {
             GuessingItem.PokerChip p = pokerChipList.get(i);
@@ -326,7 +325,6 @@ public class GuessingService {
             result.setAverageCreateTime(createTime);
             result.setName(userName);
             results.add(result);
-            nameSet.add(userName);
         }
 
         Long sumScore = results.stream().map(UserGuessingResult::getScore).reduce(0L, Long::sum);
