@@ -112,15 +112,6 @@ public interface UserService {
     ResponseEntity<?> deleteFavoriteVideoByAid(Long aid);
 
     /**
-     * login
-     *
-     * @param name   user name or email
-     * @param passwd user password
-     * @return login response
-     */
-    ResponseEntity<?> login(String name, String passwd);
-
-    /**
      * user can check in and get credit every eight hour.
      *
      * @return check in response

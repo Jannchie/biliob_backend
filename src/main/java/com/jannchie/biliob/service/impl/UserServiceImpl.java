@@ -16,10 +16,6 @@ import com.jannchie.biliob.service.UserService;
 import com.jannchie.biliob.utils.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.shiro.SecurityUtils;
-import org.apache.shiro.authc.UsernamePasswordToken;
-import org.apache.shiro.crypto.hash.Md5Hash;
-import org.apache.shiro.subject.Subject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.PageRequest;
@@ -305,38 +301,6 @@ class UserServiceImpl implements UserService {
         return new ResponseEntity<>(new Result<>(ResultEnum.AUTHOR_NOT_FOUND), HttpStatus.NOT_FOUND);
     }
 
-    @Override
-    public ResponseEntity<?> login(String name, String passwd) {
-        User user =
-                mongoTemplate.findOne(
-                        Query.query(
-                                new Criteria()
-                                        .orOperator(Criteria.where("name").is(name), Criteria.where("mail").is(name))),
-                        User.class,
-                        "user");
-        if (user == null) {
-            return new ResponseEntity<>(new Result<String>(ResultEnum.LOGIN_FAILED), HttpStatus.UNAUTHORIZED);
-        }
-        String inputName = user.getName();
-        String encodedPassword = new Md5Hash(passwd, inputName).toHex();
-        Subject subject = SecurityUtils.getSubject();
-
-        User tempUser = userRepository.findByName(inputName);
-        if (tempUser == null) {
-            return new ResponseEntity<>(new Result<>(ResultEnum.LOGIN_FAILED), HttpStatus.UNAUTHORIZED);
-        }
-
-        if (tempUser.getPassword() == null) {
-            tempUser.setPassword(encodedPassword);
-            userRepository.save(tempUser);
-        }
-
-        UsernamePasswordToken token = new UsernamePasswordToken(inputName, encodedPassword);
-        token.setRememberMe(true);
-        subject.login(token);
-        String role = getRole(inputName);
-        return new ResponseEntity<>(new Result<>(ResultEnum.LOGIN_SUCCEED, getUserInfo()), HttpStatus.OK);
-    }
 
     /**
      * user can check in and get credit every eight hour.
