@@ -1,6 +1,6 @@
 logging:
   pattern:
-    console: '%d{"MM-dd HH:mm:ss"} [%p] [%4.4t] (%30.30F:%4.4L\) - [%15.15X{user}@%15.15X{ip}] %m%n'
+    console: '%d{"yyyy-MM-dd HH:mm:ss"} [%p] [%4.4t] (%30.30F:%4.4L\) - [%X{user}@%X{ip}] %m%n'
 spring:
   servlet:
     multipart:

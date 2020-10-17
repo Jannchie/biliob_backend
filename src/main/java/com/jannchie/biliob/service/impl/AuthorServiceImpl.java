@@ -274,7 +274,7 @@ public class AuthorServiceImpl implements AuthorService {
 
     private void addAuthorVisit(Long mid) {
         String finalUserName = biliOBUtils.getUserName();
-        Map data = biliOBUtils.getVisitData(finalUserName, mid);
+        Map<?, ?> data = biliOBUtils.getVisitData(finalUserName, mid);
         if (mongoTemplate.exists(Query.query(Criteria.where("name").is(finalUserName)), "blacklist_user")) {
             adminService.banItself("用户被禁用", false);
         }

@@ -61,7 +61,11 @@ public class IpHandlerInterceptor implements HandlerInterceptor {
         String userAgent = request.getHeader("user-agent");
         String uri = replaceDigital(request.getRequestURI());
         MDC.put("ip", ip);
-        MDC.put("user", UserUtils.getUsername());
+        String userName = UserUtils.getUsername();
+        if (userName == null) {
+            userName = "*GUEST*";
+        }
+        MDC.put("user", userName);
         // 在白名单中直接放过
         if (mongoTemplate.exists(query(where(IP).is(ip)), WhiteList.class)) {
             return true;
@@ -79,7 +83,6 @@ public class IpHandlerInterceptor implements HandlerInterceptor {
 
         // 保存一条IP访问记录
         mongoTemplate.save(new IpVisitRecord(ip, userAgent, uri));
-
 
         if (Math.random() < CHECK_RATE) {
             List<IpAggregationInfo> ipAggregationInfoList = mongoTemplate.aggregate(Aggregation.newAggregation(

@@ -68,7 +68,12 @@ public class UserUtils {
 
     public static String getUsername() {
         try {
-            return SecurityContextHolder.getContext().getAuthentication().getName();
+            String name = SecurityContextHolder.getContext().getAuthentication().getName();
+            if ("anonymousUser".equals(name)) {
+                return null;
+            } else {
+                return name;
+            }
         } catch (Exception e) {
             return null;
         }
