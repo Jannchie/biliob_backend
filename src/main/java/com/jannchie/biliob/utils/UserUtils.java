@@ -55,6 +55,9 @@ public class UserUtils {
 
     public static User getUser() {
         String username = getUsername();
+        if (username == null) {
+            return null;
+        }
         return getUserByUsernameOrMail(username);
     }
 
