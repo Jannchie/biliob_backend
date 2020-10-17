@@ -40,7 +40,6 @@ public class RedisConfig extends CachingConfigurerSupport {
                 new Jackson2JsonRedisSerializer<>(Object.class);
         ObjectMapper om = new ObjectMapper();
         om.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.ANY);
-        om.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL);
         jackson2JsonRedisSerializer.setObjectMapper(om);
         RedisSerializationContext.SerializationPair<Object> pair =
                 RedisSerializationContext.SerializationPair.fromSerializer(jackson2JsonRedisSerializer);
@@ -63,7 +62,6 @@ public class RedisConfig extends CachingConfigurerSupport {
 
         ObjectMapper mapper = new ObjectMapper();
         mapper.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.ANY);
-        mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL);
         serializer.setObjectMapper(mapper);
         template.setValueSerializer(serializer);
         // 使用StringRedisSerializer来序列化和反序列化redis的key值
