@@ -85,12 +85,10 @@ public class CreditService {
             return ResultEnum.CREDIT_NOT_ENOUGH.getCreditResult();
         }
         user.setCredit(BigDecimal.valueOf(user.getCredit()).add(BigDecimal.valueOf(credit)).setScale(2, BigDecimal.ROUND_HALF_DOWN).doubleValue());
+        double exp = 0D;
         if (withExp) {
-            if (credit < 0) {
-                user.setExp(BigDecimal.valueOf(user.getExp()).subtract(BigDecimal.valueOf(credit)).setScale(2, BigDecimal.ROUND_HALF_DOWN).doubleValue());
-            } else {
-                user.setExp(BigDecimal.valueOf(user.getExp()).add(BigDecimal.valueOf(credit)).setScale(2, BigDecimal.ROUND_HALF_DOWN).doubleValue());
-            }
+            exp = Math.abs(credit);
+            user.setExp(BigDecimal.valueOf(user.getExp()).add(BigDecimal.valueOf(exp)).setScale(2, BigDecimal.ROUND_HALF_DOWN).doubleValue());
         }
         mongoTemplate.update(User.class).matching(Query.query(Criteria.where(DbFields.ID).is(user.getId()))).apply(Update.update("credit", user.getCredit()).set("exp", user.getExp())).first();
         UserRecord ur = mongoTemplate.save(new UserRecord(user, creditConstant, message, isExecuted));
@@ -99,7 +97,7 @@ public class CreditService {
             r.setUserRecord(ur);
             return r;
         }
-        logger.info("观测者[{}]: {} [exp:{}(+{}), cre:{}({})]", user.getName(), message, user.getExp(), withExp ? credit : 0, user.getCredit(), credit);
+        logger.info("观测者[{}]: {} [exp:{}(+{}), cre:{}({})]", user.getName(), message, user.getExp(), exp, user.getCredit(), credit);
         return ResultEnum.SUCCEED.getResult(user);
     }
 }
