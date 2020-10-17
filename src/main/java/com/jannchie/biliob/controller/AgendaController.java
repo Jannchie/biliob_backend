@@ -33,6 +33,8 @@ import java.util.List;
 @RestController
 public class AgendaController {
     MongoTemplate mongoTemplate;
+
+    @Autowired
     CreditService creditService;
     private Logger logger = LogManager.getLogger();
 
@@ -99,9 +101,11 @@ public class AgendaController {
         agenda.setVotes(null);
         agenda.setCreator(new User(user.getId()));
         // 装载Agenda
-        mongoTemplate.save(agenda);
+        agenda = mongoTemplate.save(agenda);
         CreditConstant c = CreditConstant.POST_AGENDA;
-        return creditService.doCreditOperation(c, String.format(c.getMsg(), agenda.getTitle()), true);
+        Result<Agenda> r = creditService.doCreditOperation(c, c.getMsg(agenda.getTitle()));
+        r.setData(agenda);
+        return r;
     }
 
     @RequestMapping(method = RequestMethod.DELETE, value = "/api/agenda/{id}")
