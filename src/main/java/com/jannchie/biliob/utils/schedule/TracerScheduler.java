@@ -3,6 +3,7 @@ package com.jannchie.biliob.utils.schedule;
 import com.jannchie.biliob.model.ScheduleItem;
 import com.jannchie.biliob.model.TracerTask;
 import com.jannchie.biliob.object.AuthorIntervalRecord;
+import com.jannchie.biliob.object.VideoIntervalRecord;
 import com.jannchie.biliob.utils.RedisOps;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -41,7 +42,7 @@ public class TracerScheduler {
             logger.info("记录爬虫队列状态");
             Calendar c = Calendar.getInstance();
             Long authorQueueLength = mongoTemplate.count(Query.query(Criteria.where("next").lt(c.getTime())), AuthorIntervalRecord.class);
-            Long videoQueueLength = mongoTemplate.count(Query.query(Criteria.where("next").lt(c.getTime())), "video_interval");
+            Long videoQueueLength = mongoTemplate.count(Query.query(Criteria.where("next").lt(c.getTime())), VideoIntervalRecord.class);
             Date date = Calendar.getInstance().getTime();
             Map<String, Object> data = new HashMap<String, Object>() {{
                 put("date", date);

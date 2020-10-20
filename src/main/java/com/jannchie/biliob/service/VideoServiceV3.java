@@ -6,8 +6,11 @@ import com.jannchie.biliob.model.VideoVisit;
 import com.jannchie.biliob.utils.BiliobUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Controller;
@@ -78,5 +81,33 @@ public class VideoServiceV3 {
 
     private VideoInfo getVideoInfoByCriteria(Criteria c) {
         return mongoTemplate.findOne(Query.query(c), VideoInfo.class);
+    }
+
+    public Document getAverage(Integer tid, Long mid, Long pubdate) {
+        Criteria c = new Criteria();
+        if (mid != -1) {
+            c.and("owner.mid").is(mid);
+        }
+        if (tid != -1) {
+            c.and("tid").is(tid);
+        }
+        if (pubdate != -1) {
+            c.and("pubdate").lt(pubdate);
+        }
+
+        Aggregation aggregation = Aggregation.newAggregation(
+                Aggregation.match(c),
+                Aggregation.sort(Sort.Direction.DESC, "pubdate"),
+                Aggregation.limit(5000),
+                Aggregation.group()
+                        .avg("stat.view").as("view")
+                        .avg("stat.coin").as("coin")
+                        .avg("stat.favorite").as("favorite")
+                        .avg("stat.reply").as("reply")
+                        .avg("stat.danmaku").as("danmaku")
+                        .avg("stat.like").as("like")
+                        .avg("stat.share").as("share")
+        );
+        return mongoTemplate.aggregate(aggregation, VideoInfo.class, Document.class).getUniqueMappedResult();
     }
 }

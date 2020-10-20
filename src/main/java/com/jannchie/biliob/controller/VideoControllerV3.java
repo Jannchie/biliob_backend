@@ -3,11 +3,9 @@ package com.jannchie.biliob.controller;
 import com.jannchie.biliob.model.VideoInfo;
 import com.jannchie.biliob.model.VideoStat;
 import com.jannchie.biliob.service.VideoServiceV3;
+import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -45,5 +43,13 @@ public class VideoControllerV3 {
     public List<VideoStat> listVideoStats(
             @PathVariable("bvid") String bvid) {
         return videoService.listVideoStat(bvid);
+    }
+
+    @RequestMapping(method = RequestMethod.GET, value = "/api/video/v3/average")
+    public Document getAverageByTagData(
+            @RequestParam(defaultValue = "-1") Integer tid,
+            @RequestParam(defaultValue = "-1") Long pubdate,
+            @RequestParam(defaultValue = "-1") Long mid) {
+        return videoService.getAverage(tid, mid, pubdate);
     }
 }

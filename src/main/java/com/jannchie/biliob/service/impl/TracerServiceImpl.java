@@ -164,7 +164,7 @@ public class TracerServiceImpl implements TracerService {
 
     @Override
     public ResponseEntity<?> getHistoryQueueStatus() {
-        List data = mongoTemplate.find(new Query().with(Sort.by(Sort.Direction.DESC, "date")).limit(100), Map.class, "spider_queue_status");
+        List<?> data = mongoTemplate.find(new Query().with(Sort.by(Sort.Direction.DESC, "date")).limit(100), Map.class, "spider_queue_status");
         Collections.reverse(data);
         return ResponseEntity.ok(data);
     }
