@@ -1,5 +1,6 @@
 package com.jannchie.biliob.model;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.Date;
@@ -8,12 +9,13 @@ import java.util.Date;
  * @author Jannchie
  */
 @Document("video_stat")
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class VideoStat {
     private Long aid;
     private String bvid;
     private Long coin;
     private Long danmaku;
-    private Date dateTime;
+    private Date datetime;
     private Long favorite;
     private Long like;
     private Long jannchie;
@@ -53,12 +55,12 @@ public class VideoStat {
         this.danmaku = danmaku;
     }
 
-    public Date getDateTime() {
-        return dateTime;
+    public Date getDatetime() {
+        return datetime;
     }
 
-    public void setDateTime(Date dateTime) {
-        this.dateTime = dateTime;
+    public void setDatetime(Date datetime) {
+        this.datetime = datetime;
     }
 
     public Long getFavorite() {
