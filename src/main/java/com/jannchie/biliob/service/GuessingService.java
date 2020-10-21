@@ -25,7 +25,9 @@ import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
 import java.math.BigDecimal;
 import java.util.*;
@@ -37,6 +39,7 @@ import static com.jannchie.biliob.constant.TimeConstant.MICROSECOND_OF_MINUTES;
  * @author Jannchie
  */
 @Service
+@EnableTransactionManagement
 public class GuessingService {
     private static final Logger logger = LogManager.getLogger();
     @Autowired
@@ -259,29 +262,34 @@ public class GuessingService {
         return creditService.doCreditOperationFansGuessing(CreditConstant.JOIN_GUESSING, CreditConstant.JOIN_GUESSING.getMsg(guessingId), -pokerChip.getCredit());
     }
 
-    @Scheduled(initialDelay = MICROSECOND_OF_MINUTES * 5, fixedDelay = MICROSECOND_OF_MINUTES * 60 * 24)
     @Async
-    @Transactional(rollbackFor = Exception.class)
+    @Scheduled(initialDelay = MICROSECOND_OF_MINUTES * 5, fixedDelay = MICROSECOND_OF_MINUTES * 60 * 24)
     public Result<?> judgeFinishedFansGuessing() {
-        Integer finishedState = 3;
-        List<FansGuessingItem> fansGuessingItems = mongoTemplate.find(Query.query(Criteria.where("state").is(finishedState)), FansGuessingItem.class);
-        for (FansGuessingItem f : fansGuessingItems
-        ) {
-            ArrayList<UserGuessingResult> resultList = getUserGuessingResults(f);
-            mongoTemplate.updateFirst(Query.query(Criteria.where("guessingId").is(f.getGuessingId())), Update.update("result", resultList).set("state", 4), FansGuessingItem.class);
-            resultList.forEach(userGuessingResult -> {
-                User u = mongoTemplate.findOne(Query.query(Criteria.where("name").is(userGuessingResult.getName())), User.class);
-                if (u == null) {
-                    return;
-                }
-                if (!mongoTemplate.exists(Query.query(Criteria.where("name").is(userGuessingResult.getName()).and("guessingId").is(f.getGuessingId())), UserGuessingResult.class, "cashed_user_guessing")) {
-                    userGuessingResult.setGuessingId(f.getGuessingId());
-                    creditService.doCreditOperationFansGuessing(CreditConstant.GUESSING_REVENUE, CreditConstant.GUESSING_REVENUE.getMsg(f.getGuessingId()), userGuessingResult.getRevenue());
-                    mongoTemplate.save(userGuessingResult, "cashed_user_guessing");
-                }
-            });
+        try {
+            Integer finishedState = 3;
+            List<FansGuessingItem> fansGuessingItems = mongoTemplate.find(Query.query(Criteria.where("state").is(finishedState)), FansGuessingItem.class);
+            for (FansGuessingItem f : fansGuessingItems
+            ) {
+                ArrayList<UserGuessingResult> resultList = getUserGuessingResults(f);
+                mongoTemplate.updateFirst(Query.query(Criteria.where("guessingId").is(f.getGuessingId())), Update.update("result", resultList).set("state", 4), FansGuessingItem.class);
+                resultList.forEach(userGuessingResult -> {
+                    User u = mongoTemplate.findOne(Query.query(Criteria.where("name").is(userGuessingResult.getName())), User.class);
+                    if (u == null) {
+                        return;
+                    }
+                    if (!mongoTemplate.exists(Query.query(Criteria.where("name").is(userGuessingResult.getName()).and("guessingId").is(f.getGuessingId())), UserGuessingResult.class, "cashed_user_guessing")) {
+                        userGuessingResult.setGuessingId(f.getGuessingId());
+                        creditService.doCreditOperationFansGuessing(CreditConstant.GUESSING_REVENUE, CreditConstant.GUESSING_REVENUE.getMsg(f.getGuessingId()), userGuessingResult.getRevenue());
+                        mongoTemplate.save(userGuessingResult, "cashed_user_guessing");
+                    }
+                });
+            }
+            return new Result<>(ResultEnum.SUCCEED);
+        } catch (Exception e) {
+            e.printStackTrace();
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+            return null;
         }
-        return new Result<>(ResultEnum.SUCCEED);
     }
 
     private ArrayList<UserGuessingResult> getUserGuessingResults(FansGuessingItem f) {
