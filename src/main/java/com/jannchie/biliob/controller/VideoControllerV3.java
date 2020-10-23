@@ -52,4 +52,9 @@ public class VideoControllerV3 {
             @RequestParam(defaultValue = "-1") Long mid) {
         return videoService.getAverage(tid, mid, pubdate);
     }
+
+    @RequestMapping(method = RequestMethod.GET, value = "/api/video/v3/ad")
+    public List<VideoInfo> listAd() {
+        return videoService.listAd();
+    }
 }

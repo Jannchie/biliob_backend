@@ -29,4 +29,8 @@ public class DbFields {
     public static final String MID = "mid";
     public static final String DATE = "date";
     public static final String DATETIME = "datetime";
+    public static final String PUBDATE = "pubdate";
+    public static final String OWNER = "owner";
+    public static final String STAT = "stat";
+    public static final String OWNER_MID = "owner.mid";
 }

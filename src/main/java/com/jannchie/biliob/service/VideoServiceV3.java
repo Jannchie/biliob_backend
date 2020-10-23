@@ -1,5 +1,6 @@
 package com.jannchie.biliob.service;
 
+import com.jannchie.biliob.constant.DbFields;
 import com.jannchie.biliob.model.VideoInfo;
 import com.jannchie.biliob.model.VideoStat;
 import com.jannchie.biliob.model.VideoVisit;
@@ -109,5 +110,13 @@ public class VideoServiceV3 {
                         .avg("stat.share").as("share")
         );
         return mongoTemplate.aggregate(aggregation, VideoInfo.class, Document.class).getUniqueMappedResult();
+    }
+
+    public List<VideoInfo> listAd() {
+        Query q = Query.query(new Criteria().orOperator(Criteria.where(DbFields.OWNER_MID).is(1850091L), Criteria.where(DbFields.MID).is(492106967L)));
+        q.with(Sort.by(DbFields.PUBDATE).descending());
+        q.limit(5);
+        q.fields().include(DbFields.TITLE).include(DbFields.PUBDATE).include(DbFields.OWNER).include(DbFields.STAT);
+        return mongoTemplate.find(q, VideoInfo.class);
     }
 }
