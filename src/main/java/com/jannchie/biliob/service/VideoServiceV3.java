@@ -9,13 +9,16 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.TextCriteria;
 import org.springframework.stereotype.Controller;
 
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 
@@ -117,6 +120,31 @@ public class VideoServiceV3 {
         q.with(Sort.by(DbFields.PUBDATE).descending());
         q.limit(5);
         q.fields().include(DbFields.TITLE).include(DbFields.PUBDATE).include(DbFields.OWNER).include(DbFields.STAT);
+        return mongoTemplate.find(q, VideoInfo.class);
+    }
+
+    public List<VideoInfo> listSearch(String word, Integer page, Integer size, String sort, Long day) {
+        if (!Arrays.asList("view", "coin", "reply", "danmaku", "favorite", "like", "share").contains(sort)) {
+            sort = "view";
+        }
+        if (page > 50) {
+            page = 50;
+        }
+        if (size > 20) {
+            size = 20;
+        }
+        Query q = new Query().with(PageRequest.of(page, size, Sort.by("stat." + sort).descending()));
+        if (!"".equals(word)) {
+            q.addCriteria(TextCriteria.forDefaultLanguage().matchingAny(word.split(" ")));
+        }
+        if (day != 0) {
+            if (day > 30) {
+                day = 30L;
+            }
+            long ctime = Calendar.getInstance().getTimeInMillis() / 1000;
+            ctime -= 86400 * day;
+            q.addCriteria(Criteria.where("ctime").gt(ctime));
+        }
         return mongoTemplate.find(q, VideoInfo.class);
     }
 }

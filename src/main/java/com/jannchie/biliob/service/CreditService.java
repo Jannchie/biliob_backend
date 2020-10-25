@@ -39,8 +39,8 @@ public class CreditService {
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public <T> Result<T> doCreditOperationFansGuessing(CreditConstant creditConstant, String message, Double credit) {
-        return doCreditOperation(UserUtils.getUser(), creditConstant, message, true, false, credit);
+    public <T> Result<T> doCreditOperationFansGuessing(User user, CreditConstant creditConstant, String message, Double credit) {
+        return doCreditOperation(user, creditConstant, message, true, false, credit);
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -78,10 +78,12 @@ public class CreditService {
     public <T> Result<T> doCreditOperation(User user, CreditConstant creditConstant, String message, Boolean isExecuted, Boolean withExp, Double credit) {
         if (user == null) {
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+            logger.info("用户为NULL");
             return ResultEnum.HAS_NOT_LOGGED_IN.getCreditResult();
         }
         if (user.getCredit() < -credit) {
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+            logger.info("积分不足");
             return ResultEnum.CREDIT_NOT_ENOUGH.getCreditResult();
         }
         user.setCredit(BigDecimal.valueOf(user.getCredit()).add(BigDecimal.valueOf(credit)).setScale(2, BigDecimal.ROUND_HALF_DOWN).doubleValue());

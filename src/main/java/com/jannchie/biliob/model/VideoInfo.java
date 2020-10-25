@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * @author Jannchie
@@ -29,6 +30,15 @@ public class VideoInfo {
     private String title;
     private String tname;
     private Short videos;
+    private List<String> tag;
+
+    public List<String> getTag() {
+        return tag;
+    }
+
+    public void setTag(List<String> tag) {
+        this.tag = tag;
+    }
 
     public Long getAid() {
         return aid;

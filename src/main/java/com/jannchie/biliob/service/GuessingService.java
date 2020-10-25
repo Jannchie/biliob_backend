@@ -259,12 +259,14 @@ public class GuessingService {
                 Query.query(Criteria.where("guessingId").is(guessingId)),
                 new Update().push("pokerChips", pokerChip),
                 FansGuessingItem.class);
-        return creditService.doCreditOperationFansGuessing(CreditConstant.JOIN_GUESSING, CreditConstant.JOIN_GUESSING.getMsg(guessingId), -pokerChip.getCredit());
+        return creditService.doCreditOperationFansGuessing(user, CreditConstant.JOIN_GUESSING, CreditConstant.JOIN_GUESSING.getMsg(guessingId), -pokerChip.getCredit());
     }
 
     @Async
-    @Scheduled(initialDelay = MICROSECOND_OF_MINUTES * 5, fixedDelay = MICROSECOND_OF_MINUTES * 60 * 24)
+    @Transactional(rollbackFor = Exception.class)
+    @Scheduled(initialDelay = 0, fixedDelay = MICROSECOND_OF_MINUTES * 60 * 24)
     public Result<?> judgeFinishedFansGuessing() {
+        logger.info("计算收益");
         try {
             Integer finishedState = 3;
             List<FansGuessingItem> fansGuessingItems = mongoTemplate.find(Query.query(Criteria.where("state").is(finishedState)), FansGuessingItem.class);
@@ -279,7 +281,7 @@ public class GuessingService {
                     }
                     if (!mongoTemplate.exists(Query.query(Criteria.where("name").is(userGuessingResult.getName()).and("guessingId").is(f.getGuessingId())), UserGuessingResult.class, "cashed_user_guessing")) {
                         userGuessingResult.setGuessingId(f.getGuessingId());
-                        creditService.doCreditOperationFansGuessing(CreditConstant.GUESSING_REVENUE, CreditConstant.GUESSING_REVENUE.getMsg(f.getGuessingId()), userGuessingResult.getRevenue());
+                        creditService.doCreditOperationFansGuessing(u, CreditConstant.GUESSING_REVENUE, CreditConstant.GUESSING_REVENUE.getMsg(f.getGuessingId()), userGuessingResult.getRevenue());
                         mongoTemplate.save(userGuessingResult, "cashed_user_guessing");
                     }
                 });
@@ -416,57 +418,6 @@ public class GuessingService {
             score *= 1.2;
         }
         return score;
-    }
-
-    private ArrayList<UserGuessingResult> getUserGuessingResults(Date finalReachDate, HashMap<String, Long> result, HashMap<String, Double> sumCreditMap, HashMap<String, Long> sumTimeStamp, HashMap<String, Long> sumCreateTimeStamp) {
-        ArrayList<UserGuessingResult> resultList = new ArrayList<>();
-
-
-        Calendar tempCal = Calendar.getInstance();
-
-        result.keySet().forEach(key -> {
-            UserGuessingResult r = new UserGuessingResult();
-
-
-            r.setName(key);
-            r.setCredit(sumCreditMap.get(key));
-            long averageGuessingTime = sumTimeStamp.get(key) / sumCreditMap.get(key).longValue();
-            tempCal.setTimeInMillis(averageGuessingTime);
-            r.setAverageDate(tempCal.getTime());
-            long averageCreateTime = sumCreateTimeStamp.get(key) / sumCreditMap.get(key).longValue();
-            tempCal.setTimeInMillis(averageCreateTime);
-            r.setAverageCreateTime(tempCal.getTime());
-            // 积分数 = 筹码积分值 × ( 实际达成时间 - 平均发起预测时间 ) ÷ ( | 实际达成时间 - 平均预测达成时间 |)
-            long deltaGuessingTime = (finalReachDate.getTime() - averageCreateTime) / 3600000;
-            long deltaTime = (Math.abs(averageGuessingTime - finalReachDate.getTime())) / 3600000;
-
-            long score = 10L;
-            if (deltaGuessingTime > 120 * 24) {
-                score += 120 * 24L;
-            } else {
-                score += deltaGuessingTime;
-            }
-
-            if (deltaTime <= 1) {
-                score *= 3;
-            } else if (deltaTime <= 6) {
-                score *= 1.5;
-            } else if (deltaTime <= 12) {
-                score *= 1.2;
-            } else if (deltaTime <= 24) {
-                score *= 1.0;
-            } else if (deltaTime <= 24 * 3) {
-                score *= 0.9;
-            } else if (deltaTime <= 24 * 7) {
-                score *= 0.8;
-            } else {
-                score *= 0.7;
-            }
-
-            r.setScore(score);
-            resultList.add(r);
-        });
-        return resultList;
     }
 
     private Date getFinalReachDate(FansGuessingItem f) {

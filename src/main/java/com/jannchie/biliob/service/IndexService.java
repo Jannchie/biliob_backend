@@ -2,7 +2,6 @@ package com.jannchie.biliob.service;
 
 
 import com.jannchie.biliob.model.JannchieIndex;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -13,15 +12,33 @@ import java.util.List;
 @Service
 public interface IndexService {
     /**
-     * @param keyword
-     * @return
+     * Get Index
+     *
+     * @param keyword Key word
+     * @return index
      */
     JannchieIndex getIndex(String keyword);
 
+    /**
+     * Get Sim Index
+     *
+     * @param keyword keyword
+     * @return sim index
+     */
     JannchieIndex getSimIndex(String keyword);
 
-    @Cacheable(value = "index", key = "#keyword")
+    /**
+     * Get Cached Index
+     *
+     * @param keyword keyword
+     * @return index
+     */
     public JannchieIndex getJannchieIndex(String keyword);
 
+    /**
+     * Get Recently Rank
+     *
+     * @return Recently Rank
+     */
     List<?> getRecentlyRank();
 }
