@@ -166,7 +166,7 @@ public class VideoServiceV3 {
         }
         return mongoTemplate.aggregate(Aggregation.newAggregation(
                 Aggregation.match(TextCriteria.forDefaultLanguage().matching(topic)),
-                Aggregation.group(DbFields.OWNER_MID).first(DbFields.OWNER_NAME).as(DbFields.NAME).sum(DbFields.STAT_VIEW).as(DbFields.VALUE),
+                Aggregation.group(DbFields.OWNER_MID).first(DbFields.OWNER_NAME).as(DbFields.NAME).first(DbFields.OWNER_MID).as(DbFields.MID).first(DbFields.OWNER_FACE).as(DbFields.FACE).sum(DbFields.STAT_VIEW).as(DbFields.VALUE),
                 Aggregation.sort(Sort.by(DbFields.VALUE).descending()),
                 Aggregation.limit(32)
         ), VideoInfo.class, Document.class).getMappedResults();

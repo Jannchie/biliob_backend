@@ -86,6 +86,7 @@ public class VideoControllerV3 {
 
     @RequestMapping(method = RequestMethod.GET, value = "/api/video/v3/topic")
     public List<Document> listTopicAuthor(@RequestParam(defaultValue = "") String topic) {
+        logger.info("列出话题[{}]的相关作者", topic);
         return videoService.listTopicAuthor(topic);
     }
 
