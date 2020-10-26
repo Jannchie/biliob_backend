@@ -660,4 +660,13 @@ class UserServiceImpl implements UserService {
             return null;
         }
     }
+
+    @Override
+    public void setVersion(String ver) {
+        Date d = Calendar.getInstance().getTime();
+        VersionRecord vr = new VersionRecord();
+        vr.setDate(d);
+        vr.setVersion(ver);
+        mongoTemplate.save(vr);
+    }
 }

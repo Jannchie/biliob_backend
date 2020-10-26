@@ -1,10 +1,13 @@
 package com.jannchie.biliob.service;
 
 import com.jannchie.biliob.constant.DbFields;
+import com.jannchie.biliob.model.User;
 import com.jannchie.biliob.model.VideoInfo;
 import com.jannchie.biliob.model.VideoStat;
 import com.jannchie.biliob.model.VideoVisit;
 import com.jannchie.biliob.utils.BiliobUtils;
+import com.jannchie.biliob.utils.UserUtils;
+import com.mongodb.client.MongoClient;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.bson.Document;
@@ -30,6 +33,8 @@ public class VideoServiceV3 {
     private static Logger logger = LogManager.getLogger();
     @Autowired
     MongoTemplate mongoTemplate;
+    @Autowired
+    MongoClient mongoClient;
     @Autowired
     BiliobUtils biliobUtils;
 
@@ -146,5 +151,32 @@ public class VideoServiceV3 {
             q.addCriteria(Criteria.where("ctime").gt(ctime));
         }
         return mongoTemplate.find(q, VideoInfo.class);
+    }
+
+    public List<VideoInfo> listAuthorVideo(Long mid, String sort) {
+        if (!Arrays.asList("view", "ctime").contains(sort)) {
+            sort = "view";
+        }
+        return mongoTemplate.find(Query.query(Criteria.where(DbFields.OWNER_MID).is(mid)).with(Sort.by(sort).descending()).limit(10), VideoInfo.class);
+    }
+
+    public List<Document> listTopicAuthor(String topic) {
+        if ("".equals(topic)) {
+            return null;
+        }
+        return mongoTemplate.aggregate(Aggregation.newAggregation(
+                Aggregation.match(TextCriteria.forDefaultLanguage().matching(topic)),
+                Aggregation.group(DbFields.OWNER_MID).first(DbFields.OWNER_NAME).as(DbFields.NAME).sum(DbFields.STAT_VIEW).as(DbFields.VALUE),
+                Aggregation.sort(Sort.by(DbFields.VALUE).descending()),
+                Aggregation.limit(32)
+        ), VideoInfo.class, Document.class).getMappedResults();
+    }
+
+    public List<VideoInfo> listFavoriteVideo() {
+        User user = UserUtils.getUser();
+        if (user == null) {
+            return null;
+        }
+        return mongoTemplate.find(Query.query(Criteria.where(DbFields.AID).in(user.getFavoriteAid())), VideoInfo.class);
     }
 }

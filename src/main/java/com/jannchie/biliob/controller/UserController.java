@@ -90,8 +90,9 @@ public class UserController {
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/api/user")
-    public ResponseEntity<?> getUserInfo() {
+    public ResponseEntity<?> getUserInfo(@RequestParam(defaultValue = "old") String ver) {
         logger.info("获取观测者自身信息");
+        userService.setVersion(ver);
         return userService.getUserInfo();
     }
 

@@ -25,6 +25,7 @@ public interface VideoService {
      * @param type 0: original data; 1: aggregated by day
      * @return 视频详情
      */
+    @Deprecated
     Video getVideoDetails(Long aid, Integer type);
 
     /**

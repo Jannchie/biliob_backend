@@ -33,4 +33,8 @@ public class DbFields {
     public static final String OWNER = "owner";
     public static final String STAT = "stat";
     public static final String OWNER_MID = "owner.mid";
+    public static final String OWNER_NAME = "owner.name";
+    public static final String VALUE = "value";
+    public static final String STAT_VIEW = "stat.view";
+    public static final String AID = "aid";
 }

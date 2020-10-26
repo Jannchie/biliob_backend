@@ -6,6 +6,7 @@ import com.jannchie.biliob.constant.VideoSortEnum;
 import com.jannchie.biliob.exception.UserAlreadyFavoriteVideoException;
 import com.jannchie.biliob.model.User;
 import com.jannchie.biliob.model.Video;
+import com.jannchie.biliob.model.VideoInfo;
 import com.jannchie.biliob.model.VideoOnline;
 import com.jannchie.biliob.object.VideoRankTable;
 import com.jannchie.biliob.repository.UserRepository;
@@ -33,6 +34,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.jannchie.biliob.constant.SortEnum.PUBLISH_TIME;
 import static com.jannchie.biliob.constant.SortEnum.VIEW_COUNT;
@@ -286,7 +288,7 @@ public class VideoServiceImpl implements VideoService {
     private void filterVideoData(Video video) {
         User user = UserUtils.getUser();
         if (user == null || user.getExp() < 100) {
-            ArrayList<Video.Data> tempData = video.getData();
+            List<Video.Data> tempData = video.getData();
             tempData.removeIf(data -> {
                         Calendar c = Calendar.getInstance();
                         c.add(Calendar.DATE, -BiliobConstant.GUEST_VIEW_MAX_DAYS);
@@ -398,10 +400,10 @@ public class VideoServiceImpl implements VideoService {
             pagesize = PageSizeEnum.SMALL_SIZE.getValue();
         }
         VideoServiceImpl.logger.info("获取作者其他数据");
-        Query q = Query.query(Criteria.where("mid").is(mid).and("aid").ne(aid));
-        q.fields().include("title").include("mid").include("aid").include("pic").include("channel").include("datetime");
+        Query q = Query.query(Criteria.where("owner.mid").is(mid).and("aid").ne(aid));
         q.with(Sort.by(Sort.Direction.DESC, "datetime")).limit(pagesize).withHint("{mid: 1}");
-        return new MySlice<>(mongoTemplate.find(q, Video.class));
+        MySlice<VideoInfo> slice = new MySlice<>(mongoTemplate.find(q, VideoInfo.class));
+        return new MySlice<>(slice.getContent().stream().map(VideoAdapter::getVideoFromInfo).collect(Collectors.toList()));
     }
 
     /**
@@ -421,16 +423,15 @@ public class VideoServiceImpl implements VideoService {
         }
         Sort videoSort;
         if (Objects.equals(sort, VIEW_COUNT.getValue())) {
-            videoSort = Sort.by(Sort.Direction.DESC, "cView");
+            videoSort = Sort.by(Sort.Direction.DESC, "stat.view");
         } else if (Objects.equals(sort, PUBLISH_TIME.getValue())) {
-            videoSort = Sort.by(Sort.Direction.DESC, "datetime");
+            videoSort = Sort.by(Sort.Direction.DESC, "ctime");
         } else {
             return null;
         }
-        Query q = Query.query(Criteria.where("mid").is(mid)).with(videoSort).limit(pagesize).withHint("{mid: 1}");
-        q.fields().include("title").include("mid").include("aid").include("pic").include("channel").include("datetime");
+        Query q = Query.query(Criteria.where("owner.mid").is(mid)).with(videoSort).limit(pagesize);
         VideoServiceImpl.logger.info("获取mid: [{}] 播放最多的视频", mid);
-        return new MySlice<>(mongoTemplate.find(q, Video.class));
+        return new MySlice<>(mongoTemplate.find(q, VideoInfo.class).stream().map(VideoAdapter::getVideoFromInfo).collect(Collectors.toList()));
     }
 
     /**
@@ -490,7 +491,7 @@ public class VideoServiceImpl implements VideoService {
      * @return most popular tag
      */
     @Override
-    public List listMostPopularTag() {
+    public List<?> listMostPopularTag() {
         return mongoTemplate
                 .aggregate(
                         Aggregation.newAggregation(
@@ -498,7 +499,7 @@ public class VideoServiceImpl implements VideoService {
                                 Aggregation.group("tag").sum("cView").as("totalView"),
                                 Aggregation.sort(Sort.Direction.DESC, "totalView"),
                                 Aggregation.limit(100)),
-                        "video",
+                        VideoInfo.class,
                         Map.class)
                 .getMappedResults();
     }

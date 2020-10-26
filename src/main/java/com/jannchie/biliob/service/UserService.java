@@ -297,4 +297,11 @@ public interface UserService {
      * @return user record array list
      */
     List<UserRecord> getUserRecentRecord();
+
+    /**
+     * Set Version
+     *
+     * @param ver version
+     */
+    void setVersion(String ver);
 }

@@ -67,7 +67,7 @@ public class VideoControllerV3 {
         return videoService.listAd();
     }
 
-    @RequestMapping(method = RequestMethod.GET, value = "/api/video/v3/search")
+    @RequestMapping(method = RequestMethod.GET, value = "/api/video/v3/list")
     public List<VideoInfo> listSearch(@RequestParam(defaultValue = "") String w,
                                       @RequestParam(defaultValue = "1") Integer p,
                                       @RequestParam(defaultValue = "20") Integer ps,
@@ -75,5 +75,21 @@ public class VideoControllerV3 {
                                       @RequestParam(defaultValue = "view") String s) {
         logger.info("列出视频[w: {}, p: {}, ps: {}, s: {}, d: {}]", w, p, ps, s, d);
         return videoService.listSearch(w, p, ps, s, d);
+    }
+
+    @RequestMapping(method = RequestMethod.GET, value = "/api/video/v3/author")
+    public List<VideoInfo> listAuthorVideo(@RequestParam(defaultValue = "-1") Long mid,
+                                           @RequestParam(defaultValue = "view") String sort) {
+        logger.info("列出作者视频[mid: {}, sort: {}]", mid, sort);
+        return videoService.listAuthorVideo(mid, sort);
+    }
+
+    @RequestMapping(method = RequestMethod.GET, value = "/api/video/v3/topic")
+    public List<Document> listTopicAuthor(@RequestParam(defaultValue = "") String topic) {
+        return videoService.listTopicAuthor(topic);
+    }
+
+    public List<VideoInfo> getFavoriteVideo() {
+        return videoService.listFavoriteVideo();
     }
 }

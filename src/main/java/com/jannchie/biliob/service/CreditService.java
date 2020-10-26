@@ -93,7 +93,9 @@ public class CreditService {
             user.setExp(BigDecimal.valueOf(user.getExp()).add(BigDecimal.valueOf(exp)).setScale(2, BigDecimal.ROUND_HALF_DOWN).doubleValue());
         }
         mongoTemplate.update(User.class).matching(Query.query(Criteria.where(DbFields.ID).is(user.getId()))).apply(Update.update("credit", user.getCredit()).set("exp", user.getExp())).first();
-        UserRecord ur = mongoTemplate.save(new UserRecord(user, creditConstant, message, isExecuted));
+        UserRecord ur = new UserRecord(user, creditConstant, message, isExecuted);
+        ur.setCredit(credit);
+        ur = mongoTemplate.save(ur);
         if (!isExecuted) {
             Result<T> r = ResultEnum.ACCEPTED.getResult(user);
             r.setUserRecord(ur);

@@ -3,7 +3,10 @@ package com.jannchie.biliob.model;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.springframework.data.mongodb.core.mapping.Field;
 
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author jannchie
@@ -23,10 +26,10 @@ public class Video {
     private Date cDatetime;
     private String pic;
     private Boolean focus;
-    private ArrayList<Data> data;
-    private ArrayList<String> keyword;
+    private List<Data> data;
+    private List<String> keyword;
     private Map<?, ?> rank;
-    private Integer cView;
+    private Long cView;
     private Integer cFavorite;
     private Integer cDanmaku;
     private Integer cReply;
@@ -34,7 +37,7 @@ public class Video {
     private Integer cCoin;
     private Integer cShare;
     private Integer cLike;
-    private ArrayList<String> tag;
+    private List<String> tag;
     @Field("danmaku_aggregate")
     private HashMap<Object, Object> danmakuAggregate;
     @Field("author")
@@ -65,18 +68,18 @@ public class Video {
         this.authorName = authorName;
     }
 
-    public ArrayList<String> getTag() {
+    public List<String> getTag() {
         return tag;
     }
 
-    public void setTag(ArrayList<String> tag) {
+    public void setTag(List<String> tag) {
         this.tag = tag;
     }
 
     public Integer getValue(String key) {
         switch (key) {
             case "cView":
-                return getcView();
+                return Math.toIntExact(getcView());
             case "cFavorite":
                 return getcFavorite();
             case "cDanmaku":
@@ -96,11 +99,11 @@ public class Video {
         }
     }
 
-    public Integer getcView() {
+    public Long getcView() {
         return cView;
     }
 
-    public void setcView(Integer cView) {
+    public void setcView(Long cView) {
         this.cView = cView;
     }
 
@@ -144,19 +147,19 @@ public class Video {
         this.cLike = cLike;
     }
 
-    public ArrayList<String> getKeyword() {
+    public List<String> getKeyword() {
         return keyword;
     }
 
-    public void setKeyword(ArrayList<String> keyword) {
+    public void setKeyword(List<String> keyword) {
         this.keyword = keyword;
     }
 
-    public Map getRank() {
+    public Map<?, ?> getRank() {
         return rank;
     }
 
-    public void setRank(Map rank) {
+    public void setRank(Map<?, ?> rank) {
         this.rank = rank;
     }
 
@@ -208,11 +211,11 @@ public class Video {
         this.pic = pic;
     }
 
-    public ArrayList<Data> getData() {
+    public List<Data> getData() {
         return data;
     }
 
-    public void setData(ArrayList<Data> data) {
+    public void setData(List<Data> data) {
         this.data = data;
     }
 
