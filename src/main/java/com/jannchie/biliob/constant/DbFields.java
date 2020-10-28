@@ -39,4 +39,7 @@ public class DbFields {
     public static final String AID = "aid";
     public static final String FACE = "face";
     public static final String OWNER_FACE = "owner.face";
+    public static final String TAG = "tag";
+    public static final String CTIME = "ctime";
+    public static final String STAT_JANNCHIE = "stat.jannchie";
 }

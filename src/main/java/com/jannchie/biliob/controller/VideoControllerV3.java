@@ -84,13 +84,21 @@ public class VideoControllerV3 {
         return videoService.listAuthorVideo(mid, sort);
     }
 
-    @RequestMapping(method = RequestMethod.GET, value = "/api/video/v3/topic")
-    public List<Document> listTopicAuthor(@RequestParam(defaultValue = "") String topic) {
-        logger.info("列出话题[{}]的相关作者", topic);
-        return videoService.listTopicAuthor(topic);
+    @RequestMapping(method = RequestMethod.GET, value = "/api/video/v3/topic-author")
+    public List<Document> listTopicAuthor(@RequestParam(defaultValue = "") String kw, @RequestParam(defaultValue = "8") Integer limit) {
+        logger.info("列出话题[{}]的相关作者，共[{}]个", kw, limit);
+        return videoService.listTopicAuthor(kw, limit);
     }
 
-    public List<VideoInfo> getFavoriteVideo() {
-        return videoService.listFavoriteVideo();
+    @RequestMapping(method = RequestMethod.GET, value = "/api/video/v3/index")
+    public List<Document> listKeywordIndex(@RequestParam(defaultValue = "") String kw) {
+        logger.info("列出关键词[{}]的相关指数", kw);
+        return videoService.listKeywordIndex(kw);
+    }
+
+    @RequestMapping(method = RequestMethod.GET, value = "/api/video/v3/popular-tag")
+    public List<Document> listKeywordIndex(@RequestParam(defaultValue = "3") Integer d) {
+        logger.info("列出近[{}]天热门关键词", d);
+        return videoService.listTopTag(d);
     }
 }

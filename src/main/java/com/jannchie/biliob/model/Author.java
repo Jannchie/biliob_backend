@@ -39,6 +39,7 @@ public class Author {
     @Field("cArticle_view")
     private Long cArticleView;
     private Long cLike;
+    private Author.Data cData;
 
     public Author() {
     }
@@ -46,6 +47,14 @@ public class Author {
     public Author(Long mid) {
         this.mid = mid;
         focus = true;
+    }
+
+    public Data getcData() {
+        return cData;
+    }
+
+    public void setcData(Data cData) {
+        this.cData = cData;
     }
 
     public Long getcLike() {

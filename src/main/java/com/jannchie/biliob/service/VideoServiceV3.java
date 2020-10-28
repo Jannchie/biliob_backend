@@ -1,10 +1,7 @@
 package com.jannchie.biliob.service;
 
 import com.jannchie.biliob.constant.DbFields;
-import com.jannchie.biliob.model.User;
-import com.jannchie.biliob.model.VideoInfo;
-import com.jannchie.biliob.model.VideoStat;
-import com.jannchie.biliob.model.VideoVisit;
+import com.jannchie.biliob.model.*;
 import com.jannchie.biliob.utils.BiliobUtils;
 import com.jannchie.biliob.utils.UserUtils;
 import com.mongodb.client.MongoClient;
@@ -12,6 +9,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -157,18 +155,28 @@ public class VideoServiceV3 {
         if (!Arrays.asList("view", "ctime").contains(sort)) {
             sort = "view";
         }
-        return mongoTemplate.find(Query.query(Criteria.where(DbFields.OWNER_MID).is(mid)).with(Sort.by(sort).descending()).limit(10), VideoInfo.class);
+        return mongoTemplate.find(Query.query(Criteria.where(DbFields.OWNER_MID).is(mid)).with(Sort.by("stat." + sort).descending()).limit(10), VideoInfo.class);
     }
 
-    public List<Document> listTopicAuthor(String topic) {
+    @Cacheable(value = "listTopicAuthor", key = "#topic + #limit)")
+    public List<Document> listTopicAuthor(String topic, Integer limit) {
         if ("".equals(topic)) {
             return null;
         }
+        if (limit > 200) {
+            limit = 200;
+        }
         return mongoTemplate.aggregate(Aggregation.newAggregation(
                 Aggregation.match(TextCriteria.forDefaultLanguage().matching(topic)),
-                Aggregation.group(DbFields.OWNER_MID).first(DbFields.OWNER_NAME).as(DbFields.NAME).first(DbFields.OWNER_MID).as(DbFields.MID).first(DbFields.OWNER_FACE).as(DbFields.FACE).sum(DbFields.STAT_VIEW).as(DbFields.VALUE),
+                Aggregation.group(DbFields.OWNER_MID)
+                        .first(DbFields.OWNER_NAME).as(DbFields.NAME)
+                        .first(DbFields.OWNER_MID).as(DbFields.MID)
+                        .first(DbFields.OWNER_FACE).as(DbFields.FACE)
+                        .sum(DbFields.STAT_VIEW).as(DbFields.VALUE)
+                        .count().as(DbFields.COUNT),
+                Aggregation.match(Criteria.where(DbFields.COUNT).gt(8)),
                 Aggregation.sort(Sort.by(DbFields.VALUE).descending()),
-                Aggregation.limit(32)
+                Aggregation.limit(limit)
         ), VideoInfo.class, Document.class).getMappedResults();
     }
 
@@ -178,5 +186,40 @@ public class VideoServiceV3 {
             return null;
         }
         return mongoTemplate.find(Query.query(Criteria.where(DbFields.AID).in(user.getFavoriteAid())), VideoInfo.class);
+    }
+
+    @Cacheable(value = "listKeywordIndex", key = "#kw)")
+    public List<Document> listKeywordIndex(String kw) {
+        List<Document> docs = this.listTopicAuthor(kw, 200);
+        Object[] midList = docs.stream().map(document -> document.get(DbFields.MID)).toArray();
+        Calendar c = Calendar.getInstance();
+        c.set(2018, Calendar.OCTOBER, 1);
+        return mongoTemplate.aggregate(Aggregation.newAggregation(
+                Aggregation.match(Criteria.where(DbFields.MID).in(midList)),
+                Aggregation.lookup("author_daily_trend", "mid", "mid", "history"),
+                Aggregation.unwind("history"),
+                Aggregation.project()
+                        .and("history.datetime").as("history.datetime")
+                        .and("history.fans").absoluteValue().as("history.fans").and("history.datetime"),
+                Aggregation.group("history.datetime").sum("history.fans").as("val"),
+                Aggregation.match(Criteria.where("_id").gt(c.getTime())),
+                Aggregation.sort(Sort.by("_id").ascending())
+        ), Author.class, Document.class).getMappedResults();
+    }
+
+    @Cacheable(value = "listTopTag", key = "#d")
+    public List<Document> listTopTag(Integer d) {
+        if (d < 0 || d > 30) {
+            d = 3;
+        }
+        Calendar c = Calendar.getInstance();
+        c.add(Calendar.DATE, -d);
+        return mongoTemplate.aggregate(
+                Aggregation.newAggregation(
+                        Aggregation.match(Criteria.where(DbFields.CTIME).gt(c.getTimeInMillis() / 1000)),
+                        Aggregation.unwind(DbFields.TAG),
+                        Aggregation.group(DbFields.TAG).sum(DbFields.STAT_JANNCHIE).as(DbFields.VALUE),
+                        Aggregation.sort(Sort.by(DbFields.VALUE).descending()),
+                        Aggregation.limit(100)), VideoInfo.class, Document.class).getMappedResults();
     }
 }
