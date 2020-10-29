@@ -155,7 +155,10 @@ public class VideoServiceV3 {
         if (!Arrays.asList("view", "ctime").contains(sort)) {
             sort = "view";
         }
-        return mongoTemplate.find(Query.query(Criteria.where(DbFields.OWNER_MID).is(mid)).with(Sort.by("stat." + sort).descending()).limit(10), VideoInfo.class);
+        if (!"ctime".equals(sort)) {
+            sort = "stat." + sort;
+        }
+        return mongoTemplate.find(Query.query(Criteria.where(DbFields.OWNER_MID).is(mid)).with(Sort.by(sort).descending()).limit(10), VideoInfo.class);
     }
 
     @Cacheable(value = "listTopicAuthor", key = "#topic + #limit)")
