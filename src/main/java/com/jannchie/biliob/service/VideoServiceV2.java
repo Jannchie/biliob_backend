@@ -16,7 +16,6 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 
 import java.util.Calendar;
-import java.util.Date;
 
 /**
  * @author Jannchie
@@ -48,9 +47,10 @@ public class VideoServiceV2 {
         }
         VideoIntervalRecord vir = new VideoIntervalRecord();
         vir.setInterval(86400);
-        Date c = Calendar.getInstance().getTime();
-        vir.setDate(c);
-        vir.setNext(c);
+        Calendar c = Calendar.getInstance();
+        vir.setDate(c.getTime());
+        c.setTimeInMillis(0L);
+        vir.setNext(c.getTime());
         vir.setBvid(bvid);
         mongoTemplate.save(vir);
         return new Result<>(ResultEnum.SUCCEED);
@@ -62,9 +62,10 @@ public class VideoServiceV2 {
         }
         VideoIntervalRecord vir = new VideoIntervalRecord();
         vir.setInterval(86400);
-        Date c = Calendar.getInstance().getTime();
-        vir.setDate(c);
-        vir.setNext(c);
+        Calendar c = Calendar.getInstance();
+        vir.setDate(c.getTime());
+        c.setTimeInMillis(0L);
+        vir.setNext(c.getTime());
         vir.setAid(aid);
         mongoTemplate.save(vir);
         return new Result<>(ResultEnum.SUCCEED);
