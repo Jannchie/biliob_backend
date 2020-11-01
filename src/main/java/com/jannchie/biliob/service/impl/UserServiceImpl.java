@@ -445,7 +445,7 @@ class UserServiceImpl implements UserService {
      */
     @Override
     public MySlice<User> sliceUserRank(Integer page, Integer pagesize) {
-        Query q = new Query().addCriteria(Criteria.where(DbFields.BAN).is(false)).with(PageRequest.of(0, 100, Sort.by(Sort.Direction.DESC, "exp")));
+        Query q = new Query().addCriteria(Criteria.where(DbFields.BAN).ne(true)).with(PageRequest.of(0, 100, Sort.by(Sort.Direction.DESC, "exp")));
         // get user slice
         q.fields().include("exp").include("nickName").include("_id");
         List<User> s =
