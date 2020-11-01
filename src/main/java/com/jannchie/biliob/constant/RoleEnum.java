@@ -11,7 +11,7 @@ public enum RoleEnum {
      *
      * <p>ADMIN: The user who has the highest authority of this site.
      */
-    GUEST(-1, "无权限游客"),
+    GUEST(-1, "无权限"),
     LEVEL_1(0, "普通研究员"),
     LEVEL_2(4, "高级研究员"),
     LEVEL_3(5, "管理研究员"),
