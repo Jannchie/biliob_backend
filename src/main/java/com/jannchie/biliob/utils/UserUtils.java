@@ -133,7 +133,7 @@ public class UserUtils {
                 user.setTitle("彷徨者");
             }
         }
-        if (user.getBan()) {
+        if (user.getBan() != null && user.getBan()) {
             user.setTitle("作弊者");
             roleEnum = RoleEnum.GUEST;
         }
