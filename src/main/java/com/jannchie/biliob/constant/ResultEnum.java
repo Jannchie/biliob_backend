@@ -48,7 +48,8 @@ public enum ResultEnum {
     DUMP_COMMENT(-1, "检测到重复观测记录"),
     ALREADY_FINISHED(-1, "已结束"),
     VIDEO_NOT_FOUND(-1, "未找到视频"),
-    NOT_FOUND(-1, "未找到");
+    NOT_FOUND(-1, "未找到"),
+    BANNED(-1, "被封禁");
 
     private int code;
     private String msg;

@@ -87,7 +87,15 @@ public class VideoServiceV3 {
 
 
     private VideoInfo getVideoInfoByCriteria(Criteria c) {
-        return mongoTemplate.findOne(Query.query(c), VideoInfo.class);
+        VideoInfo vi = mongoTemplate.findOne(Query.query(c), VideoInfo.class);
+        User u = UserUtils.getUser();
+        if (vi == null) {
+            return null;
+        }
+        if (u == null || u.getBan() != null && u.getBan() || u.getExp() < 5000) {
+            vi.setAttribute(null);
+        }
+        return vi;
     }
 
     public Document getAverage(Integer tid, Long mid, Long pubdate) {

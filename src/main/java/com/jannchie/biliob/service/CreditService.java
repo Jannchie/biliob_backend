@@ -86,6 +86,9 @@ public class CreditService {
             logger.info("积分不足");
             return ResultEnum.CREDIT_NOT_ENOUGH.getCreditResult();
         }
+        if (user.getBan() != null && user.getBan()) {
+            return ResultEnum.BANNED.getCreditResult();
+        }
         user.setCredit(BigDecimal.valueOf(user.getCredit()).add(BigDecimal.valueOf(credit)).setScale(2, BigDecimal.ROUND_HALF_DOWN).doubleValue());
         double exp = 0D;
         if (withExp) {
