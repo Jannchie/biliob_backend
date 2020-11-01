@@ -21,7 +21,7 @@ public interface AuthorGroupService {
      * @param tag  list tag
      * @return result with list
      */
-    Result<AuthorGroup> initAuthorList(String name, String desc, List<String> tag);
+    Result<?> initAuthorList(String name, String desc, List<String> tag);
 
     /**
      * Set author list info

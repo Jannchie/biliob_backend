@@ -27,7 +27,7 @@ public class AuthorGroupController {
     }
 
     @RequestMapping(method = RequestMethod.POST, value = "/api/author/group")
-    public Result<AuthorGroup> initAuthorList(
+    public Result<?> initAuthorList(
             @RequestBody @Valid AuthorGroup authorGroup) {
         return authorGroupService.initAuthorList(authorGroup.getName(), authorGroup.getDesc(), authorGroup.getTagList());
     }

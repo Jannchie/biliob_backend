@@ -51,9 +51,12 @@ public class AuthorGroupServiceImpl implements AuthorGroupService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Result<AuthorGroup> initAuthorList(String name, String desc, List<String> tag) {
+    public Result<?> initAuthorList(String name, String desc, List<String> tag) {
         AuthorGroup authorGroup = new AuthorGroup(name, desc, tag, UserUtils.getUserId());
         User user = UserUtils.getUser();
+        if (user == null) {
+            return ResultEnum.HAS_NOT_LOGGED_IN.getResult();
+        }
         UserUtils.setUserTitleAndRankAndUpdateRole(user);
         if ("观测者".equals(user.getTitle()) || "观想者".equals(user.getTitle()) || "管理者".equals(user.getTitle()) || "追寻者".equals(user.getTitle())) {
             Result<?> r = creditService.doCreditOperation(CreditConstant.INIT_AUTHOR_LIST, CreditConstant.INIT_AUTHOR_LIST.getMsg(name));

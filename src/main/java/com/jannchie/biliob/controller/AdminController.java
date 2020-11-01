@@ -29,8 +29,13 @@ public class AdminController {
         this.adminService = adminService;
     }
 
+    @RequestMapping(method = RequestMethod.PUT, value = "/api/admin/user/ban")
+    public Result<?> banUser(String name) {
+        return adminService.banUser(name);
+    }
+
     @RequestMapping(method = RequestMethod.GET, value = "/user")
-    public List listUser(
+    public List<?> listUser(
             @RequestParam(defaultValue = "0") Integer page,
             @RequestParam(defaultValue = "20") Integer pagesize,
             @RequestParam(defaultValue = "0") Integer sort,

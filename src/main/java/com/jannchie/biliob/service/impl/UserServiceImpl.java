@@ -37,7 +37,6 @@ import java.util.*;
 
 import static com.jannchie.biliob.constant.DbFields.FORCE_FOCUS;
 import static com.jannchie.biliob.constant.PageSizeEnum.BIG_SIZE;
-import static com.jannchie.biliob.constant.PageSizeEnum.USER_RANK_SIZE;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 /**
@@ -446,15 +445,9 @@ class UserServiceImpl implements UserService {
      */
     @Override
     public MySlice<User> sliceUserRank(Integer page, Integer pagesize) {
-        // max size is 100
-        if (!pagesize.equals(USER_RANK_SIZE.getValue())) {
-            pagesize = USER_RANK_SIZE.getValue();
-        }
-
-        Query q = new Query().with(PageRequest.of(0, 100, Sort.by(Sort.Direction.DESC, "exp")));
+        Query q = new Query().addCriteria(Criteria.where(DbFields.BAN).is(false)).with(PageRequest.of(0, 100, Sort.by(Sort.Direction.DESC, "exp")));
         // get user slice
         q.fields().include("exp").include("nickName").include("_id");
-
         List<User> s =
                 mongoTemplate.find(q, User.class);
         s.sort(Comparator.comparing(User::getExp).reversed());

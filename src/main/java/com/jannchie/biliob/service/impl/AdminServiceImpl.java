@@ -1,5 +1,6 @@
 package com.jannchie.biliob.service.impl;
 
+import com.jannchie.biliob.constant.DbFields;
 import com.jannchie.biliob.constant.ResultEnum;
 import com.jannchie.biliob.model.*;
 import com.jannchie.biliob.object.AuthorIntervalCount;
@@ -473,6 +474,12 @@ public class AdminServiceImpl implements AdminService {
     @Override
     public void banItself(String reason, Boolean forever) {
         banIp(ipUtil.getIpAddress(), reason, forever);
+    }
+
+    @Override
+    public Result<?> banUser(String name) {
+        mongoTemplate.upsert(Query.query(Criteria.where(DbFields.NAME).is(name)), Update.update(DbFields.BAN, true), User.class);
+        return ResultEnum.SUCCEED.getResult();
     }
 
     @Override

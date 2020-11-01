@@ -1,5 +1,6 @@
 package com.jannchie.biliob.utils;
 
+import com.jannchie.biliob.constant.DbFields;
 import com.jannchie.biliob.constant.RoleEnum;
 import com.jannchie.biliob.model.User;
 import com.jannchie.biliob.repository.UserRepository;
@@ -110,7 +111,7 @@ public class UserUtils {
     }
 
     public static void setUserTitleAndRankAndUpdateRole(User user) {
-        long rank = mongoTemplate.count(Query.query(Criteria.where("exp").gte(user.getExp())), "user");
+        long rank = mongoTemplate.count(Query.query(Criteria.where("exp").gte(user.getExp()).and(DbFields.BAN).is(false)), "user");
         RoleEnum roleEnum = RoleEnum.LEVEL_1;
         user.setRank(Math.toIntExact(rank));
         if (rank <= 3) {
@@ -132,9 +133,13 @@ public class UserUtils {
                 user.setTitle("彷徨者");
             }
         }
+        if (user.getBan()) {
+            user.setTitle("作弊者");
+            roleEnum = RoleEnum.GUEST;
+        }
         if (!roleEnum.getName().equals(user.getRole())) {
             Integer preLevel = RoleEnum.getLevelByName(user.getRole());
-            if (preLevel < roleEnum.getLevel() || "普通用户".equals(user.getRole())) {
+            if (preLevel < roleEnum.getLevel() || "普通用户".equals(user.getRole()) || "作弊者".equals(user.getTitle())) {
                 mongoTemplate.updateFirst(Query.query(Criteria.where("name").is(user.getName())), Update.update("role", roleEnum.getName()), User.class);
             }
         }

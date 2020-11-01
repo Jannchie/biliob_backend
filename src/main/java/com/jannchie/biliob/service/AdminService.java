@@ -174,4 +174,12 @@ public interface AdminService {
     void banItself(String reason);
 
     void banItself(String reason, Boolean forever);
+
+    /**
+     * Ban user
+     *
+     * @param name User name
+     * @return result
+     */
+    Result<?> banUser(String name);
 }

@@ -42,6 +42,8 @@ public class User {
     @Email(message = "邮箱格式错误")
     @NotBlank(message = "邮箱不能为空")
     private String mail;
+    private Boolean ban;
+
     public User(String name, String password, String role) {
         this.name = name;
         this.password = password;
@@ -50,11 +52,20 @@ public class User {
         this.exp = 0D;
         this.title = "";
     }
+
     public User(ObjectId id) {
         this.id = id;
     }
 
     public User() {
+    }
+
+    public Boolean getBan() {
+        return ban;
+    }
+
+    public void setBan(Boolean ban) {
+        this.ban = ban;
     }
 
     public String getIp() {
