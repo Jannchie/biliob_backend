@@ -111,7 +111,7 @@ public class UserUtils {
     }
 
     public static void setUserTitleAndRankAndUpdateRole(User user) {
-        long rank = mongoTemplate.count(Query.query(Criteria.where("exp").gte(user.getExp()).and(DbFields.BAN).is(false)), "user");
+        long rank = mongoTemplate.count(Query.query(Criteria.where("exp").gte(user.getExp()).and(DbFields.BAN).ne(true)), "user");
         RoleEnum roleEnum = RoleEnum.LEVEL_1;
         user.setRank(Math.toIntExact(rank));
         if (rank <= 3) {
