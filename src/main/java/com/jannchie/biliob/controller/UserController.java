@@ -222,7 +222,7 @@ public class UserController {
         if (video.getAid() != null) {
             return userService.refreshVideo(video.getAid());
         }
-        return null;
+        return ResultEnum.EXECUTE_FAILURE.getResult();
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/api/rank/user")

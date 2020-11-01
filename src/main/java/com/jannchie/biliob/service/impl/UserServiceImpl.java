@@ -396,12 +396,13 @@ class UserServiceImpl implements UserService {
     public Result<?> refreshAuthor(@Valid Long mid) {
         String msg = CreditConstant.REFRESH_AUTHOR_DATA.getMsg(mid);
         Result<?> result = creditService.doCreditOperation(CreditConstant.REFRESH_AUTHOR_DATA, msg, false);
+        if (result.getCode() == -1) {
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+            return result;
+        }
         UserRecord ur = result.getUserRecord();
         Query q = Query.query(Criteria.where("mid").is(mid));
-        if (!mongoTemplate.exists(q, AuthorIntervalRecord.class)) {
-            authorService.upsertAuthorFreq(mid, 86400);
-        }
-        mongoTemplate.updateFirst(q, new Update().addToSet("order", ur.getId()).set("next", new Date(0)), AuthorIntervalRecord.class);
+        mongoTemplate.upsert(q, new Update().addToSet("order", ur.getId()).set("next", new Date(0)), AuthorIntervalRecord.class);
         result.setData(null);
         return result;
     }
@@ -425,6 +426,10 @@ class UserServiceImpl implements UserService {
     @Transactional(rollbackFor = Exception.class)
     private Result<?> refreshVideo(Query q, String msg) {
         Result<?> result = creditService.doCreditOperation(CreditConstant.REFRESH_VIDEO_DATA, msg, false);
+        if (result.getCode() == -1) {
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+            return result;
+        }
         UserRecord ur = result.getUserRecord();
         mongoTemplate.updateFirst(q, new Update().addToSet("order", ur.getId()).set("next", new Date(0)), VideoIntervalRecord.class);
         result.setData(null);
