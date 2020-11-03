@@ -169,7 +169,7 @@ public class VideoServiceV3 {
         return mongoTemplate.find(Query.query(Criteria.where(DbFields.OWNER_MID).is(mid)).with(Sort.by(sort).descending()).limit(10), VideoInfo.class);
     }
 
-    @Cacheable(value = "listTopicAuthor", key = "#topic + #limit)")
+    @Cacheable(value = "listTopicAuthor", key = "#topic + #limit")
     public List<Document> listTopicAuthor(String topic, Integer limit) {
         if ("".equals(topic)) {
             return null;
@@ -199,7 +199,7 @@ public class VideoServiceV3 {
         return mongoTemplate.find(Query.query(Criteria.where(DbFields.AID).in(user.getFavoriteAid())), VideoInfo.class);
     }
 
-    @Cacheable(value = "listKeywordIndex", key = "#kw)")
+    @Cacheable(value = "listKeywordIndex", key = "#kw")
     public List<Document> listKeywordIndex(String kw) {
         List<Document> docs = this.listTopicAuthor(kw, 200);
         Object[] midList = docs.stream().map(document -> document.get(DbFields.MID)).toArray();
