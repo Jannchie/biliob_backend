@@ -248,9 +248,16 @@ public class GuessingService {
         if (fansGuessingItem.getState() != 1) {
             return new Result<>(ResultEnum.ALREADY_FINISHED);
         }
+
         User user = UserUtils.getUser();
         User userInfo = new User();
-        assert user != null;
+        if (user == null) {
+            return ResultEnum.HAS_NOT_LOGGED_IN.getResult();
+        }
+        double sum = fansGuessingItem.getPokerChips().stream().filter((p) -> p.getUser().getName().equals(user.getName())).mapToDouble(GuessingItem.PokerChip::getCredit).sum();
+        if (sum >= 500) {
+            return ResultEnum.EXCEED_PREDICT_LIMIT.getResult();
+        }
         userInfo.setId(user.getId());
         userInfo.setName(user.getName());
         pokerChip.setCreateTime(Calendar.getInstance().getTime());

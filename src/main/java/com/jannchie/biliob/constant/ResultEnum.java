@@ -49,6 +49,7 @@ public enum ResultEnum {
     ALREADY_FINISHED(-1, "已结束"),
     VIDEO_NOT_FOUND(-1, "未找到视频"),
     NOT_FOUND(-1, "未找到"),
+    EXCEED_PREDICT_LIMIT(-1, "超出预测下注上限"),
     BANNED(-1, "被封禁");
 
     private int code;
