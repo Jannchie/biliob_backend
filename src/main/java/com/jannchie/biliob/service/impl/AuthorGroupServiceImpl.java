@@ -17,7 +17,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
+import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
 import org.springframework.data.mongodb.core.aggregation.MatchOperation;
+import org.springframework.data.mongodb.core.aggregation.SortOperation;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
@@ -87,6 +89,16 @@ public class AuthorGroupServiceImpl implements AuthorGroupService {
     }
 
     @Override
+    public List<AuthorGroup> listAuthorListTop() {
+        return this.listAuthorList("", 0L, 10);
+    }
+
+    @Override
+    public List<AuthorGroup> listAuthorListSample() {
+        return this.listAuthorList(Aggregation.sample(10), 0L, 10);
+    }
+
+    @Override
     @Transactional(rollbackFor = Exception.class)
     public Result<?> setAuthorListInfo(String id, String name, String desc, List<String> tag) {
         mongoTemplate.updateFirst(
@@ -108,7 +120,7 @@ public class AuthorGroupServiceImpl implements AuthorGroupService {
             return new Result<>(ResultEnum.LIST_NOT_FOUND);
         }
         if (authorGroup.getMaintainer().getId().toHexString().equals(userId.toHexString())) {
-            return new Result<>(ResultEnum.SUCCEED, mongoTemplate.remove(Query.query(Criteria.where("_id").is(objectId)), AuthorGroup.class));
+            return new Result<>(ResultEnum.SUCCEED, mongoTemplate.remove(Query.query(Criteria.where("_id").is(new ObjectId(objectId))), AuthorGroup.class));
         } else {
             return new Result<>(ResultEnum.EXECUTE_FAILURE);
         }
@@ -132,16 +144,16 @@ public class AuthorGroupServiceImpl implements AuthorGroupService {
             if (data.getStarring()) {
                 return new Result<>(ResultEnum.ALREADY_LIKE);
             } else {
-                long stars = mongoTemplate.count(Query.query(Criteria.where(groupIdField).is(objectId).and("starring").is(true)), UserStarAuthorGroup.class);
-                mongoTemplate.updateFirst(Query.query(Criteria.where("_id").is(objectId)), Update.update("stars", stars + 1), AuthorGroup.class);
+                long stars = mongoTemplate.count(Query.query(Criteria.where(groupIdField).is(new ObjectId(objectId)).and("starring").ne(false)), UserStarAuthorGroup.class);
+                mongoTemplate.updateFirst(Query.query(Criteria.where("_id").is(new ObjectId(objectId))), Update.update("stars", stars + 1), AuthorGroup.class);
                 return new Result<>(ResultEnum.SUCCEED);
             }
         }
 
 
         Result<?> r = creditService.doCreditOperation(CreditConstant.STAR_AUTHOR_LIST, CreditConstant.STAR_AUTHOR_LIST.getMsg(objectId));
-        long stars = mongoTemplate.count(Query.query(Criteria.where(groupIdField).is(objectId).and("starring").is(true)), UserStarAuthorGroup.class);
-        mongoTemplate.updateFirst(Query.query(Criteria.where("_id").is(objectId)), Update.update("stars", stars + 1), AuthorGroup.class);
+        long stars = mongoTemplate.count(Query.query(Criteria.where(groupIdField).is(new ObjectId(objectId)).and("starring").is(true)), UserStarAuthorGroup.class);
+        mongoTemplate.updateFirst(Query.query(Criteria.where("_id").is(new ObjectId(objectId))), Update.update("stars", stars + 1), AuthorGroup.class);
         UserStarAuthorGroup d = mongoTemplate.save(new UserStarAuthorGroup(user.getId(), new ObjectId(objectId)));
         User u = UserUtils.getUserById(authorGroup.getMaintainer().getId());
         Result<?> res = creditService.doCreditOperation(u, CreditConstant.BE_STARED_AUTHOR_LIST, CreditConstant.BE_STARED_AUTHOR_LIST.getMsg(objectId));
@@ -165,11 +177,17 @@ public class AuthorGroupServiceImpl implements AuthorGroupService {
         return res1;
     }
 
-    public List<AuthorGroup> listAuthorList(MatchOperation match, Long page, Integer pageSize) {
+
+    public List<AuthorGroup> listAuthorList(AggregationOperation match, Long page, Integer pageSize) {
+        SortOperation s = Aggregation.sort(Sort.by("stars").descending());
+        return this.listAuthorList(match, s, page, pageSize);
+    }
+
+    public List<AuthorGroup> listAuthorList(AggregationOperation match, SortOperation sort, Long page, Integer pageSize) {
         List<AuthorGroup> a = mongoTemplate.aggregate(
                 Aggregation.newAggregation(
                         match,
-                        Aggregation.sort(Sort.by("stars").descending()),
+                        sort,
                         Aggregation.skip((page - 1) * pageSize),
                         Aggregation.limit(pageSize),
                         Aggregation.lookup("user", "creator._id", "_id", "creator"),
@@ -271,8 +289,8 @@ public class AuthorGroupServiceImpl implements AuthorGroupService {
             return new Result<>(ResultEnum.HAS_NOT_LOGGED_IN);
         }
         mongoTemplate.updateFirst(Query.query(Criteria.where("groupId").is(new ObjectId(objectId)).and("userId").is(userId)), Update.update("starring", false), UserStarAuthorGroup.class);
-        long stars = mongoTemplate.count(Query.query(Criteria.where("groupId").is(objectId)), UserStarAuthorGroup.class);
-        mongoTemplate.updateFirst(Query.query(Criteria.where("_id").is(objectId)), Update.update("stars", stars), AuthorGroup.class);
+        long stars = mongoTemplate.count(Query.query(Criteria.where("groupId").is(new ObjectId(objectId)).and("starring").is(true)), UserStarAuthorGroup.class);
+        mongoTemplate.updateFirst(Query.query(Criteria.where("_id").is(new ObjectId(objectId))), Update.update("stars", stars), AuthorGroup.class);
         return new Result<>(ResultEnum.SUCCEED);
     }
 

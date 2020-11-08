@@ -132,4 +132,18 @@ public interface AuthorGroupService {
      * @return result
      */
     Result<?> editAuthorList(String id, String name, String desc, List<String> tagList);
+
+    /**
+     * List Random Author Group
+     *
+     * @return Random Author Group
+     */
+    List<AuthorGroup> listAuthorListSample();
+
+    /**
+     * List Top Author Group
+     *
+     * @return Top Author Group
+     */
+    List<AuthorGroup> listAuthorListTop();
 }

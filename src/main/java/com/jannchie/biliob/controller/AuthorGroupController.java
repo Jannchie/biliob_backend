@@ -48,6 +48,16 @@ public class AuthorGroupController {
         return authorGroupService.listAuthorList(keyword, page, pageSize);
     }
 
+    @RequestMapping(method = RequestMethod.GET, value = "/api/author/group/random")
+    public List<AuthorGroup> listAuthorListSample() {
+        return authorGroupService.listAuthorListSample();
+    }
+
+    @RequestMapping(method = RequestMethod.GET, value = "/api/author/group/top")
+    public List<AuthorGroup> listAuthorListTop() {
+        return authorGroupService.listAuthorListTop();
+    }
+
     @RequestMapping(method = RequestMethod.DELETE, value = "/api/author/group/{id}")
     public Result<?> delAuthorList(
             @PathVariable("id") String id
