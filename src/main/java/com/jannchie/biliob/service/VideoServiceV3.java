@@ -146,8 +146,16 @@ public class VideoServiceV3 {
         }
         Query q = new Query().with(PageRequest.of(page, size, Sort.by("stat." + sort).descending()));
         if (!"".equals(word)) {
-            q.addCriteria(TextCriteria.forDefaultLanguage().matchingAny(word.split(" ")));
+            word = word.replaceFirst("(?i)(av)|(bv)", "");
+            if (BiliobUtils.isAv(word)) {
+                q.addCriteria(Criteria.where(DbFields.AID).is(Long.parseUnsignedLong(word)));
+            } else if (BiliobUtils.isBv(word)) {
+                q.addCriteria(Criteria.where(DbFields.BVID).is(word));
+            } else {
+                q.addCriteria(TextCriteria.forDefaultLanguage().matchingAny(word.split(" ")));
+            }
         }
+
         if (day != 0) {
             if (day > 30) {
                 day = 30L;

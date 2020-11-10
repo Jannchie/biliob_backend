@@ -43,4 +43,5 @@ public class DbFields {
     public static final String CTIME = "ctime";
     public static final String STAT_JANNCHIE = "stat.jannchie";
     public static final String BAN = "ban";
+    public static final String BVID = "bvid";
 }

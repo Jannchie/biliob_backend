@@ -12,12 +12,15 @@ import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.*;
+import java.util.regex.Pattern;
 
 /**
  * @author Jannchie
  */
 @Component
 public class BiliobUtils {
+    private static final Pattern AV_PATTERN = Pattern.compile("^(?i)(av)?[\\d]*$");
+    private static final Pattern BV_PATTERN = Pattern.compile("^(?i)(bv)?[A-Za-z0-9]{10}$");
     @Autowired
     MongoTemplate mongoTemplate;
     @Autowired
@@ -32,6 +35,14 @@ public class BiliobUtils {
         System.arraycopy(a, 0, c, 0, a.length);
         System.arraycopy(b, 0, c, a.length, b.length);
         return c;
+    }
+
+    public static boolean isAv(String str) {
+        return AV_PATTERN.matcher(str).matches();
+    }
+
+    public static boolean isBv(String str) {
+        return BV_PATTERN.matcher(str).matches();
     }
 
     @Cacheable(value = "getNameToNickNameMap", key = "#userIdSet")
