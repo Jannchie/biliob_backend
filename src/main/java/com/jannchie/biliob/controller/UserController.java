@@ -94,7 +94,7 @@ public class UserController {
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/api/user")
-    public User getUserInfo(@RequestParam(defaultValue = "old") String ver, HttpServletRequest request) {
+    public Result<?> getUserInfo(@RequestParam(defaultValue = "old") String ver, HttpServletRequest request) {
         logger.info("获取观测者自身信息");
 
         userService.setVersion(ver);
