@@ -135,7 +135,7 @@ class UserServiceImpl implements UserService {
         userUtils.setUserTitleAndRankAndUpdateRole(user);
         httpServletResponse.setHeader("token", token);
         user.setIp(null);
-        return ResultEnum.SUCCEED.getResult(token, user);
+        return ResultEnum.SUCCEED.getResult(user, user);
     }
 
 
