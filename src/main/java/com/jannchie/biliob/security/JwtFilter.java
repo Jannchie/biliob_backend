@@ -42,8 +42,7 @@ public class JwtFilter extends BasicAuthenticationFilter {
             Collection<GrantedAuthority> authorityCollection = new ArrayList<>();
             authorityCollection.add(new SimpleGrantedAuthority(role));
             SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(name, password, authorityCollection));
-        } else {
-            chain.doFilter(request, response);
         }
+        chain.doFilter(request, response);
     }
 }
