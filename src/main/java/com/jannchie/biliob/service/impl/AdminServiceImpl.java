@@ -36,23 +36,17 @@ import java.util.stream.Collectors;
 @Service
 public class AdminServiceImpl implements AdminService {
     private static final Logger logger = LogManager.getLogger(UserServiceImpl.class);
-    final UserRepository userRepository;
-    final MongoTemplate mongoTemplate;
     @Autowired
-    final MongoClient mongoClient;
+    private UserRepository userRepository;
     @Autowired
-    final IpUtil ipUtil;
+    private MongoTemplate mongoTemplate;
+    @Autowired
+    private MongoClient mongoClient;
+    @Autowired
+    private IpUtil ipUtil;
     @Autowired
     private UserUtils userUtils;
 
-    @Autowired
-    public AdminServiceImpl(
-            UserRepository userRepository, MongoTemplate mongoTemplate, MongoClient mongoClient, IpUtil ipUtil) {
-        this.userRepository = userRepository;
-        this.mongoTemplate = mongoTemplate;
-        this.mongoClient = mongoClient;
-        this.ipUtil = ipUtil;
-    }
 
     /**
      * list User

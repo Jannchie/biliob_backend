@@ -4,9 +4,7 @@ import com.jannchie.biliob.constant.ResultEnum;
 import com.jannchie.biliob.exception.AuthorAlreadyFocusedException;
 import com.jannchie.biliob.exception.UserAlreadyFavoriteAuthorException;
 import com.jannchie.biliob.model.Author;
-import com.jannchie.biliob.service.AdminService;
 import com.jannchie.biliob.service.AuthorService;
-import com.jannchie.biliob.utils.IpUtil;
 import com.jannchie.biliob.utils.Message;
 import com.jannchie.biliob.utils.MySlice;
 import com.jannchie.biliob.utils.UserUtils;
@@ -31,17 +29,10 @@ import java.util.stream.Stream;
 public class AuthorController {
     @Autowired
     private UserUtils userUtils;
-
+    @Autowired
     private AuthorService authorService;
-    private AdminService adminService;
 
     private Logger logger = LogManager.getLogger();
-
-    @Autowired
-    public AuthorController(AuthorService authorService, AdminService adminService) {
-        this.authorService = authorService;
-        this.adminService = adminService;
-    }
 
     @RequestMapping(method = RequestMethod.GET, value = "/api/author/{mid}/history-data")
     public List<Author.Data> getAuthorHistoryDetails(
@@ -78,10 +69,6 @@ public class AuthorController {
             @RequestParam(defaultValue = "-1") Long mid,
             @RequestParam(defaultValue = "") String text) {
         logger.info("获取分页的UP排名列表，sort: [{}], page: [{}], pageSize: [{}], mid: [{}] text: [{}]", sort, page, pageSize, mid, text);
-        if (page > 30) {
-            adminService.banIp(IpUtil.getIpAddress(request), "访问无效页数");
-            page = 1;
-        }
         return authorService.getAuthor(mid, text, page, pageSize, sort);
     }
 

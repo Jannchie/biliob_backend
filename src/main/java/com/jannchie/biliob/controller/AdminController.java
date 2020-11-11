@@ -21,13 +21,8 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/admin")
 public class AdminController {
-
-    private AdminService adminService;
-
     @Autowired
-    public AdminController(AdminService adminService) {
-        this.adminService = adminService;
-    }
+    private AdminService adminService;
 
     @RequestMapping(method = RequestMethod.PUT, value = "/api/admin/user/ban")
     public Result<?> banUser(String name) {

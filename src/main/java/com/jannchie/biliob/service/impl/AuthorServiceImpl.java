@@ -56,35 +56,24 @@ import static org.springframework.data.mongodb.core.query.Criteria.where;
 @CacheConfig(cacheNames = "authorService")
 public class AuthorServiceImpl implements AuthorService {
     private static final Logger logger = LogManager.getLogger(VideoServiceImpl.class);
-    private final RedisOps redisOps;
-    private final AuthorRepository repository;
-    private final RealTimeFansRepository realTimeFansRepository;
-    private final MongoTemplate mongoTemplate;
+    @Autowired
+    private AuthorRepository repository;
+    @Autowired
+    private RealTimeFansRepository realTimeFansRepository;
+    @Autowired
+    private MongoTemplate mongoTemplate;
+    @Autowired
     private MongoClient mongoClient;
+    @Autowired
     private AuthorUtil authorUtil;
+    @Autowired
     private BiliobUtils biliOBUtils;
+    @Autowired
     private AdminService adminService;
-
     @Autowired
     private UserUtils userUtils;
 
     private AuthorAchievementService authorAchievementService;
-
-    @Autowired
-    public AuthorServiceImpl(AuthorRepository repository,
-                             MongoClient mongoClient, MongoTemplate mongoTemplate, InputInspection inputInspection,
-                             AuthorUtil authorUtil, RealTimeFansRepository realTimeFansRepository,
-                             RedisOps redisOps, BiliobUtils biliOBUtils, AdminService adminService, AuthorAchievementService authorAchievementService) {
-        this.repository = repository;
-        this.mongoTemplate = mongoTemplate;
-        this.mongoClient = mongoClient;
-        this.authorUtil = authorUtil;
-        this.realTimeFansRepository = realTimeFansRepository;
-        this.redisOps = redisOps;
-        this.biliOBUtils = biliOBUtils;
-        this.adminService = adminService;
-        this.authorAchievementService = authorAchievementService;
-    }
 
     private MatchOperation getAggregateMatch(int days, Long mid) {
         if (days == -1) {
