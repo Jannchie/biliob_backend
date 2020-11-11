@@ -27,6 +27,8 @@ import java.math.BigDecimal;
 public class CreditService {
     private static final Logger logger = LogManager.getLogger(CreditService.class);
     private MongoTemplate mongoTemplate;
+    @Autowired
+    private UserUtils userUtils;
 
     @Autowired
     public CreditService(MongoTemplate mongoTemplate) {
@@ -35,7 +37,7 @@ public class CreditService {
 
     @Transactional(rollbackFor = Exception.class)
     public <T> Result<T> doCreditOperationWithoutExp(CreditConstant creditConstant, String message, Double credit) {
-        return doCreditOperation(UserUtils.getUser(), creditConstant, message, true, false, credit);
+        return doCreditOperation(userUtils.getUser(), creditConstant, message, true, false, credit);
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -55,7 +57,7 @@ public class CreditService {
 
     @Transactional(rollbackFor = Exception.class)
     public <T> Result<T> doCreditOperation(CreditConstant creditConstant, String message, Boolean isExecuted) {
-        User user = UserUtils.getUser();
+        User user = userUtils.getUser();
         return doCreditOperation(user, creditConstant, message, isExecuted);
     }
 

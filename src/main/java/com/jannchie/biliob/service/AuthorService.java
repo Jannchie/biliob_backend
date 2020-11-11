@@ -207,4 +207,6 @@ public interface AuthorService {
      * @return author data list
      */
     List<Author.Data> getHistoryData(Long mid);
+
+    List<Author> listAuthors();
 }

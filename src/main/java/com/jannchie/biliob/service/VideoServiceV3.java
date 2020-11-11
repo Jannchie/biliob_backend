@@ -35,6 +35,8 @@ public class VideoServiceV3 {
     MongoClient mongoClient;
     @Autowired
     BiliobUtils biliobUtils;
+    @Autowired
+    private UserUtils userUtils;
 
     private void addVideoVisit(Long aid, String type) {
         String finalUserName = biliobUtils.getUserName();
@@ -55,7 +57,6 @@ public class VideoServiceV3 {
         vv.setName(finalUserName);
         mongoTemplate.save(vv);
     }
-
 
     public VideoInfo getVideoInfo(Long aid) {
         Criteria c = Criteria.where("aid").is(aid);
@@ -88,7 +89,7 @@ public class VideoServiceV3 {
 
     private VideoInfo getVideoInfoByCriteria(Criteria c) {
         VideoInfo vi = mongoTemplate.findOne(Query.query(c), VideoInfo.class);
-        User u = UserUtils.getUser();
+        User u = userUtils.getUser();
         if (vi == null) {
             return null;
         }
@@ -200,7 +201,7 @@ public class VideoServiceV3 {
     }
 
     public List<VideoInfo> listFavoriteVideo() {
-        User user = UserUtils.getUser();
+        User user = userUtils.getUser();
         if (user == null) {
             return null;
         }

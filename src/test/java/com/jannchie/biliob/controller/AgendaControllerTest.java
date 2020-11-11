@@ -33,16 +33,16 @@ import java.util.List;
 public class AgendaControllerTest {
 
     private static final Logger logger = LogManager.getLogger();
-
     @Autowired
     AgendaController agendaController;
-
     @Autowired
     MongoTemplate mongoTemplate;
+    @Autowired
+    private UserUtils userUtils;
 
     @Before
     public void setUp() {
-        ObjectId uid = UserUtils.getUserId();
+        ObjectId uid = userUtils.getUserId();
         mongoTemplate.remove(Query.query(Criteria.where(DbFields.CREATOR_ID).is(uid)), Agenda.class);
     }
 
@@ -73,7 +73,7 @@ public class AgendaControllerTest {
         a.setDesc("Test");
         a.setTitle("Test");
         a.setType(AgendaTypeEnum.ENHANCE.getValue());
-        a.setCreator(UserUtils.getUser());
+        a.setCreator(userUtils.getUser());
         return a;
     }
 
@@ -86,7 +86,7 @@ public class AgendaControllerTest {
 
     private void vote(UserOpinion opinion) {
 
-        ObjectId uid = UserUtils.getUserId();
+        ObjectId uid = userUtils.getUserId();
         String agendaId = postAgendaAndGetAgendaId();
         switch (opinion) {
             case AGAINST:
@@ -107,7 +107,7 @@ public class AgendaControllerTest {
         Integer fc = a.getFavorCount();
         Integer ac = a.getAgainstCount();
         Double as = a.getAgainstScore();
-        User u = UserUtils.getFullInfo();
+        User u = userUtils.getFullInfo();
         switch (opinion) {
             case AGAINST:
                 Assert.assertEquals(u.getExp(), as);
@@ -191,7 +191,7 @@ public class AgendaControllerTest {
 
     private String postAgendaAndGetAgendaId() {
         agendaController.postAgenda(getAgenda());
-        ObjectId uid = UserUtils.getUserId();
+        ObjectId uid = userUtils.getUserId();
         Assert.assertNotNull(uid);
         List<Agenda> agendaList = mongoTemplate.find(Query.query(Criteria.where(DbFields.CREATOR_ID).is(uid)), Agenda.class);
         Assert.assertSame(1, agendaList.size());
@@ -212,7 +212,7 @@ public class AgendaControllerTest {
     @After
     @WithMockUser(username = TestConstants.TEST_USER_NAME)
     public void after() {
-        ObjectId userId = UserUtils.getUserId();
+        ObjectId userId = userUtils.getUserId();
         mongoTemplate.remove(Query.query(Criteria.where(DbFields.CREATOR_ID).is(userId)), Agenda.class);
         mongoTemplate.remove(Query.query(Criteria.where(DbFields.USER_ID).is(userId)), AgendaVote.class);
         mongoTemplate.remove(Query.query(Criteria.where(DbFields.TITLE).is("Test")), AgendaVote.class);

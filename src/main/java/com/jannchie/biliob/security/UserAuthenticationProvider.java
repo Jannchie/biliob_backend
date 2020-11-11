@@ -28,6 +28,8 @@ public class UserAuthenticationProvider implements AuthenticationProvider {
 
     private static final Logger logger = LogManager.getLogger();
     private final BCryptPasswordEncoder bcryptPasswordEncoder;
+    @Autowired
+    private UserUtils userUtils;
 
     @Autowired
     public UserAuthenticationProvider(MongoTemplate mongoTemplate) {
@@ -39,7 +41,7 @@ public class UserAuthenticationProvider implements AuthenticationProvider {
         String name = authentication.getPrincipal().toString();
         String password = authentication.getCredentials().toString();
 
-        User user = UserUtils.getPasswdAndRole(name);
+        User user = userUtils.getPasswdAndRole(name);
         if (user == null) {
             logger.error("凭证过期");
             throw new BadCredentialsException(ResultEnum.LOGIN_FAILED.getMsg());
@@ -47,7 +49,7 @@ public class UserAuthenticationProvider implements AuthenticationProvider {
         if (bcryptPasswordEncoder.matches(password, user.getPassword())) {
             Collection<GrantedAuthority> authorityCollection = new ArrayList<>();
             authorityCollection.add(new SimpleGrantedAuthority(user.getRole()));
-            return new UsernamePasswordAuthenticationToken(name, password, authorityCollection);
+            return new UsernamePasswordAuthenticationToken(name, user.getPassword(), authorityCollection);
         }
         throw new BadCredentialsException(ResultEnum.LOGIN_FAILED.getMsg());
     }
@@ -56,5 +58,4 @@ public class UserAuthenticationProvider implements AuthenticationProvider {
     public boolean supports(Class<?> authentication) {
         return authentication.equals(UsernamePasswordAuthenticationToken.class);
     }
-
 }

@@ -42,6 +42,8 @@ public class AdminServiceImpl implements AdminService {
     final MongoClient mongoClient;
     @Autowired
     final IpUtil ipUtil;
+    @Autowired
+    private UserUtils userUtils;
 
     @Autowired
     public AdminServiceImpl(
@@ -237,7 +239,7 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     public ResponseEntity<?> saveSearchMethod(SearchMethod searchMethod) {
-        User user = UserUtils.getUser();
+        User user = userUtils.getUser();
         if (user != null) {
             searchMethod.setOwner(user.getName());
             mongoTemplate.insert(searchMethod, "search_method");
@@ -268,7 +270,7 @@ public class AdminServiceImpl implements AdminService {
      */
     @Override
     public ResponseEntity<?> postUploadSchedule(ScheduleItem item) {
-        User user = UserUtils.getUser();
+        User user = userUtils.getUser();
         if (user == null) {
             return new ResponseEntity<>(new Result<>(ResultEnum.HAS_NOT_LOGGED_IN), HttpStatus.FORBIDDEN);
         }

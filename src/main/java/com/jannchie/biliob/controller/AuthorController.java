@@ -29,6 +29,8 @@ import java.util.stream.Stream;
  */
 @RestController
 public class AuthorController {
+    @Autowired
+    private UserUtils userUtils;
 
     private AuthorService authorService;
     private AdminService adminService;
@@ -60,7 +62,7 @@ public class AuthorController {
     public ResponseEntity<?> postAuthorByMid(@RequestBody @Valid Long mid)
             throws UserAlreadyFavoriteAuthorException, AuthorAlreadyFocusedException {
         logger.info("添加UP主到观测系统 mid: [{}]", mid);
-        if (UserUtils.getUser() == null) {
+        if (userUtils.getUser() == null) {
             return new ResponseEntity<>(ResultEnum.HAS_NOT_LOGGED_IN.getResult(), HttpStatus.OK);
         }
         authorService.postAuthorByMid(mid);
@@ -162,5 +164,13 @@ public class AuthorController {
     public List<Author> compareAuthor() {
         logger.info("获取主页TOP粉丝数对比数据");
         return authorService.getHomePageCompareAuthors();
+    }
+
+    @RequestMapping(method = RequestMethod.GET, value = "/api/author/list")
+    public List<Author> listAuthors(
+            @RequestParam(defaultValue = "") String channel,
+            @RequestParam(defaultValue = "") String sort) {
+        logger.info("获取UP主数据");
+        return authorService.listAuthors();
     }
 }

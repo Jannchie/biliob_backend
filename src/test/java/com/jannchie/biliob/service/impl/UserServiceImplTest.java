@@ -24,6 +24,8 @@ import org.springframework.transaction.annotation.Transactional;
 @SpringBootTest
 @WebAppConfiguration
 public class UserServiceImplTest {
+    @Autowired
+    private UserUtils userUtils;
 
     @Autowired
     private UserServiceImpl userService;
@@ -37,7 +39,7 @@ public class UserServiceImplTest {
         mongoTemplate.remove(Query.query(Criteria.where("name").is(TestConstants.TEST_USER_NAME)), CheckIn.class);
         Result<?> r = userService.postCheckIn();
         assert r.getMsg().equals(ResultEnum.SUCCEED.getMsg());
-        User u = UserUtils.getUser();
+        User u = userUtils.getUser();
         Assert.assertEquals(u.getCredit(), r.getUser().getCredit());
         r = userService.postCheckIn();
         assert r.getMsg().equals(ResultEnum.ALREADY_SIGNED.getMsg());
@@ -55,7 +57,7 @@ public class UserServiceImplTest {
     @WithMockUser(username = TestConstants.TEST_USER_NAME)
     public void testForceFocus() {
         Result<?> r;
-        User u = UserUtils.getUser();
+        User u = userUtils.getUser();
         assert u != null;
         Double credit = u.getCredit();
         r = userService.forceFocus(1850091L, true);
@@ -67,7 +69,7 @@ public class UserServiceImplTest {
         Double d = u.getCredit() + CreditConstant.SET_AUTHOR_FORCE_OBSERVE.getValue();
         r = userService.forceFocus(58402261L, true);
         Assert.assertEquals(r.getMsg(), ResultEnum.ALREADY_FORCE_FOCUS.getMsg());
-        u = UserUtils.getUser();
+        u = userUtils.getUser();
         assert u != null;
     }
 

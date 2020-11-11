@@ -25,6 +25,8 @@ public class BiliobUtils {
     MongoTemplate mongoTemplate;
     @Autowired
     private HttpServletRequest request;
+    @Autowired
+    private UserUtils userUtils;
 
     public BiliobUtils(HttpServletRequest request) {
         this.request = request;
@@ -55,7 +57,7 @@ public class BiliobUtils {
     }
 
     public String getUserName() {
-        String userName = UserUtils.getUsername();
+        String userName = userUtils.getUsername();
         if (userName == null) {
             userName = IpUtil.getIpAddress(this.request);
         }

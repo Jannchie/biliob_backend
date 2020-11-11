@@ -33,9 +33,10 @@ import java.util.List;
 @RestController
 public class AgendaController {
     MongoTemplate mongoTemplate;
-
     @Autowired
     CreditService creditService;
+    @Autowired
+    private UserUtils userUtils;
     private Logger logger = LogManager.getLogger();
 
     @Autowired
@@ -85,8 +86,8 @@ public class AgendaController {
     @RequestMapping(method = RequestMethod.POST, value = "/api/agenda")
     public Result<?> postAgenda(@RequestBody @Validated Agenda agenda) {
         // 判断用户身份
-        User user = UserUtils.getFullInfo();
-        Integer level = UserUtils.getUserRoleLevel(user);
+        User user = userUtils.getFullInfo();
+        Integer level = userUtils.getUserRoleLevel(user);
         if (level < RoleEnum.LEVEL_2.getLevel()) {
             return new Result<>(ResultEnum.PERMISSION_DENIED);
         }
@@ -110,7 +111,7 @@ public class AgendaController {
 
     @RequestMapping(method = RequestMethod.DELETE, value = "/api/agenda/{id}")
     public Result<?> deleteAgenda(@PathVariable("id") String id) {
-        ObjectId userId = UserUtils.getUserId();
+        ObjectId userId = userUtils.getUserId();
         Agenda a = mongoTemplate.findOne(Query.query(Criteria.where("_id").is(id)), Agenda.class);
         if (a != null && a.getCreator().getId().equals(userId)) {
             mongoTemplate.remove(a);
@@ -147,7 +148,7 @@ public class AgendaController {
 
         for (AgendaVote agendaVote : agendaVoteList
         ) {
-            User user = UserUtils.getUserById(agendaVote.getUser().getId());
+            User user = userUtils.getUserById(agendaVote.getUser().getId());
             if (UserOpinion.IN_FAVOR.getValue().equals(agendaVote.getOpinion())) {
                 favorCount += 1;
                 favorScore += user.getExp();
@@ -195,7 +196,7 @@ public class AgendaController {
 
     @RequestMapping(method = RequestMethod.PUT, value = "/api/agenda/{id}/state/{state}")
     public Result<?> updateAgendaState(@PathVariable("id") String id, @PathVariable("state") Byte state) {
-        if (UserUtils.getUserRoleLevel() < RoleEnum.LEVEL_5.getLevel()) {
+        if (userUtils.getUserRoleLevel() < RoleEnum.LEVEL_5.getLevel()) {
             return ResultEnum.PERMISSION_DENIED.getResult();
         }
         UpdateResult ur = mongoTemplate.updateFirst(Query.query(Criteria.where(DbFields.ID).is(id)),
@@ -212,7 +213,7 @@ public class AgendaController {
     }
 
     private Result<?> getUserOperateResult(@PathVariable("id") String id, UserOpinion userOpinion) {
-        ObjectId uid = UserUtils.getUserId();
+        ObjectId uid = userUtils.getUserId();
         if (uid == null) {
             return ResultEnum.HAS_NOT_LOGGED_IN.getResult();
         }

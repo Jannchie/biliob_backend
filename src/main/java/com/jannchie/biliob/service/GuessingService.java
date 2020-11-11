@@ -50,6 +50,8 @@ public class GuessingService {
     private BiliobUtils biliobUtils;
     @Autowired
     private CreditService creditService;
+    @Autowired
+    private UserUtils userUtils;
 
     public Date getCorrectGuessingTime(FansGuessingItem.PokerChip pokerChip) {
         Calendar.getInstance().getTime();
@@ -249,7 +251,7 @@ public class GuessingService {
             return new Result<>(ResultEnum.ALREADY_FINISHED);
         }
 
-        User user = UserUtils.getUser();
+        User user = userUtils.getUser();
         User userInfo = new User();
         if (user == null) {
             return ResultEnum.HAS_NOT_LOGGED_IN.getResult();

@@ -41,6 +41,8 @@ public class IndexServiceImpl implements IndexService {
     private IndexService self;
 
     private Set<String> visiting = new HashSet<>();
+    @Autowired
+    private UserUtils userUtils;
 
     @Override
     public JannchieIndex getIndex(String keyword) {
@@ -76,7 +78,7 @@ public class IndexServiceImpl implements IndexService {
         if (jannchieIndex == null) {
             return null;
         }
-        User user = UserUtils.getUser();
+        User user = userUtils.getUser();
         boolean hasRight = (user == null || user.getExp() < 100);
         if (hasRight && jannchieIndex.getData().size() >= 31) {
             jannchieIndex.setData(jannchieIndex.getData().subList(jannchieIndex.getData().size() - 31, jannchieIndex.getData().size() - 1));

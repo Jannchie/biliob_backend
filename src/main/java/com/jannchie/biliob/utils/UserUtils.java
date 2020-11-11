@@ -14,6 +14,7 @@ import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
+import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
 
 /**
@@ -21,23 +22,32 @@ import java.math.BigDecimal;
  */
 @Component
 public class UserUtils {
-    private static MongoTemplate mongoTemplate;
-    private static UserRepository userRepository;
-    private static UserService userService;
-
-
     @Autowired
-    public UserUtils(MongoTemplate mongoTemplate, UserRepository userRepository, UserService userService) {
-        UserUtils.mongoTemplate = mongoTemplate;
-        UserUtils.userRepository = userRepository;
-        UserUtils.userService = userService;
+    private MongoTemplate mongoTemplate;
+    @Autowired
+    private UserRepository userRepository;
+    @Autowired
+    private UserService userService;
+    @Autowired
+    private HttpServletRequest request;
+
+    public User getPasswdAndRole(String name) {
+        Query query = getUserQuery(name);
+        query.fields().include("password").include("role").include("name");
+        return mongoTemplate.findOne(query, User.class);
     }
 
-    public static Integer getUserRoleLevel(User user) {
+    private Query getUserQuery(String name) {
+        return Query.query(
+                new Criteria()
+                        .orOperator(Criteria.where("name").is(name), Criteria.where("mail").is(name)));
+    }
+
+    public Integer getUserRoleLevel(User user) {
         return RoleEnum.getLevelByName(user.getRole());
     }
 
-    public static Integer getUserRoleLevel() {
+    public Integer getUserRoleLevel() {
         User user = getFullInfo();
         if (user == null) {
             return RoleEnum.GUEST.getLevel();
@@ -45,7 +55,7 @@ public class UserUtils {
         return RoleEnum.getLevelByName(user.getRole());
     }
 
-    public static User getUserByUsernameOrMail(String name) {
+    public User getUserByUsernameOrMail(String name) {
         return mongoTemplate.findOne(
                 Query.query(
                         new Criteria()
@@ -54,7 +64,7 @@ public class UserUtils {
                 "user");
     }
 
-    public static User getUser() {
+    public User getUser() {
         String username = getUsername();
         if (username == null) {
             return null;
@@ -62,40 +72,8 @@ public class UserUtils {
         return getUserByUsernameOrMail(username);
     }
 
-    public static ObjectId getUserId() {
-        User user = getUser();
-        if (user == null) {
-            return null;
-        }
-        return user.getId();
-    }
-
-    public static String getUsername() {
-        try {
-            String name = SecurityContextHolder.getContext().getAuthentication().getName();
-            if ("anonymousUser".equals(name)) {
-                return null;
-            } else {
-                return name;
-            }
-        } catch (Exception e) {
-            return null;
-        }
-    }
-
-    public static User getPasswdAndRole(String name) {
-        Query query = getUserQuery(name);
-        query.fields().include("password").include("role").include("name");
-        return mongoTemplate.findOne(query, User.class);
-    }
-
-    private static Query getUserQuery(String name) {
-        return Query.query(
-                new Criteria()
-                        .orOperator(Criteria.where("name").is(name), Criteria.where("mail").is(name)));
-    }
-
-    public static User getFullInfo() {
+    public User getFullInfo() {
+        System.out.println(request.getRemoteUser());
         String username = getUsername();
         Query query = getUserQuery(username);
         User user = mongoTemplate.findOne(query, User.class);
@@ -105,12 +83,12 @@ public class UserUtils {
         return user;
     }
 
-    public static void updateUserCreditAndExp(User user, Double credit) {
+    public void updateUserCreditAndExp(User user, Double credit) {
         mongoTemplate.updateFirst(Query.query(Criteria.where("name").is(user.getName())),
                 Update.update("credit", BigDecimal.valueOf(user.getCredit() - credit).setScale(2, BigDecimal.ROUND_HALF_DOWN)).set("exp", user.getExp() + credit), User.class);
     }
 
-    public static void setUserTitleAndRankAndUpdateRole(User user) {
+    public void setUserTitleAndRankAndUpdateRole(User user) {
         long rank = mongoTemplate.count(Query.query(Criteria.where("exp").gte(user.getExp()).and(DbFields.BAN).ne(true)), "user");
         RoleEnum roleEnum = RoleEnum.LEVEL_1;
         user.setRank(Math.toIntExact(rank));
@@ -145,10 +123,31 @@ public class UserUtils {
         }
     }
 
-    public static User getUserById(ObjectId id) {
+    public User getUserById(ObjectId id) {
         Query q = Query.query(Criteria.where("_id").is(id));
         q.fields().exclude("favoriteAid").exclude("favoriteMid");
         return mongoTemplate.findOne(q, User.class);
+    }
+
+    public ObjectId getUserId() {
+        User user = getUser();
+        if (user == null) {
+            return null;
+        }
+        return user.getId();
+    }
+
+    public String getUsername() {
+        try {
+            String name = SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString();
+            if ("anonymousUser".equals(name)) {
+                return null;
+            } else {
+                return name;
+            }
+        } catch (Exception e) {
+            return null;
+        }
     }
 
 }

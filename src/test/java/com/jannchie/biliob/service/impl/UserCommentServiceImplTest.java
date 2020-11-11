@@ -34,12 +34,14 @@ public class UserCommentServiceImplTest {
     MongoTemplate mongoTemplate;
     @Autowired
     UserCommentServiceImpl userCommentService;
+    @Autowired
+    private UserUtils userUtils;
 
 
     @Test
     @WithMockUser(username = TestConstants.NORMAL_USER_NAME)
     public void postCommentExpNotEnough() {
-        User u = UserUtils.getUser();
+        User u = userUtils.getUser();
         Comment c = new Comment();
         String path = "/a/path/of/comment/unique";
         String content = "这是一段测试文字，我希望没有人发送同样的内容，否则测试可能无法通过。";
@@ -55,7 +57,7 @@ public class UserCommentServiceImplTest {
     @Test
     @WithMockUser(username = TestConstants.PERMITTED_NAME)
     public void postComment() {
-        User u = UserUtils.getUser();
+        User u = userUtils.getUser();
         Comment c = new Comment();
         String path = "/a/path/of/comment/unique";
         String content = "这是一段测试文字，我希望没有人发送同样的内容，否则测试可能无法通过。";
@@ -71,7 +73,7 @@ public class UserCommentServiceImplTest {
         Assert.assertEquals(comment.getLike().longValue(), 0L);
         Assert.assertEquals(content, comment.getContent());
 
-        User user = UserUtils.getUser();
+        User user = userUtils.getUser();
         Assert.assertEquals(user.getCredit(), u.getCredit() + CreditConstant.POST_COMMENT.getValue(), 0);
         Assert.assertEquals(user.getExp(), u.getExp() - CreditConstant.POST_COMMENT.getValue(), 0);
     }
@@ -79,14 +81,14 @@ public class UserCommentServiceImplTest {
     @Test
     @WithMockUser(username = TestConstants.PERMITTED_NAME)
     public void likeComment() {
-        User u = UserUtils.getUser();
+        User u = userUtils.getUser();
         // 找一个没有喜欢过的
         Comment c = mongoTemplate.findOne(Query.query(Criteria.where("likeList").ne(u.getId()).and("userId").ne(u.getId())), Comment.class);
         assert c != null;
         ObjectId uid = c.getUserId();
         User publisherBef = mongoTemplate.findOne(Query.query(Criteria.where(DbFields.ID).is(uid)), User.class);
         userCommentService.likeComment(c.getCommentId());
-        User user = UserUtils.getUser();
+        User user = userUtils.getUser();
         Assert.assertEquals(user.getCredit(), u.getCredit() + CreditConstant.LIKE_COMMENT.getValue(), 0);
         Assert.assertEquals(user.getExp(), u.getExp() - CreditConstant.LIKE_COMMENT.getValue(), 0);
         User publisherAft = mongoTemplate.findOne(Query.query(Criteria.where(DbFields.ID).is(uid)), User.class);

@@ -36,12 +36,13 @@ import java.util.stream.Collectors;
  */
 @Service
 public class AuthorGroupServiceImpl implements AuthorGroupService {
-
     final Logger logger = LogManager.getLogger();
     final MongoTemplate mongoTemplate;
     final AuthorService authorService;
     final AuthorUtil authorUtil;
     final private CreditService creditService;
+    @Autowired
+    private UserUtils userUtils;
 
     @Autowired
     public AuthorGroupServiceImpl(MongoTemplate mongoTemplate, AuthorService authorService, AuthorUtil authorUtil, CreditService creditService) {
@@ -54,16 +55,16 @@ public class AuthorGroupServiceImpl implements AuthorGroupService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Result<?> initAuthorList(String name, String desc, List<String> tag) {
-        AuthorGroup authorGroup = new AuthorGroup(name, desc, tag, UserUtils.getUserId());
-        User user = UserUtils.getUser();
+        AuthorGroup authorGroup = new AuthorGroup(name, desc, tag, userUtils.getUserId());
+        User user = userUtils.getUser();
         if (user == null) {
             return ResultEnum.HAS_NOT_LOGGED_IN.getResult();
         }
-        UserUtils.setUserTitleAndRankAndUpdateRole(user);
+        userUtils.setUserTitleAndRankAndUpdateRole(user);
         if ("观测者".equals(user.getTitle()) || "观想者".equals(user.getTitle()) || "管理者".equals(user.getTitle()) || "追寻者".equals(user.getTitle())) {
             Result<?> r = creditService.doCreditOperation(CreditConstant.INIT_AUTHOR_LIST, CreditConstant.INIT_AUTHOR_LIST.getMsg(name));
             AuthorGroup a = mongoTemplate.save(authorGroup);
-            return ResultEnum.SUCCEED.getResult(a, UserUtils.getUser());
+            return ResultEnum.SUCCEED.getResult(a, userUtils.getUser());
         } else {
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
             return new Result<>(ResultEnum.PERMISSION_DENIED);
@@ -72,7 +73,7 @@ public class AuthorGroupServiceImpl implements AuthorGroupService {
 
     @Override
     public Result<?> editAuthorList(String gid, String name, String desc, List<String> tagList) {
-        ObjectId userId = UserUtils.getUserId();
+        ObjectId userId = userUtils.getUserId();
         AuthorGroup ag = getAuthorList(gid);
         if (ag == null) {
             return new Result<>(ResultEnum.NOT_FOUND);
@@ -110,7 +111,7 @@ public class AuthorGroupServiceImpl implements AuthorGroupService {
 
     @Override
     public Result<DeleteResult> deleteAuthorList(String objectId) {
-        ObjectId userId = UserUtils.getUserId();
+        ObjectId userId = userUtils.getUserId();
         if (userId == null) {
             return new Result<>(ResultEnum.HAS_NOT_LOGGED_IN);
         }
@@ -129,7 +130,7 @@ public class AuthorGroupServiceImpl implements AuthorGroupService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Result<?> starAuthorList(String objectId) {
-        User user = UserUtils.getUser();
+        User user = userUtils.getUser();
         AuthorGroup authorGroup = this.getAuthorList(objectId);
         if (user == null) {
             return new Result<>(ResultEnum.USER_NOT_EXIST);
@@ -155,7 +156,7 @@ public class AuthorGroupServiceImpl implements AuthorGroupService {
         long stars = mongoTemplate.count(Query.query(Criteria.where(groupIdField).is(new ObjectId(objectId)).and("starring").is(true)), UserStarAuthorGroup.class);
         mongoTemplate.updateFirst(Query.query(Criteria.where("_id").is(new ObjectId(objectId))), Update.update("stars", stars + 1), AuthorGroup.class);
         UserStarAuthorGroup d = mongoTemplate.save(new UserStarAuthorGroup(user.getId(), new ObjectId(objectId)));
-        User u = UserUtils.getUserById(authorGroup.getMaintainer().getId());
+        User u = userUtils.getUserById(authorGroup.getMaintainer().getId());
         Result<?> res = creditService.doCreditOperation(u, CreditConstant.BE_STARED_AUTHOR_LIST, CreditConstant.BE_STARED_AUTHOR_LIST.getMsg(objectId));
         return r;
     }
@@ -167,9 +168,9 @@ public class AuthorGroupServiceImpl implements AuthorGroupService {
         if (authorGroup == null) {
             return new Result<>(ResultEnum.LIST_NOT_FOUND);
         }
-        User u = UserUtils.getUser();
+        User u = userUtils.getUser();
         Result<?> res1 = creditService.doCreditOperation(CreditConstant.FORK_AUTHOR_LIST, CreditConstant.FORK_AUTHOR_LIST.getMsg(objectId));
-        Result<?> res2 = creditService.doCreditOperation(UserUtils.getUserById(authorGroup.getMaintainer().getId()), CreditConstant.BE_FORKED_AUTHOR_LIST, CreditConstant.BE_FORKED_AUTHOR_LIST.getMsg(objectId));
+        Result<?> res2 = creditService.doCreditOperation(userUtils.getUserById(authorGroup.getMaintainer().getId()), CreditConstant.BE_FORKED_AUTHOR_LIST, CreditConstant.BE_FORKED_AUTHOR_LIST.getMsg(objectId));
         authorGroup.setMaintainer(u);
         authorGroup.setId(null);
         authorGroup.setForkTime(Calendar.getInstance().getTime());
@@ -204,7 +205,7 @@ public class AuthorGroupServiceImpl implements AuthorGroupService {
                                 .andExpression("{ nickName: 1, _id: 1 }").as("maintainer")
                 ), AuthorGroup.class, AuthorGroup.class
         ).getMappedResults();
-        ObjectId userId = UserUtils.getUserId();
+        ObjectId userId = userUtils.getUserId();
         a.forEach(authorGroup -> {
             authorGroup.setStars(authorGroup.getStarList().size());
             authorGroup.setAuthors(authorGroup.getAuthorList().size());
@@ -240,7 +241,7 @@ public class AuthorGroupServiceImpl implements AuthorGroupService {
     }
 
     public AuthorGroup getAuthorList(ObjectId objectId) {
-        ObjectId userId = UserUtils.getUserId();
+        ObjectId userId = userUtils.getUserId();
         mongoTemplate.save(new ObjectVisitRecord("AuthorGroup", userId, objectId, Calendar.getInstance().getTime()));
         return getAuthorList(Aggregation.match(Criteria.where("_id").is(objectId)));
     }
@@ -265,7 +266,7 @@ public class AuthorGroupServiceImpl implements AuthorGroupService {
         ).getUniqueMappedResult();
         if (a != null) {
             a.setStars(a.getStarList().size());
-            setIsStared(UserUtils.getUserId(), a);
+            setIsStared(userUtils.getUserId(), a);
             a.setStarList(null);
             a.setAuthors(a.getAuthorList().size());
             authorUtil.getInterval(a.getAuthorList());
@@ -284,7 +285,7 @@ public class AuthorGroupServiceImpl implements AuthorGroupService {
 
     @Override
     public Result<?> unstarAuthorList(String objectId) {
-        ObjectId userId = UserUtils.getUserId();
+        ObjectId userId = userUtils.getUserId();
         if (userId == null) {
             return new Result<>(ResultEnum.HAS_NOT_LOGGED_IN);
         }
@@ -296,7 +297,7 @@ public class AuthorGroupServiceImpl implements AuthorGroupService {
 
     @Override
     public List<AuthorGroup> listUserAuthorList(Integer page, Integer pageSize, int type) {
-        ObjectId userId = UserUtils.getUserId();
+        ObjectId userId = userUtils.getUserId();
         if (userId == null) {
             return null;
         }
@@ -312,7 +313,7 @@ public class AuthorGroupServiceImpl implements AuthorGroupService {
     @Override
     public Result<?> deleteAuthorFromGroup(String gid, Long mid) {
         ObjectId groupId = new ObjectId(gid);
-        ObjectId userId = UserUtils.getUserId();
+        ObjectId userId = userUtils.getUserId();
         if (userId == null) {
             return new Result<>(ResultEnum.HAS_NOT_LOGGED_IN);
         }
@@ -337,7 +338,7 @@ public class AuthorGroupServiceImpl implements AuthorGroupService {
     @Override
     public Result<?> addAuthorToGroup(String gid, Long mid) {
         ObjectId groupId = new ObjectId(gid);
-        ObjectId userId = UserUtils.getUserId();
+        ObjectId userId = userUtils.getUserId();
         if (!hasPermission(userId, groupId)) {
             return new Result<>(ResultEnum.PERMISSION_DENIED);
         }

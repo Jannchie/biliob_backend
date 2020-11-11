@@ -38,6 +38,8 @@ public class UserCommentServiceImpl implements UserCommentService {
     private static final Logger logger = LogManager.getLogger(UserCommentServiceImpl.class);
     private static MongoTemplate mongoTemplate;
     private final CreditService creditService;
+    @Autowired
+    private UserUtils userUtils;
 
     @Autowired
     public UserCommentServiceImpl(MongoTemplate mongoTemplate, CreditService creditService) {
@@ -83,7 +85,7 @@ public class UserCommentServiceImpl implements UserCommentService {
                 }
         );
 
-        User user = UserUtils.getUser();
+        User user = userUtils.getUser();
 
         if (user == null) {
             return result;
@@ -104,14 +106,14 @@ public class UserCommentServiceImpl implements UserCommentService {
         if (userHashMap.containsKey(comment.getUser().getName())) {
             comment.setUser(userHashMap.get(comment.getUser().getName()));
         } else {
-            UserUtils.setUserTitleAndRankAndUpdateRole(comment.getUser());
+            userUtils.setUserTitleAndRankAndUpdateRole(comment.getUser());
             userHashMap.put(comment.getUser().getName(), comment.getUser());
         }
     }
 
     @Override
     public Result<Comment> postComment(Comment comment) {
-        User user = UserUtils.getUser();
+        User user = userUtils.getUser();
         Integer need = 100;
         if (user.getExp() < need) {
             return new Result<>(ResultEnum.EXP_NOT_ENOUGH);
@@ -141,7 +143,7 @@ public class UserCommentServiceImpl implements UserCommentService {
     @Transactional(rollbackFor = Exception.class)
     public Result<?> likeComment(String commentId) {
 
-        User user = UserUtils.getUser();
+        User user = userUtils.getUser();
         if (mongoTemplate.exists(Query.query(Criteria.where("likeList").is(user.getId()).and("_id").is(commentId)), Comment.class)) {
             return new Result<>(ResultEnum.ALREADY_LIKE);
         }
@@ -165,7 +167,7 @@ public class UserCommentServiceImpl implements UserCommentService {
 
     @Override
     public ResponseEntity<Result<?>> deleteComment(String commentId) {
-        User user = UserUtils.getFullInfo();
+        User user = userUtils.getFullInfo();
         if (user == null) {
             return ResponseEntity.badRequest().body(new Result<>(ResultEnum.HAS_NOT_LOGGED_IN));
         }

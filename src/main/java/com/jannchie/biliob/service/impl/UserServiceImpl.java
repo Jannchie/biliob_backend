@@ -1,5 +1,7 @@
 package com.jannchie.biliob.service.impl;
 
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.algorithms.Algorithm;
 import com.jannchie.biliob.constant.CreditConstant;
 import com.jannchie.biliob.constant.DbFields;
 import com.jannchie.biliob.constant.ResultEnum;
@@ -32,6 +34,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.util.*;
 
@@ -45,7 +49,6 @@ import static org.springframework.data.mongodb.core.query.Criteria.where;
 @Service
 class UserServiceImpl implements UserService {
     private static final Logger logger = LogManager.getLogger(UserServiceImpl.class);
-
     private final UserRepository userRepository;
     private final VideoRepository videoRepository;
     private final AuthorRepository authorRepository;
@@ -53,11 +56,16 @@ class UserServiceImpl implements UserService {
     private final QuestionRepository questionRepository;
     private final MongoTemplate mongoTemplate;
     private final CreditService creditService;
-    private final AuthorService authorService;
     private final MailUtil mailUtil;
     private final RecommendVideo recommendVideo;
+    @Autowired
+    private UserUtils userUtils;
     private BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
     private AuthorUtil authorUtil;
+    @Autowired
+    private HttpServletRequest httpServletRequest;
+    @Autowired
+    private HttpServletResponse httpServletResponse;
 
     @Autowired
     public UserServiceImpl(
@@ -78,7 +86,6 @@ class UserServiceImpl implements UserService {
         this.userRecordRepository = userRecordRepository;
         this.mongoTemplate = mongoTemplate;
         this.creditService = creditService;
-        this.authorService = authorService;
         this.mailUtil = mailUtil;
         this.recommendVideo = recommendVideo;
         this.authorUtil = authorUtil;
@@ -131,22 +138,26 @@ class UserServiceImpl implements UserService {
     }
 
     @Override
-    public ResponseEntity<?> getUserInfo() {
-        User user = UserUtils.getUser();
+    public Result<?> getUserInfo() {
+        User user = userUtils.getUser();
         if (user == null) {
-            return new ResponseEntity<>(
-                    new Result<>(ResultEnum.HAS_NOT_LOGGED_IN), HttpStatus.UNAUTHORIZED);
+            httpServletResponse.setStatus(400);
+            return ResultEnum.HAS_NOT_LOGGED_IN.getResult();
         }
-
-        UserUtils.setUserTitleAndRankAndUpdateRole(user);
+        String token = JWT.create()
+                .withClaim("name", user.getName())
+                .withClaim("role", user.getRole())
+                .sign(Algorithm.HMAC256("jannchie"));
+        userUtils.setUserTitleAndRankAndUpdateRole(user);
+        httpServletResponse.setHeader("token", token);
         user.setIp(null);
-        return new ResponseEntity<>(user, HttpStatus.OK);
+        return ResultEnum.SUCCEED.getResult(user);
     }
 
 
     @Override
     public ResponseEntity<?> addFavoriteAuthor(@Valid Long mid) {
-        User user = UserUtils.getFullInfo();
+        User user = userUtils.getFullInfo();
         if (user == null) {
             return new ResponseEntity<>(
                     new Result<>(ResultEnum.HAS_NOT_LOGGED_IN), HttpStatus.UNAUTHORIZED);
@@ -168,7 +179,7 @@ class UserServiceImpl implements UserService {
 
     @Override
     public ResponseEntity<?> addFavoriteVideo(@Valid Long aid) {
-        User user = UserUtils.getFullInfo();
+        User user = userUtils.getFullInfo();
         if (user == null) {
             return new ResponseEntity<>(
                     new Result<>(ResultEnum.HAS_NOT_LOGGED_IN), HttpStatus.UNAUTHORIZED);
@@ -200,7 +211,7 @@ class UserServiceImpl implements UserService {
         if (pageSize > BIG_SIZE.getValue()) {
             pageSize = BIG_SIZE.getValue();
         }
-        User user = UserUtils.getUser();
+        User user = userUtils.getUser();
         if (user == null) {
             return null;
         }
@@ -229,7 +240,7 @@ class UserServiceImpl implements UserService {
         if (pageSize > BIG_SIZE.getValue()) {
             pageSize = BIG_SIZE.getValue();
         }
-        User user = UserUtils.getUser();
+        User user = userUtils.getUser();
         if (user == null) {
             return null;
         }
@@ -256,7 +267,7 @@ class UserServiceImpl implements UserService {
      */
     @Override
     public ResponseEntity<?> deleteFavoriteAuthorByMid(Long mid) {
-        User user = UserUtils.getFullInfo();
+        User user = userUtils.getFullInfo();
         if (user == null) {
             return new ResponseEntity<>(
                     new Result<>(ResultEnum.HAS_NOT_LOGGED_IN), HttpStatus.UNAUTHORIZED);
@@ -282,7 +293,7 @@ class UserServiceImpl implements UserService {
      */
     @Override
     public ResponseEntity<?> deleteFavoriteVideoByAid(Long aid) {
-        User user = UserUtils.getFullInfo();
+        User user = userUtils.getFullInfo();
         if (user == null) {
             return new ResponseEntity<>(
                     new Result<>(ResultEnum.HAS_NOT_LOGGED_IN), HttpStatus.UNAUTHORIZED);
@@ -309,7 +320,7 @@ class UserServiceImpl implements UserService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Result<?> postCheckIn() {
-        String name = UserUtils.getUsername();
+        String name = userUtils.getUsername();
         if (name == null) {
             return ResultEnum.HAS_NOT_LOGGED_IN.getResult();
         }
@@ -328,7 +339,7 @@ class UserServiceImpl implements UserService {
      */
     @Override
     public ResponseEntity<?> getCheckIn() {
-        User user = UserUtils.getUser();
+        User user = userUtils.getUser();
         if (user == null) {
             return new ResponseEntity<>(
                     new Result<>(ResultEnum.HAS_NOT_LOGGED_IN), HttpStatus.OK);
@@ -380,7 +391,7 @@ class UserServiceImpl implements UserService {
     @Transactional(rollbackFor = Exception.class)
     public Result<?> postQuestion(String question) {
         String msg = CreditConstant.SET_AUTHOR_FORCE_OBSERVE.getMsg();
-        questionRepository.save(new Question(question, UserUtils.getUsername()));
+        questionRepository.save(new Question(question, userUtils.getUsername()));
         return creditService.doCreditOperation(CreditConstant.SET_AUTHOR_FORCE_OBSERVE, msg);
     }
 
@@ -475,7 +486,7 @@ class UserServiceImpl implements UserService {
     @Override
     public MySlice<UserRecord> sliceUserRecord(Integer page, Integer pagesize) {
         pagesize = DataReducer.limitPagesize(pagesize);
-        User user = UserUtils.getUser();
+        User user = userUtils.getUser();
         if (user != null) {
             String userName = user.getName();
             Slice<UserRecord> slice =
@@ -494,7 +505,7 @@ class UserServiceImpl implements UserService {
      */
     @Override
     public ArrayList<UserRecord> getUserAllRecord() {
-        User user = UserUtils.getUser();
+        User user = userUtils.getUser();
         if (user != null) {
             String userName = user.getName();
             return userRecordRepository.findAllByUserNameOrderByDatetimeDesc(userName);
@@ -541,7 +552,7 @@ class UserServiceImpl implements UserService {
 
     @Override
     public Map<String, Integer> getUserPreferKeyword() {
-        User user = UserUtils.getUser();
+        User user = userUtils.getUser();
         if (user == null) {
             return null;
         }
@@ -568,7 +579,7 @@ class UserServiceImpl implements UserService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Result<?> bindMail(String mail, String activationCode) {
-        User user = UserUtils.getUser();
+        User user = userUtils.getUser();
         if (user == null) {
             return new Result<>(ResultEnum.HAS_NOT_LOGGED_IN);
         }
@@ -594,7 +605,7 @@ class UserServiceImpl implements UserService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Result<?> modifyUserName(@Valid String newUserName) {
-        User user = UserUtils.getUser();
+        User user = userUtils.getUser();
         if (user == null) {
             return new Result<>(ResultEnum.HAS_NOT_LOGGED_IN);
         }
@@ -617,7 +628,7 @@ class UserServiceImpl implements UserService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Result<?> changeMail(String newMail) {
-        User user = UserUtils.getUser();
+        User user = userUtils.getUser();
         if (user == null) {
             return new Result<>(ResultEnum.HAS_NOT_LOGGED_IN);
         }
@@ -650,7 +661,7 @@ class UserServiceImpl implements UserService {
 
     @Override
     public List<UserRecord> getUserRecentRecord() {
-        User user = UserUtils.getUser();
+        User user = userUtils.getUser();
         if (user != null) {
             String userName = user.getName();
             return mongoTemplate.find(Query.query(Criteria.where("userName").is(userName)).with(Sort.by("_id").descending()).limit(100), UserRecord.class);

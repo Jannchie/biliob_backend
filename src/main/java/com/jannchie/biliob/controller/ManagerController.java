@@ -30,6 +30,8 @@ public class ManagerController {
     MongoTemplate mongoTemplate;
     @Autowired
     CreditService creditService;
+    @Autowired
+    private UserUtils userUtils;
 
     @RequestMapping(method = RequestMethod.GET, value = "/data/queue")
     public HashMap<String, Long> getQueueCount() {
@@ -57,7 +59,7 @@ public class ManagerController {
 
     @RequestMapping(method = RequestMethod.POST, value = "/user/grand/{name}/{role}")
     public Result<?> grandRole(@PathVariable("name") String name, @PathVariable("role") String role) {
-        User user = UserUtils.getFullInfo();
+        User user = userUtils.getFullInfo();
         Integer level = RoleEnum.getLevelByName(user.getRole());
         if (level < 8) {
             return new Result<>(ResultEnum.PERMISSION_DENIED);

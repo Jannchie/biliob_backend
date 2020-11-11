@@ -1,5 +1,7 @@
 package com.jannchie.biliob.controller;
 
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.algorithms.Algorithm;
 import com.jannchie.biliob.constant.ResultEnum;
 import com.jannchie.biliob.exception.UserAlreadyFavoriteAuthorException;
 import com.jannchie.biliob.exception.UserAlreadyFavoriteVideoException;
@@ -30,8 +32,11 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Map;
 
 /**
@@ -44,6 +49,8 @@ public class UserController {
     @Autowired
     BiliobUtils biliobUtils;
     private UserAuthenticationProvider userAuthenticationProvider;
+    @Autowired
+    private UserUtils userUtils;
 
     @Autowired
     public UserController(UserService userService, UserAuthenticationProvider userAuthenticationProvider) {
@@ -90,8 +97,9 @@ public class UserController {
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/api/user")
-    public ResponseEntity<?> getUserInfo(@RequestParam(defaultValue = "old") String ver) {
+    public Result<?> getUserInfo(@RequestParam(defaultValue = "old") String ver, HttpServletRequest request) {
         logger.info("获取观测者自身信息");
+
         userService.setVersion(ver);
         return userService.getUserInfo();
     }
@@ -131,14 +139,21 @@ public class UserController {
     }
 
     @RequestMapping(method = RequestMethod.POST, value = "/api/login")
-    public ResponseEntity<Result<User>> login(@Valid @RequestBody LoginForm data) {
+    public Result<?> login(@RequestBody LoginForm data, HttpServletResponse response) {
         try {
+            Calendar c = Calendar.getInstance();
+            c.add(Calendar.DATE, 7);
             User user = getSignedUser(data);
+            String token = JWT.create()
+                    .withClaim("name", user.getName())
+                    .withClaim("role", user.getRole())
+                    .sign(Algorithm.HMAC256("jannchie"));
             logger.info("观测者[{}]登录成功", user.getName());
-            return ResponseEntity.ok(new Result<>(ResultEnum.LOGIN_SUCCEED, user));
+            return new Result<>(ResultEnum.LOGIN_SUCCEED, token, user);
         } catch (AuthenticationException e) {
             logger.info("观测者登录失败");
-            return ResponseEntity.badRequest().body(new Result<>(ResultEnum.LOGIN_FAILED));
+            response.setStatus(400);
+            return new Result<>(ResultEnum.LOGIN_FAILED);
         }
     }
 
@@ -147,7 +162,7 @@ public class UserController {
                 data.getPassword());
         Authentication result = userAuthenticationProvider.authenticate(request);
         SecurityContextHolder.getContext().setAuthentication(result);
-        return UserUtils.getUser();
+        return userUtils.getUser();
     }
 
     @RequestMapping(method = RequestMethod.DELETE, value = "/api/user/video/{aid}")

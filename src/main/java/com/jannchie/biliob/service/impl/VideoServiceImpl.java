@@ -56,6 +56,8 @@ public class VideoServiceImpl implements VideoService {
     private final RecommendVideo recommendVideo;
     private final AdminService adminService;
     private BiliobUtils biliOBUtils;
+    @Autowired
+    private UserUtils userUtils;
 
     @Autowired
     public VideoServiceImpl(
@@ -286,7 +288,7 @@ public class VideoServiceImpl implements VideoService {
     }
 
     private void filterVideoData(Video video) {
-        User user = UserUtils.getUser();
+        User user = userUtils.getUser();
         if (user == null || user.getExp() < 100) {
             List<Video.Data> tempData = video.getData();
             tempData.removeIf(data -> {

@@ -24,6 +24,8 @@ import java.util.Map;
 public class VideoController {
 
     private final VideoService videoService;
+    @Autowired
+    private UserUtils userUtils;
 
     @Autowired
     public VideoController(VideoService videoService) {
@@ -59,7 +61,7 @@ public class VideoController {
     @RequestMapping(method = RequestMethod.POST, value = "/api/video")
     public ResponseEntity<?> postVideoByAid(@RequestBody @Valid Long aid)
             throws VideoAlreadyFocusedException, UserAlreadyFavoriteVideoException {
-        if (UserUtils.getUser() == null) {
+        if (userUtils.getUser() == null) {
             return new ResponseEntity<>(ResultEnum.HAS_NOT_LOGGED_IN.getResult(), HttpStatus.OK);
         }
         return videoService.postVideoByAid(aid);

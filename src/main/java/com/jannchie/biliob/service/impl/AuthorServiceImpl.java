@@ -65,6 +65,8 @@ public class AuthorServiceImpl implements AuthorService {
     private BiliobUtils biliOBUtils;
     private AdminService adminService;
 
+    @Autowired
+    private UserUtils userUtils;
 
     private AuthorAchievementService authorAchievementService;
 
@@ -223,6 +225,11 @@ public class AuthorServiceImpl implements AuthorService {
         return mongoTemplate.find(Query.query(Criteria.where("mid").is(mid)).limit(100), Author.Data.class);
     }
 
+    @Override
+    public List<Author> listAuthors() {
+        return null;
+    }
+
 
     @Override
     public Author getAuthorDetails(Long mid) {
@@ -259,7 +266,7 @@ public class AuthorServiceImpl implements AuthorService {
     }
 
     private void filterAuthorData(Author author) {
-        User user = UserUtils.getUser();
+        User user = userUtils.getUser();
         if (user == null || user.getExp() < 100) {
             ArrayList<Author.Data> tempData = author.getData();
             tempData.removeIf(data -> {

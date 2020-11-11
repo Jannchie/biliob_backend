@@ -32,6 +32,8 @@ public class GuessingServiceTest {
 
     @Autowired
     MongoTemplate mongoTemplate;
+    @Autowired
+    private UserUtils userUtils;
 
     @Test
     @Transactional
@@ -60,7 +62,7 @@ public class GuessingServiceTest {
         gp.setGuessingDate(c.getTime());
         Result<?> result = guessingService.joinFansGuessing(f.getGuessingId(), gp);
         Assert.assertEquals(result.getMsg(), ResultEnum.SUCCEED.getMsg());
-        User u = UserUtils.getUser();
+        User u = userUtils.getUser();
         Assert.assertEquals(u.getCredit(), result.getUser().getCredit());
     }
 

@@ -40,7 +40,8 @@ public class IpHandlerInterceptor implements HandlerInterceptor {
     private static final Pattern NUMBER_PATTERN = Pattern.compile("[0-9]+");
     private static final Double CHECK_RATE = 0.05D;
     private final MongoTemplate mongoTemplate;
-
+    @Autowired
+    private UserUtils userUtils;
 
     /**
      * controller 执行之前调用
@@ -55,13 +56,15 @@ public class IpHandlerInterceptor implements HandlerInterceptor {
         return matcher.replaceAll("{id}");
     }
 
+
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
         String ip = IpUtil.getIpAddress(request);
         String userAgent = request.getHeader("user-agent");
         String uri = replaceDigital(request.getRequestURI());
         MDC.put("ip", ip);
-        String userName = UserUtils.getUsername();
+
+        String userName = userUtils.getUsername();
         if (userName == null) {
             userName = "*GUEST*";
         }
