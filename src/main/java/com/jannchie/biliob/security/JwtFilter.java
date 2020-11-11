@@ -35,7 +35,7 @@ public class JwtFilter extends BasicAuthenticationFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
         String token = request.getHeader("token");
         if (token != null) {
-            DecodedJWT jwt = JWT.decode(token.substring(7));
+            DecodedJWT jwt = JWT.decode(token);
             String name = jwt.getClaim("name").asString();
             String role = jwt.getClaim("role").asString();
             String password = jwt.getClaim("password").asString();
