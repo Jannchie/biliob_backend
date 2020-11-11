@@ -122,7 +122,7 @@ class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Result<?> getUserInfo() {
+    public User getUserInfo() {
         User user = userUtils.getUser();
         if (user == null) {
             httpServletResponse.setStatus(400);
@@ -135,7 +135,7 @@ class UserServiceImpl implements UserService {
         userUtils.setUserTitleAndRankAndUpdateRole(user);
         httpServletResponse.setHeader("token", token);
         user.setIp(null);
-        return ResultEnum.SUCCEED.getResult(user);
+        return user;
     }
 
 
