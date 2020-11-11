@@ -22,6 +22,7 @@ public class User {
     private ObjectId id;
     private String ip;
     private String uid;
+    private String token;
     @NotBlank(message = "用户ID不能为空")
     @Length(min = 2, max = 50, message = "账号最长为50位，最短为两位")
     private String name;
@@ -43,7 +44,6 @@ public class User {
     @NotBlank(message = "邮箱不能为空")
     private String mail;
     private Boolean ban;
-
     public User(String name, String password, String role) {
         this.name = name;
         this.password = password;
@@ -52,12 +52,19 @@ public class User {
         this.exp = 0D;
         this.title = "";
     }
-
     public User(ObjectId id) {
         this.id = id;
     }
 
     public User() {
+    }
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
     }
 
     public Boolean getBan() {

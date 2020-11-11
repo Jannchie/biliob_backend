@@ -144,6 +144,7 @@ public class UserController {
             String token = JWT.create()
                     .withClaim("name", user.getName())
                     .withClaim("role", user.getRole())
+                    .withExpiresAt(c.getTime())
                     .sign(Algorithm.HMAC256("jannchie"));
             logger.info("观测者[{}]登录成功", user.getName());
             return new Result<>(ResultEnum.LOGIN_SUCCEED, token, user);
@@ -304,5 +305,4 @@ public class UserController {
         logger.info("修改密码");
         return userService.changePassword(changePasswordForm);
     }
-
 }

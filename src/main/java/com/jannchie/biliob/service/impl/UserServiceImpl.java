@@ -128,13 +128,17 @@ class UserServiceImpl implements UserService {
             httpServletResponse.setStatus(400);
             return null;
         }
+        Calendar c = Calendar.getInstance();
+        c.add(Calendar.DATE, 7);
         String token = JWT.create()
                 .withClaim("name", user.getName())
                 .withClaim("role", user.getRole())
+                .withExpiresAt(c.getTime())
                 .sign(Algorithm.HMAC256("jannchie"));
         userUtils.setUserTitleAndRankAndUpdateRole(user);
         httpServletResponse.setHeader("token", token);
         user.setIp(null);
+        user.setToken(token);
         return user;
     }
 
