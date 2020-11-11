@@ -57,7 +57,7 @@ public interface UserService {
      *
      * @return 用户信息
      */
-    Result<?> getUserInfo();
+    User getUserInfo();
 
     /**
      * 添加作者关注
