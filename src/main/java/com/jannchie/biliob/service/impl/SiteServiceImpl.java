@@ -5,7 +5,6 @@ import com.jannchie.biliob.model.Site;
 import com.jannchie.biliob.model.Sponsor;
 import com.jannchie.biliob.service.SiteService;
 import com.jannchie.biliob.utils.Result;
-import com.mongodb.client.MongoClient;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,15 +31,9 @@ public class SiteServiceImpl implements SiteService {
     private static final Integer HOUR_IN_DAY = 24;
 
     private static final Logger logger = LogManager.getLogger(VideoServiceImpl.class);
-    private final MongoTemplate mongoTemplate;
-    private final MongoClient mongoClient;
-
     @Autowired
-    public SiteServiceImpl(MongoTemplate mongoTemplate, MongoClient mongoClient) {
-        this.mongoClient = mongoClient;
+    private MongoTemplate mongoTemplate;
 
-        this.mongoTemplate = mongoTemplate;
-    }
 
     /**
      * Get the data of the number of people watching video on bilibili.

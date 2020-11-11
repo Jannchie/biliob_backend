@@ -12,12 +12,8 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 public class BankController {
-    BankService bankService;
-
     @Autowired
-    public BankController(BankService bankService) {
-        this.bankService = bankService;
-    }
+    BankService bankService;
 
 
     @RequestMapping(method = RequestMethod.GET, value = "/api/user/bank")

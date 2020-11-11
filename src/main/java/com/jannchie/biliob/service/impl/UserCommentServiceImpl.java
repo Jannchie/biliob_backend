@@ -36,16 +36,12 @@ import java.util.List;
 @Service
 public class UserCommentServiceImpl implements UserCommentService {
     private static final Logger logger = LogManager.getLogger(UserCommentServiceImpl.class);
-    private static MongoTemplate mongoTemplate;
-    private final CreditService creditService;
+    @Autowired
+    private MongoTemplate mongoTemplate;
+    @Autowired
+    private CreditService creditService;
     @Autowired
     private UserUtils userUtils;
-
-    @Autowired
-    public UserCommentServiceImpl(MongoTemplate mongoTemplate, CreditService creditService) {
-        UserCommentServiceImpl.mongoTemplate = mongoTemplate;
-        this.creditService = creditService;
-    }
 
 
     @Override

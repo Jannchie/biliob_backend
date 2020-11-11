@@ -30,11 +30,11 @@ import java.util.List;
 public class VideoServiceV3 {
     private static Logger logger = LogManager.getLogger();
     @Autowired
-    MongoTemplate mongoTemplate;
+    private MongoTemplate mongoTemplate;
     @Autowired
-    MongoClient mongoClient;
+    private MongoClient mongoClient;
     @Autowired
-    BiliobUtils biliobUtils;
+    private BiliobUtils biliobUtils;
     @Autowired
     private UserUtils userUtils;
 

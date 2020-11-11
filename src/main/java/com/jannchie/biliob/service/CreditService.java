@@ -26,14 +26,10 @@ import java.math.BigDecimal;
 @Service
 public class CreditService {
     private static final Logger logger = LogManager.getLogger(CreditService.class);
+    @Autowired
     private MongoTemplate mongoTemplate;
     @Autowired
     private UserUtils userUtils;
-
-    @Autowired
-    public CreditService(MongoTemplate mongoTemplate) {
-        this.mongoTemplate = mongoTemplate;
-    }
 
     @Transactional(rollbackFor = Exception.class)
     public <T> Result<T> doCreditOperationWithoutExp(CreditConstant creditConstant, String message, Double credit) {

@@ -72,7 +72,7 @@ public class AuthorServiceImpl implements AuthorService {
     private AdminService adminService;
     @Autowired
     private UserUtils userUtils;
-
+    @Autowired
     private AuthorAchievementService authorAchievementService;
 
     private MatchOperation getAggregateMatch(int days, Long mid) {

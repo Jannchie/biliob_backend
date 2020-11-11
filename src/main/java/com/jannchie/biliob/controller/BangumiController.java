@@ -15,13 +15,8 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 public class BangumiController {
-
-    private final BangumiService bangumiService;
-
     @Autowired
-    public BangumiController(BangumiService bangumiService) {
-        this.bangumiService = bangumiService;
-    }
+    private BangumiService bangumiService;
 
     @RequestMapping(method = RequestMethod.GET, value = "/api/bangumi")
     public ResponseEntity<?> listOnline(

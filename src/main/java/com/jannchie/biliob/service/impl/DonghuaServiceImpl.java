@@ -4,6 +4,7 @@ import com.jannchie.biliob.repository.DonghuaRepository;
 import com.jannchie.biliob.service.DonghuaService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
@@ -19,11 +20,9 @@ public class DonghuaServiceImpl implements DonghuaService {
     private static final Integer MAX_PAGE_SIZE = 20;
 
     private static final Logger logger = LogManager.getLogger(VideoServiceImpl.class);
-    private final DonghuaRepository donghuaRepository;
+    @Autowired
+    private DonghuaRepository donghuaRepository;
 
-    public DonghuaServiceImpl(DonghuaRepository donghuaRepository) {
-        this.donghuaRepository = donghuaRepository;
-    }
 
     /**
      * Get the data of bangumi list, including bangumi name, pts and tags.

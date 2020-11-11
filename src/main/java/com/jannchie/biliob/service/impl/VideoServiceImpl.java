@@ -9,9 +9,7 @@ import com.jannchie.biliob.model.Video;
 import com.jannchie.biliob.model.VideoInfo;
 import com.jannchie.biliob.model.VideoOnline;
 import com.jannchie.biliob.object.VideoRankTable;
-import com.jannchie.biliob.repository.UserRepository;
 import com.jannchie.biliob.repository.VideoRepository;
-import com.jannchie.biliob.service.AdminService;
 import com.jannchie.biliob.service.UserService;
 import com.jannchie.biliob.service.VideoService;
 import com.jannchie.biliob.utils.*;
@@ -49,32 +47,20 @@ import static org.springframework.data.mongodb.core.query.Criteria.where;
 public class VideoServiceImpl implements VideoService {
     private static final Logger logger = LogManager.getLogger(VideoServiceImpl.class);
     private static final Integer MAX_PAGE_SIZE = 10;
-    private final RedisOps redisOps;
-    private final VideoRepository repository;
-    private final UserService userService;
-    private final MongoTemplate mongoTemplate;
-    private final RecommendVideo recommendVideo;
-    private final AdminService adminService;
+    @Autowired
+    private RedisOps redisOps;
+    @Autowired
+    private VideoRepository repository;
+    @Autowired
+    private UserService userService;
+    @Autowired
+    private MongoTemplate mongoTemplate;
+    @Autowired
+    private RecommendVideo recommendVideo;
+    @Autowired
     private BiliobUtils biliOBUtils;
     @Autowired
     private UserUtils userUtils;
-
-    @Autowired
-    public VideoServiceImpl(
-            VideoRepository repository,
-            UserRepository userRepository,
-            UserService userService,
-            MongoTemplate mongoTemplate,
-            RedisOps redisOps,
-            RecommendVideo recommendVideo, BiliobUtils biliOBUtils, AdminService adminService) {
-        this.repository = repository;
-        this.userService = userService;
-        this.mongoTemplate = mongoTemplate;
-        this.redisOps = redisOps;
-        this.recommendVideo = recommendVideo;
-        this.biliOBUtils = biliOBUtils;
-        this.adminService = adminService;
-    }
 
     /**
      * get popular keyword
@@ -273,7 +259,6 @@ public class VideoServiceImpl implements VideoService {
     @Override
     @Deprecated
     public Video getVideoDetails(Long aid, Integer type) {
-        adminService.banItself("访问过时API", true);
         Video video;
         if (this.mongoTemplate.exists(Query.query(where("aid").is(aid).and("data.100").exists(true)), Video.class)) {
             video = getAggregatedData(aid);

@@ -4,6 +4,7 @@ import com.jannchie.biliob.repository.BangumiRepository;
 import com.jannchie.biliob.service.BangumiService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -16,11 +17,9 @@ public class BangumiServiceImpl implements BangumiService {
     private static final Integer MAX_PAGE_SIZE = 20;
 
     private static final Logger logger = LogManager.getLogger(VideoServiceImpl.class);
-    private final BangumiRepository bangumiRepository;
+    @Autowired
+    private BangumiRepository bangumiRepository;
 
-    public BangumiServiceImpl(BangumiRepository bangumiRepository) {
-        this.bangumiRepository = bangumiRepository;
-    }
 
     /**
      * Get the data of bangumi list, including bangumi name, pts and tags.

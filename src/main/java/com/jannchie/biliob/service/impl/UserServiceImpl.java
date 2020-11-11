@@ -12,7 +12,6 @@ import com.jannchie.biliob.model.*;
 import com.jannchie.biliob.object.AuthorIntervalRecord;
 import com.jannchie.biliob.object.VideoIntervalRecord;
 import com.jannchie.biliob.repository.*;
-import com.jannchie.biliob.service.AuthorService;
 import com.jannchie.biliob.service.CreditService;
 import com.jannchie.biliob.service.UserService;
 import com.jannchie.biliob.utils.*;
@@ -49,47 +48,32 @@ import static org.springframework.data.mongodb.core.query.Criteria.where;
 @Service
 class UserServiceImpl implements UserService {
     private static final Logger logger = LogManager.getLogger(UserServiceImpl.class);
-    private final UserRepository userRepository;
-    private final VideoRepository videoRepository;
-    private final AuthorRepository authorRepository;
-    private final UserRecordRepository userRecordRepository;
-    private final QuestionRepository questionRepository;
-    private final MongoTemplate mongoTemplate;
-    private final CreditService creditService;
-    private final MailUtil mailUtil;
-    private final RecommendVideo recommendVideo;
+    @Autowired
+    private UserRepository userRepository;
+    @Autowired
+    private VideoRepository videoRepository;
+    @Autowired
+    private AuthorRepository authorRepository;
+    @Autowired
+    private UserRecordRepository userRecordRepository;
+    @Autowired
+    private QuestionRepository questionRepository;
+    @Autowired
+    private MongoTemplate mongoTemplate;
+    @Autowired
+    private CreditService creditService;
+    @Autowired
+    private MailUtil mailUtil;
+    @Autowired
+    private RecommendVideo recommendVideo;
     @Autowired
     private UserUtils userUtils;
-    private BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
     private AuthorUtil authorUtil;
     @Autowired
     private HttpServletRequest httpServletRequest;
     @Autowired
     private HttpServletResponse httpServletResponse;
-
-    @Autowired
-    public UserServiceImpl(
-            UserRepository userRepository,
-            VideoRepository videoRepository,
-            AuthorRepository authorRepository,
-            QuestionRepository questionRepository,
-            UserRecordRepository userRecordRepository,
-            MongoTemplate mongoTemplate,
-            CreditService creditService,
-            AuthorService authorService,
-            MailUtil mailUtil,
-            RecommendVideo recommendVideo, AuthorUtil authorUtil) {
-        this.userRepository = userRepository;
-        this.videoRepository = videoRepository;
-        this.authorRepository = authorRepository;
-        this.questionRepository = questionRepository;
-        this.userRecordRepository = userRecordRepository;
-        this.mongoTemplate = mongoTemplate;
-        this.creditService = creditService;
-        this.mailUtil = mailUtil;
-        this.recommendVideo = recommendVideo;
-        this.authorUtil = authorUtil;
-    }
+    private BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
 
     @Override
     public ResponseEntity<Result<?>> createUser(

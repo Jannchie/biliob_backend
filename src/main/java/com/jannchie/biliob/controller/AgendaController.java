@@ -32,6 +32,7 @@ import java.util.List;
  */
 @RestController
 public class AgendaController {
+    @Autowired
     MongoTemplate mongoTemplate;
     @Autowired
     CreditService creditService;
@@ -39,10 +40,6 @@ public class AgendaController {
     private UserUtils userUtils;
     private Logger logger = LogManager.getLogger();
 
-    @Autowired
-    public AgendaController(MongoTemplate mongoTemplate) {
-        this.mongoTemplate = mongoTemplate;
-    }
 
     @RequestMapping(method = RequestMethod.GET, value = "/api/agenda")
     public List<Agenda> listAgenda(@RequestParam(value = "sort", defaultValue = "1") Integer sort, @RequestParam(value = "filter", defaultValue = "1") Integer filter, @RequestParam("p") Integer page) {

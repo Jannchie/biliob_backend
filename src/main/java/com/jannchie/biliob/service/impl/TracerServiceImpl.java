@@ -33,17 +33,13 @@ public class TracerServiceImpl implements TracerService {
     private static final Integer HOUR_IN_DAY = 24;
 
     private static final Logger logger = LogManager.getLogger(VideoServiceImpl.class);
-    private final MongoTemplate mongoTemplate;
-    private final TracerRepository tracerRepository;
-    private final RedisOps redisOps;
-
     @Autowired
-    public TracerServiceImpl(
-            MongoTemplate mongoTemplate, TracerRepository tracerRepository, RedisOps redisOps) {
-        this.mongoTemplate = mongoTemplate;
-        this.tracerRepository = tracerRepository;
-        this.redisOps = redisOps;
-    }
+    private MongoTemplate mongoTemplate;
+    @Autowired
+    private TracerRepository tracerRepository;
+    @Autowired
+    private RedisOps redisOps;
+
 
     /**
      * It is the function to get authors' queue status.

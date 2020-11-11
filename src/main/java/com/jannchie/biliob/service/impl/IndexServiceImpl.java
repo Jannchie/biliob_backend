@@ -37,12 +37,12 @@ public class IndexServiceImpl implements IndexService {
     VideoService videoService;
     @Autowired
     BiliobUtils biliobUtils;
-    @Resource
-    private IndexService self;
-
-    private Set<String> visiting = new HashSet<>();
     @Autowired
     private UserUtils userUtils;
+    @Resource
+    private IndexService self;
+    private Set<String> visiting = new HashSet<>();
+
 
     @Override
     public JannchieIndex getIndex(String keyword) {

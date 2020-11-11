@@ -37,20 +37,16 @@ import java.util.stream.Collectors;
 @Service
 public class AuthorGroupServiceImpl implements AuthorGroupService {
     final Logger logger = LogManager.getLogger();
-    final MongoTemplate mongoTemplate;
-    final AuthorService authorService;
-    final AuthorUtil authorUtil;
-    final private CreditService creditService;
+    @Autowired
+    private MongoTemplate mongoTemplate;
+    @Autowired
+    private AuthorService authorService;
+    @Autowired
+    private AuthorUtil authorUtil;
+    @Autowired
+    private CreditService creditService;
     @Autowired
     private UserUtils userUtils;
-
-    @Autowired
-    public AuthorGroupServiceImpl(MongoTemplate mongoTemplate, AuthorService authorService, AuthorUtil authorUtil, CreditService creditService) {
-        this.mongoTemplate = mongoTemplate;
-        this.authorService = authorService;
-        this.authorUtil = authorUtil;
-        this.creditService = creditService;
-    }
 
     @Override
     @Transactional(rollbackFor = Exception.class)

@@ -45,18 +45,15 @@ import java.util.Map;
 @RestController
 public class UserController {
     private static final Logger logger = LogManager.getLogger(UserController.class);
-    private final UserService userService;
     @Autowired
     BiliobUtils biliobUtils;
+    @Autowired
+    private UserService userService;
+    @Autowired
     private UserAuthenticationProvider userAuthenticationProvider;
     @Autowired
     private UserUtils userUtils;
 
-    @Autowired
-    public UserController(UserService userService, UserAuthenticationProvider userAuthenticationProvider) {
-        this.userService = userService;
-        this.userAuthenticationProvider = userAuthenticationProvider;
-    }
 
     @RequestMapping(method = RequestMethod.POST, value = "/api/user/activation-code")
     public ResponseEntity<?> getActivationCode(@RequestParam @Valid String mail) {

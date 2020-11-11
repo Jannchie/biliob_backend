@@ -14,13 +14,8 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 public class EventController {
-
-    private final EventService eventService;
-
     @Autowired
-    public EventController(EventService eventService) {
-        this.eventService = eventService;
-    }
+    private EventService eventService;
 
     @RequestMapping(method = RequestMethod.GET, value = "/api/event")
     public ResponseEntity<?> pageEvent(@RequestParam(defaultValue = "0") Integer page,

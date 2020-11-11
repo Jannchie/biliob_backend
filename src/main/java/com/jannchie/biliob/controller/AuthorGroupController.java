@@ -17,14 +17,9 @@ import java.util.List;
  */
 @RestController
 public class AuthorGroupController {
-
-    private final AuthorGroupService authorGroupService;
-
     @Autowired
-    public AuthorGroupController(AuthorGroupService authorGroupService) {
-        this.authorGroupService = authorGroupService;
+    private AuthorGroupService authorGroupService;
 
-    }
 
     @RequestMapping(method = RequestMethod.POST, value = "/api/author/group")
     public Result<?> initAuthorList(

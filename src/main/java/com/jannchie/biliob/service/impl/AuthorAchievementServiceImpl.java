@@ -6,7 +6,6 @@ import com.jannchie.biliob.constant.ResultEnum;
 import com.jannchie.biliob.model.Author;
 import com.jannchie.biliob.model.AuthorDailyTrend;
 import com.jannchie.biliob.service.AuthorAchievementService;
-import com.jannchie.biliob.service.AuthorService;
 import com.jannchie.biliob.utils.Result;
 import org.apache.logging.log4j.LogManager;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,13 +28,8 @@ import java.util.List;
 @Service
 public class AuthorAchievementServiceImpl implements AuthorAchievementService {
     private static final org.apache.logging.log4j.Logger logger = LogManager.getLogger();
-    private MongoTemplate mongoTemplate;
-    private AuthorService authorService;
-
     @Autowired
-    public AuthorAchievementServiceImpl(MongoTemplate mongoTemplate) {
-        this.mongoTemplate = mongoTemplate;
-    }
+    private MongoTemplate mongoTemplate;
 
     /**
      * analyze author achievement

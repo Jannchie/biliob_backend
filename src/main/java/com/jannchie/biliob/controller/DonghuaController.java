@@ -15,13 +15,8 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 public class DonghuaController {
-
-    private final DonghuaService donghuaService;
-
     @Autowired
-    public DonghuaController(DonghuaService donghuaService) {
-        this.donghuaService = donghuaService;
-    }
+    private DonghuaService donghuaService;
 
     @RequestMapping(method = RequestMethod.GET, value = "/api/donghua")
     public ResponseEntity<?> listOnline(
