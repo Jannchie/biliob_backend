@@ -57,7 +57,7 @@ import static org.springframework.data.mongodb.core.query.Criteria.where;
 public class AuthorServiceImpl implements AuthorService {
     private static final Logger logger = LogManager.getLogger(VideoServiceImpl.class);
     private final RedisOps redisOps;
-    private final AuthorRepository respository;
+    private final AuthorRepository repository;
     private final RealTimeFansRepository realTimeFansRepository;
     private final MongoTemplate mongoTemplate;
     private MongoClient mongoClient;
@@ -71,11 +71,11 @@ public class AuthorServiceImpl implements AuthorService {
     private AuthorAchievementService authorAchievementService;
 
     @Autowired
-    public AuthorServiceImpl(AuthorRepository respository,
+    public AuthorServiceImpl(AuthorRepository repository,
                              MongoClient mongoClient, MongoTemplate mongoTemplate, InputInspection inputInspection,
                              AuthorUtil authorUtil, RealTimeFansRepository realTimeFansRepository,
                              RedisOps redisOps, BiliobUtils biliOBUtils, AdminService adminService, AuthorAchievementService authorAchievementService) {
-        this.respository = respository;
+        this.repository = repository;
         this.mongoTemplate = mongoTemplate;
         this.mongoClient = mongoClient;
         this.authorUtil = authorUtil;
@@ -297,11 +297,11 @@ public class AuthorServiceImpl implements AuthorService {
     @Override
     public void postAuthorByMid(Long mid)
             throws AuthorAlreadyFocusedException {
-        if (respository.findByMid(mid) != null) {
+        if (repository.findByMid(mid) != null) {
             throw new AuthorAlreadyFocusedException(mid);
         }
         upsertAuthorFreq(mid, SECOND_OF_DAY);
-        respository.save(new Author(mid));
+        repository.save(new Author(mid));
     }
 
     @Override
@@ -314,18 +314,18 @@ public class AuthorServiceImpl implements AuthorService {
         MySlice<Author> result;
         String sortKey = AuthorSortEnum.getKeyByFlag(sort);
         if (mid != -1) {
-            result = new MySlice<>(respository.searchByMid(mid,
+            result = new MySlice<>(repository.searchByMid(mid,
                     PageRequest.of(page, pagesize, Sort.by(Sort.Direction.DESC, sortKey))));
         } else if (!Objects.equals(text, "")) {
             if (InputInspection.isId(text)) {
                 // get a mid
-                result = new MySlice<>(respository.searchByMid(Long.valueOf(text),
+                result = new MySlice<>(repository.searchByMid(Long.valueOf(text),
                         PageRequest.of(page, pagesize, Sort.by(Sort.Direction.DESC, sortKey))));
             } else {
 
                 // get text
                 String[] textArray = text.split(" ");
-                result = new MySlice<>(respository.findByKeywordContaining(textArray,
+                result = new MySlice<>(repository.findByKeywordContaining(textArray,
                         PageRequest.of(page, pagesize, Sort.by(Sort.Direction.DESC, sortKey))));
                 if (result.getContent().isEmpty()) {
                     for (String eachText : textArray) {
@@ -336,7 +336,7 @@ public class AuthorServiceImpl implements AuthorService {
                 }
             }
         } else {
-            result = new MySlice<>(respository.listAll(
+            result = new MySlice<>(repository.listAll(
                     PageRequest.of(page, pagesize, Sort.by(Sort.Direction.DESC, sortKey))));
         }
 
@@ -351,7 +351,7 @@ public class AuthorServiceImpl implements AuthorService {
      */
     @Override
     public ResponseEntity<?> listFansIncreaseRate() {
-        Slice<Author> slice = respository
+        Slice<Author> slice = repository
                 .listTopIncreaseRate(PageRequest.of(0, 20, Sort.by(Sort.Direction.DESC, "cRate")));
         return new ResponseEntity<>(slice, HttpStatus.OK);
     }
@@ -363,7 +363,7 @@ public class AuthorServiceImpl implements AuthorService {
      */
     @Override
     public ResponseEntity<?> listFansDecreaseRate() {
-        Slice<Author> slice = respository
+        Slice<Author> slice = repository
                 .listTopIncreaseRate(PageRequest.of(0, 20, Sort.by(Sort.Direction.ASC, "cRate")));
         return new ResponseEntity<>(slice, HttpStatus.OK);
     }
@@ -416,7 +416,7 @@ public class AuthorServiceImpl implements AuthorService {
      */
     @Override
     public Author getAuthorInfo(Long mid) {
-        Author author = respository.findAuthorByMid(mid);
+        Author author = repository.findAuthorByMid(mid);
         disposeAuthor(author);
         return author;
     }

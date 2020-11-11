@@ -22,7 +22,7 @@ import java.util.Map;
 @RequestMapping("/api/admin")
 public class AdminController {
 
-    private final AdminService adminService;
+    private AdminService adminService;
 
     @Autowired
     public AdminController(AdminService adminService) {
