@@ -20,6 +20,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Slice;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -30,8 +31,11 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Map;
 
 /**
@@ -131,14 +135,32 @@ public class UserController {
     }
 
     @RequestMapping(method = RequestMethod.POST, value = "/api/login")
-    public ResponseEntity<Result<User>> login(@Valid @RequestBody LoginForm data) {
+    public ResponseEntity<Result<User>> login(HttpServletRequest request, HttpServletResponse response, @Valid @RequestBody LoginForm data) {
         try {
             User user = getSignedUser(data);
             logger.info("观测者[{}]登录成功", user.getName());
+            response.setStatus(HttpServletResponse.SC_OK);
+            addSameSiteCookieAttribute(response);
             return ResponseEntity.ok(new Result<>(ResultEnum.LOGIN_SUCCEED, user));
         } catch (AuthenticationException e) {
             logger.info("观测者登录失败");
             return ResponseEntity.badRequest().body(new Result<>(ResultEnum.LOGIN_FAILED));
+        }
+    }
+
+    private void addSameSiteCookieAttribute(HttpServletResponse response) {
+        Collection<String> headers = response.getHeaders(HttpHeaders.SET_COOKIE);
+        boolean firstHeader = true;
+        // there can be multiple Set-Cookie attributes
+        for (String header : headers) {
+            if (firstHeader) {
+                response.setHeader(HttpHeaders.SET_COOKIE,
+                        String.format("%s; %s", header, "SameSite=Strict"));
+                firstHeader = false;
+                continue;
+            }
+            response.addHeader(HttpHeaders.SET_COOKIE,
+                    String.format("%s; %s", header, "SameSite=Strict"));
         }
     }
 
