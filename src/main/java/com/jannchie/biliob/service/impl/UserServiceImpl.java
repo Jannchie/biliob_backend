@@ -68,6 +68,7 @@ class UserServiceImpl implements UserService {
     private RecommendVideo recommendVideo;
     @Autowired
     private UserUtils userUtils;
+    @Autowired
     private AuthorUtil authorUtil;
     @Autowired
     private HttpServletRequest httpServletRequest;

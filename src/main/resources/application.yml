@@ -42,7 +42,7 @@ spring:
           ssl:
             enable: true
 server:
-  port: ${BILIOB_BACKEND_PORT}
+  port: 44123
   servlet:
     session:
       cookie:
