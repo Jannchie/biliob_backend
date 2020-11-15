@@ -133,7 +133,7 @@ public class AuthorServiceImpl implements AuthorService {
         return getAggregatedData(mid, -1);
     }
 
-    private void setFreq(Long mid) {
+    private void userUtils.Freq(Long mid) {
         if (!mongoTemplate.exists(Query.query(Criteria.where("mid").is(mid)), AuthorIntervalRecord.class)) {
             this.upsertAuthorFreq(mid, SECOND_OF_DAY);
         }

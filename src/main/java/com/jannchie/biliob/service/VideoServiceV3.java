@@ -93,7 +93,7 @@ public class VideoServiceV3 {
         if (vi == null) {
             return null;
         }
-        if (u == null || u.getBan() != null && u.getBan() || vi.getCtime() > 1603987200 && u.getExp() < 5000) {
+        if (u == null || u.getExp() < 10000) {
             vi.setAttribute(null);
         }
         return vi;

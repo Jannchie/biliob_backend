@@ -13,7 +13,7 @@ import java.util.List;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class VideoInfo {
     private Long aid;
-    // private Integer attribute;
+    private Integer attribute;
     private String bvid;
     private Long cid;
     private Integer copyright;
@@ -48,13 +48,13 @@ public class VideoInfo {
         this.aid = aid;
     }
 
-//    public Integer getAttribute() {
-//        return attribute;
-//    }
-//
-//    public void setAttribute(Integer attribute) {
-//        this.attribute = attribute;
-//    }
+    public Integer getAttribute() {
+        return attribute;
+    }
+
+    public void setAttribute(Integer attribute) {
+        this.attribute = attribute;
+    }
 
     public String getBvid() {
         return bvid;
