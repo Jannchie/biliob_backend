@@ -48,8 +48,6 @@ public class VideoServiceImpl implements VideoService {
     private static final Logger logger = LogManager.getLogger(VideoServiceImpl.class);
     private static final Integer MAX_PAGE_SIZE = 10;
     @Autowired
-    private RedisOps redisOps;
-    @Autowired
     private VideoRepository repository;
     @Autowired
     private UserService userService;
@@ -313,7 +311,6 @@ public class VideoServiceImpl implements VideoService {
         }
         VideoServiceImpl.logger.info(aid);
         repository.save(new Video(aid));
-        redisOps.postVideoCrawlTask(aid);
         return new ResponseEntity<>(new Message(200, "观测视频成功"), HttpStatus.OK);
     }
 

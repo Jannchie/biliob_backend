@@ -10,20 +10,6 @@ import org.springframework.stereotype.Service;
 public interface TracerService {
 
     /**
-     * It is the function to get authors' queue status.
-     *
-     * @return The authors' queue status.
-     */
-    ResponseEntity getAuthorQueueStatus();
-
-    /**
-     * It is the function to get videos' queue status.
-     *
-     * @return The videos' queue status.
-     */
-    ResponseEntity getVideoQueueStatus();
-
-    /**
      * Get the slice of exists task of the system.
      *
      * <p>
@@ -76,13 +62,6 @@ public interface TracerService {
      * @return response entity of latest progress task.
      */
     ResponseEntity getLatestProgressTaskResponse();
-
-    /**
-     * Get latest spider task response.
-     *
-     * @return response entity of latest spider task.
-     */
-    ResponseEntity getLatestSpiderTaskResponse();
 
     /**
      * Get author history queue status

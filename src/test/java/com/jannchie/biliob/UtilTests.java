@@ -4,10 +4,7 @@ import com.jannchie.biliob.utils.InputInspection;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 
@@ -17,12 +14,6 @@ import org.springframework.test.context.web.WebAppConfiguration;
 public class UtilTests {
 
     private String userKey = "userKey";
-
-    @Autowired
-    private RedisTemplate redisTemplate;
-
-    @Autowired
-    private StringRedisTemplate stringRedisTemplate;
 
     @Test
     public void testInputInspection() {

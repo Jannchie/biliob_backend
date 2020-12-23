@@ -1,18 +1,13 @@
 package com.jannchie.biliob.controller;
 
-import com.jannchie.biliob.constant.ResultEnum;
-import com.jannchie.biliob.exception.UserAlreadyFavoriteVideoException;
-import com.jannchie.biliob.exception.VideoAlreadyFocusedException;
 import com.jannchie.biliob.model.Video;
 import com.jannchie.biliob.service.VideoService;
 import com.jannchie.biliob.utils.MySlice;
 import com.jannchie.biliob.utils.UserUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -56,15 +51,6 @@ public class VideoController {
             @RequestParam(defaultValue = "5") Integer pagesize,
             @RequestParam(defaultValue = "0") Integer sort) {
         return videoService.getAuthorTopVideo(mid, page, pagesize, sort);
-    }
-
-    @RequestMapping(method = RequestMethod.POST, value = "/api/video")
-    public ResponseEntity<?> postVideoByAid(@RequestBody @Valid Long aid)
-            throws VideoAlreadyFocusedException, UserAlreadyFavoriteVideoException {
-        if (userUtils.getUser() == null) {
-            return new ResponseEntity<>(ResultEnum.HAS_NOT_LOGGED_IN.getResult(), HttpStatus.OK);
-        }
-        return videoService.postVideoByAid(aid);
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/api/video")

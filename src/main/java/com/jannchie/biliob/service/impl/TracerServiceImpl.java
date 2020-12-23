@@ -3,7 +3,6 @@ package com.jannchie.biliob.service.impl;
 import com.jannchie.biliob.constant.TaskStatusEnum;
 import com.jannchie.biliob.repository.TracerRepository;
 import com.jannchie.biliob.service.TracerService;
-import com.jannchie.biliob.utils.RedisOps;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +27,6 @@ import static com.jannchie.biliob.constant.TaskTypeEnum.GET_RUNNING;
  */
 @Service
 public class TracerServiceImpl implements TracerService {
-
     private static final Integer MAX_ONLINE_PLAY_RANGE = 30;
     private static final Integer HOUR_IN_DAY = 24;
 
@@ -37,35 +35,6 @@ public class TracerServiceImpl implements TracerService {
     private MongoTemplate mongoTemplate;
     @Autowired
     private TracerRepository tracerRepository;
-    @Autowired
-    private RedisOps redisOps;
-
-
-    /**
-     * It is the function to get authors' queue status.
-     *
-     * @return The authors' queue status.
-     */
-    @Override
-    public ResponseEntity<?> getAuthorQueueStatus() {
-        Map<String, Long> result = new HashMap<>(1);
-        Long authorCrawlTasksQueueLength = redisOps.getAuthorQueueLength();
-        result.put("length", authorCrawlTasksQueueLength);
-        return new ResponseEntity<>(result, HttpStatus.OK);
-    }
-
-    /**
-     * It is the function to get videos' queue status.
-     *
-     * @return The videos' queue status.
-     */
-    @Override
-    public ResponseEntity<?> getVideoQueueStatus() {
-        Map<String, Long> result = new HashMap<>(1);
-        Long videoCrawlTasksQueueLength = redisOps.getVideoQueueLength();
-        result.put("length", videoCrawlTasksQueueLength);
-        return new ResponseEntity<>(result, HttpStatus.OK);
-    }
 
     /**
      * Get the slice of exists task of the system.
@@ -134,7 +103,6 @@ public class TracerServiceImpl implements TracerService {
         getUserCount(resultMap);
         getLatestProgressTask(resultMap);
         getRecordCount(resultMap);
-        getLatestSpiderTask(resultMap);
 
         return new ResponseEntity<>(resultMap, HttpStatus.OK);
     }
@@ -146,28 +114,12 @@ public class TracerServiceImpl implements TracerService {
         return new ResponseEntity<>(resultMap, HttpStatus.OK);
     }
 
-    /**
-     * Get latest spider task response.
-     *
-     * @return response entity of latest spider task.
-     */
-    @Override
-    public ResponseEntity<?> getLatestSpiderTaskResponse() {
-        Map<String, Object> resultMap = new HashMap<>(2);
-        getLatestSpiderTask(resultMap);
-        return new ResponseEntity<>(resultMap, HttpStatus.OK);
-    }
 
     @Override
     public ResponseEntity<?> getHistoryQueueStatus() {
         List<?> data = mongoTemplate.find(new Query().with(Sort.by(Sort.Direction.DESC, "date")).limit(100), Map.class, "spider_queue_status");
         Collections.reverse(data);
         return ResponseEntity.ok(data);
-    }
-
-    private void getLatestSpiderTask(Map<String, Object> resultMap) {
-        resultMap.put("authorCrawlLength", redisOps.getAuthorQueueLength());
-        resultMap.put("videoCrawlLength", redisOps.getVideoQueueLength());
     }
 
     private void getBucketUserCreditList(Map<String, Object> resultMap) {

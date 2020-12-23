@@ -23,19 +23,9 @@ public class TracerController {
         this.tracerService = tracerService;
     }
 
-    @RequestMapping(method = RequestMethod.GET, value = "/api/tracer/author-queue")
-    public ResponseEntity<?> getAuthorQueueStatus() {
-        return tracerService.getAuthorQueueStatus();
-    }
-
     @RequestMapping(method = RequestMethod.GET, value = "/api/tracer/history-queue")
     public ResponseEntity<?> getHistoryQueueStatus() {
         return tracerService.getHistoryQueueStatus();
-    }
-
-    @RequestMapping(method = RequestMethod.GET, value = "/api/tracer/video-queue")
-    public ResponseEntity<?> getVideoQueueStatus() {
-        return tracerService.getVideoQueueStatus();
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/api/tracer/exists-tasks")
@@ -68,11 +58,6 @@ public class TracerController {
     @RequestMapping(method = RequestMethod.GET, value = "/api/tracer/latest-progress")
     public ResponseEntity<?> getLatestProgress() {
         return tracerService.getLatestProgressTaskResponse();
-    }
-
-    @RequestMapping(method = RequestMethod.GET, value = "/api/tracer/latest-spider")
-    public ResponseEntity<?> getLatestSpider() {
-        return tracerService.getLatestSpiderTaskResponse();
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/api/tracer/visit/author")

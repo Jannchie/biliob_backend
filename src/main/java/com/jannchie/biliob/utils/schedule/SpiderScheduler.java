@@ -4,7 +4,6 @@ import com.jannchie.biliob.model.Video;
 import com.jannchie.biliob.object.VideoIntervalRecord;
 import com.jannchie.biliob.service.AuthorService;
 import com.jannchie.biliob.service.VideoService;
-import com.jannchie.biliob.utils.RedisOps;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,15 +28,13 @@ public class SpiderScheduler {
 
     private static final Logger logger = LogManager.getLogger();
     private final MongoTemplate mongoTemplate;
-    private final RedisOps redisOps;
     private final AuthorService authorService;
     private final VideoService videoService;
 
 
     @Autowired
-    public SpiderScheduler(MongoTemplate mongoTemplate, RedisOps redisOps, AuthorService authorService, VideoService videoService) {
+    public SpiderScheduler(MongoTemplate mongoTemplate, AuthorService authorService, VideoService videoService) {
         this.mongoTemplate = mongoTemplate;
-        this.redisOps = redisOps;
         this.authorService = authorService;
         this.videoService = videoService;
     }
@@ -102,7 +99,6 @@ public class SpiderScheduler {
             Long aid = freqData.getAid();
             c.add(Calendar.SECOND, freqData.getInterval());
             mongoTemplate.updateFirst(Query.query(Criteria.where("mid").is(aid)), Update.update("next", c.getTime()), "video_interval");
-            redisOps.postAuthorCrawlTask(aid);
         }
     }
 

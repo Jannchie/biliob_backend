@@ -12,19 +12,6 @@ spring:
   data:
     mongodb:
       uri: ${BILIOB_MONGO_URL}
-    redis:
-      repositories:
-        enabled: false
-  redis:
-    lettuce:
-      pool:
-        max-active: -1
-        max-idle: 8
-        min-idle: 0
-        max-wait: -1
-      shutdown-timeout: 30000
-    url: ${BILIOB_REDIS_CONNECTION_STRING}
-    timeout: 30000
   mail:
     host: smtp.biliob.com
     password: ${BILIOB_MAIL_PASSWORD}
